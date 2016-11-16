@@ -1,0 +1,17 @@
+Intel i5 3470S @ 3.6GHz single-threaded benchmark
+Updated: 2015-06-24 03:33
+
+overlaps cost Ray-AABBx2 (=traversal cost of kd-tree):
+7,65956e-009 * 3,6e9 = 27,574416 cycles
+
+nearest intersection cost Ray-AABB (Box):
+7,22309e-009 * 3,6e9 = 26,003124 cycles
+
+nearest intersection cost Ray-BoundingSphere (Sphere):
+9,28121e-009 * 3,6e9 = 33,412356 cycles
+
+nearest intersection cost Ray-SplittingPlane (Plane):
+7,28331e-009 * 3,6e9 = 26,219916 cycles
+
+nearest intersection cost Ray-MeshFacet (Triangle):
+5,28534e-009 * 3,6e9 = 19,027224 cycles
