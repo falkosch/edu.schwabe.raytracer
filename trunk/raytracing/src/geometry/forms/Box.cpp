@@ -41,8 +41,8 @@ namespace raytracer
 
         const Float4 orientation = msVertex - center(b.bounding);
         const Float4 normal = axisAlignedNormal3(orientation);
-        intersectionOut.msSurfaceNormal = normal;
         intersectionOut.vertex = msVertex;
+        intersectionOut.msSurfaceNormal = normal;
         intersectionOut.surfaceNormal = normal;
         intersectionOut.smoothedNormal = normal;
         intersectionOut.texCoords = mapSpherical(normalize(orientation));

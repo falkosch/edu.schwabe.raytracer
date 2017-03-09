@@ -1,18 +1,13 @@
-**/ipch/
-**/Debug/
-**/Release/
+trunk/build-x86/
+trunk/**/build-x86/
+trunk/build-x64/
+trunk/**/build-x64/
 
-**/*.o
-**/*.obj
-**/*.user
-**/*.suo
-**/*.exe
-**/*.pdb
-**/*.sdf
-**/*.opensdf
-**/*.vspx
-**/*.psess
-**/*.VC.db
+trunk/.vs/**
+trunk/**/*.vcxproj.user
 
-**/textures/
-**/meshes/
+trunk/*.VC.VC.opendb
+trunk/*.VC.db
+
+trunk/textures/
+trunk/meshes/
