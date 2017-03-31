@@ -22,6 +22,7 @@ using namespace raytracer;
 #include "tests.h"
 #include "benchmarks.h"
 
+#include <tchar.h>
 
 
 // MAX_TRACE_DEPTH = 969 already causes stackoverflows
@@ -59,6 +60,10 @@ const ASizeT RAY_PACKET_SIZE = 15;
 
 int __cdecl main()
 {
+    TCHAR currentPath[MAX_PATH];
+    GetCurrentDirectory(MAX_PATH, currentPath);
+    _tprintf(TEXT("Working directory: %s\n"), currentPath);
+
     //tests();
     //benchmarks();
 
@@ -67,8 +72,8 @@ int __cdecl main()
         new NaiveKDTreeTraverser<SceneIntersection>(),
         new FixedIterationsSAHKDTreeBalancer());
 
-    CornellBoxScene::setup(scene, resources);
-    //TestScene1::setup(scene, resources);
+    //CornellBoxScene::setup(scene, resources);
+    TestScene1::setup(scene, resources);
     //TestScene2::setup(scene, resources);
     //DragonScene::setup(scene, resources);
     //ProceduralScene<3, 10>::setup(scene, resources);

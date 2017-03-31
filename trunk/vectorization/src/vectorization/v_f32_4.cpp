@@ -1074,7 +1074,7 @@ namespace vectorization
 
     const v_f32_4 min3v(const v_f32_4 & v)
     {
-        return min(min(v, yyww(v)), zwzw(v));
+        return xxxx(min(min(v, yyww(v)), zwzw(v)));
     }
 
     const v_f32_4::ValueType min3(const v_f32_4 & v)
@@ -1086,7 +1086,7 @@ namespace vectorization
 #pragma endregion
 
 #pragma region max()
-    //{ min()
+    //{ max()
 
     const v_f32_4 max(const v_f32_4 & a, const v_f32_4 & b)
     {
@@ -1106,7 +1106,7 @@ namespace vectorization
 
     const v_f32_4 max3v(const v_f32_4 & v)
     {
-        return max(max(v, yyww(v)), zwzw(v));
+        return xxxx(max(max(v, yyww(v)), zwzw(v)));
     }
 
     const v_f32_4::ValueType max3(const v_f32_4 & v)

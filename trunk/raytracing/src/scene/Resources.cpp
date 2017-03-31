@@ -68,7 +68,7 @@ namespace raytracer
                 const KDTreeBalancer*const balancer = new FixedIterationsSAHKDTreeBalancer(5);
                 //const KDTreeBalancer*const balancer = new BruteForceSAHKDTreeBalancer();
 
-                Mesh*const newMesh = new Mesh(file, hasRevertedNormals(file), traverser, balancer);
+                Mesh*const newMesh = Mesh::loadFromOffFile(file, hasRevertedNormals(file), traverser, balancer);
                 meshes[file] = newMesh;
                 return newMesh;
             }

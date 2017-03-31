@@ -10,6 +10,7 @@ namespace raytracer
     void TestLightScene::setup(Scene & scene, Resources & resources)
     {
         scene.setBackgroundShader(new EnvironmentShader(*resources.getPPM("env_eso_bright_night_at_paranal")));
+        scene.setBackgroundShader(new ConstShader<SceneShader, Float4, Float4>(Float4(1.f, 1.f, 1.f, 0.f)));
         scene.setAmbientLight(Float4(.01f, .01f, .01f, 1.f));
 
         LightInfo* light = new LightInfo();

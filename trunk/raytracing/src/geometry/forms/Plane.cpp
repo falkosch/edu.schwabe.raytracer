@@ -68,9 +68,8 @@ namespace raytracer
         }
 
         const Float4 msVertex = point(raycast.ray, d);
-        intersectionOut.msVertex = msVertex;
-
         const Float4 normal = zeroW(p.plane.normalDistance);
+        intersectionOut.msVertex = msVertex;
         intersectionOut.msSurfaceNormal = normal;
         intersectionOut.vertex = msVertex;
         intersectionOut.surfaceNormal = normal;

@@ -12,6 +12,8 @@ namespace primitives
         ALIGNED_ALLOCATORS(__alignof(FacetEdges));
 
         FacetEdges();
+
+        explicit FacetEdges(const vectorization::Float4 & v0, const vectorization::Float4 & v1);
     };
 
 }

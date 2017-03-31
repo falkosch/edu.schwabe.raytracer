@@ -14,6 +14,11 @@ namespace primitives
         v2()
     { }
 
+    Facet::Facet(const Float4 & v)
+        :
+        v0(v), v1(v), v2(v)
+    { }
+
     Facet::Facet(
         const Float4 & v0In,
         const Float4 & v1In,

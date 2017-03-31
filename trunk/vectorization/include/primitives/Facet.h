@@ -13,6 +13,8 @@ namespace primitives
 
         Facet();
 
+        explicit Facet(const vectorization::Float4 & v);
+
         explicit Facet(const vectorization::Float4 & v0, const vectorization::Float4 & v1, const vectorization::Float4 & v2);
     };
 

@@ -14,19 +14,12 @@ namespace raytracer
 
     struct Mesh : public Form
     {
+
         Mesh();
 
-        explicit Mesh(const std::string file, const bool hasRevertedNormals, const KDTreeTraverser<FacetIntersection> * const traverser, const KDTreeBalancer * const balancer);
+        explicit Mesh(const KDTreeTraverser<FacetIntersection> * const traverser, const KDTreeBalancer * const balancer);
 
         virtual ~Mesh();
-
-        void buildTriangleMesh();
-
-        void buildPlaneMesh();
-
-        void buildCubeMesh();
-
-        static Float4 findFacetIntersection(const Facet & trianglePlanes, const Raycast & r);
 
         // Form interface
 
@@ -42,13 +35,24 @@ namespace raytracer
             return 19.027224f;
         }
 
+        // Builders and test methods
+
+        static Mesh * const buildCubeMesh();
+
+        static Mesh * const buildPlaneMesh();
+
+        static Mesh * const buildTriangleMesh();
+
+        static const Float4 findFacetIntersection(const Facet & trianglePlanes, const Raycast & r);
+
+        static Mesh * const loadFromOffFile(const std::string & filename, const bool flipNormals, const KDTreeTraverser<FacetIntersection> * const traverser, const KDTreeBalancer * const balancer);
 
     protected:
 
-        std::vector<Float4> vertices;
-        std::vector<UInt3> facetsIndices;
+        AxisAlignedBoundingBox bounding;
 
-        // intermediate calculations
+        std::vector<UInt3> facetsIndices;
+        std::vector<Float4> vertices;
         std::vector<Float4> vertexNormals;
         std::vector<Facet> facets;
         std::vector<Facet> texCoords;
@@ -56,29 +60,12 @@ namespace raytracer
         std::vector<FacetNormals> flatNormals;
         std::vector<FacetEdges> facetsEdges;
 
+        const KDTreeTraverser<FacetIntersection> * traverser;
+        const KDTreeBalancer * balancer;
+
         void clear();
 
-        void calculateTexCoordsSpherical();
-
-        void calculateTexCoordsOrtho(const Float4 & sPlane, const Float4 & tPlane);
-
-        const bool intersectsFacet(const ASizeT facetIndex, const Ray & ray, const Float maxDistance);
-
-        const Float findFacetIntersection(const ASizeT facetIndex, const Ray & ray, const Float maxDistance, FacetIntersection * facetIntersectionOut);
-
-        const bool intersects(const Ray & ray, const Float maxDistance, const ASizeT excludeId);
-
-        const Float findNearestIntersection(const Ray & ray, const Float maxDistance, const ASizeT excludeId, FacetIntersection* facetIntersectionOut);
-
-        void loadOff(const std::string& filename, const bool flipNormals);
-
         void setupMesh();
-
-        void scaleMeshIntoCanonicalCube();
-
-        void buildFacets();
-
-        void calculateNormals();
 
     };
 
