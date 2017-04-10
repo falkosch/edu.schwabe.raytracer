@@ -120,15 +120,15 @@ namespace raytracer
 
         // front object
         sceneObject = new SceneObject("front object");
-        sceneObject->setForm(resources.getMesh("sphere_low"));
+        sceneObject->setForm(resources.getMesh("cup"));
         sceneObject->scale(Float3(1.0f, 1.0f, 1.0f));
         sceneObject->rotate(Float3(0.0f, 0.0f, 0.0f));
         sceneObject->translate(Float3(0.0f, 0.0f, 0.0f));
         sceneObject->scaleTexture(Float2(1.0f, 1.0f));
         sceneObject->rotateTexture(0.0f);
         sceneObject->translateTexture(Float2(0.0f, 0.0f));
-        sceneObject->setEmissivityShader(new Resources::ConstMaterialShader(Float4(1.0f, 0.0f, 0.0f, 1.0f)));
-        sceneObject->setDiffusionShader(new Resources::ConstMaterialShader(Float4(0.0f, 1.0f, 1.0f, 1.0f)));
+        sceneObject->setEmissivityShader(new Resources::ConstMaterialShader(Float4(0.0f, 0.0f, 0.0f, 1.0f)));
+        sceneObject->setDiffusionShader(new Resources::ConstMaterialShader(Float4(1.0f, 1.0f, 1.0f, 1.0f)));
         sceneObject->setReflectanceShader(new Resources::ConstMaterialShader(Float4(0.0f, 0.0f, 0.0f, 0.0f)));
         sceneObject->setSpecularityShader(new Resources::ConstMaterialShader(Float4(0.0f, 0.0f, 0.0f, 0.0f)));
         sceneObject->setShininessShader(new Resources::ConstMaterialShader(Float4(0.0f, 0.0f, 0.0f, 0.0f)));

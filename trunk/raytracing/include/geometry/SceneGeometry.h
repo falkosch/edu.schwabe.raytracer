@@ -15,7 +15,7 @@ namespace raytracer
 
         SceneGeometry();
 
-        explicit SceneGeometry(const KDTreeTraverser<SceneIntersection>*const treeTraverser);
+        explicit SceneGeometry(const KDTreeTraverser<SceneIntersection> * const treeTraverser);
 
         virtual ~SceneGeometry();
 

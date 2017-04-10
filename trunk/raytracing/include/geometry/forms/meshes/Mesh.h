@@ -1,6 +1,6 @@
 #pragma once
 
-#include "MeshFacetInfo.h"
+#include "MeshGeometryNode.h"
 
 #include "geometry/forms/Form.h"
 
@@ -51,15 +51,18 @@ namespace raytracer
 
         AxisAlignedBoundingBox bounding;
 
-        std::vector<UInt3> facetsIndices;
-        std::vector<Float4> vertices;
+        std::vector<UInt3> facetsIndices; // raw
+        std::vector<Float4> vertices; // raw
         std::vector<Float4> vertexNormals;
         std::vector<Facet> facets;
         std::vector<Facet> texCoords;
+        std::vector<Float4> flatNormals; // per facet
         std::vector<FacetNormals> smoothNormals;
-        std::vector<FacetNormals> flatNormals;
-        std::vector<FacetEdges> facetsEdges;
+        std::vector<FacetEdges> facetsEdges; // intermediate for intersection test
 
+        PGeometryNodeList nodes;
+        KDTreeRoot * graph;
+        
         const KDTreeTraverser<FacetIntersection> * traverser;
         const KDTreeBalancer * balancer;
 

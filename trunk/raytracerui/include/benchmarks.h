@@ -90,7 +90,7 @@ inline const vectorization::Float benchmarkMeshFacet(const primitives::Raycast &
     Float4 planeNormal0 = cross3(edge0, edge2);
     Float4 planeNormal1 = cross3(edge2, planeNormal0);
     Float4 planeNormal2 = cross3(planeNormal0, edge0);
-    MeshFacetInfo facetInfo = MeshFacetInfo(0, facet);
+    MeshGeometryNode facetInfo = MeshGeometryNode(0, facet);
     facetInfo.trianglePlanes.v0 = replaceW(planeNormal0, -dot3(facet.v0, planeNormal0));
     facetInfo.trianglePlanes.v1 = replaceW(planeNormal1, -dot3(facet.v0, planeNormal1));
     facetInfo.trianglePlanes.v2 = replaceW(planeNormal2, -dot3(facet.v0, planeNormal2));

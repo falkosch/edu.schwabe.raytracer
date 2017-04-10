@@ -72,8 +72,8 @@ int __cdecl main()
         new NaiveKDTreeTraverser<SceneIntersection>(),
         new FixedIterationsSAHKDTreeBalancer());
 
-    //CornellBoxScene::setup(scene, resources);
-    TestScene1::setup(scene, resources);
+    CornellBoxScene::setup(scene, resources);
+    //TestScene1::setup(scene, resources);
     //TestScene2::setup(scene, resources);
     //DragonScene::setup(scene, resources);
     //ProceduralScene<3, 10>::setup(scene, resources);

@@ -67,13 +67,13 @@
     <IntDir>$(ProjectDir)build-x86\$(Configuration)\</IntDir>
     <OutDir>$(SolutionDir)build-x86\$(Configuration)\</OutDir>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <RunCodeAnalysis>true</RunCodeAnalysis>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)build-x64\$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)build-x64\$(Configuration)\</IntDir>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <RunCodeAnalysis>true</RunCodeAnalysis>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IntDir>$(ProjectDir)build-x86\$(Configuration)\</IntDir>
@@ -94,7 +94,8 @@
       <Optimization>Disabled</Optimization>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <CallingConvention>VectorCall</CallingConvention>
-      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <BrowseInformation>true</BrowseInformation>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -109,7 +110,8 @@
       <Optimization>Disabled</Optimization>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <CallingConvention>VectorCall</CallingConvention>
-      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <BrowseInformation>true</BrowseInformation>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -126,10 +128,12 @@
       <Optimization>Full</Optimization>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <DisableSpecificWarnings>4464;4514;4668;4710;4711;4820;%(DisableSpecificWarnings)</DisableSpecificWarnings>
-      <EnablePREfast>true</EnablePREfast>
+      <EnablePREfast>false</EnablePREfast>
       <CallingConvention>VectorCall</CallingConvention>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <ControlFlowGuard>false</ControlFlowGuard>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <BrowseInformation>true</BrowseInformation>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -147,10 +151,12 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <Optimization>Full</Optimization>
       <DisableSpecificWarnings>4464;4514;4668;4710;4711;4820;%(DisableSpecificWarnings)</DisableSpecificWarnings>
-      <EnablePREfast>true</EnablePREfast>
+      <EnablePREfast>false</EnablePREfast>
       <CallingConvention>VectorCall</CallingConvention>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <ControlFlowGuard>false</ControlFlowGuard>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <BrowseInformation>true</BrowseInformation>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>

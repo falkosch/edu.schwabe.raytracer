@@ -4,6 +4,7 @@
 
 #include <sstream>
 #include <fstream>
+#include <ios>
 
 namespace raytracer
 {
@@ -18,10 +19,9 @@ namespace raytracer
 #pragma omp parallel
         {
             AxisAlignedBoundingBox bounding = AxisAlignedBoundingBox();
-            const int verticesCount = int(vertices.size());
 
 #pragma omp for
-            for (int i = 0; i < verticesCount; i++)
+            for (int i = Zero<int>(); i < int(vertices.size()); i++)
             {
                 bounding = extendBy(bounding, vertices[ASizeT(i)]);
             }
@@ -40,12 +40,10 @@ namespace raytracer
         std::vector<Float4> & vertices,
         std::vector<Facet> & facets)
     {
-        const ASizeT facetsCount = facetsIndices.size();
-        facets.resize(facetsCount);
+        facets.resize(facetsIndices.size());
 
-        const int facetsCounti = int(facetsCount);
 #pragma omp parallel for
-        for (int i = 0; i < facetsCounti; i++)
+        for (int i = Zero<int>(); i < int(facetsIndices.size()); i++)
         {
             const ASizeT j = ASizeT(i);
             const UInt3 facetIndices = facetsIndices[j];
@@ -53,13 +51,57 @@ namespace raytracer
         }
     }
 
+    const Float4 computeIntersection(const Float4 & facetV0, const FacetEdges & facetEdges, const Ray & ray, const Float4 & maxDistance)
+    {
+        // intersection test based on Fast, Minimum Storage Ray/Triangle Intersection
+        // http://www.graphics.cornell.edu/pubs/1997/MT97.pdf
+
+        // calculate direction from v0 to ray.origin
+        const Float4 tvec = ray.origin - facetV0;
+
+        // calculate determinant (also part of the barycentric-U-coord)
+        const Float4 pvec = cross3(ray.direction, facetEdges.v1);
+        const Float4 det = reciprocal(dotv(facetEdges.v0, pvec));
+
+        // triangle bound check on U
+        const Float4 u = dotv(tvec, pvec) * det;
+        if (allTrue(u < Zero<Float4>() | u > One<Float4>())) {
+            return maxDistance;
+        }
+
+        // triangle bound check on V
+        const Float4 qvec = cross3(tvec, facetEdges.v0);
+        const Float4 v = dotv(ray.direction, qvec) * det;
+        if (allTrue(v < Zero<Float4>() | (u + v) > One<Float4>())) {
+            return maxDistance;
+        }
+
+        // calculate t (in "orig + t * dir" == "ray.origin + t * ray.direction")
+        const Float4 t = dotv(facetEdges.v1, qvec) * det;
+        return x_yzw(u, xy_zw(v, t));
+    }
+
+    KDTreeRoot * const computeKDTree(std::vector<Facet> & facets, PGeometryNodeList & nodes, const KDTreeBalancer & balancer)
+    {
+        nodes.resize(facets.size());
+
+#pragma omp parallel for
+        for (int i = Zero<int>(); i < int(facets.size()); i++)
+        {
+            const ASizeT j = ASizeT(i);
+            nodes[j] = new MeshGeometryNode(j, facets[j]);
+        }
+
+        return balancer.build(nodes);
+    }
+
     void computeNormals(
         std::vector<UInt3> & facetsIndices,
         std::vector<Float4> & vertices,
         std::vector<Float4> & vertexNormals,
         std::vector<Facet> & facets,
+        std::vector<Float4> & flatNormals,
         std::vector<FacetNormals> & smoothNormals,
-        std::vector<FacetNormals> & flatNormals,
         std::vector<FacetEdges> & facetsEdges)
     {
         const ASizeT facetsCount = facets.size();
@@ -67,13 +109,10 @@ namespace raytracer
         flatNormals.resize(facetsCount);
         smoothNormals.resize(facetsCount);
 
-        const ASizeT verticesCount = vertices.size();
-        vertexNormals.resize(verticesCount);
-
-        const int facetsCounti = int(facetsCount);
+        vertexNormals.resize(vertices.size());
 
 #pragma omp parallel for
-        for (int i = 0; i < facetsCounti; i++)
+        for (int i = Zero<int>(); i < int(facets.size()); i++)
         {
             const ASizeT j = ASizeT(i);
             const Facet facet = facets[j];
@@ -85,13 +124,12 @@ namespace raytracer
             const Float4 l0 = length3v(edge0);
             const Float4 l1 = length3v(edge1);
             const Float4 l2 = length3v(edge2);
+
             const Float4 flatNormal = normalize3(cross3(edge0, edge1));
+            flatNormals[j] = flatNormal;
 
-            // precomputes for intersection test
+            // intermediates for intersection test
             facetsEdges[j] = FacetEdges(-edge0, edge2);
-
-            // set face normal for each face vertex
-            flatNormals[j] = Facet(flatNormal);
 
             // calculate weighted face normal part for the vertex normals
             const Facet normalsWeighted = Facet(
@@ -101,7 +139,7 @@ namespace raytracer
 
 #pragma omp critical
             {
-                const UInt3 & facetIndices = facetsIndices[j];
+                const UInt3 facetIndices = facetsIndices[j];
                 vertexNormals[x(facetIndices)] += normalsWeighted.v0;
                 vertexNormals[y(facetIndices)] += normalsWeighted.v1;
                 vertexNormals[z(facetIndices)] += normalsWeighted.v2;
@@ -109,34 +147,30 @@ namespace raytracer
         }
 
         // normalize vertex-normals
-#pragma omp parallel
+#pragma omp parallel for
+        for (int i = Zero<int>(); i < int(vertices.size()); i++)
         {
-            const int verticesCounti = int(verticesCount);
-
-#pragma omp for nowait
-            for (int i = 0; i < verticesCounti; i++)
-            {
-                const ASizeT j = ASizeT(i);
-                vertexNormals[j] = normalize3(vertexNormals[j]);
-            }
+            const ASizeT j = ASizeT(i);
+            vertexNormals[j] = normalize3(vertexNormals[j]);
         }
 
         // build smooth normals
 #pragma omp parallel for
-        for (int i = 0; i < facetsCounti; i++)
+        for (int i = Zero<int>(); i < int(facets.size()); i++)
         {
             const ASizeT j = ASizeT(i);
-            const UInt3 & facetIndices = facetsIndices[j];
+            const UInt3 facetIndices = facetsIndices[j];
             smoothNormals[j] = Facet(vertexNormals[x(facetIndices)], vertexNormals[y(facetIndices)], vertexNormals[z(facetIndices)]);
 
             // flatNormal comparison for normal adjustment at hard edges
-            //const Float4 flatNormal = flatNormals[j].v0;
-            //if (dot(normals->v0, flatNormal) <= glm::one_over_root_two<Float>())
-            //    normals->v0 = flatNormal;
-            //if (dot(normals->v1, flatNormal) <= glm::one_over_root_two<Float>())
-            //    normals->v1 = flatNormal;
-            //if (dot(normals->v2, flatNormal) <= glm::one_over_root_two<Float>())
-            //    normals->v2 = flatNormal;
+            //const Float4 & smoothNormal = smoothNormals[j];
+            //const Float4 flatNormal = flatNormals[j];
+            //if (dot(smoothNormal.v0, flatNormal) <= glm::one_over_root_two<Float>())
+            //    smoothNormal.v0 = flatNormal;
+            //if (dot(smoothNormal.v1, flatNormal) <= glm::one_over_root_two<Float>())
+            //    smoothNormal.v1 = flatNormal;
+            //if (dot(smoothNormal->v2, flatNormal) <= glm::one_over_root_two<Float>())
+            //    smoothNormal.v2 = flatNormal;
         }
     }
 
@@ -145,15 +179,12 @@ namespace raytracer
         const AxisAlignedBoundingBox prebounds = computeBounding(vertices);
         const Float4 center = Half<Float4>() * (prebounds.maximum + prebounds.minimum);
         const Float4 extends = prebounds.maximum - prebounds.minimum;
-        const Float4 scale = reciprocal(min3v(blendMasked(
-            extends,
-            max3v(extends),
-            extends == Zero<Float4>())));
+        const Float4 scale = reciprocal(min3v(
+            blendMasked(extends, max3v(extends), extends == Zero<Float4>())));
 
         // scale and translate
-        const int verticesCount = int(vertices.size());
 #pragma omp parallel for
-        for (int i = 0; i < verticesCount; i++)
+        for (int i = Zero<int>(); i < int(vertices.size()); i++)
         {
             const ASizeT j = ASizeT(i);
             vertices[j] = replaceW((vertices[j] - center) * scale, One<Float>());
@@ -163,18 +194,37 @@ namespace raytracer
         bounding = computeBounding(vertices);
     }
 
+    void computeTexCoordsOrtho(
+        std::vector<UInt3> & facetsIndices,
+        std::vector<Facet> & facets,
+        std::vector<Facet> & texCoords,
+        const Float4 & sPlane,
+        const Float4 & tPlane)
+    {
+        texCoords.resize(facetsIndices.size());
+
+#pragma omp parallel for
+        for (int i = Zero<int>(); i < int(facetsIndices.size()); i++)
+        {
+            const ASizeT j = ASizeT(i);
+            const Facet facet = facets[j];
+            texCoords[j] = Facet(
+                Float4(dot(facet.v0, sPlane), dot(facet.v0, tPlane)),
+                Float4(dot(facet.v1, sPlane), dot(facet.v1, tPlane)),
+                Float4(dot(facet.v2, sPlane), dot(facet.v2, tPlane)));
+        }
+    }
+
     void computeTexCoordsSpherical(
         std::vector<UInt3> & facetsIndices,
         std::vector<Facet> & facets,
         std::vector<Facet> & texCoords)
     {
-        const ASizeT facetsCount = facetsIndices.size();
-        const int facetsCounti = (int)facetsCount;
+        texCoords.resize(facetsIndices.size());
 
         // calculate tex-coords for each vertex-normal
-        texCoords.resize(facetsCount);
 #pragma omp parallel for
-        for (int i = 0; i < facetsCounti; i++)
+        for (int i = Zero<int>(); i < int(facetsIndices.size()); i++)
         {
             const ASizeT j = ASizeT(i);
             Facet facet = facets[j];
@@ -187,7 +237,6 @@ namespace raytracer
 
             // calculate latitude coords
             Facet *facetTexCoords = &texCoords[j];
-
 
             facetTexCoords->v0 = Float4((vectorization::atan2(x(facet.v0), z(facet.v0)) + Pi<Float>()) * RadianToUniform<Float>(),
                 vectorization::acos(y(-facet.v0)) * ReciprocalPi<Float>());
@@ -206,9 +255,11 @@ namespace raytracer
 
             // search min, max and mid points of facet
             Float4 *min, *mid, *max;
-            min = mid = max = &facet.v0;
             Float4 *minUV, *midUV, *maxUV;
+
+            min = mid = max = &facet.v0;
             minUV = midUV = maxUV = &facetTexCoords->v0;
+
             if (x(facet.v1) < x(facet.v0))
             {
                 if (x(facet.v2) < x(facet.v1))
@@ -276,59 +327,6 @@ namespace raytracer
                     *maxUV += vectorization::wzyx(OneW<Float4>());
             }
         }
-    }
-
-    void computeTexCoordsOrtho(
-        std::vector<UInt3> & facetsIndices,
-        std::vector<Facet> & facets,
-        std::vector<Facet> & texCoords,
-        const Float4 & sPlane,
-        const Float4 & tPlane)
-    {
-        const ASizeT facetsCount = facetsIndices.size();
-        texCoords.resize(facetsCount);
-
-        const int facetsCounti = int(facetsCount);
-#pragma omp parallel for
-        for (int i = 0; i < facetsCounti; i++)
-        {
-            const ASizeT j = ASizeT(i);
-            const Facet facet = facets[j];
-            texCoords[j] = Facet(
-                Float4(dot(facet.v0, sPlane), dot(facet.v0, tPlane)),
-                Float4(dot(facet.v1, sPlane), dot(facet.v1, tPlane)),
-                Float4(dot(facet.v2, sPlane), dot(facet.v2, tPlane)));
-        }
-    }
-
-    const Float4 computeIntersection(const Float4 & facetV0, const FacetEdges & facetEdges, const Ray & ray, const Float4 & maxDistance)
-    {
-        // intersection test based on Fast, Minimum Storage Ray/Triangle Intersection
-        // http://www.graphics.cornell.edu/pubs/1997/MT97.pdf
-
-        // calculate direction from v0 to ray.origin
-        const Float4 tvec = ray.origin - facetV0;
-
-        // calculate determinant (also part of the barycentric-U-coord)
-        const Float4 pvec = cross3(ray.direction, facetEdges.v1);
-        const Float4 det = reciprocal(dotv(facetEdges.v0, pvec));
-
-        // triangle bound check on U
-        const Float4 u = dotv(tvec, pvec) * det;
-        if (allTrue(u < Zero<Float4>() | u > One<Float4>())) {
-            return maxDistance;
-        }
-
-        // triangle bound check on V
-        const Float4 qvec = cross3(tvec, facetEdges.v0);
-        const Float4 v = dotv(ray.direction, qvec) * det;
-        if (allTrue(v < Zero<Float4>() | (u + v) > One<Float4>())) {
-            return maxDistance;
-        }
-
-        // calculate t (in "orig + t * dir" == "ray.origin + t * ray.direction")
-        const Float4 t = dotv(facetEdges.v1, qvec) * det;
-        return x_yzw(u, xy_zw(v, t));
     }
 
     //}
@@ -419,9 +417,9 @@ namespace raytracer
         }
 
         const Float4 vertex = raycast.ray.origin + zzzz(d) * raycast.ray.direction;
-        const Float4 surfaceNormal = flatNormals[intersected].v0;
-        const Facet & vNormals = smoothNormals[intersected];
-        const Facet & vTexCoords = texCoords[intersected];
+        const Float4 surfaceNormal = flatNormals[intersected];
+        const Facet vNormals = smoothNormals[intersected];
+        const Facet vTexCoords = texCoords[intersected];
 
         // T(u, v) = (1 - u - v) * V0 + u * V1 + v * V2
         const Float4 u = xxxx(d), v = yyyy(d);
@@ -564,10 +562,8 @@ namespace raytracer
         }
 
         // read all in memory and then read the content from memory
-        std::stringstream fileStream;
-        fileStream.str(std::string(
-            std::istreambuf_iterator<char>(file),
-            std::istreambuf_iterator<char>()));
+        std::string fileContent = std::string(std::istreambuf_iterator<char>(file), std::istreambuf_iterator<char>());
+        std::stringstream fileStream = std::stringstream(fileContent, std::ios_base::in);
         file.close();
 
         std::stringstream lineStream;
@@ -676,7 +672,10 @@ namespace raytracer
     {
         computeStandardMesh(bounding, vertices);
         computeFacets(facetsIndices, vertices, facets);
-        computeNormals(facetsIndices, vertices, vertexNormals, facets, smoothNormals, flatNormals, facetsEdges);
+        computeNormals(facetsIndices, vertices, vertexNormals, facets, flatNormals, smoothNormals, facetsEdges);
+        if (balancer) {
+            graph = computeKDTree(facets, nodes, *balancer);
+        }
     }
 
     //}

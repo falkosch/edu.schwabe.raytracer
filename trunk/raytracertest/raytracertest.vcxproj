@@ -25,6 +25,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{F4BA0099-A37E-4935-877C-4D0667D37233}</ProjectGuid>
     <RootNamespace>raytracertest</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.14393.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

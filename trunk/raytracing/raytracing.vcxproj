@@ -76,13 +76,13 @@
     <OutDir>$(SolutionDir)build-x86\$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)build-x86\$(Configuration)\</IntDir>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <RunCodeAnalysis>true</RunCodeAnalysis>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)build-x64\$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)build-x64\$(Configuration)\</IntDir>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <RunCodeAnalysis>true</RunCodeAnalysis>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -92,8 +92,9 @@
       <DisableSpecificWarnings>4464;4514;4668;4710;4711;4820;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <Optimization>Disabled</Optimization>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
-      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <CallingConvention>VectorCall</CallingConvention>
+      <BrowseInformation>true</BrowseInformation>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -107,8 +108,9 @@
       <DisableSpecificWarnings>4464;4514;4668;4710;4711;4820;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <Optimization>Disabled</Optimization>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
-      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <CallingConvention>VectorCall</CallingConvention>
+      <BrowseInformation>true</BrowseInformation>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -124,11 +126,13 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <DisableSpecificWarnings>4464;4514;4668;4710;4711;4820;%(DisableSpecificWarnings)</DisableSpecificWarnings>
-      <EnablePREfast>true</EnablePREfast>
+      <EnablePREfast>false</EnablePREfast>
       <Optimization>Full</Optimization>
       <CallingConvention>VectorCall</CallingConvention>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <ControlFlowGuard>false</ControlFlowGuard>
+      <BrowseInformation>true</BrowseInformation>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -146,11 +150,13 @@
       <OpenMPSupport>true</OpenMPSupport>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <DisableSpecificWarnings>4464;4514;4668;4710;4711;4820;%(DisableSpecificWarnings)</DisableSpecificWarnings>
-      <EnablePREfast>true</EnablePREfast>
+      <EnablePREfast>false</EnablePREfast>
       <Optimization>Full</Optimization>
       <CallingConvention>VectorCall</CallingConvention>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <ControlFlowGuard>false</ControlFlowGuard>
+      <BrowseInformation>true</BrowseInformation>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -173,7 +179,7 @@
     <ClInclude Include="include\geometry\forms\Box.h" />
     <ClInclude Include="include\geometry\forms\Form.h" />
     <ClInclude Include="include\geometry\forms\meshes\Mesh.h" />
-    <ClInclude Include="include\geometry\forms\meshes\MeshFacetInfo.h" />
+    <ClInclude Include="include\geometry\forms\meshes\MeshGeometryNode.h" />
     <ClInclude Include="include\geometry\forms\Plane.h" />
     <ClInclude Include="include\geometry\forms\Sphere.h" />
     <ClInclude Include="include\geometry\ObjectGeometry.h" />
@@ -233,6 +239,7 @@
     <ClInclude Include="include\shading\SurfaceShading.h" />
     <ClInclude Include="include\shading\TextureTransformInfo.h" />
     <ClInclude Include="include\shading\Raytrace.h" />
+    <ClInclude Include="src\geometry\forms\meshes\Header.h" />
     <ClInclude Include="src\stdafx.h" />
   </ItemGroup>
   <ItemGroup>
@@ -247,7 +254,7 @@
     <ClCompile Include="src\geometry\forms\Box.cpp" />
     <ClCompile Include="src\geometry\forms\Form.cpp" />
     <ClCompile Include="src\geometry\forms\meshes\Mesh.cpp" />
-    <ClCompile Include="src\geometry\forms\meshes\MeshFacetInfo.cpp" />
+    <ClCompile Include="src\geometry\forms\meshes\MeshGeometryNode.cpp" />
     <ClCompile Include="src\geometry\forms\Plane.cpp" />
     <ClCompile Include="src\geometry\forms\Sphere.cpp" />
     <ClCompile Include="src\geometry\ObjectGeometry.cpp" />

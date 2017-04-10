@@ -42,9 +42,6 @@
     <ClCompile Include="src\geometry\forms\meshes\Mesh.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="src\geometry\forms\meshes\MeshFacetInfo.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
     <ClCompile Include="src\geometry\forms\Plane.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
@@ -195,6 +192,9 @@
     <ClCompile Include="src\IlluminatedIntersection.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="src\geometry\forms\meshes\MeshGeometryNode.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\stdafx.h">
@@ -228,9 +228,6 @@
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="include\geometry\forms\meshes\Mesh.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="include\geometry\forms\meshes\MeshFacetInfo.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="include\geometry\forms\Box.h">
@@ -417,6 +414,12 @@
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="include\IlluminatedIntersection.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\geometry\forms\meshes\MeshGeometryNode.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="src\geometry\forms\meshes\Header.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>

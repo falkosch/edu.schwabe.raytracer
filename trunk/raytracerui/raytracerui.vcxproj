@@ -72,13 +72,13 @@
     <OutDir>$(SolutionDir)build-x86\$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)build-x86\$(Configuration)\</IntDir>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <RunCodeAnalysis>true</RunCodeAnalysis>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)build-x64\$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)build-x64\$(Configuration)\</IntDir>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <RunCodeAnalysis>true</RunCodeAnalysis>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -88,18 +88,23 @@
       <Optimization>Disabled</Optimization>
       <DisableSpecificWarnings>4464;4514;4668;4710;4711;4820;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
-      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <CallingConvention>VectorCall</CallingConvention>
+      <BrowseInformation>true</BrowseInformation>
     </ClCompile>
     <Link>
       <AdditionalDependencies>raytracing.lib;vectorization.lib;glu32.lib;glew32.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(OutDir);$(SolutionDir)library-x86</AdditionalLibraryDirectories>
       <SubSystem>Console</SubSystem>
+      <FullProgramDatabaseFile>true</FullProgramDatabaseFile>
     </Link>
     <PostBuildEvent>
       <Command>copy /Y $(SolutionDir)library-x86\glew32.dll $(TargetDir)glew32.dll</Command>
     </PostBuildEvent>
     <Bscmake />
+    <Bscmake>
+      <PreserveSbr>true</PreserveSbr>
+    </Bscmake>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -108,18 +113,23 @@
       <Optimization>Disabled</Optimization>
       <DisableSpecificWarnings>4464;4514;4668;4710;4711;4820;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
-      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <CallingConvention>VectorCall</CallingConvention>
+      <BrowseInformation>true</BrowseInformation>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(OutDir);$(SolutionDir)library-x64</AdditionalLibraryDirectories>
       <AdditionalDependencies>raytracing.lib;vectorization.lib;glu32.lib;glew32.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
+      <FullProgramDatabaseFile>true</FullProgramDatabaseFile>
     </Link>
     <PostBuildEvent>
       <Command>copy /Y $(SolutionDir)library-x64\glew32.dll $(TargetDir)glew32.dll</Command>
     </PostBuildEvent>
     <Bscmake />
+    <Bscmake>
+      <PreserveSbr>true</PreserveSbr>
+    </Bscmake>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -130,11 +140,13 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <DisableSpecificWarnings>4464;4514;4668;4710;4711;4820;%(DisableSpecificWarnings)</DisableSpecificWarnings>
-      <EnablePREfast>true</EnablePREfast>
+      <EnablePREfast>false</EnablePREfast>
       <Optimization>Full</Optimization>
       <CallingConvention>VectorCall</CallingConvention>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <ControlFlowGuard>false</ControlFlowGuard>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <BrowseInformation>true</BrowseInformation>
     </ClCompile>
     <Link>
       <AdditionalDependencies>raytracing.lib;vectorization.lib;glu32.lib;glew32.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -143,11 +155,15 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <SubSystem>Console</SubSystem>
       <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+      <GenerateDebugInformation>DebugFastLink</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
       <Command>copy /Y $(SolutionDir)library-x86\glew32.dll $(TargetDir)glew32.dll</Command>
     </PostBuildEvent>
     <Bscmake />
+    <Bscmake>
+      <PreserveSbr>true</PreserveSbr>
+    </Bscmake>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -157,11 +173,13 @@
       <OpenMPSupport>true</OpenMPSupport>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <DisableSpecificWarnings>4464;4514;4668;4710;4711;4820;%(DisableSpecificWarnings)</DisableSpecificWarnings>
-      <EnablePREfast>true</EnablePREfast>
+      <EnablePREfast>false</EnablePREfast>
       <Optimization>Full</Optimization>
       <CallingConvention>VectorCall</CallingConvention>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <ControlFlowGuard>false</ControlFlowGuard>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <BrowseInformation>true</BrowseInformation>
     </ClCompile>
     <Link>
       <AdditionalDependencies>raytracing.lib;vectorization.lib;glu32.lib;glew32.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -170,11 +188,15 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <SubSystem>Console</SubSystem>
       <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+      <GenerateDebugInformation>DebugFastLink</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
       <Command>copy /Y $(SolutionDir)library-x64\glew32.dll $(TargetDir)glew32.dll</Command>
     </PostBuildEvent>
     <Bscmake />
+    <Bscmake>
+      <PreserveSbr>true</PreserveSbr>
+    </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="include\MessageLoopBasedUI.h" />
