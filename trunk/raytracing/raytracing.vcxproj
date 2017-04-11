@@ -129,10 +129,12 @@
       <EnablePREfast>false</EnablePREfast>
       <Optimization>Full</Optimization>
       <CallingConvention>VectorCall</CallingConvention>
-      <BufferSecurityCheck>false</BufferSecurityCheck>
-      <ControlFlowGuard>false</ControlFlowGuard>
       <BrowseInformation>true</BrowseInformation>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -141,6 +143,9 @@
     </Link>
     <Lib />
     <Bscmake />
+    <Lib>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -153,10 +158,12 @@
       <EnablePREfast>false</EnablePREfast>
       <Optimization>Full</Optimization>
       <CallingConvention>VectorCall</CallingConvention>
-      <BufferSecurityCheck>false</BufferSecurityCheck>
-      <ControlFlowGuard>false</ControlFlowGuard>
       <BrowseInformation>true</BrowseInformation>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -239,7 +246,6 @@
     <ClInclude Include="include\shading\SurfaceShading.h" />
     <ClInclude Include="include\shading\TextureTransformInfo.h" />
     <ClInclude Include="include\shading\Raytrace.h" />
-    <ClInclude Include="src\geometry\forms\meshes\Header.h" />
     <ClInclude Include="src\stdafx.h" />
   </ItemGroup>
   <ItemGroup>

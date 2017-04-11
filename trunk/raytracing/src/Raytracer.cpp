@@ -89,7 +89,7 @@ namespace raytracer
         Raytrace raytrace;
         Float4 * outputPixel;
         ALIGNED_ALLOCATORS(__alignof(PackedRaytrace));
-        PackedRaytrace() : raytrace(), outputPixel(){}
+        PackedRaytrace() : raytrace(), outputPixel() {}
         PackedRaytrace(const Raytrace & raytraceIn, Float4 * const outputPixelIn)
             :
             raytrace(raytraceIn),
@@ -165,25 +165,25 @@ namespace raytracer
                 for (PackedRaytrace::ListType::const_iterator it = packedRaytraces.cbegin(); it != packedRaytraces.cend(); ++it)
                 {
                     // Timing for each pixel: Read start-time from clock
-                    //const UInt_64 start = perPixelTiming();
+                    const UInt_64 start = perPixelTiming();
 
                     const IlluminatedIntersection hit = trace(it->raytrace, cache);
-                    cache.statistics.missedPrimaryRays += static_cast<ASizeT>(outOfReach(
-                        it->raytrace.raycast,
-                        x(hit.depth)));
+                    cache.statistics.missedPrimaryRays += static_cast<ASizeT>(outOfReach(it->raytrace.raycast, x(hit.depth)));
 
                     // Sample color into output
-                    //Float4 * const pixelDepth = &cache.configuration.depthMap->getData()[outputIndex];
-                    //Float4 * const pixelTiming = &cache.configuration.timingMap->getData()[outputIndex];
+                    Float4 * const pixelDepth = (it->outputPixel - cache.configuration.image->getData()) + cache.configuration.depthMap->getData();
+                    Float4 * const pixelTiming = (it->outputPixel - cache.configuration.image->getData()) + cache.configuration.timingMap->getData();
 
                     packets.samplePixel(it->outputPixel, hit.color);
 
-                    //sampledDepth = x_yzw(Infinity<Float4>(), NegInfinity<Float4>());
-                    //sampledDepth = RaytracerPackets::samplePixelDepth(sampledDepth, depth);
                     // Fill in depth information and store it in depthMap
-                    //store(packets.supersampledPixelDepth(sampledDepth), pixelDepth);
+                    store(packets.supersampledPixelDepth(
+                        RaytracerPackets::samplePixelDepth(
+                            x_yzw(Infinity<Float4>(), NegInfinity<Float4>()),
+                            x(hit.depth))),
+                        pixelDepth);
                     // Store timings
-                    //store(perPixelTiming(start), pixelTiming);
+                    store(perPixelTiming(start), pixelTiming);
                 }
 
             } // p
@@ -199,8 +199,8 @@ namespace raytracer
         running.state = hasFinished;
         if (hasFinished)
         {
-            //running.timingMap->normalizeEachChannel();
-            //running.depthMap->normalizeEachChannel();
+            running.timingMap->normalizeEachChannel();
+            running.depthMap->normalizeEachChannel();
 
             // notify completion
             running.observer->notifyUpdate(running);

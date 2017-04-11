@@ -12,7 +12,7 @@
 namespace raytracer
 {
 
-    struct Mesh : public Form
+    struct Mesh : public Form, GeometryNodesTraverser<FacetIntersection>
     {
 
         Mesh();
@@ -34,6 +34,12 @@ namespace raytracer
             // benchmarked intersection costs in cycles
             return 19.027224f;
         }
+
+        // GeometryNodesTraverser interface
+
+        const Float findNearestIntersection(const PGeometryNodeList & geometryNodes, const Raycast & raycast, const FacetIntersection * const originIntersection, FacetIntersection & intersectionOut) const;
+
+        const Float findAnyIntersection(const PGeometryNodeList & geometryNodes, const Raycast & raycast, const FacetIntersection * const originIntersection, FacetIntersection & intersectionOut) const;
 
         // Builders and test methods
 
@@ -62,7 +68,7 @@ namespace raytracer
 
         PGeometryNodeList nodes;
         KDTreeRoot * graph;
-        
+
         const KDTreeTraverser<FacetIntersection> * traverser;
         const KDTreeBalancer * balancer;
 

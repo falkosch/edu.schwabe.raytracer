@@ -12,7 +12,7 @@ namespace raytracer
 #pragma region privates
     //{privates
 
-    const AxisAlignedBoundingBox computeBounding(std::vector<Float4> & vertices)
+    const AxisAlignedBoundingBox computeBounding(const std::vector<Float4> & vertices)
     {
         AxisAlignedBoundingBox allBounding = AxisAlignedBoundingBox();
 
@@ -21,9 +21,9 @@ namespace raytracer
             AxisAlignedBoundingBox bounding = AxisAlignedBoundingBox();
 
 #pragma omp for
-            for (int i = Zero<int>(); i < int(vertices.size()); i++)
+            for (int i = Zero<int>(); i < static_cast<int>(vertices.size()); i++)
             {
-                bounding = extendBy(bounding, vertices[ASizeT(i)]);
+                bounding = extendBy(bounding, vertices[static_cast<ASizeT>(i)]);
             }
 
 #pragma omp critical
@@ -36,19 +36,56 @@ namespace raytracer
     }
 
     void computeFacets(
-        std::vector<UInt3> & facetsIndices,
-        std::vector<Float4> & vertices,
+        const std::vector<UInt3> & facetsIndices,
+        const std::vector<Float4> & vertices,
         std::vector<Facet> & facets)
     {
         facets.resize(facetsIndices.size());
 
 #pragma omp parallel for
-        for (int i = Zero<int>(); i < int(facetsIndices.size()); i++)
+        for (int i = Zero<int>(); i < static_cast<int>(facetsIndices.size()); i++)
         {
-            const ASizeT j = ASizeT(i);
+            const ASizeT j = static_cast<ASizeT>(i);
             const UInt3 facetIndices = facetsIndices[j];
             facets[j] = Facet(vertices[x(facetIndices)], vertices[y(facetIndices)], vertices[z(facetIndices)]);
         }
+    }
+
+    const Float computeFacetIntersection(
+        const ASizeT intersected,
+        const Float4 & d,
+        const Raycast & raycast,
+        const std::vector<Facet> & texCoords,
+        const std::vector<Float4> & flatNormals,
+        const std::vector<FacetNormals> & smoothNormals,
+        const PGeometryNodeList & nodes,
+        FacetIntersection & intersectionOut)
+    {
+        // was there an intersection?
+        if (z(outOfReach(raycast, d))) {
+            // no intersection
+            return raycast.maxDistance;
+        }
+
+        const Float4 vertex = raycast.ray.origin + zzzz(d) * raycast.ray.direction;
+        const Float4 surfaceNormal = flatNormals[intersected];
+        const Facet vNormals = smoothNormals[intersected];
+        const Facet vTexCoords = texCoords[intersected];
+
+        // T(u, v) = (1 - u - v) * V0 + u * V1 + v * V2
+        const Float4 u = xxxx(d), v = yyyy(d);
+        const Float4 barycenterNormal = vNormals.v0 + u * (vNormals.v1 - vNormals.v0) + v * (vNormals.v2 - vNormals.v0);
+        const Float4 barycenterTex = vTexCoords.v0 + u * (vTexCoords.v1 - vTexCoords.v0) + v * (vTexCoords.v2 - vTexCoords.v0);
+
+        intersectionOut.msVertex = vertex;
+        intersectionOut.msSurfaceNormal = surfaceNormal;
+        intersectionOut.vertex = vertex;
+        intersectionOut.surfaceNormal = surfaceNormal;
+        intersectionOut.smoothedNormal = normalize3(barycenterNormal);
+        intersectionOut.texCoords = xy_zw(barycenterTex, OneW<Float4>());
+        intersectionOut.node = nodes[intersected];
+
+        return z(d);
     }
 
     const Float4 computeIntersection(const Float4 & facetV0, const FacetEdges & facetEdges, const Ray & ray, const Float4 & maxDistance)
@@ -81,40 +118,43 @@ namespace raytracer
         return x_yzw(u, xy_zw(v, t));
     }
 
-    KDTreeRoot * const computeKDTree(std::vector<Facet> & facets, PGeometryNodeList & nodes, const KDTreeBalancer & balancer)
+    KDTreeRoot * const computeKDTree(const std::vector<Facet> & facets, const KDTreeBalancer * const balancer, PGeometryNodeList & nodes)
     {
         nodes.resize(facets.size());
 
 #pragma omp parallel for
-        for (int i = Zero<int>(); i < int(facets.size()); i++)
+        for (int i = Zero<int>(); i < static_cast<int>(facets.size()); i++)
         {
-            const ASizeT j = ASizeT(i);
+            const ASizeT j = static_cast<ASizeT>(i);
             nodes[j] = new MeshGeometryNode(j, facets[j]);
         }
 
-        return balancer.build(nodes);
+        if (balancer) {
+            return balancer->build(nodes);
+        }
+        return nullptr;
     }
 
     void computeNormals(
-        std::vector<UInt3> & facetsIndices,
-        std::vector<Float4> & vertices,
+        const std::vector<UInt3> & facetsIndices,
+        const std::vector<Float4> & vertices,
+        const std::vector<Facet> & facets,
         std::vector<Float4> & vertexNormals,
-        std::vector<Facet> & facets,
         std::vector<Float4> & flatNormals,
         std::vector<FacetNormals> & smoothNormals,
         std::vector<FacetEdges> & facetsEdges)
     {
-        const ASizeT facetsCount = facets.size();
-        facetsEdges.resize(facetsCount);
-        flatNormals.resize(facetsCount);
-        smoothNormals.resize(facetsCount);
-
         vertexNormals.resize(vertices.size());
 
+        const ASizeT facetsCount = facets.size();
+        flatNormals.resize(facetsCount);
+        smoothNormals.resize(facetsCount);
+        facetsEdges.resize(facetsCount);
+
 #pragma omp parallel for
-        for (int i = Zero<int>(); i < int(facets.size()); i++)
+        for (int i = Zero<int>(); i < static_cast<int>(facets.size()); i++)
         {
-            const ASizeT j = ASizeT(i);
+            const ASizeT j = static_cast<ASizeT>(i);
             const Facet facet = facets[j];
 
             // edges in counter-clockwise order
@@ -148,17 +188,17 @@ namespace raytracer
 
         // normalize vertex-normals
 #pragma omp parallel for
-        for (int i = Zero<int>(); i < int(vertices.size()); i++)
+        for (int i = Zero<int>(); i < static_cast<int>(vertices.size()); i++)
         {
-            const ASizeT j = ASizeT(i);
+            const ASizeT j = static_cast<ASizeT>(i);
             vertexNormals[j] = normalize3(vertexNormals[j]);
         }
 
         // build smooth normals
 #pragma omp parallel for
-        for (int i = Zero<int>(); i < int(facets.size()); i++)
+        for (int i = Zero<int>(); i < static_cast<int>(facets.size()); i++)
         {
-            const ASizeT j = ASizeT(i);
+            const ASizeT j = static_cast<ASizeT>(i);
             const UInt3 facetIndices = facetsIndices[j];
             smoothNormals[j] = Facet(vertexNormals[x(facetIndices)], vertexNormals[y(facetIndices)], vertexNormals[z(facetIndices)]);
 
@@ -184,9 +224,9 @@ namespace raytracer
 
         // scale and translate
 #pragma omp parallel for
-        for (int i = Zero<int>(); i < int(vertices.size()); i++)
+        for (int i = Zero<int>(); i < static_cast<int>(vertices.size()); i++)
         {
-            const ASizeT j = ASizeT(i);
+            const ASizeT j = static_cast<ASizeT>(i);
             vertices[j] = replaceW((vertices[j] - center) * scale, One<Float>());
         }
 
@@ -195,18 +235,18 @@ namespace raytracer
     }
 
     void computeTexCoordsOrtho(
-        std::vector<UInt3> & facetsIndices,
-        std::vector<Facet> & facets,
-        std::vector<Facet> & texCoords,
+        const std::vector<UInt3> & facetsIndices,
+        const std::vector<Facet> & facets,
         const Float4 & sPlane,
-        const Float4 & tPlane)
+        const Float4 & tPlane,
+        std::vector<Facet> & texCoords)
     {
         texCoords.resize(facetsIndices.size());
 
 #pragma omp parallel for
-        for (int i = Zero<int>(); i < int(facetsIndices.size()); i++)
+        for (int i = Zero<int>(); i < static_cast<int>(facetsIndices.size()); i++)
         {
-            const ASizeT j = ASizeT(i);
+            const ASizeT j = static_cast<ASizeT>(i);
             const Facet facet = facets[j];
             texCoords[j] = Facet(
                 Float4(dot(facet.v0, sPlane), dot(facet.v0, tPlane)),
@@ -216,17 +256,17 @@ namespace raytracer
     }
 
     void computeTexCoordsSpherical(
-        std::vector<UInt3> & facetsIndices,
-        std::vector<Facet> & facets,
+        const std::vector<UInt3> & facetsIndices,
+        const std::vector<Facet> & facets,
         std::vector<Facet> & texCoords)
     {
         texCoords.resize(facetsIndices.size());
 
         // calculate tex-coords for each vertex-normal
 #pragma omp parallel for
-        for (int i = Zero<int>(); i < int(facetsIndices.size()); i++)
+        for (int i = Zero<int>(); i < static_cast<int>(facetsIndices.size()); i++)
         {
-            const ASizeT j = ASizeT(i);
+            const ASizeT j = static_cast<ASizeT>(i);
             Facet facet = facets[j];
 
             // normalize vertices, they are used as normals for determining the texcoords
@@ -368,12 +408,12 @@ namespace raytracer
         if (traverser)
         {
             delete traverser;
-            traverser = NULL;
+            traverser = nullptr;
         }
         if (balancer)
         {
             delete balancer;
-            balancer = NULL;
+            balancer = nullptr;
         }
     }
 
@@ -387,6 +427,34 @@ namespace raytracer
 
     const Float Mesh::findNearestIntersection(const Raycast & raycast, const FacetIntersection * const originIntersection, FacetIntersection & intersectionOut) const
     {
+        if (graph)
+        {
+            return traverser->findNearestIntersection(*this, *graph, raycast, originIntersection, intersectionOut);
+        }
+        return findNearestIntersection(nodes, raycast, originIntersection, intersectionOut);
+    }
+
+    const Float Mesh::findAnyIntersection(const Raycast & raycast, const FacetIntersection * const originIntersection, FacetIntersection & intersectionOut) const
+    {
+        if (graph)
+        {
+            return traverser->findAnyIntersection(*this, *graph, raycast, originIntersection, intersectionOut);
+        }
+        return findAnyIntersection(nodes, raycast, originIntersection, intersectionOut);
+    }
+
+    //}
+#pragma endregion
+
+#pragma region GeometryNodesTraverser interface
+    //{GeometryNodesTraverser interface
+
+    const Float Mesh::findNearestIntersection(
+        const PGeometryNodeList & geometryNodes,
+        const Raycast & raycast,
+        const FacetIntersection * const originIntersection,
+        FacetIntersection & intersectionOut) const
+    {
         if (outOfReach(raycast, Zero<Float>()))
         {
             return raycast.maxDistance;
@@ -395,51 +463,51 @@ namespace raytracer
         Float4 d = Float4(raycast.maxDistance);
         ASizeT intersected = Zero<ASizeT>();
 
-        const ASizeT facetsCount = facets.size();
-        for (ASizeT i = Zero<ASizeT>(); i < facetsCount; i++)
+        for (PGeometryNodeList::const_iterator it = geometryNodes.cbegin(); it != geometryNodes.cend(); ++it)
         {
-            if (originIntersection && (ASizeT(originIntersection->node) == ASizeT(&facets[i]))) {
+            const GeometryNode * const node = *it;
+            if (originIntersection && originIntersection->node == node) {
                 continue;
             }
 
-            const Float4 t = computeIntersection(facets[i].v0, facetsEdges[i], raycast.ray, d);
+            const ASizeT index = static_cast<const MeshGeometryNode * const>(node)->index;
+            const Float4 t = computeIntersection(facets[index].v0, facetsEdges[index], raycast.ray, d);
             if (z(t < d)) // is distance in t more near than the distance in preserved d
             {
                 d = t;
-                intersected = i;
+                intersected = index;
             }
         }
 
-        // was there an intersection?
-        if (z(outOfReach(raycast, d))) {
-            // no intersection
+        return computeFacetIntersection(intersected, d, raycast, texCoords, flatNormals, smoothNormals, nodes, intersectionOut);
+    }
+
+    // Finds any intersection of a Ray within a geometry.
+    const Float Mesh::findAnyIntersection(const PGeometryNodeList & geometryNodes, const Raycast & raycast, const FacetIntersection * const originIntersection, FacetIntersection & intersectionOut) const
+    {
+        if (outOfReach(raycast, Zero<Float>()))
+        {
             return raycast.maxDistance;
         }
 
-        const Float4 vertex = raycast.ray.origin + zzzz(d) * raycast.ray.direction;
-        const Float4 surfaceNormal = flatNormals[intersected];
-        const Facet vNormals = smoothNormals[intersected];
-        const Facet vTexCoords = texCoords[intersected];
+        const Float4 d = Float4(raycast.maxDistance);
 
-        // T(u, v) = (1 - u - v) * V0 + u * V1 + v * V2
-        const Float4 u = xxxx(d), v = yyyy(d);
-        const Float4 barycenterNormal = vNormals.v0 + u * (vNormals.v1 - vNormals.v0) + v * (vNormals.v2 - vNormals.v0);
-        const Float4 barycenterTex = vTexCoords.v0 + u * (vTexCoords.v1 - vTexCoords.v0) + v * (vTexCoords.v2 - vTexCoords.v0);
+        for (PGeometryNodeList::const_iterator it = geometryNodes.cbegin(); it != geometryNodes.cend(); ++it)
+        {
+            const GeometryNode * const node = *it;
+            if (originIntersection && originIntersection->node == node) {
+                continue;
+            }
 
-        intersectionOut.msVertex = vertex;
-        intersectionOut.msSurfaceNormal = surfaceNormal;
-        intersectionOut.vertex = vertex;
-        intersectionOut.surfaceNormal = surfaceNormal;
-        intersectionOut.smoothedNormal = normalize3(barycenterNormal);
-        intersectionOut.texCoords = xy_zw(barycenterTex, OneW<Float4>());
-        //intersectionOut.node = &facets[intersected];
+            const ASizeT index = static_cast<const MeshGeometryNode * const>(node)->index;
+            const Float4 t = computeIntersection(facets[index].v0, facetsEdges[index], raycast.ray, d);
+            if (z(t < d)) // is distance in t more near than the distance in preserved d
+            {
+                return computeFacetIntersection(index, t, raycast, texCoords, flatNormals, smoothNormals, nodes, intersectionOut);
+            }
+        }
 
-        return z(d);
-    }
-
-    const Float Mesh::findAnyIntersection(const Raycast & r, const FacetIntersection * const originIntersection, FacetIntersection & intersectionOut) const
-    {
-        return findNearestIntersection(r, originIntersection, intersectionOut);
+        return raycast.maxDistance;
     }
 
     //}
@@ -486,9 +554,9 @@ namespace raytracer
         computeTexCoordsOrtho(
             mesh->facetsIndices,
             mesh->facets,
-            mesh->texCoords,
             Float4(1.0f, 1.0f, 0.0f, 0.25f),
-            Float4(0.0f, 1.0f, 1.0f, 0.25f));
+            Float4(0.0f, 1.0f, 1.0f, 0.25f),
+            mesh->texCoords);
 
         return mesh;
     }
@@ -511,9 +579,9 @@ namespace raytracer
         computeTexCoordsOrtho(
             mesh->facetsIndices,
             mesh->facets,
-            mesh->texCoords,
             Float4(1.0f, 0.0f, 0.0f, 0.5f),
-            Float4(0.0f, 1.0f, 0.0f, 0.5f));
+            Float4(0.0f, 1.0f, 0.0f, 0.5f),
+            mesh->texCoords);
 
         return mesh;
     }
@@ -533,9 +601,9 @@ namespace raytracer
         computeTexCoordsOrtho(
             mesh->facetsIndices,
             mesh->facets,
-            mesh->texCoords,
             Float4(1.0f, 0.0f, 0.0f, 0.5f),
-            Float4(0.0f, 1.0f, 0.0f, 0.5f));
+            Float4(0.0f, 1.0f, 0.0f, 0.5f),
+            mesh->texCoords);
 
         return mesh;
     }
@@ -672,10 +740,8 @@ namespace raytracer
     {
         computeStandardMesh(bounding, vertices);
         computeFacets(facetsIndices, vertices, facets);
-        computeNormals(facetsIndices, vertices, vertexNormals, facets, flatNormals, smoothNormals, facetsEdges);
-        if (balancer) {
-            graph = computeKDTree(facets, nodes, *balancer);
-        }
+        computeNormals(facetsIndices, vertices, facets, vertexNormals, flatNormals, smoothNormals, facetsEdges);
+        graph = computeKDTree(facets, balancer, nodes);
     }
 
     //}

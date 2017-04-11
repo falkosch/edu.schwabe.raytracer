@@ -143,10 +143,12 @@
       <EnablePREfast>false</EnablePREfast>
       <Optimization>Full</Optimization>
       <CallingConvention>VectorCall</CallingConvention>
-      <BufferSecurityCheck>false</BufferSecurityCheck>
-      <ControlFlowGuard>false</ControlFlowGuard>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <BrowseInformation>true</BrowseInformation>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
     </ClCompile>
     <Link>
       <AdditionalDependencies>raytracing.lib;vectorization.lib;glu32.lib;glew32.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -176,10 +178,12 @@
       <EnablePREfast>false</EnablePREfast>
       <Optimization>Full</Optimization>
       <CallingConvention>VectorCall</CallingConvention>
-      <BufferSecurityCheck>false</BufferSecurityCheck>
-      <ControlFlowGuard>false</ControlFlowGuard>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <BrowseInformation>true</BrowseInformation>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
     </ClCompile>
     <Link>
       <AdditionalDependencies>raytracing.lib;vectorization.lib;glu32.lib;glew32.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>

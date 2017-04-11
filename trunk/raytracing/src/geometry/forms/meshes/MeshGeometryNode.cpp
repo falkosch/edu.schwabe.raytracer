@@ -8,13 +8,13 @@ namespace raytracer
 #pragma region privates
     //{privates
 
-    const Float4::VectorBoolType planeBoxOverlap(const Float4 & normal, const Float4 & vert, const Float4 & maxbox)
+    const bool planeBoxOverlap(const Float4 & normal, const Float4 & vert, const Float4 & maxbox)
     {
         const Float4::VectorBoolType mask = (normal > Zero<Float4>());
         const Float4 a = maxbox - vert, b = -maxbox - vert;
         const Float4::VectorBoolType positiveSide = dot3v(normal, blendMasked(a, b, mask)) <= Zero<Float4>();
         const Float4::VectorBoolType negativeSide = dot3v(normal, blendMasked(b, a, mask)) >= Zero<Float4>();
-        return positiveSide & negativeSide;
+        return allTrue(positiveSide & negativeSide);
     }
 
     const bool axisTest(
@@ -61,7 +61,7 @@ namespace raytracer
 
         if (anyTrue3((min(v0, min(v1, v2)) > boxHalfSize) | (max(v0, max(v1, v2)) < -boxHalfSize))) return false;
 
-        return allTrue(planeBoxOverlap(cross3(e0, e1), v0, boxHalfSize));
+        return planeBoxOverlap(cross3(e0, e1), v0, boxHalfSize);
     }
 
     //}
@@ -96,12 +96,12 @@ namespace raytracer
 
     // Intersectable<Raycast, FacetIntersection> interface
 
-    const Float MeshGeometryNode::findNearestIntersection(const Raycast & ray, const FacetIntersection * const originIntersection, FacetIntersection & intersectionOut) const
+    const Float MeshGeometryNode::findNearestIntersection(const Raycast & ray, const FacetIntersection * const , FacetIntersection & ) const
     {
         return ray.maxDistance;
     }
 
-    const Float MeshGeometryNode::findAnyIntersection(const Raycast & ray, const FacetIntersection * const originIntersection, FacetIntersection & intersectionOut) const
+    const Float MeshGeometryNode::findAnyIntersection(const Raycast & ray, const FacetIntersection * const , FacetIntersection & ) const
     {
         return ray.maxDistance;
     }

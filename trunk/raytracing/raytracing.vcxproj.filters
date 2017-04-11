@@ -419,8 +419,5 @@
     <ClInclude Include="include\geometry\forms\meshes\MeshGeometryNode.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="src\geometry\forms\meshes\Header.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
   </ItemGroup>
 </Project>

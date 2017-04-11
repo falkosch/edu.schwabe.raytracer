@@ -130,10 +130,12 @@
       <DisableSpecificWarnings>4464;4514;4668;4710;4711;4820;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <EnablePREfast>false</EnablePREfast>
       <CallingConvention>VectorCall</CallingConvention>
-      <BufferSecurityCheck>false</BufferSecurityCheck>
-      <ControlFlowGuard>false</ControlFlowGuard>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <BrowseInformation>true</BrowseInformation>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -141,6 +143,9 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <Bscmake />
+    <Lib>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -153,10 +158,12 @@
       <DisableSpecificWarnings>4464;4514;4668;4710;4711;4820;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <EnablePREfast>false</EnablePREfast>
       <CallingConvention>VectorCall</CallingConvention>
-      <BufferSecurityCheck>false</BufferSecurityCheck>
-      <ControlFlowGuard>false</ControlFlowGuard>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <BrowseInformation>true</BrowseInformation>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>

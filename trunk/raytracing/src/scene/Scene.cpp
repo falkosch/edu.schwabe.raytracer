@@ -49,7 +49,7 @@ namespace raytracer
         infiniteSceneObjectsAsGeometryNodes.clear();
         for (SceneList::iterator it = sceneObjects.begin(); it != sceneObjects.end(); ++it)
         {
-            SceneObject*const sceneObject = *it;
+            SceneObject * const sceneObject = *it;
             if (sceneObject->getForm()->isInfinite())
             {
                 infiniteSceneObjectsAsGeometryNodes.push_back(sceneObject);
@@ -61,12 +61,12 @@ namespace raytracer
         }
 
 #ifndef DISABLE_BVH
-        std::cout << "Building culling tree for scene ... ";
         if (treeBalancer)
         {
+            std::cout << "Building culling tree for scene ... ";
             sceneGraph = treeBalancer->build(finiteSceneObjectsAsGeometryNodes);
+            std::cout << "done" << std::endl;
         }
-        std::cout << "done" << std::endl;
 #endif
     }
 

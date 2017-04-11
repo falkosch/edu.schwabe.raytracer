@@ -65,10 +65,6 @@ namespace raytracer
             const KDTreeBuildParameters & parameters,
             const PGeometryNodeList & geometry);
 
-        static PGeometryNodeList * const sortByBoundingOverlapping(
-            const KDTreeBounding & bounding,
-            const PGeometryNodeList & geometry);
-
     };
 
 }
