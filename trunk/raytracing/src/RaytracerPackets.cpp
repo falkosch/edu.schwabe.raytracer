@@ -5,18 +5,18 @@
 namespace raytracer
 {
 
-    inline const Size2 calculateSupersamplingLengths(const Size2::ValueType supersamplingFactor)
+    const Size2 calculateSupersamplingLengths(const Size2::ValueType supersamplingFactor)
     {
         const Size2::ValueType supersamplingLength = supersamplingFactor + One<Size2::ValueType>();
         return Size2(supersamplingLength, supersamplingLength * supersamplingLength);
     }
 
-    inline const Size2 calculatePacketLengths(const Size2::ValueType rayPacketSize, const Size2 & supersamplingLength)
+    const Size2 calculatePacketLengths(const Size2::ValueType rayPacketSize, const Size2 & supersamplingLength)
     {
         return Size2(max(One<Size2::ValueType>(), (rayPacketSize + One<Size2::ValueType>()) / x(supersamplingLength)));
     }
 
-    inline const Size2 calculatePacketCounts(const Size2 & resolution, const Size2 & packetLength)
+    const Size2 calculatePacketCounts(const Size2 & resolution, const Size2 & packetLength)
     {
         const Size2 packetCountXY = (resolution - One<Size2>()) / packetLength + One<Size2>();
         // overwrite vertical packet count with the total packet count

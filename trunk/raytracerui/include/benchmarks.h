@@ -1,7 +1,7 @@
 #pragma once
 
 // Ray-AABBx2 overlaps test
-inline const bool benchmarkAABBOverlaps(const primitives::Raycast & r, const vectorization::ASizeT iterations)
+const bool benchmarkAABBOverlaps(const primitives::Raycast & r, const vectorization::ASizeT iterations)
 {
     primitives::AxisAlignedBoundingBox a = primitives::AxisAlignedBoundingBox(
         vectorization::Float4(-1.f, -1.f, -1.f, 1.f),
@@ -23,7 +23,7 @@ inline const bool benchmarkAABBOverlaps(const primitives::Raycast & r, const vec
 }
 
 // Ray-AABB nearest intersection
-inline const vectorization::Float benchmarkAABB(const primitives::Raycast & r, const vectorization::ASizeT iterations)
+const vectorization::Float benchmarkAABB(const primitives::Raycast & r, const vectorization::ASizeT iterations)
 {
     primitives::AxisAlignedBoundingBox a = primitives::AxisAlignedBoundingBox(
         vectorization::Float4(-1.f, -1.f, -1.f, 1.f),
@@ -42,7 +42,7 @@ inline const vectorization::Float benchmarkAABB(const primitives::Raycast & r, c
 }
 
 // Ray-BoundingSphere nearest intersection
-inline const vectorization::Float benchmarkSphere(const primitives::Raycast & r, const vectorization::ASizeT iterations)
+const vectorization::Float benchmarkSphere(const primitives::Raycast & r, const vectorization::ASizeT iterations)
 {
     primitives::BoundingSphere a = primitives::BoundingSphere(vectorization::Float4(0.1f, 0.2f, 0.3f, 1.f), 2.0f);
 
@@ -63,7 +63,7 @@ inline const vectorization::Float benchmarkSphere(const primitives::Raycast & r,
 }
 
 // Ray-SplittingPlane nearest intersection
-inline const vectorization::Float benchmarkPlane(const primitives::Raycast & r, const vectorization::ASizeT iterations)
+const vectorization::Float benchmarkPlane(const primitives::Raycast & r, const vectorization::ASizeT iterations)
 {
     primitives::SplittingPlane a = primitives::SplittingPlane();
 
@@ -80,7 +80,7 @@ inline const vectorization::Float benchmarkPlane(const primitives::Raycast & r, 
 }
 
 // Ray-SplittingPlane nearest intersection
-inline const vectorization::Float benchmarkMeshFacet(const primitives::Raycast & r, const vectorization::ASizeT iterations)
+const vectorization::Float benchmarkMeshFacet(const primitives::Raycast & r, const vectorization::ASizeT iterations)
 {
     Float4 v0 = Float4(-4.f, 4.f, -1.f, 1.f);
     Float4 v1 = Float4(4.f, 4.f, -1.f, 1.f);
@@ -107,7 +107,7 @@ inline const vectorization::Float benchmarkMeshFacet(const primitives::Raycast &
     return out;
 }
 
-inline void benchmarks()
+void benchmarks()
 {
     Raycast r = Raycast(
         Ray(Float4(.5f, 0.f, -2.f, 1.f), OneW<Float4>()),

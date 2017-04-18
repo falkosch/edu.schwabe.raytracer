@@ -62,7 +62,7 @@ namespace raytracer
         current.runId = ++runId;
     }
 
-    inline const UInt_64 perPixelTiming()
+    const UInt_64 perPixelTiming()
     {
         LARGE_INTEGER start;
         QueryPerformanceCounter(&start);
@@ -70,7 +70,7 @@ namespace raytracer
     }
 
     // Timing for each pixel: Read end-time from clock and calculate differences
-    inline const Float4 perPixelTiming(const UInt_64 start)
+    const Float4 perPixelTiming(const UInt_64 start)
     {
         LARGE_INTEGER stop;
         QueryPerformanceCounter(&stop);
@@ -97,7 +97,7 @@ namespace raytracer
         {}
     };
 
-    inline const PackedRaytrace::ListType constructPackedRaytracesList(const int packetIndex, const RaytracerPackets & packets, const RaytraceConfiguration & configuration)
+    const PackedRaytrace::ListType constructPackedRaytracesList(const int packetIndex, const RaytracerPackets & packets, const RaytraceConfiguration & configuration)
     {
         // get origin pixel for packet p
         const Size2 pXY = packets.packetStartOf(packetIndex);
@@ -207,7 +207,7 @@ namespace raytracer
         }
     }
 
-    inline const Float4 schlickFresnel(const bool enteringLessDense, const Float4 & negNdotI, const Float4 & eta)
+    const Float4 schlickFresnel(const bool enteringLessDense, const Float4 & negNdotI, const Float4 & eta)
     {
         // calculate cosPhiT from snells law (TIR is already excluded)
         Float4 cosPhi;
@@ -235,7 +235,7 @@ namespace raytracer
         return reflectance;
     }
 
-    inline const Float4 fresnelReflectance(const bool totalInternalReflection, const Float4 & negNdotI, const Float4 & eta)
+    const Float4 fresnelReflectance(const bool totalInternalReflection, const Float4 & negNdotI, const Float4 & eta)
     {
         // entering less dense material and TIR is the case
         const bool enteringLessDense = !!isNegative(wwww(eta) - zzzz(eta));

@@ -1,6 +1,6 @@
 #pragma once
 
-inline void tests()
+void tests()
 {
     //const Float_32 a = 1.0f;
     //const Float_32 b = 1.1f;

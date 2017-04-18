@@ -86,7 +86,7 @@ namespace raytracer
         return d;
     }
 
-    inline void transformIntersection(const Raycast & raycast, const ObjectGeometry * const objectGeometry, SceneIntersection & intersectionOut)
+    void transformIntersection(const Raycast & raycast, const ObjectGeometry * const objectGeometry, SceneIntersection & intersectionOut)
     {
         const Float4 NdotI = dotv(intersectionOut.smoothedNormal, raycast.ray.direction);
         intersectionOut.smoothedNdotI = NdotI;

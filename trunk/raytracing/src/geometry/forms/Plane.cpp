@@ -60,7 +60,7 @@ namespace raytracer
         baseVectors.v1 = cross3(normal, base0);
     }
 
-    inline const Float computeFacetIntersection(const Float d, const Raycast & raycast, const Plane & p, FacetIntersection & intersectionOut)
+    const Float computeFacetIntersection(const Float d, const Raycast & raycast, const Plane & p, FacetIntersection & intersectionOut)
     {
         if (outOfReach(raycast, d))
         {

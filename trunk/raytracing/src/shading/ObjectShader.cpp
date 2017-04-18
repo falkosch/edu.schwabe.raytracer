@@ -127,7 +127,7 @@ namespace raytracer
             xy_xy(convert<Float4>(textureTransformInfo.scale), One<Float4>()));
     }
 
-    inline const Float4 sampleRaw(
+    const Float4 sampleRaw(
         const ObjectShader & objectShader,
         const ObjectShader::MaterialShader & shader,
         const SceneIntersection & intersection)
@@ -135,7 +135,7 @@ namespace raytracer
         return shader(objectShader, intersection);
     }
 
-    inline const Float4 sampleMultiplyW(
+    const Float4 sampleMultiplyW(
         const ObjectShader & objectShader,
         const ObjectShader::MaterialShader & shader,
         const SceneIntersection & intersection)

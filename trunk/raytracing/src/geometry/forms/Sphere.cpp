@@ -26,7 +26,7 @@ namespace raytracer
         return primitives::bounding(bounding);
     }
 
-    inline const Float computeFacetIntersection(const Float d, const Raycast & raycast, const Sphere & s, FacetIntersection & intersectionOut)
+    const Float computeFacetIntersection(const Float d, const Raycast & raycast, const Sphere & s, FacetIntersection & intersectionOut)
     {
         if (outOfReach(raycast, d))
         {

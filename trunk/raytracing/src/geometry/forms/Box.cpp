@@ -29,7 +29,7 @@ namespace raytracer
         return bounding;
     }
 
-    inline const Float computeFacetIntersection(const Float d, const Raycast & raycast, const Box & b, FacetIntersection & intersectionOut)
+    const Float computeFacetIntersection(const Float d, const Raycast & raycast, const Box & b, FacetIntersection & intersectionOut)
     {
         if (outOfReach(raycast, d))
         {

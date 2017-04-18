@@ -76,7 +76,7 @@ namespace raytracer
         return x(wsDistance);
     }
 
-    inline const Raycast transformRaycastToObjectSpace(const ASizeT objectOriginId, const Raycast & r, const FacetIntersection * const originIntersection, const Float44 & transposeInverseModelMatrix)
+    const Raycast transformRaycastToObjectSpace(const ASizeT objectOriginId, const Raycast & r, const FacetIntersection * const originIntersection, const Float44 & transposeInverseModelMatrix)
     {
         if (originIntersection && x(r.originIds) == objectOriginId)
         {
