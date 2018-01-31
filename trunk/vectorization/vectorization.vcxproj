@@ -25,7 +25,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{5F0A5F3C-702C-4BE4-8DD3-2453AA935E9B}</ProjectGuid>
     <RootNamespace>vectorization</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.14393.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -122,7 +122,6 @@
     <ClCompile>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(ProjectDir)\include</AdditionalIncludeDirectories>
-      <WarningLevel>EnableAllWarnings</WarningLevel>
       <OpenMPSupport>true</OpenMPSupport>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <Optimization>Full</Optimization>
@@ -151,7 +150,6 @@
     <ClCompile>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(ProjectDir)\include</AdditionalIncludeDirectories>
-      <WarningLevel>EnableAllWarnings</WarningLevel>
       <OpenMPSupport>true</OpenMPSupport>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <Optimization>Full</Optimization>
