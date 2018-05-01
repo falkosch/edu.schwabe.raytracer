@@ -99,13 +99,15 @@ namespace primitives
     const AxisAlignedBoundingBox transform(const AxisAlignedBoundingBox & a, const Float44 & m)
     {
         // Based on: Transforming Axis-Aligned Bounding Boxes by Jim Arvo (Graphics Gems, Academic Press, 1990)
-        // http://users.soe.ucsc.edu/~pang/160/f98/Gems/Gems/TransBox.c
-        AxisAlignedBoundingBox boxOut;
-        // start with translation
+		// https://github.com/erich666/GraphicsGems/blob/master/gems/TransBox.c
+
+		// Take care of translation first
         const Float4 t = yw_yw(
             zw_zw(row<VectorIndices::X>(m), row<VectorIndices::Y>(m)),
             zw_zw(row<VectorIndices::Z>(m), One<Float4>()));
-        boxOut.minimum = t;
+
+		AxisAlignedBoundingBox boxOut;
+		boxOut.minimum = t;
         boxOut.maximum = t;
         // Now find the extreme points by considering the product of the
         // min and max with each row of m.

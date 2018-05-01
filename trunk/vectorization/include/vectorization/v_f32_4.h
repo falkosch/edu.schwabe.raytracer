@@ -854,4 +854,6 @@ namespace vectorization
     //}
 #pragma endregion
 
+	std::ostream & operator<< (std::ostream & stream, const v_f32_4 & v);
+
 }

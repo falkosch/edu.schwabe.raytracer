@@ -73,6 +73,7 @@ namespace raytracer
         intersectionOut.smoothedNormal = normalize3(transposeInverseModelMatrix * facetIntersection.smoothedNormal);
         intersectionOut.texCoords = textureMatrix * facetIntersection.texCoords;
         intersectionOut.node = facetIntersection.node;
+		//std::cout << "hit on " << intersectionOut.msVertex << std::endl;
         return x(wsDistance);
     }
 

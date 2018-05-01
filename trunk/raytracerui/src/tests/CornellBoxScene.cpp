@@ -150,7 +150,7 @@ namespace raytracer
         so = new SceneObject("large object");
         so->setForm(new Box());
         so->scale(Float3(.35f, .60f, .35f));
-        so->rotate(Float3(0.f, 20, 0.f));
+        so->rotate(Float3(0.f, 20.f, 0.f));
         so->translate(Float3(-.35f, -.39f, -.35f));
         so->scaleTexture(Float2(1.f, 1.f));
         so->rotateTexture(0.f);
