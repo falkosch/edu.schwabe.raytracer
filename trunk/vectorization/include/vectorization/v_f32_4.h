@@ -50,7 +50,7 @@ namespace vectorization
             return components;
         }
 
-        v_f32_4 & operator=(const PackedType & v);
+        VectorType & operator=(const PackedType & v);
 
         ValueType & operator[](const int index);
 
