@@ -91,14 +91,14 @@ namespace raytracer
         const ObjectGeometry * const lastShadowedByObject = shadowCache[lightIndex].lastShadowedByObject;
         if (lastShadowedByObject)
         {
-            //statistics.shadowRays += One<ASizeT>();
+            statistics.shadowRays += One<ASizeT>();
             if (!outOfReach(shadowRay, lastShadowedByObject->findAnyIntersection(shadowRay, &intersection, shadowNearest)))
             {
                 // Update shadow caching info, maybe intersection node changed
                 shadowCache[lightIndex] = PerLightShadowCache(*shadowNearest.node, *lastShadowedByObject);
                 return Zero<Float4>();
             }
-            //statistics.missedShadowRays += One<ASizeT>();
+            statistics.missedShadowRays += One<ASizeT>();
 
             // shadow test failed for cached hint for shadowing object, reset info of intersection
             shadowNearest.node = intersection.node;
@@ -141,7 +141,6 @@ namespace raytracer
             // ray with the direction from the facet to the light
             const LightInfo & light = **it;
             const Float4 lightDirection = light.position - intersection.vertex;
-            const Float4 lightDistance = lengthv(lightDirection);
             const Float4 normalizedLightDirection = normalize(lightDirection);
 
             // facet intersection's orientation facing away from light source cannot be lit by it
@@ -150,18 +149,19 @@ namespace raytracer
             const Float4 diffuseIntensity = lambertDiffuseIntensity(normalizedLightDirection, intersection.smoothedNormal);
             if (allTrue(diffuseIntensity < adaptedVisibilityCutoffIn)) continue;
 
-            const Float4 attenuatedDiffuseIntensity = attenuateDiffuseIntensity(
+			const Float4 lightDistance = lengthv(lightDirection);
+			const Float4 attenuatedDiffuseIntensity = attenuateDiffuseIntensity(
                 light.attenuationFactors,
                 lightDistance,
                 diffuseIntensity);
             if (allTrue(attenuatedDiffuseIntensity < adaptedVisibilityCutoffIn)) continue;
 
 #ifdef DISABLE_SHADOWING
-            const Float4 litAreaFraction = One<Float4>();
+			const Float4 litAreaFraction = One<Float4>();
 #else
             shadowRay.ray.setDirection(normalizedLightDirection);
             shadowRay.maxDistance = x(lightDistance);
-            const Float4 litAreaFraction = computeLitAreaFraction(
+			const Float4 litAreaFraction = computeLitAreaFraction(
                 shadowRay,
                 intersection,
                 static_cast<ASizeT>(it - lights.cbegin()),
