@@ -2,6 +2,8 @@
 
 #include "geometry/partitioning/treebalancer/FixedIterationsSAHKDTreeBalancer.h"
 
+#include <algorithm>
+
 namespace raytracer
 {
 
@@ -44,17 +46,10 @@ namespace raytracer
 			}
 		}
 		else {
-			for (PGeometryNodeList::const_iterator it = geometry.cbegin(); it != geometry.cend(); ++it) {
-				testSplit(
-					paramaters,
-					SamplingKDTreeBalancer::geometryNodeMaximumPredicate(**it),
-					maxAxis,
-					geometry,
-					bounding,
-					bestCost,
-					bestPlane
-				);
-			}
+			std::for_each(geometry.cbegin(), geometry.cend(), [&](auto geometryNode) {
+				const Float4 testPosition = SamplingKDTreeBalancer::geometryNodeMaximumPredicate(*geometryNode);
+				testSplit(paramaters, testPosition, maxAxis, geometry, bounding, bestCost, bestPlane);
+			});
 		}
 
 		// finally, use the saved best splitting

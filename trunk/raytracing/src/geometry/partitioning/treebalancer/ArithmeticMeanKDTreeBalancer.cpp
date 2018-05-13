@@ -22,8 +22,8 @@ namespace raytracer
 		const Float4 boundingExtents = extents(bounding);
 		const ASizeT maxAxis = argmax3(boundingExtents);
 
-		const Float sum = std::accumulate(geometry.cbegin(), geometry.cend(), Zero<Float>(), [=](Float acc, auto geometryNode) {
-			return acc + SamplingKDTreeBalancer::geometryNodeMaximumPredicate(*geometryNode)[maxAxis];
+		const Float sum = std::accumulate(geometry.cbegin(), geometry.cend(), Zero<Float>(), [=](const Float accSum, auto geometryNode) {
+			return accSum + SamplingKDTreeBalancer::geometryNodeMaximumPredicate(*geometryNode)[maxAxis];
 		});
 
 		return SamplingKDTreeBalancer::sampleSplittingPlane(

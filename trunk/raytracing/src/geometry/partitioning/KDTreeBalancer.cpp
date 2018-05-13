@@ -2,6 +2,7 @@
 
 #include "geometry/partitioning/KDTreeBalancer.h"
 
+#include <numeric>
 #include <thread>
 
 //#define CHECK_FOR_LOST_GEOMETRY
@@ -124,12 +125,12 @@ namespace raytracer
 
 #ifdef CHECK_FOR_LOST_GEOMETRY
 		// check validity of split
-		ASizeT lostCount = Zero<ASizeT>();
-		for (PGeometryNodeList::const_iterator it = parentGeometry.cbegin(); it != parentGeometry.cend(); ++it) {
-			lostCount += (std::find(leftGeometry->cbegin(), leftGeometry->cend(), *it) == leftGeometry->cend())
-				&& (std::find(rightGeometry->cbegin(), rightGeometry->cend(), *it) == rightGeometry->cend());
-		}
-		assert(!lostCount);
+		auto lostCount = std::accumulate(parentGeometry.cbegin(), parentGeometry.cend(), Zero<ASizeT>(), [&](const ASizeT accLostCount, auto geometryNode) {
+			const bool notFoundInLeft = std::find(leftGeometry->cbegin(), leftGeometry->cend(), geometryNode) == leftGeometry->cend();
+			const bool notFoundInBoth = notFoundInLeft && std::find(rightGeometry->cbegin(), rightGeometry->cend(), geometryNode) == rightGeometry->cend();
+			return accLostCount + static_cast<ASizeT>(notFoundInBoth);
+		});
+		assert(lostCount == 0);
 #endif
 
 		// grow tree by new childs
@@ -209,20 +210,21 @@ namespace raytracer
 	)
 	{
 		// based on: Wald and Havran, "On building fast kd-Trees for Ray Tracing, and on doing that in O(N log N)", 2006
-
-		// calculate intersection costs by every individual
-		Float leftCosts = One<Float>(), rightCosts = One<Float>();
-		for (PGeometryNodeList::const_iterator it = leftGeometry.cbegin(); it != leftGeometry.cend(); ++it) {
-			leftCosts += (*it)->getIndividualIntersectionCosts();
-		}
-		for (PGeometryNodeList::const_iterator it = rightGeometry.cbegin(); it != rightGeometry.cend(); ++it) {
-			rightCosts += (*it)->getIndividualIntersectionCosts();
-		}
-
 		// x = number of geometry nodes in left bounding
 		// y = ... right bounding
 		// z = w = 0
 		//const Float4 TleftAndRight = convert<Float4>(Size2(leftGeometry.size(), rightGeometry.size()));
+
+		// alternative uses the actual summed up intersection costs of each individual
+		//
+		// note that the following loops cannot be reduced to the expression: xCosts = x.size() * x[0]->getIndividualIntersectionCosts()
+		// because getIndividualIntersectionCosts() may not be constant over all entries in the geometryNodeLists, f.e. for the scene object lists
+		const Float leftCosts = std::accumulate(leftGeometry.cbegin(), leftGeometry.cend(), One<Float>(), [](const Float accLeftCosts, auto geometryNode) {
+			return accLeftCosts + geometryNode->getIndividualIntersectionCosts();
+		});
+		const Float rightCosts = std::accumulate(rightGeometry.cbegin(), rightGeometry.cend(), One<Float>(), [](const Float accRightCosts, auto geometryNode) {
+			return accRightCosts + geometryNode->getIndividualIntersectionCosts();
+		});
 		const Float4 TleftAndRight = Float4(leftCosts, rightCosts);
 
 		// x = surface area of left bounding after split
@@ -246,10 +248,9 @@ namespace raytracer
 
 	const Float KDTreeBalancer::calculateLeafCost(const KDTreeBuildParameters & parameters, const PGeometryNodeList & geometry)
 	{
-		Float costs = One<Float>();
-		for (PGeometryNodeList::const_iterator it = geometry.cbegin(); it != geometry.cend(); ++it) {
-			costs += (*it)->getIndividualIntersectionCosts();
-		}
+		const Float costs = std::accumulate(geometry.cbegin(), geometry.cend(), One<Float>(), [](const Float accCosts, auto geometryNode) {
+			return accCosts + geometryNode->getIndividualIntersectionCosts();
+		});
 		return y(parameters.costParameters) * costs;
 	}
 
