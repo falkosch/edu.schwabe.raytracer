@@ -14,7 +14,7 @@ namespace raytracer
     const bool KDTreeBalancer::isTerminal(
         const KDTreeBuildParameters & parameters,
         const ASizeT treeDepth,
-        const KDTreeBounding & bounding,
+        const AxisAlignedBoundingBox & bounding,
         const PGeometryNodeList & geometry)
     {
         if (treeDepth >= parameters.maxTreeDepth)
@@ -31,10 +31,10 @@ namespace raytracer
     const bool KDTreeBalancer::isTerminalPostCheck(
         const KDTreeBuildParameters & parameters,
         const ASizeT treeDepth,
-        const KDTreeBounding & parentBounding,
+        const AxisAlignedBoundingBox & parentBounding,
         const PGeometryNodeList & geometry,
-        const KDTreeBounding & leftBounding,
-        const KDTreeBounding & rightBounding,
+        const AxisAlignedBoundingBox & leftBounding,
+        const AxisAlignedBoundingBox & rightBounding,
         const PGeometryNodeList & leftGeometry,
         const PGeometryNodeList & rightGeometry)
     {
@@ -80,11 +80,11 @@ namespace raytracer
         const KDTreeBuildParameters & parameters,
         const ASizeT treeDepth,
         const KDTreePlane * const parentSplitter,
-        const KDTreeBounding & parentBounding,
+        const AxisAlignedBoundingBox & parentBounding,
         KDTreeNode & parentNode) const
     {
         KDTreePlane splitter;
-        KDTreeBounding leftBounding, rightBounding;
+		AxisAlignedBoundingBox leftBounding, rightBounding;
         PGeometryNodeList *leftGeometry, *rightGeometry;
         const PGeometryNodeList & parentGeometry = *parentNode.geometryNodes;
         assert(!parentGeometry.empty());
@@ -94,7 +94,7 @@ namespace raytracer
 
         // let the balancer find a split-plane
         splitter = findSplitter(parameters, treeDepth, parentBounding, parentGeometry, parentSplitter);
-        parentBounding.split(splitter, leftBounding, rightBounding);
+		KDTreeBounding::split(splitter, parentBounding, leftBounding, rightBounding);
 
         // sort geometry to left and right boundings
         sort(splitter, parentGeometry, leftBounding, rightBounding, leftGeometry, rightGeometry);
@@ -143,8 +143,8 @@ namespace raytracer
     void KDTreeBalancer::sort(
         const KDTreePlane &,
         const PGeometryNodeList & geometry,
-        const KDTreeBounding & leftBounding,
-        const KDTreeBounding & rightBounding,
+        const AxisAlignedBoundingBox & leftBounding,
+        const AxisAlignedBoundingBox & rightBounding,
         PGeometryNodeList * & leftGeometry,
         PGeometryNodeList * & rightGeometry) const
     {

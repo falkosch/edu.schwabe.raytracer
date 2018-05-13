@@ -13,21 +13,21 @@ namespace raytracer
             const KDTreeBuildParameters & parameters,
             const ASizeT treeDepth,
             const KDTreePlane * const parentSplitter,
-            const KDTreeBounding & parentBounding,
+            const AxisAlignedBoundingBox & parentBounding,
             KDTreeNode & parentNode) const;
 
         void sort(
             const KDTreePlane & splitter,
             const PGeometryNodeList & geometry,
-            const KDTreeBounding & leftBounding,
-            const KDTreeBounding & rightBounding,
+            const AxisAlignedBoundingBox & leftBounding,
+            const AxisAlignedBoundingBox & rightBounding,
             PGeometryNodeList* & leftGeometry,
             PGeometryNodeList* & rightGeometry) const;
 
         virtual const KDTreePlane findSplitter(
             const KDTreeBuildParameters & paramaters,
             const ASizeT treeDepth,
-            const KDTreeBounding & bounding,
+            const AxisAlignedBoundingBox & bounding,
             const PGeometryNodeList & geometry,
             const KDTreePlane * parentSplitter) const = 0;
 
@@ -40,16 +40,16 @@ namespace raytracer
         static const bool isTerminal(
             const KDTreeBuildParameters & parameters,
             const ASizeT treeDepth,
-            const KDTreeBounding & bounding,
+            const AxisAlignedBoundingBox & bounding,
             const PGeometryNodeList & geometry);
 
         static const bool isTerminalPostCheck(
             const KDTreeBuildParameters & parameters,
             const ASizeT treeDepth,
-            const KDTreeBounding & bounding,
+            const AxisAlignedBoundingBox & bounding,
             const PGeometryNodeList & geometry,
-            const KDTreeBounding & leftBounding,
-            const KDTreeBounding & rightBounding,
+            const AxisAlignedBoundingBox & leftBounding,
+            const AxisAlignedBoundingBox & rightBounding,
             const PGeometryNodeList & leftGeometry,
             const PGeometryNodeList & rightGeometry);
 

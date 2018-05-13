@@ -24,9 +24,9 @@ namespace raytracer
 
         // Adds two new childs to this node and makes this node an empty node by deleting the geometryNodes.
         void grow(
-            const KDTreeBounding & leftBounding,
+            const AxisAlignedBoundingBox & leftBounding,
             PGeometryNodeList & leftGeometryNodes,
-            const KDTreeBounding & rightBounding,
+            const AxisAlignedBoundingBox & rightBounding,
             PGeometryNodeList & rightGeometryNodes);
     };
 

@@ -7,7 +7,7 @@ namespace raytracer
 
     struct KDTreeRoot
     {
-        KDTreeBounding rootBounding;
+		AxisAlignedBoundingBox rootBounding;
 
         KDTreeNode rootNode;
 

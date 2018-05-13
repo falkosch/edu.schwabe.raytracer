@@ -6,19 +6,11 @@
 namespace raytracer
 {
 
-    struct KDTreeBounding : AxisAlignedBoundingBox
-    {
-        ALIGNED_ALLOCATORS(__alignof(KDTreeBounding));
+	struct KDTreeBounding
+	{
+		static void split(const KDTreePlane & splitter, const AxisAlignedBoundingBox & toSplit, AxisAlignedBoundingBox & leftBounding, AxisAlignedBoundingBox & rightBounding);
 
-        KDTreeBounding();
-
-        KDTreeBounding(const Float4 & min, const Float4 & max);
-
-        KDTreeBounding(const AxisAlignedBoundingBox & box);
-
-        void split(const KDTreePlane & splitter, KDTreeBounding & leftBounding, KDTreeBounding & rightBounding) const;
-
-        static const KDTreeBounding findMinimumBoundingOfGeometry(const PGeometryNodeList & geometry);
-    };
+		static const AxisAlignedBoundingBox findMinimumBoundingOfGeometry(const PGeometryNodeList & geometry);
+	};
 
 }

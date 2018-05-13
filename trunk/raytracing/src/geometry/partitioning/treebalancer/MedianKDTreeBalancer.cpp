@@ -12,7 +12,7 @@ namespace raytracer
     const KDTreePlane MedianKDTreeBalancer::findSplitter(
         const KDTreeBuildParameters &,
         const ASizeT,
-        const KDTreeBounding & bounding,
+        const AxisAlignedBoundingBox & bounding,
         const PGeometryNodeList & geometry,
         const KDTreePlane *) const
     {

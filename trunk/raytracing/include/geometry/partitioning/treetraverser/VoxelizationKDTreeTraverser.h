@@ -36,13 +36,13 @@ namespace raytracer
         static void findNearestIntersection(
             const GeometryNodesTraverser<IntersectionInfoType> & geometryNodesTraverser,
             const KDTreeNode & node,
-            const KDTreeBounding & nodeBounding,
+            const AxisAlignedBoundingBox & nodeBounding,
             const IntersectionInfoType * const originIntersection,
             Raycast & tr,
             IntersectionInfoType & intersectionOut)
         {
             // Traverse childs
-            const KDTreeBounding *lastHitBounding = &nodeBounding;
+            const AxisAlignedBoundingBox *lastHitBounding = &nodeBounding;
             const KDTreeNode *traversel = &node;
             while (traversel->childs)
             {
@@ -84,14 +84,14 @@ namespace raytracer
         static void findAnyIntersection(
             const GeometryNodesTraverser<IntersectionInfoType> & geometryNodesTraverser,
             const KDTreeNode & node,
-            const KDTreeBounding & nodeBounding,
+            const AxisAlignedBoundingBox & nodeBounding,
             const Raycast & r,
             const IntersectionInfoType * const originIntersection,
             Raycast & tr,
             IntersectionInfoType & intersectionOut)
         {
             // Traverse childs
-            const KDTreeBounding *lastHitBounding = &nodeBounding;
+            const AxisAlignedBoundingBox *lastHitBounding = &nodeBounding;
             const KDTreeNode *traversel = &node;
             while (traversel->childs)
             {

@@ -8,7 +8,7 @@ namespace raytracer
     struct KDTreeNodeChilds
     {
 
-        KDTreeBounding boundingA, boundingB;
+		AxisAlignedBoundingBox boundingA, boundingB;
 
         // the two childs
         KDTreeNode childA, childB;

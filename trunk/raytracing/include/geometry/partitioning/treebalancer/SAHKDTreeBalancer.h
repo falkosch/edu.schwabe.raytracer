@@ -18,7 +18,7 @@ namespace raytracer
             const Float4 & position,
             const ASizeT axis,
             const PGeometryNodeList & geometry,
-            const KDTreeBounding & parentBounding,
+            const AxisAlignedBoundingBox & parentBounding,
             Float & bestCost,
             KDTreePlane & bestPlane) const;
 

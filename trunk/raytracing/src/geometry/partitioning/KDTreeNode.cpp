@@ -36,9 +36,9 @@ namespace raytracer
     }
 
     void KDTreeNode::grow(
-        const KDTreeBounding & leftBounding,
+        const AxisAlignedBoundingBox & leftBounding,
         PGeometryNodeList & leftGeometryNodes,
-        const KDTreeBounding & rightBounding,
+        const AxisAlignedBoundingBox & rightBounding,
         PGeometryNodeList & rightGeometryNodes)
     {
         clear();

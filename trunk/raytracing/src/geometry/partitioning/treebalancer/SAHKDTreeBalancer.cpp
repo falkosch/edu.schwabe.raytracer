@@ -12,15 +12,15 @@ namespace raytracer
         const Float4 & position,
         const ASizeT axis,
         const PGeometryNodeList & geometry,
-        const KDTreeBounding & parentBounding,
+        const AxisAlignedBoundingBox & parentBounding,
         Float & bestCost,
         KDTreePlane & bestPlane) const
     {
         const Float splitCoordOnAxis = position[axis];
         const KDTreePlane splitPlane = SamplingKDTreeBalancer::sampleSplittingPlane(axis, parentBounding, position);
 
-        KDTreeBounding leftBounding, rightBounding;
-        parentBounding.split(splitPlane, leftBounding, rightBounding);
+		AxisAlignedBoundingBox leftBounding, rightBounding;
+        KDTreeBounding::split(splitPlane, parentBounding, leftBounding, rightBounding);
 
         PGeometryNodeList leftGeometry = SamplingKDTreeBalancer::geometrySortByMinimum(axis, geometry);
         for (PGeometryNodeList::const_iterator it = leftGeometry.cbegin(); it != leftGeometry.cend(); ++it)

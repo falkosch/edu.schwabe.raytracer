@@ -10,7 +10,7 @@ namespace raytracer
     const KDTreePlane BruteForceSAHKDTreeBalancer::findSplitter(
         const KDTreeBuildParameters & paramaters,
         const ASizeT,
-        const KDTreeBounding & bounding,
+        const AxisAlignedBoundingBox & bounding,
         const PGeometryNodeList & geometry,
         const KDTreePlane *) const
     {

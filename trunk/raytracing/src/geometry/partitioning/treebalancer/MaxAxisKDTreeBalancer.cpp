@@ -12,7 +12,7 @@ namespace raytracer
     const KDTreePlane MaxAxisKDTreeBalancer::findSplitter(
         const KDTreeBuildParameters &,
         const ASizeT, 
-        const KDTreeBounding & bounding,
+        const AxisAlignedBoundingBox & bounding,
         const PGeometryNodeList &,
         const KDTreePlane *) const
     {
