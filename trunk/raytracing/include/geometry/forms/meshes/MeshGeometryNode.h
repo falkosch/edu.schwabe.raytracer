@@ -26,7 +26,7 @@ namespace raytracer
 
         const Float getIndividualIntersectionCosts() const
         {
-            return 19.027224f;
+            return 79.1726f;
         }
 
         // Intersectable<Raycast, FacetIntersection> interface

@@ -30,7 +30,7 @@ namespace raytracer
         const Float getIndividualIntersectionCosts() const
         {
             // benchmarked intersection costs in cycles
-            return 26.003124f;
+            return 19.8722f;
         }
     };
 
