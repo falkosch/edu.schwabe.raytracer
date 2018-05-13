@@ -7,7 +7,8 @@
 namespace raytracer
 {
 
-    class SamplingKDTreeBalancer : public KDTreeBalancer
+    class SamplingKDTreeBalancer
+		: public KDTreeBalancer
     {
     public:
 
@@ -20,19 +21,22 @@ namespace raytracer
         static const KDTreePlane sampleSplittingPlane(
             const ASizeT axis,
             const AxisAlignedBoundingBox & bounding,
-            const Float4 & sample);
+            const Float4 & sample
+		);
 
         static const KDTreePlane sampleSplittingPlane(
             const ASizeT axis,
             const Float4 & offset,
             const Float4 & normalization,
-            const Float4 & sample);
+            const Float4 & sample
+		);
 
         static const KDTreePlane sampleSplittingPlane(
             const ASizeT axis,
             const Float offset,
             const Float normalization,
-            const Float sample);
+            const Float sample
+		);
 
         static const Float4 geometryNodeMinimumPredicate(const GeometryNode & node);
 

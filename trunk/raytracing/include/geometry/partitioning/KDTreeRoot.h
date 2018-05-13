@@ -5,17 +5,17 @@
 namespace raytracer
 {
 
-    struct KDTreeRoot
-    {
+	struct KDTreeRoot
+	{
 		AxisAlignedBoundingBox rootBounding;
 
-        KDTreeNode rootNode;
+		KDTreeNode rootNode;
 
-        ALIGNED_ALLOCATORS(__alignof(KDTreeRoot));
+		ALIGNED_ALLOCATORS(__alignof(KDTreeRoot));
 
-        KDTreeRoot();
+		KDTreeRoot();
 
-        ~KDTreeRoot();
-    };
+		~KDTreeRoot();
+	};
 
 }

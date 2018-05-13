@@ -33,8 +33,7 @@ namespace raytracer
 			AxisAlignedBoundingBox t = AxisAlignedBoundingBox();
 
 #pragma omp for nowait
-			for (int i = Zero<int>(); i < geometrySize; ++i)
-			{
+			for (int i = Zero<int>(); i < geometrySize; ++i) {
 				geometry[static_cast<ASizeT>(i)]->includeInBounding(t);
 			}
 

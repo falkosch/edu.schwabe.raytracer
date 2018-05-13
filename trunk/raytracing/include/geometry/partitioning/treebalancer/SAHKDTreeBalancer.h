@@ -5,7 +5,8 @@
 namespace raytracer
 {
 
-    class SAHKDTreeBalancer : public SamplingKDTreeBalancer
+    class SAHKDTreeBalancer
+		: public SamplingKDTreeBalancer
     {
     public:
 
@@ -20,9 +21,10 @@ namespace raytracer
             const PGeometryNodeList & geometry,
             const AxisAlignedBoundingBox & parentBounding,
             Float & bestCost,
-            KDTreePlane & bestPlane) const;
+            KDTreePlane & bestPlane
+		) const;
 
-        const AxisAlignedBoundingBox geometryNodeBounding(const GeometryNode & node) const;
+        static const AxisAlignedBoundingBox geometryNodeBounding(const GeometryNode & node);
     };
 
 }

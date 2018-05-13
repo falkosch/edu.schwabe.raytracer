@@ -5,6 +5,9 @@
 namespace raytracer
 {
 
+	// KD-trees have a very special structure: Non-leaf-nodes always have two
+	// child nodes. That is why we use a dedicated KDTreeNodeChilds structure
+	// that reflects that inherent property.
     struct KDTreeNodeChilds
     {
 

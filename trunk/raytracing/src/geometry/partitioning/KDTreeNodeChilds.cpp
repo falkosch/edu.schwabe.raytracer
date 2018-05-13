@@ -5,14 +5,14 @@
 namespace raytracer
 {
 
-    KDTreeNodeChilds::KDTreeNodeChilds()
-        :
-        boundingA(),
-        boundingB(),
-        childA(),
-        childB()
-    { }
+	KDTreeNodeChilds::KDTreeNodeChilds()
+		:
+		boundingA(),
+		boundingB(),
+		childA(),
+		childB()
+	{ }
 
-    KDTreeNodeChilds::~KDTreeNodeChilds() { }
+	KDTreeNodeChilds::~KDTreeNodeChilds() { }
 
 }

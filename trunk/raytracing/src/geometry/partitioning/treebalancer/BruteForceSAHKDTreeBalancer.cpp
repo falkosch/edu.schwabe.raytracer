@@ -12,7 +12,8 @@ namespace raytracer
         const ASizeT,
         const AxisAlignedBoundingBox & bounding,
         const PGeometryNodeList & geometry,
-        const KDTreePlane *) const
+        const KDTreePlane *
+	) const
     {
         // get the geometry stuff
         const Float4 parentExtents = extents(bounding);
@@ -23,8 +24,7 @@ namespace raytracer
         Float bestCost = Float_Limits::max();
         KDTreePlane bestPlane = KDTreePlane(Half<Float>(), maxAxis);
 
-        for (PGeometryNodeList::const_iterator it = geometry.cbegin(); it != geometry.cend(); ++it)
-        {
+        for (PGeometryNodeList::const_iterator it = geometry.cbegin(); it != geometry.cend(); ++it) {
             const AxisAlignedBoundingBox nodeBounding = SamplingKDTreeBalancer::geometryNodeBox(**it);
             testSplit(paramaters, nodeBounding.minimum, maxAxis, geometry, bounding, bestCost, bestPlane);
             testSplit(paramaters, center(nodeBounding), maxAxis, geometry, bounding, bestCost, bestPlane);

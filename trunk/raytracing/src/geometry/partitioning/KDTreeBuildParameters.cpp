@@ -5,11 +5,11 @@
 namespace raytracer
 {
 
-    KDTreeBuildParameters::KDTreeBuildParameters()
-        :
-        costParameters(),
-        maxNodesSize(),
-        maxTreeDepth()
-    { }
+	KDTreeBuildParameters::KDTreeBuildParameters()
+		:
+		costParameters(),
+		maxNodesSize(),
+		maxTreeDepth()
+	{ }
 
 }

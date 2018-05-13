@@ -5,6 +5,6 @@
 namespace raytracer
 {
 
-    GeometryNode::~GeometryNode() { }
+	GeometryNode::~GeometryNode() { }
 
 }

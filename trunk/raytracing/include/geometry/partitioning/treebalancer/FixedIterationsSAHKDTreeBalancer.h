@@ -5,7 +5,8 @@
 namespace raytracer
 {
 
-    class FixedIterationsSAHKDTreeBalancer : public SAHKDTreeBalancer
+    class FixedIterationsSAHKDTreeBalancer
+		: public SAHKDTreeBalancer
     {
     public:
 
@@ -22,7 +23,8 @@ namespace raytracer
             const ASizeT treeDepth,
             const AxisAlignedBoundingBox & bounding,
             const PGeometryNodeList & geometry,
-            const KDTreePlane * parentSplitter) const;
+            const KDTreePlane * parentSplitter
+		) const;
 
     protected:
 

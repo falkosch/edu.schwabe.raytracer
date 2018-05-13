@@ -5,18 +5,19 @@
 namespace raytracer
 {
 
-    RotatingAxisKDTreeBalancer::RotatingAxisKDTreeBalancer() : KDTreeBalancer() { }
+	RotatingAxisKDTreeBalancer::RotatingAxisKDTreeBalancer() : KDTreeBalancer() { }
 
-    RotatingAxisKDTreeBalancer::~RotatingAxisKDTreeBalancer() { }
+	RotatingAxisKDTreeBalancer::~RotatingAxisKDTreeBalancer() { }
 
-    const KDTreePlane RotatingAxisKDTreeBalancer::findSplitter(
-        const KDTreeBuildParameters &,
-        const ASizeT treeDepth,
-        const AxisAlignedBoundingBox &,
-        const PGeometryNodeList &,
-        const KDTreePlane *) const
-    {
-        return KDTreePlane(Half<Float>(), treeDepth % D);
-    }
+	const KDTreePlane RotatingAxisKDTreeBalancer::findSplitter(
+		const KDTreeBuildParameters &,
+		const ASizeT treeDepth,
+		const AxisAlignedBoundingBox &,
+		const PGeometryNodeList &,
+		const KDTreePlane *
+	) const
+	{
+		return KDTreePlane(Half<Float>(), treeDepth % D);
+	}
 
 }

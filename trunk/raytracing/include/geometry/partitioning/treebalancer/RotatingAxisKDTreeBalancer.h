@@ -5,7 +5,8 @@
 namespace raytracer
 {
 
-    class RotatingAxisKDTreeBalancer : public KDTreeBalancer
+    class RotatingAxisKDTreeBalancer
+		: public KDTreeBalancer
     {
     public:
 
@@ -20,7 +21,8 @@ namespace raytracer
             const ASizeT treeDepth,
             const AxisAlignedBoundingBox & bounding,
             const PGeometryNodeList & geometry,
-            const KDTreePlane * parentSplitter) const;
+            const KDTreePlane * parentSplitter
+		) const;
     };
 
 }
