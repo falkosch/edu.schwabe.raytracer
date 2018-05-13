@@ -56,7 +56,7 @@ namespace raytracer
 
 	KDTreeRoot * const KDTreeBalancer::build(const PGeometryNodeList & rootGeometry) const
 	{
-		if (!rootGeometry.size()) {
+		if (rootGeometry.empty()) {
 			return nullptr;
 		}
 
