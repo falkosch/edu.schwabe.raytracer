@@ -204,7 +204,7 @@
     <ClInclude Include="include\MessageLoopBasedUI.h" />
     <ClInclude Include="include\OpenGLWindowsRaytracerUI.h" />
     <ClInclude Include="include\RaytracerUI.h" />
-    <ClInclude Include="include\tests.h" />
+    <ClInclude Include="include\ManualTests.h" />
     <ClInclude Include="include\tests\CornellBoxScene.h" />
     <ClInclude Include="include\tests\DragonScene.h" />
     <ClInclude Include="include\tests\ProceduralScene.h" />
@@ -214,12 +214,14 @@
     <ClInclude Include="include\tests\TestScene2.h" />
     <ClInclude Include="include\WindowsRaytracerUI.h" />
     <ClInclude Include="src\stdafx.h" />
-    <ClInclude Include="include\benchmarks.h" />
+    <ClInclude Include="include\Benchmarks.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Benchmarks.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\MessageLoopBasedUI.cpp" />
     <ClCompile Include="src\OpenGLWindowsRaytracerUI.cpp" />
+    <ClCompile Include="src\ManualTests.cpp" />
     <ClCompile Include="src\RaytracerUI.cpp" />
     <ClCompile Include="src\tests\CornellBoxScene.cpp" />
     <ClCompile Include="src\tests\DragonScene.cpp" />

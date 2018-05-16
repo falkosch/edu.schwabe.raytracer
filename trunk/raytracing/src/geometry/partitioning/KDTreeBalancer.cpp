@@ -5,8 +5,6 @@
 #include <numeric>
 #include <thread>
 
-//#define CHECK_FOR_LOST_GEOMETRY
-
 namespace raytracer
 {
 
@@ -61,10 +59,10 @@ namespace raytracer
 			return nullptr;
 		}
 
-        KDTreeBuildParameters parameters = KDTreeBuildParameters();
-        parameters.costParameters = Float4(4.68375f, 1.f);
-        parameters.maxNodesSize = static_cast<ASizeT>(4);
-        parameters.maxTreeDepth = One<ASizeT>() + static_cast<ASizeT>(1.1f * logN(static_cast<Float>(rootGeometry.size() + One<ASizeT>()), Two<Float>()));
+		KDTreeBuildParameters parameters = KDTreeBuildParameters();
+		parameters.costParameters = Float4(4.68375f, 1.f);
+		parameters.maxNodesSize = static_cast<ASizeT>(4);
+		parameters.maxTreeDepth = One<ASizeT>() + static_cast<ASizeT>(1.1f * logN(static_cast<Float>(rootGeometry.size() + One<ASizeT>()), Two<Float>()));
 
 		KDTreeRoot * const root = new KDTreeRoot();
 		root->rootBounding = KDTreeBounding::findMinimumBoundingOfGeometry(rootGeometry);
@@ -123,16 +121,6 @@ namespace raytracer
 			return;
 		}
 
-#ifdef CHECK_FOR_LOST_GEOMETRY
-		// check validity of split
-		auto lostCount = std::accumulate(parentGeometry.cbegin(), parentGeometry.cend(), Zero<ASizeT>(), [&](const ASizeT accLostCount, auto geometryNode) {
-			const bool notFoundInLeft = std::find(leftGeometry->cbegin(), leftGeometry->cend(), geometryNode) == leftGeometry->cend();
-			const bool notFoundInBoth = notFoundInLeft && std::find(rightGeometry->cbegin(), rightGeometry->cend(), geometryNode) == rightGeometry->cend();
-			return accLostCount + static_cast<ASizeT>(notFoundInBoth);
-		});
-		assert(lostCount == 0);
-#endif
-
 		// grow tree by new childs
 		parentNode.grow(leftBounding, *leftGeometry, rightBounding, *rightGeometry);
 
@@ -164,9 +152,9 @@ namespace raytracer
 #pragma omp for nowait
 			for (int i = Zero<int>(); i < geometrySize; ++i) {
 				GeometryNode * const geometryNode = geometry[static_cast<ASizeT>(i)];
-
-#ifdef CHECK_FOR_LOST_GEOMETRY
 				bool inserted = false;
+
+				// Ask the geometryNode to test for an overlap with one of the two boundings
 				if (geometryNode->overlaps(leftBounding)) {
 					tLeftGeometry->push_back(geometryNode);
 					inserted |= true;
@@ -175,15 +163,27 @@ namespace raytracer
 					tRightGeometry->push_back(geometryNode);
 					inserted |= true;
 				}
+
+				// For overlap-test-algorithms, which are not robust enough, we fallback to
+				// simple AABB overlap tests to not lose any geometry due to falsy
+				// overlap-test results. That is ofcourse not optimal and causes an
+				// unnecessarily deep tree due to more splits. Make sure the tree depth is
+				// finite or use the SAH balancers, which will early stop too many splits
+				// when traversal costs exceed the intersection costs.
+				if (!inserted) {
+					AxisAlignedBoundingBox aabb = AxisAlignedBoundingBox();
+					geometryNode->includeInBounding(aabb);
+					if (overlaps(aabb, leftBounding)) {
+						tLeftGeometry->push_back(geometryNode);
+						inserted |= true;
+					}
+					if (overlaps(aabb, rightBounding)) {
+						tRightGeometry->push_back(geometryNode);
+						inserted |= true;
+					}
+				}
+
 				assert(inserted);
-#else
-				if (geometryNode->overlaps(leftBounding)) {
-					tLeftGeometry->push_back(geometryNode);
-				}
-				if (geometryNode->overlaps(rightBounding)) {
-					tRightGeometry->push_back(geometryNode);
-				}
-#endif
 			}
 
 #pragma omp critical (appendLeftGeometry)
