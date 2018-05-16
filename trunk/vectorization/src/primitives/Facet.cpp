@@ -29,6 +29,11 @@ namespace primitives
         v2(v2In)
     { }
 
+	const AxisAlignedBoundingBox bounding(const Facet & facet)
+	{
+		return extendBy(AxisAlignedBoundingBox(facet.v0, facet.v1), facet.v2);
+	}
+
     const Facet operator+(const Facet & a, const Float4 & b)
     {
         return Facet(a.v0 + b, a.v1 + b, a.v2 + b);

@@ -7,6 +7,8 @@
 #include "tests/DragonScene.h"
 
 #include "OpenGLWindowsRaytracerUI.h"
+#include "ManualTests.h"
+#include "Benchmarks.h"
 
 #include <geometry/partitioning/treetraverser/NaiveKDTreeTraverser.h>
 #include <geometry/partitioning/treetraverser/VoxelizationKDTreeTraverser.h>
@@ -18,9 +20,6 @@
 #include <geometry/partitioning/treebalancer/BruteForceSAHKDTreeBalancer.h>
 
 using namespace raytracer;
-
-#include "tests.h"
-#include "benchmarks.h"
 
 #include <tchar.h>
 
@@ -64,8 +63,8 @@ int __cdecl main()
     GetCurrentDirectory(MAX_PATH, currentPath);
     _tprintf(TEXT("Working directory: %s\n"), currentPath);
 
-    //tests();
-    //benchmarks();
+    //ManualTests()();
+    //Benchmarks()();
 
     Resources resources = Resources();
     Scene scene = Scene(
