@@ -217,6 +217,7 @@
     <ClInclude Include="include\benchmarks.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Benchmarks.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\MessageLoopBasedUI.cpp" />
     <ClCompile Include="src\OpenGLWindowsRaytracerUI.cpp" />

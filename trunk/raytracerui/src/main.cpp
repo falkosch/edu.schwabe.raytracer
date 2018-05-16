@@ -65,7 +65,7 @@ int __cdecl main()
     _tprintf(TEXT("Working directory: %s\n"), currentPath);
 
     //tests();
-    //benchmarks();
+    //Benchmarks()();
 
     Resources resources = Resources();
     Scene scene = Scene(
