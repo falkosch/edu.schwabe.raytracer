@@ -48,6 +48,9 @@
     <ClCompile Include="src\tests\CornellBoxScene.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="src\ManualTests.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
     <ClCompile Include="src\Benchmarks.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
@@ -89,10 +92,10 @@
     <ClInclude Include="include\tests\CornellBoxScene.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="include\benchmarks.h">
+    <ClInclude Include="include\ManualTests.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="include\tests.h">
+    <ClInclude Include="include\Benchmarks.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>
