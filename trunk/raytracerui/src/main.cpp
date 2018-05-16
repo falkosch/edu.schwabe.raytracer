@@ -7,6 +7,7 @@
 #include "tests/DragonScene.h"
 
 #include "OpenGLWindowsRaytracerUI.h"
+#include "tBenchmarks.h"
 
 #include <geometry/partitioning/treetraverser/NaiveKDTreeTraverser.h>
 #include <geometry/partitioning/treetraverser/VoxelizationKDTreeTraverser.h>
@@ -20,7 +21,6 @@
 using namespace raytracer;
 
 #include "tests.h"
-#include "benchmarks.h"
 
 #include <tchar.h>
 

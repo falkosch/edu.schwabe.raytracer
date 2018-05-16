@@ -1,6 +1,6 @@
 #include "stdafx.h"
 
-#include "Benchmarks.h"
+#include "tBenchmarks.h"
 
 #include <geometry/forms/meshes/Mesh.h>
 
