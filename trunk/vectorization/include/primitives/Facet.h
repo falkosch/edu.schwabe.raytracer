@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../vectorization/vectorization.h"
+#include "AxisAlignedBoundingBox.h"
 
 namespace primitives
 {
@@ -19,6 +19,8 @@ namespace primitives
     };
 
     typedef Facet FacetTexCoords4, FacetNormals;
+
+	const AxisAlignedBoundingBox bounding(const Facet & facet);
 
     const Facet operator+(const Facet & a, const vectorization::Float4 & b);
 
