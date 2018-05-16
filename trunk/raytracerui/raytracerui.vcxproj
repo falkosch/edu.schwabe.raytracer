@@ -214,7 +214,7 @@
     <ClInclude Include="include\tests\TestScene2.h" />
     <ClInclude Include="include\WindowsRaytracerUI.h" />
     <ClInclude Include="src\stdafx.h" />
-    <ClInclude Include="include\tBenchmarks.h" />
+    <ClInclude Include="include\Benchmarks.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Benchmarks.cpp" />

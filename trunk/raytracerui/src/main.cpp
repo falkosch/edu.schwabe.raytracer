@@ -7,7 +7,7 @@
 #include "tests/DragonScene.h"
 
 #include "OpenGLWindowsRaytracerUI.h"
-#include "tBenchmarks.h"
+#include "Benchmarks.h"
 
 #include <geometry/partitioning/treetraverser/NaiveKDTreeTraverser.h>
 #include <geometry/partitioning/treetraverser/VoxelizationKDTreeTraverser.h>
