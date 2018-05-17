@@ -5,3 +5,5 @@
 #ifndef NOMINMAX
 #define NOMINMAX // To avoid min-max-keyword collisions in WinApi-headers
 #endif
+
+using namespace vectorization;

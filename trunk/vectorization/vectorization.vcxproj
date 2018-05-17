@@ -95,7 +95,6 @@
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <CallingConvention>VectorCall</CallingConvention>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <BrowseInformation>true</BrowseInformation>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -111,7 +110,6 @@
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <CallingConvention>VectorCall</CallingConvention>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <BrowseInformation>true</BrowseInformation>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -130,7 +128,6 @@
       <EnablePREfast>false</EnablePREfast>
       <CallingConvention>VectorCall</CallingConvention>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <BrowseInformation>true</BrowseInformation>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <ControlFlowGuard>false</ControlFlowGuard>
@@ -157,7 +154,6 @@
       <EnablePREfast>false</EnablePREfast>
       <CallingConvention>VectorCall</CallingConvention>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <BrowseInformation>true</BrowseInformation>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <ControlFlowGuard>false</ControlFlowGuard>
@@ -176,10 +172,10 @@
     <ClInclude Include="include\primitives\BoundingSphere.h" />
     <ClInclude Include="include\primitives\Facet.h" />
     <ClInclude Include="include\primitives\FacetEdges.h" />
-    <ClInclude Include="include\primitives\primitives.h" />
+    <ClInclude Include="include\primitives.h" />
     <ClInclude Include="include\primitives\SplittingPlane.h" />
     <ClInclude Include="include\vectorization\conversions.h" />
-    <ClInclude Include="include\vectorization\vectorization.h" />
+    <ClInclude Include="include\vectorization.h" />
     <ClInclude Include="include\vectorization\compiler.h" />
     <ClInclude Include="include\vectorization\constants.h" />
     <ClInclude Include="include\vectorization\datatypes.h" />
@@ -207,7 +203,6 @@
     <ClCompile Include="src\primitives\Raycast.cpp" />
     <ClCompile Include="src\primitives\SplittingPlane.cpp" />
     <ClCompile Include="src\vectorization\conversions.cpp" />
-    <ClCompile Include="src\stdafx.cpp" />
     <ClCompile Include="src\vectorization\constants.cpp" />
     <ClCompile Include="src\vectorization\datatypes.cpp" />
     <ClCompile Include="src\vectorization\functions.cpp" />

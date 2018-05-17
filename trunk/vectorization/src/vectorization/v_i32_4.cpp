@@ -1,6 +1,5 @@
-#include "../stdafx.h"
-
 #include "vectorization/v_i32_4.h"
+#include "../stdafx.h"
 
 #include <limits.h>
 

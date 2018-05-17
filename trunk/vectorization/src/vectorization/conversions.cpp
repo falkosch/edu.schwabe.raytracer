@@ -1,6 +1,5 @@
-#include "../stdafx.h"
-
 #include "vectorization/conversions.h"
+#include "../stdafx.h"
 
 namespace vectorization
 {

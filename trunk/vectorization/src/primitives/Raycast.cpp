@@ -1,8 +1,5 @@
-#include "../stdafx.h"
-
 #include "primitives/Raycast.h"
-
-using namespace vectorization;
+#include "../stdafx.h"
 
 namespace primitives
 {

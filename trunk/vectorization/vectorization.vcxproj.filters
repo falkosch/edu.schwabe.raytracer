@@ -30,9 +30,6 @@
     <ClInclude Include="include\vectorization\utvector.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="src\stdafx.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
     <ClInclude Include="include\vectorization\intrinsics.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
@@ -63,9 +60,6 @@
     <ClInclude Include="include\vectorization\conversions.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="include\vectorization\vectorization.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
     <ClInclude Include="include\primitives\Ray.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
@@ -87,7 +81,13 @@
     <ClInclude Include="include\primitives\SplittingPlane.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="include\primitives\primitives.h">
+    <ClInclude Include="include\primitives.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vectorization.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="src\stdafx.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>
@@ -96,9 +96,6 @@
       <Filter>Quelldateien</Filter>
     </ClCompile>
     <ClCompile Include="src\vectorization\m_f32_4x4.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="src\stdafx.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
     <ClCompile Include="src\vectorization\v_f32_4.cpp">

@@ -1,6 +1,5 @@
-#include "../stdafx.h"
-
 #include "vectorization/constants.h"
+#include "../stdafx.h"
 
 #include <limits.h>
 

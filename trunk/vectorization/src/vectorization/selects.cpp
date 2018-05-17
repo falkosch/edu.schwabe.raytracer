@@ -1,6 +1,5 @@
-#include "../stdafx.h"
-
 #include "vectorization/selects.h"
+#include "../stdafx.h"
 
 namespace vectorization
 {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../vectorization/vectorization.h"
+#include <vectorization.h>
 
 namespace primitives
 {
