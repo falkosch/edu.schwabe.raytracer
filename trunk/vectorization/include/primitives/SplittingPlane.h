@@ -4,18 +4,19 @@
 
 namespace primitives
 {
+	using namespace vectorization;
 
     struct SplittingPlane
     {
-        vectorization::Float4 normalDistance;
+        Float4 normalDistance;
 
         ALIGNED_ALLOCATORS(__alignof(SplittingPlane));
 
         SplittingPlane();
 
-        explicit SplittingPlane(const vectorization::Float4 & normalDistance);
+        explicit SplittingPlane(const Float4 & normalDistance);
 
-        explicit SplittingPlane(const vectorization::Float4 & origin, const vectorization::Float4 & normal);
+        explicit SplittingPlane(const Float4 & origin, const Float4 & normal);
     };
 
     const AxisAlignedBoundingBox bounding(const SplittingPlane & p);
@@ -25,6 +26,6 @@ namespace primitives
     // Checks for intersection of this box with a plane.
     const bool overlaps(const Raycast & r, const SplittingPlane & by);
 
-    const vectorization::Float nearestIntersection(const Raycast & r, const SplittingPlane & p, const vectorization::Size2::ValueType originId);
+    const Float nearestIntersection(const Raycast & r, const SplittingPlane & p, const Size2::ValueType originId);
 
 }

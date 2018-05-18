@@ -4,8 +4,3 @@
 #include "primitives/Facet.h"
 #include "primitives/FacetEdges.h"
 #include "primitives/SplittingPlane.h"
-
-namespace primitives
-{
-    // ...
-}

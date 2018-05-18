@@ -23,9 +23,9 @@ namespace vectorization
         return alloc(size, VectorAlignments::Best);
     }
 
-    void * alloc(const ASizeT size, const ASizeT /*alignment*/)
+    void * alloc(const ASizeT size, const ASizeT alignment)
     {
-        void * data = _mm_malloc(size, VectorAlignments::Best);
+        void * data = _mm_malloc(size, alignment);
         assert(data);
         return data;
     }

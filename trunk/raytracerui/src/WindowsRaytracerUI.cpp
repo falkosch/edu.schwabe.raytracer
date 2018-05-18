@@ -1,12 +1,9 @@
-#include "stdafx.h"
-
 #include "WindowsRaytracerUI.h"
-
-#include <scene/Scene.h>
+#include "stdafx.h"
 
 #include <windowsx.h>
 
-namespace raytracer
+namespace raytracerui
 {
 
     const Float WindowsRaytracerUI::MOUSE_SENSITIVITY = .02f;

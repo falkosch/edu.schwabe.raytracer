@@ -1,8 +1,7 @@
+#include "MessageLoopBasedUI.h"
 #include "stdafx.h"
 
-#include "MessageLoopBasedUI.h"
-
-namespace raytracer
+namespace raytracerui
 {
 
     MessageLoopBasedUI::~MessageLoopBasedUI() { }

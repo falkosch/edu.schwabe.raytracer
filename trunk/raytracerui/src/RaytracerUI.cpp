@@ -1,8 +1,7 @@
+#include "RaytracerUI.h"
 #include "stdafx.h"
 
-#include "RaytracerUI.h"
-
-namespace raytracer
+namespace raytracerui
 {
 
     RaytracerUI::RaytracerUI(

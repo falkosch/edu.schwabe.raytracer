@@ -10,17 +10,6 @@
 #include "ManualTests.h"
 #include "Benchmarks.h"
 
-#include <geometry/partitioning/treetraverser/NaiveKDTreeTraverser.h>
-#include <geometry/partitioning/treetraverser/VoxelizationKDTreeTraverser.h>
-#include <geometry/partitioning/treebalancer/RotatingAxisKDTreeBalancer.h>
-#include <geometry/partitioning/treebalancer/MaxAxisKDTreeBalancer.h>
-#include <geometry/partitioning/treebalancer/MedianKDTreeBalancer.h>
-#include <geometry/partitioning/treebalancer/ArithmeticMeanKDTreeBalancer.h>
-#include <geometry/partitioning/treebalancer/FixedIterationsSAHKDTreeBalancer.h>
-#include <geometry/partitioning/treebalancer/BruteForceSAHKDTreeBalancer.h>
-
-using namespace raytracer;
-
 #include <tchar.h>
 
 
@@ -59,6 +48,8 @@ const ASizeT RAY_PACKET_SIZE = 15;
 
 int __cdecl main()
 {
+	using namespace raytracerui;
+
     TCHAR currentPath[MAX_PATH];
     GetCurrentDirectory(MAX_PATH, currentPath);
     _tprintf(TEXT("Working directory: %s\n"), currentPath);

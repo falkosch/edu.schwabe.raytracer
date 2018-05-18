@@ -1204,7 +1204,7 @@ namespace vectorization
     {
         UTVector<Size, T> t;
         for (ASizeT i = VectorIndices::X; i < Size; ++i)
-            t.components[i] = vectorization::min(a.components[i], b.components[i]);
+            t.components[i] = min(a.components[i], b.components[i]);
         return t;
     }
 

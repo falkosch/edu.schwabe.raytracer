@@ -4,6 +4,7 @@
 
 namespace primitives
 {
+	using namespace vectorization;
 
     /*
     * Combines casting data about a ray
@@ -15,11 +16,11 @@ namespace primitives
         // x: indicates backface culling wanted
         // y: indicates frontface culling wanted
         // z, w: reserved
-        vectorization::Float4::VectorBoolType cullingMask;
+        Float4::VectorBoolType cullingMask;
 
-        vectorization::Size2 originIds;
+        Size2 originIds;
 
-        vectorization::Float maxDistance;
+        Float maxDistance;
 
         ALIGNED_ALLOCATORS(__alignof(Raycast));
 
@@ -27,9 +28,9 @@ namespace primitives
 
         explicit Raycast(
             const Ray & ray,
-            const vectorization::Float4::VectorBoolType & cullingMask,
-            const vectorization::Size2 & originIds,
-            const vectorization::Float maxDistance);
+            const Float4::VectorBoolType & cullingMask,
+            const Size2 & originIds,
+            const Float maxDistance);
 
     };
 
@@ -37,44 +38,44 @@ namespace primitives
     // instead of taking over the original maxDistance.
     const Raycast toObjectSpace(
         const Raycast & r,
-        const vectorization::Float44 & transInvModelMatrix,
-        const vectorization::Float4 & osOrigin);
+        const Float44 & transInvModelMatrix,
+        const Float4 & osOrigin);
 
-    const Raycast toObjectSpace(const Raycast & r, const vectorization::Float44 & inverseModelMatrix);
+    const Raycast toObjectSpace(const Raycast & r, const Float44 & inverseModelMatrix);
 
-    const vectorization::Int cullingOrientation(const Raycast & r);
+    const Int cullingOrientation(const Raycast & r);
 
-    const vectorization::Float4::VectorBoolType cullingOrientationToMask(const vectorization::Int cullingOrientation);
+    const Float4::VectorBoolType cullingOrientationToMask(const Int cullingOrientation);
 
-    const vectorization::Float4::VectorBoolType backfaceCulledv(const Raycast & r);
+    const Float4::VectorBoolType backfaceCulledv(const Raycast & r);
 
     const bool backfaceCulled(const Raycast & r);
 
-    const vectorization::Float4::VectorBoolType frontfaceCulledv(const Raycast & r);
+    const Float4::VectorBoolType frontfaceCulledv(const Raycast & r);
 
     const bool frontfaceCulled(const Raycast & r);
 
-    const vectorization::Float4::VectorBoolType notCulledv(const Raycast & r);
+    const Float4::VectorBoolType notCulledv(const Raycast & r);
 
     const bool notCulled(const Raycast & r);
 
-    const bool selfOcclusion(const Raycast & r, const vectorization::Size2::ValueType toCheckId);
+    const bool selfOcclusion(const Raycast & r, const Size2::ValueType toCheckId);
 
     const bool selfOcclusion(
         const Raycast & r,
-        const vectorization::Size2::ValueType toCheckId,
-        const vectorization::Float t,
-        const vectorization::Float epsilon);
+        const Size2::ValueType toCheckId,
+        const Float t,
+        const Float epsilon);
 
     const bool selfOcclusion(
         const Raycast & r,
-        const vectorization::Size2::ValueType toCheckId,
-        const vectorization::Float t);
+        const Size2::ValueType toCheckId,
+        const Float t);
 
-    const bool outOfReach(const Raycast & r, const vectorization::Float t);
+    const bool outOfReach(const Raycast & r, const Float t);
 
-    const vectorization::Float4::VectorBoolType outOfReach(const Raycast & r, const vectorization::Float4 & t);
+    const Float4::VectorBoolType outOfReach(const Raycast & r, const Float4 & t);
 
-    const vectorization::Float4 farPoint(const Raycast & r);
+    const Float4 farPoint(const Raycast & r);
 
 }

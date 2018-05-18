@@ -1,22 +1,13 @@
 #pragma once
 
-#include <shading/shaders/EnvironmentShader.h>
-#include <shading/shaders/HDRImageShader.h>
-#include <shading/shaders/NoiseGeneratorMap.h>
-
-#include <geometry/forms/Plane.h>
-#include <geometry/forms/Box.h>
-#include <geometry/forms/Sphere.h>
-
-#include <common/noise/PerlinNoiseGenerator.h>
-#include <common/noise/SimplexNoiseGenerator.h>
-#include <common/RefractionIndices.h>
-#include <common/Tools.h>
+#include <raytracing.h>
 
 #include <sstream>
 
-namespace raytracer
+namespace raytracerui
 {
+	using namespace vectorization;
+	using namespace raytracer;
 
     template <int LightsPerAxis = 3, int ObjectsPerAxis = 10>
     struct ProceduralScene

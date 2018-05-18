@@ -33,7 +33,7 @@ namespace primitives
             return NegInfinity<Float4>();
         }
 
-        const Float4 q = vectorization::sqrt(sqrRadius - sqrM);
+        const Float4 q = sqrt(sqrRadius - sqrM);
         //d.x = d.z = s - q;
         //d.y = d.w = s + q;
         const Float4 d = subadd(s, q);

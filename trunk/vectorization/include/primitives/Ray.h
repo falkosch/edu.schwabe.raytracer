@@ -4,30 +4,31 @@
 
 namespace primitives
 {
+	using namespace vectorization;
 
     /*
     * A simple structure to contain a ray
     */
     struct Ray
     {
-        vectorization::Float4 origin, direction, reciprocalDirection;
+        Float4 origin, direction, reciprocalDirection;
 
         ALIGNED_ALLOCATORS(__alignof(Ray));
 
         Ray();
 
-        explicit Ray(const vectorization::Float4 & origin);
+        explicit Ray(const Float4 & origin);
 
-        explicit Ray(const vectorization::Float4 & origin, const vectorization::Float4 & direction);
+        explicit Ray(const Float4 & origin, const Float4 & direction);
 
-        void setDirection(const vectorization::Float4 & direction);
+        void setDirection(const Float4 & direction);
 
     };
 
-    const Ray replaceDirection(const Ray & r, const vectorization::Float4 & value);
+    const Ray replaceDirection(const Ray & r, const Float4 & value);
 
-    const vectorization::Float4 point(const Ray & r, const vectorization::Float t);
+    const Float4 point(const Ray & r, const Float t);
 
-    const vectorization::Float4 point(const Ray & r, const vectorization::Float4 & v);
+    const Float4 point(const Ray & r, const Float4 & v);
 
 }

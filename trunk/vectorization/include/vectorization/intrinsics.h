@@ -231,31 +231,36 @@ namespace vectorization
     {
         // typedefs required for xmemory
         typedef T value_type;
-        typedef T* pointer;
+        typedef T * pointer;
         typedef ASizeT size_type;
         AlignedAllocator() noexcept {}
-        template<class U> AlignedAllocator(const AlignedAllocator<U>&) noexcept {}
-        template<class U> const bool operator==(const AlignedAllocator<U>&) const { return true; }
-        template<class U> const bool operator!=(const AlignedAllocator<U>&) const { return false; }
+        template<class U> AlignedAllocator(const AlignedAllocator<U> &) noexcept {}
+        template<class U> const bool operator==(const AlignedAllocator<U> &) const { return true; }
+        template<class U> const bool operator!=(const AlignedAllocator<U> &) const { return false; }
 
         pointer const allocate(const size_type n) const
         {
-            if (n == 0) return nullptr;
-            if (n > static_cast<size_type>(-1) / sizeof(T))
-            {
+			if (n == 0) {
+				return nullptr;
+			}
+            if (n > static_cast<size_type>(-1) / sizeof(T)) {
                 throw std::bad_array_new_length();
             }
-            void* const pv = vectorization::alloc(sizeof(T) * n, __alignof(T));
-            if (!pv) { throw std::bad_alloc(); }
-            return static_cast<pointer const>(pv);
+
+            void* const pv = alloc(sizeof(T) * n, __alignof(T));
+
+            if (!pv) {
+				throw std::bad_alloc();
+			}
+
+			return static_cast<pointer const>(pv);
         }
 
         void deallocate(pointer const p, const size_type) const noexcept
         {
-            if (p)
-            {
+            if (p) {
                 void * vp = reinterpret_cast<void *>(p);
-                vectorization::free(vp);
+                free(vp);
             }
         }
 

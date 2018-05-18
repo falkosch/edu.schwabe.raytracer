@@ -1,10 +1,7 @@
+#include "ManualTests.h"
 #include "stdafx.h"
 
-#include "ManualTests.h"
-
-#include <geometry/forms/meshes/MeshGeometryNode.h>
-
-namespace raytracer
+namespace raytracerui
 {
 
 	void ManualTests::operator()() const
