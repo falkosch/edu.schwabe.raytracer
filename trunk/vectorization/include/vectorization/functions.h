@@ -684,18 +684,14 @@ namespace vectorization
 #pragma region staticFor()
 	//{ staticFor()
 
-	template <ASizeT First, ASizeT Last>
-	struct staticFor
+	template <ASizeT First, ASizeT Last, typename Lambda>
+	inline constexpr void staticFor(const Lambda & f)
 	{
-		template <typename Lambda>
-		static inline constexpr void apply(const Lambda & f)
-		{
-			if constexpr (First < Last) {
-				f(std::integral_constant<ASizeT, First>{});
-				staticFor<First + 1, Last>::apply(f);
-			}
+		if constexpr (First < Last) {
+			f(std::integral_constant<ASizeT, First>{}.value);
+			staticFor<First + 1, Last>(f);
 		}
-	};
+	}
 
 	//}
 #pragma endregion
@@ -704,13 +700,16 @@ namespace vectorization
 #pragma region average()
 	//{ average()
 
-	template <ASizeT N, typename T>
+	template <ASizeT Size, typename T>
 	inline const T average(const T * const v)
 	{
 		T s = Zero<T>();
-		for (ASizeT i = Zero<ASizeT>(); i < N; ++i)
+
+		staticFor<VectorIndices::X, Size>([&](auto i) {
 			s += v[i];
-		return s / static_cast<T>(N);
+		});
+
+		return s / static_cast<T>(Size);
 	}
 
 	//}
@@ -719,15 +718,19 @@ namespace vectorization
 #pragma region normalize()
 	//{ normalize()
 
-	template <ASizeT N, typename T>
+	template <ASizeT Size, typename T>
 	inline void normalize(T * const v)
 	{
 		T s = Zero<T>();
-		for (ASizeT i = Zero<ASizeT>(); i < N; ++i)
+
+		staticFor<VectorIndices::X, Size>([&](auto i) {
 			s += sqr(v[i]);
-		s = rsqrt(s);
-		for (ASizeT i = Zero<ASizeT>(); i < N; ++i)
-			v[i] *= s;
+		});
+
+		const T rs = rsqrt(s);
+		staticFor<VectorIndices::X, Size>([&](auto i) {
+			v[i] *= rs;
+		});
 	}
 
 	//}
