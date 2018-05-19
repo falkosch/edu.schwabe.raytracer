@@ -4,8 +4,7 @@
 namespace raytracerui
 {
 
-	void ManualTests::operator()() const
-	{
+	ARCH_NOINLINE void collisionTest() {
 		auto v0 = Float4(-0.156548679, 0.286460012, -0.441803336, 1.00000000);
 		auto v1 = Float4(-0.250403672, 0.286460012, -0.443586677, 1.00000000);
 		auto v2 = Float4(-0.240178674, 0.286460012, -0.417760015, 1.00000000);
@@ -19,6 +18,20 @@ namespace raytracerui
 		n->overlaps(b);
 
 		delete n;
+	}
+
+	ARCH_NOINLINE void staticForTest() {
+		const UTVector<100, Float> a = UTVector<100, Float>();
+		const UTVector<100, Float> b = UTVector<100, Float>();
+
+		auto c = a + b;
+		std::cout << c << std::endl;
+	}
+
+	void ManualTests::operator()() const
+	{
+		collisionTest();
+		staticForTest();
 	}
 
 }

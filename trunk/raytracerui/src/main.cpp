@@ -106,7 +106,7 @@ int __cdecl main()
 	GetCurrentDirectory(MAX_PATH, currentPath);
 	_tprintf(TEXT("Working directory: %s\n"), currentPath);
 
-	//ManualTests()();
+	ManualTests()();
 	//Benchmarks()();
 
 	return static_cast<int>(runRaytracerUI());

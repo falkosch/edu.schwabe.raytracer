@@ -1678,6 +1678,19 @@ namespace vectorization
 	//}
 #pragma endregion
 
+	template <ASizeT Size, typename T>
+	std::ostream & operator<< (std::ostream & stream, const UTVector<Size, T> & v)
+	{
+		stream << "{";
+		staticFor<VectorIndices::X, Size>([&](auto i) {
+			if (i > VectorIndices::X) {
+				stream << ", ";
+			}
+			stream << v.components[i];
+		});
+		return stream << "}";
+	}
+
 }
 
 #undef staticCheckMinSize
