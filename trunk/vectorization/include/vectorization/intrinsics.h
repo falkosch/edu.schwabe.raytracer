@@ -233,10 +233,26 @@ namespace vectorization
         typedef T value_type;
         typedef T * pointer;
         typedef ASizeT size_type;
-        AlignedAllocator() noexcept {}
-        template<class U> AlignedAllocator(const AlignedAllocator<U> &) noexcept {}
-        template<class U> const bool operator==(const AlignedAllocator<U> &) const { return true; }
-        template<class U> const bool operator!=(const AlignedAllocator<U> &) const { return false; }
+        
+		AlignedAllocator() noexcept
+		{
+		}
+        
+		template<class U> AlignedAllocator(const AlignedAllocator<U> &) noexcept
+		{
+		}
+        
+		template<class U>
+		const bool operator==(const AlignedAllocator<U> &) const
+		{
+			return true;
+		}
+        
+		template<class U>
+		const bool operator!=(const AlignedAllocator<U> &) const
+		{
+			return false;
+		}
 
         pointer const allocate(const size_type n) const
         {

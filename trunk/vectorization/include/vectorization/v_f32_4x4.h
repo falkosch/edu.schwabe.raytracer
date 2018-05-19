@@ -33,13 +33,15 @@ namespace vectorization
             const SOAVectorType::PackedType & soaX,
             const SOAVectorType::PackedType & soaY,
             const SOAVectorType::PackedType & soaZ,
-            const SOAVectorType::PackedType & soaW);
+            const SOAVectorType::PackedType & soaW
+		);
 
         explicit v_f32_4x4(
             const SOAVectorType & soaX,
             const SOAVectorType & soaY,
             const SOAVectorType & soaZ,
-            const SOAVectorType & soaW);
+            const SOAVectorType & soaW
+		);
 
         // broadcasting aos vector into its soa vectors
         explicit v_f32_4x4(const AOSVectorType & aos);
@@ -67,7 +69,8 @@ namespace vectorization
             component<Index>(m.soaX),
             component<Index>(m.soaY),
             component<Index>(m.soaZ),
-            component<Index>(m.soaW));
+            component<Index>(m.soaW)
+		);
     }
 
     template <ASizeT Index>

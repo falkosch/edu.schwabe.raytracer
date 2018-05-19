@@ -2,7 +2,8 @@
 
 #include "RaytraceConfiguration.h"
 
-#include <primitives.h>
+#include <vectorization.h>
+#include <primitives/Ray.h>
 
 namespace raytracer
 {

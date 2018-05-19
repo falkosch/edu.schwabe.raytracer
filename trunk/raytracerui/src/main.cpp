@@ -46,56 +46,68 @@ const Float VISIBILITY_CUTOFF = reciprocal(512.f);
 // n => (n+1)x(n+1) image-pixels/packet
 const ASizeT RAY_PACKET_SIZE = 15;
 
+
+namespace raytracerui {
+
+	const LRESULT runRaytracerUI() {
+		Resources resources = Resources();
+		Scene scene = Scene(
+			new NaiveKDTreeTraverser<SceneIntersection>(),
+			new FixedIterationsSAHKDTreeBalancer()
+		);
+
+		CornellBoxScene::setup(scene, resources);
+		//TestScene1::setup(scene, resources);
+		//TestScene2::setup(scene, resources);
+		//DragonScene::setup(scene, resources);
+		//ProceduralScene<3, 10>::setup(scene, resources);
+
+		scene.buildSceneGraph();
+
+		Camera camera = Camera();
+		camera.setProjection(PERSPECTIVE_FOV, PERSPECTIVE_Z_PLANE_EXTENDS, PERSPECTIVE_Z_PLANES);
+		camera.translate(CAMERA_INIT_TRANSLATION);
+
+		RaytraceParameters parameters = RaytraceParameters();
+		parameters.visibilityCutoff = VISIBILITY_CUTOFF;
+		parameters.maxDistance = MAX_DISTANCE;
+		parameters.maxTraceDepth = MAX_TRACE_DEPTH;
+		parameters.sceneShader = &scene;
+		parameters.cullingOrientation = CULLING_ORIENTATION;
+		parameters.perspectiveZPlanes = PERSPECTIVE_Z_PLANES;
+		parameters.perspectiveFOV = PERSPECTIVE_FOV;
+		parameters.samplingFactor = SAMPLING_FACTOR;
+		parameters.supersamplingFactor = SUPER_SAMPLING_FACTOR;
+		parameters.rayPacketSize = RAY_PACKET_SIZE;
+		parameters.camera = &camera;
+
+		Raytracer raytracer = Raytracer();
+
+		MessageLoopBasedUI * ui = new WindowsRaytracerUI(raytracer, parameters, FAST_PREVIEW_SIZE);
+		LRESULT returnCode = static_cast<LRESULT>(-1);
+		try {
+			returnCode = ui->run();
+		}
+		catch (const std::exception & exception) {
+			std::cout << exception.what() << std::endl;
+		}
+		delete ui;
+		return returnCode;
+	}
+
+}
+
+
 int __cdecl main()
 {
 	using namespace raytracerui;
 
-    TCHAR currentPath[MAX_PATH];
-    GetCurrentDirectory(MAX_PATH, currentPath);
-    _tprintf(TEXT("Working directory: %s\n"), currentPath);
+	TCHAR currentPath[MAX_PATH];
+	GetCurrentDirectory(MAX_PATH, currentPath);
+	_tprintf(TEXT("Working directory: %s\n"), currentPath);
 
-    //ManualTests()();
-    //Benchmarks()();
+	//ManualTests()();
+	//Benchmarks()();
 
-    Resources resources = Resources();
-    Scene scene = Scene(
-        new NaiveKDTreeTraverser<SceneIntersection>(),
-        new FixedIterationsSAHKDTreeBalancer());
-
-    CornellBoxScene::setup(scene, resources);
-    //TestScene1::setup(scene, resources);
-    //TestScene2::setup(scene, resources);
-    //DragonScene::setup(scene, resources);
-    //ProceduralScene<3, 10>::setup(scene, resources);
-
-    scene.buildSceneGraph();
-
-    Camera camera = Camera();
-    camera.setProjection(PERSPECTIVE_FOV, PERSPECTIVE_Z_PLANE_EXTENDS, PERSPECTIVE_Z_PLANES);
-    camera.translate(CAMERA_INIT_TRANSLATION);
-
-    RaytraceParameters parameters = RaytraceParameters();
-    parameters.visibilityCutoff = VISIBILITY_CUTOFF;
-    parameters.maxDistance = MAX_DISTANCE;
-    parameters.maxTraceDepth = MAX_TRACE_DEPTH;
-    parameters.sceneShader = &scene;
-    parameters.cullingOrientation = CULLING_ORIENTATION;
-    parameters.perspectiveZPlanes = PERSPECTIVE_Z_PLANES;
-    parameters.perspectiveFOV = PERSPECTIVE_FOV;
-    parameters.samplingFactor = SAMPLING_FACTOR;
-    parameters.supersamplingFactor = SUPER_SAMPLING_FACTOR;
-    parameters.rayPacketSize = RAY_PACKET_SIZE;
-    parameters.camera = &camera;
-
-    Raytracer raytracer = Raytracer();
-
-    MessageLoopBasedUI *const ui = new WindowsRaytracerUI(raytracer, parameters, FAST_PREVIEW_SIZE);
-    LRESULT returnCode = static_cast<LRESULT>(-1);
-    try {
-        returnCode = ui->run();
-    }
-    catch (const std::exception &) {
-    }
-    delete ui;
-    return static_cast<int>(returnCode);
+	return static_cast<int>(runRaytracerUI());
 }

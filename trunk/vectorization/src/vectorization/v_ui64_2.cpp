@@ -10,15 +10,15 @@ namespace vectorization
 
     v_ui64_2::v_ui64_2()
         :
-        components(Zero<PackedType>())
+        components(Zero<v_ui64_2::PackedType>())
     { }
 
-    v_ui64_2::v_ui64_2(const PackedType & v)
+    v_ui64_2::v_ui64_2(const v_ui64_2::PackedType & v)
         :
         components(v)
     { }
 
-    v_ui64_2::v_ui64_2(const ValueType s)
+    v_ui64_2::v_ui64_2(const v_ui64_2::ValueType s)
         :
 #ifdef ARCH_X64
         components(_mm_set1_epi64x(static_cast<long long>(s)))
@@ -31,7 +31,7 @@ namespace vectorization
     }
 #endif
 
-    v_ui64_2::v_ui64_2(const ValueType x, const ValueType y)
+    v_ui64_2::v_ui64_2(const v_ui64_2::ValueType x, const v_ui64_2::ValueType y)
         :
 #ifdef ARCH_X64
         components(_mm_set_epi64x(static_cast<long long>(y), static_cast<long long>(x)))
@@ -44,7 +44,7 @@ namespace vectorization
     }
 #endif
 
-    v_ui64_2 & v_ui64_2::operator=(const PackedType & v)
+    v_ui64_2 & v_ui64_2::operator=(const v_ui64_2::PackedType & v)
     {
         components = v;
         return *this;
@@ -53,33 +53,33 @@ namespace vectorization
     v_ui64_2::ValueType & v_ui64_2::operator[](const int index)
     {
         assert(static_cast<int>(VectorIndices::X) <= index && static_cast<ASizeT>(index) < SIZE);
-        return reinterpret_cast<ValueType * const>(this)[index];
+        return reinterpret_cast<v_ui64_2::ValueType * const>(this)[index];
     }
 
     const v_ui64_2::ValueType & v_ui64_2::operator[](const int index) const
     {
         assert(static_cast<int>(VectorIndices::X) <= index && static_cast<ASizeT>(index) < SIZE);
-        return reinterpret_cast<const ValueType * const>(this)[index];
+        return reinterpret_cast<const v_ui64_2::ValueType * const>(this)[index];
     }
 
     v_ui64_2::ValueType & v_ui64_2::operator[](const ASizeT index)
     {
         assert(index < SIZE);
-        return reinterpret_cast<ValueType * const>(this)[index];
+        return reinterpret_cast<v_ui64_2::ValueType * const>(this)[index];
     }
 
     const v_ui64_2::ValueType & v_ui64_2::operator[](const ASizeT index) const
     {
         assert(index < SIZE);
-        return reinterpret_cast<const ValueType * const>(this)[index];
+        return reinterpret_cast<const v_ui64_2::ValueType * const>(this)[index];
     }
 
-    void v_ui64_2::setX(const ValueType v)
+    void v_ui64_2::setX(const v_ui64_2::ValueType v)
     {
         setComponent<VectorIndices::X>(*this, v);
     }
 
-    void v_ui64_2::setY(const ValueType v)
+    void v_ui64_2::setY(const v_ui64_2::ValueType v)
     {
         setComponent<VectorIndices::Y>(*this, v);
     }
@@ -231,7 +231,8 @@ namespace vectorization
 #if VECTORIZATION_INTRINSICS_LEVEL < VECTORIZATION_SSE4
         return v_ui64_2(
             select(x(a) < x(b), MaskAll<v_ui64_2::ValueType>(), Zero<v_ui64_2::ValueType>()),
-            select(y(a) < y(b), MaskAll<v_ui64_2::ValueType>(), Zero<v_ui64_2::ValueType>()));
+            select(y(a) < y(b), MaskAll<v_ui64_2::ValueType>(), Zero<v_ui64_2::ValueType>())
+		);
 #else
         // requires sse4.2
         return !(a >= b);
@@ -243,7 +244,8 @@ namespace vectorization
 #if VECTORIZATION_INTRINSICS_LEVEL < VECTORIZATION_SSE4
         return v_ui64_2(
             select(x(a) > x(b), MaskAll<v_ui64_2::ValueType>(), Zero<v_ui64_2::ValueType>()),
-            select(y(a) > y(b), MaskAll<v_ui64_2::ValueType>(), Zero<v_ui64_2::ValueType>()));
+            select(y(a) > y(b), MaskAll<v_ui64_2::ValueType>(), Zero<v_ui64_2::ValueType>())
+		);
 #else
         // requires sse4.2
         return _mm_cmpgt_epi64(a.components, b.components);
@@ -255,7 +257,8 @@ namespace vectorization
 #if VECTORIZATION_INTRINSICS_LEVEL < VECTORIZATION_SSE4
         return v_ui64_2(
             select(x(a) <= x(b), MaskAll<v_ui64_2::ValueType>(), Zero<v_ui64_2::ValueType>()),
-            select(y(a) <= y(b), MaskAll<v_ui64_2::ValueType>(), Zero<v_ui64_2::ValueType>()));
+            select(y(a) <= y(b), MaskAll<v_ui64_2::ValueType>(), Zero<v_ui64_2::ValueType>())
+		);
 #else
         // requires sse4.2
         return !(a > b);
@@ -267,7 +270,8 @@ namespace vectorization
 #if VECTORIZATION_INTRINSICS_LEVEL < VECTORIZATION_SSE4
         return v_ui64_2(
             select(x(a) >= x(b), MaskAll<v_ui64_2::ValueType>(), Zero<v_ui64_2::ValueType>()),
-            select(y(a) >= y(b), MaskAll<v_ui64_2::ValueType>(), Zero<v_ui64_2::ValueType>()));
+            select(y(a) >= y(b), MaskAll<v_ui64_2::ValueType>(), Zero<v_ui64_2::ValueType>())
+		);
 #else
         // requires sse4.2
         return (a > b) | (a == b);
