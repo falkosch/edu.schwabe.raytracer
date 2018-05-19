@@ -1,5 +1,4 @@
 #include "vectorization/m_f32_4x4.h"
-#include "../stdafx.h"
 
 namespace vectorization
 {

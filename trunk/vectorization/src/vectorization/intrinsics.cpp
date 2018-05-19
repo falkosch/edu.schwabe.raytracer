@@ -1,5 +1,4 @@
 #include "vectorization/intrinsics.h"
-#include "../stdafx.h"
 
 namespace vectorization
 {

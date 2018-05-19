@@ -1,5 +1,4 @@
 #include "vectorization/functions.h"
-#include "../stdafx.h"
 
 #include <cmath>
 

@@ -1,5 +1,4 @@
 #include "vectorization/datatypes.h"
-#include "../stdafx.h"
 
 namespace vectorization
 {

@@ -1,5 +1,6 @@
 #include "primitives/Facet.h"
-#include "../stdafx.h"
+
+using namespace vectorization;
 
 namespace primitives
 {

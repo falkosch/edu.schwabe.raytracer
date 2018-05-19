@@ -196,7 +196,6 @@
     <ClInclude Include="include\vectorization\utvector.h" />
     <ClInclude Include="include\vectorization\v_ui32_4.h" />
     <ClInclude Include="include\vectorization\v_ui64_2.h" />
-    <ClInclude Include="src\stdafx.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\primitives\AxisAlignedBoundingBox.cpp" />

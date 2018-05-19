@@ -1,5 +1,6 @@
 #include "primitives/SplittingPlane.h"
-#include "../stdafx.h"
+
+using namespace vectorization;
 
 namespace primitives
 {

@@ -1,5 +1,4 @@
 #include "vectorization/v_ui64_2.h"
-#include "../stdafx.h"
 
 #include <limits.h>
 

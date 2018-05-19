@@ -1,5 +1,6 @@
 #include "primitives/AxisAlignedBoundingBox.h"
-#include "../stdafx.h"
+
+using namespace vectorization;
 
 namespace primitives
 {

@@ -87,9 +87,6 @@
     <ClInclude Include="include\vectorization.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="src\stdafx.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\vectorization\functions.cpp">
