@@ -52,7 +52,6 @@ namespace vectorization
 		typedef typename BoolTypes<T>::Type BoolType;
 		typedef UTVector<Size, ValueType> VectorType;
 		typedef UTVector<Size, BoolType> VectorBoolType;
-		typedef std::numeric_limits<T> ValueLimits;
 
 		// Compatible type
 		typedef VectorType CompatibleVectorType;

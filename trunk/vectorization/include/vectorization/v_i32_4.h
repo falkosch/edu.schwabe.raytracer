@@ -1,6 +1,6 @@
 #pragma once
 
-#include "v_ui64_2.h"
+#include "utvector.h"
 
 namespace vectorization
 {
@@ -14,7 +14,6 @@ namespace vectorization
         typedef ValueType BoolType;
         typedef v_i32_4 VectorType;
         typedef VectorType VectorBoolType;
-        typedef std::numeric_limits<ValueType> ValueLimits;
         typedef PackedTypes<ValueType, SIZE>::Type PackedType;
 
         // the actual data

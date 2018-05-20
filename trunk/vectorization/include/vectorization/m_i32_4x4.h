@@ -13,7 +13,6 @@ namespace vectorization
         typedef v_i32_4 RowVectorType, ColumnVectorType;
         typedef RowVectorType::PackedType PackedType;
         typedef RowVectorType::ValueType ValueType;
-        typedef RowVectorType::ValueLimits ValueLimits;
         typedef BoolTypes<ValueType>::Type BoolType;
 
         static const ASizeT SIZE = RowVectorType::SIZE * ColumnVectorType::SIZE;

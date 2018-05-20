@@ -14,7 +14,6 @@ namespace vectorization
         typedef ValueType BoolType;
         typedef v_ui64_2 VectorType;
         typedef VectorType VectorBoolType;
-        typedef std::numeric_limits<ValueType> ValueLimits;
         typedef PackedTypes<ValueType, SIZE>::Type PackedType;
 
         // the actual data

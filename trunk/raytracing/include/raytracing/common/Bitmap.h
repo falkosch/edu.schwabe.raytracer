@@ -35,37 +35,37 @@ namespace raytracer
 
 		template <typename ImageVectorType>
 		Bitmap(const Image<ImageVectorType> & image)
-			:
-			resolution(image.getResolution()),
-			stride(),
-			data()
+			: resolution(image.getResolution()), stride(), data()
 		{
+			typedef VectorType::ValueType BitmapValueType;
+			typedef std::numeric_limits<BitmapValueType> BitmapValueLimits;
+			typedef typename ImageVectorType::ValueType ImageValueType;
+
 			init();
-			const Int4 BMIN = Int4(VectorType::ValueLimits::lowest());
-			const Int4 BMAX = Int4(VectorType::ValueLimits::max());
-			const ImageVectorType VMIN = ImageVectorType(VectorType::ValueLimits::lowest());
-			const ImageVectorType VMAX = ImageVectorType(VectorType::ValueLimits::max());
+			const Int4 BMIN = Int4(BitmapValueLimits::lowest());
+			const Int4 BMAX = Int4(BitmapValueLimits::max());
+			const ImageVectorType VMIN = ImageVectorType(convert<ImageValueType>(BitmapValueLimits::lowest()));
+			const ImageVectorType VMAX = ImageVectorType(convert<ImageValueType>(BitmapValueLimits::max()));
 			const int heighti = static_cast<int>(y(resolution));
 
 #pragma omp parallel for
-			for (int yi = Zero<int>(); yi < heighti; ++yi)
-			{
+			for (int yi = Zero<int>(); yi < heighti; ++yi) {
 				const ASizeT sy = static_cast<ASizeT>(yi);
 				const ASizeT rx = x(resolution);
 				const ASizeT scanlineIn = sy * rx;
 				const ASizeT scanlineOut = sy * stride;
-				for (ASizeT sx = Zero<ASizeT>(); sx < rx; ++sx)
-				{
+
+				for (ASizeT sx = Zero<ASizeT>(); sx < rx; ++sx) {
 					const Int4 scaled = clamp(
 						convert<Int4>(image[scanlineIn + sx] * VMAX + VMIN),
 						BMIN,
 						BMAX
 					);
-					VectorType::ValueType * dataOut = &data[scanlineOut + sx * VectorType::SIZE];
+					BitmapValueType * dataOut = &data[scanlineOut + sx * VectorType::SIZE];
 					// need to swap r,g,b to b,g,r
-					*(dataOut++) = static_cast<VectorType::ValueType>(z(scaled)); // blue
-					*(dataOut++) = static_cast<VectorType::ValueType>(y(scaled)); // green
-					*dataOut = static_cast<VectorType::ValueType>(x(scaled)); // red
+					*(dataOut++) = static_cast<BitmapValueType>(z(scaled)); // blue
+					*(dataOut++) = static_cast<BitmapValueType>(y(scaled)); // green
+					*dataOut = static_cast<BitmapValueType>(x(scaled)); // red
 				}
 			}
 		}

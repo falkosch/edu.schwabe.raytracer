@@ -16,7 +16,6 @@ namespace vectorization
         typedef v_f32_4 SOAVectorType, AOSVectorType;
         typedef SOAVectorType::PackedType PackedType;
         typedef SOAVectorType::ValueType ValueType;
-        typedef SOAVectorType::ValueLimits ValueLimits;
         typedef BoolTypes<ValueType>::Type BoolType;
 
         // four vectors packed in this SOA

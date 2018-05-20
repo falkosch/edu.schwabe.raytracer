@@ -14,7 +14,6 @@ namespace vectorization
 		typedef v_i32_4::ValueType BoolType;
 		typedef v_f32_4 VectorType;
 		typedef v_i32_4 VectorBoolType;
-		typedef std::numeric_limits<ValueType> ValueLimits;
 		typedef PackedTypes<ValueType, SIZE>::Type PackedType;
 
 		// the actual data
