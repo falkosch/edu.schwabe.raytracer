@@ -15,40 +15,40 @@ namespace vectorization
     //{ Mask...()
 
     template <typename V>
-    const V MaskAll();
+    const V MaskAll() noexcept;
 
     template <typename V>
-    const V MaskX();
+    const V MaskX() noexcept;
 
     template <typename V>
-    const V MaskXY();
+    const V MaskXY() noexcept;
 
     template <typename V>
-    const V MaskXYZ();
+    const V MaskXYZ() noexcept;
 
     template <typename V>
-    const V MaskXYZW();
+    const V MaskXYZW() noexcept;
 
     template <typename V>
-    const V MaskY();
+    const V MaskY() noexcept;
 
     template <typename V>
-    const V MaskYZ();
+    const V MaskYZ() noexcept;
 
     template <typename V>
-    const V MaskYZW();
+    const V MaskYZW() noexcept;
 
     template <typename V>
-    const V MaskZ();
+    const V MaskZ() noexcept;
 
     template <typename V>
-    const V MaskZW();
+    const V MaskZW() noexcept;
 
     template <typename V>
-    const V MaskW();
+    const V MaskW() noexcept;
 
     template <>
-    const PackedFloat4_128 MaskW<PackedFloat4_128>();
+    const PackedFloat4_128 MaskW<PackedFloat4_128>() noexcept;
 
     //}
 #pragma endregion
@@ -57,73 +57,73 @@ namespace vectorization
     //{ Constant generators
 
     template <typename T>
-    const T Zero();
+    const T Zero() noexcept;
 
     template <typename T>
-    const T Half();
+    const T Half() noexcept;
 
     template <typename T>
-    const T One();
+    const T One() noexcept;
 
     template <typename V>
-    const V OneX();
+    const V OneX() noexcept;
 
     template <typename V>
-    const V OneY();
+    const V OneY() noexcept;
 
     template <typename V>
-    const V OneZ();
+    const V OneZ() noexcept;
 
     template <typename V>
-    const V OneW();
+    const V OneW() noexcept;
 
     template <typename T>
-    const T OneHalf();
+    const T OneHalf() noexcept;
 
     template <typename T>
-    const T Two();
+    const T Two() noexcept;
 
     template <typename T>
-    const T NegZero();
+    const T NegZero() noexcept;
 
     template <typename T>
-    const T NegOne();
+    const T NegOne() noexcept;
 
     template <typename T>
-    const T NegTwo();
+    const T NegTwo() noexcept;
 
     template <typename T>
-    const T Infinity();
+    const T Infinity() noexcept;
 
     template <typename T>
-    const T NegInfinity();
+    const T NegInfinity() noexcept;
 
     template <typename T>
-    const T Epsilon();
+    const T Epsilon() noexcept;
 
     template <typename T>
-    const T SelfOcclusionEpsilon();
+    const T SelfOcclusionEpsilon() noexcept;
 
     template <typename T>
-    const T Pi();
+    const T Pi() noexcept;
 
     template <typename T>
-    const T ReciprocalPi();
+    const T ReciprocalPi() noexcept;
 
     template <typename T>
-    const T Sin45();
+    const T Sin45() noexcept;
 
     template <typename T>
-    const T RadianToUniform();
+    const T RadianToUniform() noexcept;
 
     template <typename T>
-    const T RadianToDegree();
+    const T RadianToDegree() noexcept;
 
     template <typename T>
-    const T DegreeToRadian();
+    const T DegreeToRadian() noexcept;
 
     template <typename M>
-    const M Identity();
+    const M Identity() noexcept;
 
     //}
 #pragma endregion
