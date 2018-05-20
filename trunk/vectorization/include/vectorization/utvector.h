@@ -23,19 +23,19 @@ namespace vectorization
 	struct UTVector;
 
 	template <ASizeT Index, ASizeT Size, typename T>
-	inline const T component(const UTVector<Size, T> & v);
+	inline const T component(const UTVector<Size, T> & v) noexcept;
 
 	template <ASizeT Size, typename T>
-	inline const T x(const UTVector<Size, T> & v);
+	inline const T x(const UTVector<Size, T> & v) noexcept;
 
 	template <ASizeT Size, typename T>
-	inline const T y(const UTVector<Size, T> & v);
+	inline const T y(const UTVector<Size, T> & v) noexcept;
 
 	template <ASizeT Size, typename T>
-	inline const T z(const UTVector<Size, T> & v);
+	inline const T z(const UTVector<Size, T> & v) noexcept;
 
 	template <ASizeT Size, typename T>
-	inline const T w(const UTVector<Size, T> & v);
+	inline const T w(const UTVector<Size, T> & v) noexcept;
 
 	//}
 #pragma endregion
@@ -60,18 +60,18 @@ namespace vectorization
 		// the actual data
 		ALIGNED(XMM_ALIGNMENT, ValueType components[Size]);
 
-		UTVector<Size, ValueType>()
+		UTVector<Size, ValueType>() noexcept
 			: components()
 		{ }
 
-		explicit UTVector<Size, ValueType>(const ValueType & v)
+		explicit UTVector<Size, ValueType>(const ValueType & v) noexcept
 		{
 			staticFor<VectorIndices::X, Size>([&](auto i) {
 				components[i] = v;
 			});
 		}
 
-		explicit UTVector<Size, ValueType>(const ValueType & x, const ValueType & y)
+		explicit UTVector<Size, ValueType>(const ValueType & x, const ValueType & y) noexcept
 		{
 			staticCheckMinSize(VectorSizes::Y);
 
@@ -83,7 +83,7 @@ namespace vectorization
 			});
 		}
 
-		explicit UTVector<Size, ValueType>(const ValueType & x, const ValueType & y, const ValueType & z)
+		explicit UTVector<Size, ValueType>(const ValueType & x, const ValueType & y, const ValueType & z) noexcept
 		{
 			staticCheckMinSize(VectorSizes::Z);
 
@@ -96,7 +96,7 @@ namespace vectorization
 			});
 		}
 
-		explicit UTVector<Size, ValueType>(const ValueType & x, const ValueType & y, const ValueType & z, const ValueType & w)
+		explicit UTVector<Size, ValueType>(const ValueType & x, const ValueType & y, const ValueType & z, const ValueType & w) noexcept
 		{
 			staticCheckMinSize(VectorSizes::W);
 
@@ -110,77 +110,77 @@ namespace vectorization
 			});
 		}
 
-		explicit UTVector<Size, ValueType>(const std::array<ValueType, Size> & v)
+		explicit UTVector<Size, ValueType>(const std::array<ValueType, Size> & v) noexcept
 			: components(v)
 		{ }
 
 		ALIGNED_ALLOCATORS(__alignof(VectorType));
 
-		operator std::array<ValueType, Size>()
+		operator std::array<ValueType, Size>() noexcept
 		{
 			return components;
 		}
 
-		operator const std::array<ValueType, Size>() const
+		operator const std::array<ValueType, Size>() const noexcept
 		{
 			return components;
 		}
 
-		VectorType & operator=(const std::array<ValueType, Size> & v)
+		VectorType & operator=(const std::array<ValueType, Size> & v) noexcept
 		{
 			components = v;
 			return *this;
 		}
 
-		ValueType & operator[](const int index)
+		ValueType & operator[](const int index) noexcept
 		{
 			assert(static_cast<int>(VectorIndices::X) <= index && ASizeT(index) < Size);
 			return components[index];
 		}
 
-		const ValueType & operator[](const int index) const
+		const ValueType & operator[](const int index) const noexcept
 		{
 			assert(static_cast<int>(VectorIndices::X) <= index && ASizeT(index) < Size);
 			return components[index];
 		}
 
-		ValueType & operator[](const ASizeT index)
+		ValueType & operator[](const ASizeT index) noexcept
 		{
 			assert(index < Size);
 			return components[index];
 		}
 
-		const ValueType & operator[](const ASizeT index) const
+		const ValueType & operator[](const ASizeT index) const noexcept
 		{
 			assert(index < Size);
 			return components[index];
 		}
 
-		void setX(const T & v)
+		void setX(const T & v) noexcept
 		{
 			components[VectorIndices::X] = v;
 		}
 
-		void setY(const T & v)
+		void setY(const T & v) noexcept
 		{
 			staticCheckMinSize(VectorSizes::Y);
 			components[VectorIndices::Y] = v;
 		}
 
-		void setZ(const T & v)
+		void setZ(const T & v) noexcept
 		{
 			staticCheckMinSize(VectorSizes::Z);
 			components[VectorIndices::Z] = v;
 		}
 
-		void setW(const T & v)
+		void setW(const T & v) noexcept
 		{
 			staticCheckMinSize(VectorSizes::W);
 			components[VectorIndices::W] = v;
 		}
 
 		// float reciprocal multiply
-		static void operator_div_internal(VectorType & out, const VectorType & in, const ValueType & scalar, std::true_type)
+		static void operator_div_internal(VectorType & out, const VectorType & in, const ValueType & scalar, std::true_type) noexcept
 		{
 			const ValueType r = reciprocal(scalar);
 			staticFor<VectorIndices::X, Size>([&](auto i) {
@@ -189,7 +189,7 @@ namespace vectorization
 		}
 
 		// integer reciprocal multiply
-		static void operator_div_internal(VectorType & out, const VectorType & in, const ValueType & scalar, std::false_type)
+		static void operator_div_internal(VectorType & out, const VectorType & in, const ValueType & scalar, std::false_type) noexcept
 		{
 			staticFor<VectorIndices::X, Size>([&](auto i) {
 				out.components[i] = in[i] / scalar;
@@ -202,42 +202,42 @@ namespace vectorization
 
 	template <ASizeT X, ASizeT Y, typename T>
 	// generic swizzle
-	inline const UTVector<VectorSizes::Y, T> swizzle(const UTVector<VectorSizes::Y, T> & v)
+	inline const UTVector<VectorSizes::Y, T> swizzle(const UTVector<VectorSizes::Y, T> & v) noexcept
 	{
 		return UTVector<VectorSizes::Y, T>(component<X>(v), component<Y>(v));
 	}
 
 	template <ASizeT X, ASizeT Y, ASizeT Z, ASizeT W, typename T>
 	// generic swizzle
-	inline const UTVector<VectorSizes::W, T> swizzle(const UTVector<VectorSizes::W, T> & v)
+	inline const UTVector<VectorSizes::W, T> swizzle(const UTVector<VectorSizes::W, T> & v) noexcept
 	{
 		return UTVector<VectorSizes::W, T>(component<X>(v), component<Y>(v), component<Z>(v), component<W>(v));
 	}
 
 	template <bool SelectX, bool SelectY, typename T>
 	// generic blend
-	inline const UTVector<VectorSizes::Y, T> blend(const UTVector<VectorSizes::Y, T> & a, const UTVector<VectorSizes::Y, T> & b)
+	inline const UTVector<VectorSizes::Y, T> blend(const UTVector<VectorSizes::Y, T> & a, const UTVector<VectorSizes::Y, T> & b) noexcept
 	{
 		return UTVector<VectorSizes::Y, T>(BoolSelector<T, SelectX>(x(b), x(a)), BoolSelector<T, SelectY>(y(b), y(a)));
 	}
 
 	template <bool SelectX, bool SelectY, bool SelectZ, bool SelectW, typename T>
 	// generic blend
-	inline const UTVector<VectorSizes::W, T> blend(const UTVector<VectorSizes::W, T> & a, const UTVector<VectorSizes::W, T> & b)
+	inline const UTVector<VectorSizes::W, T> blend(const UTVector<VectorSizes::W, T> & a, const UTVector<VectorSizes::W, T> & b) noexcept
 	{
 		return UTVector<VectorSizes::W, T>(BoolSelector<T, SelectX>(x(b), x(a)), BoolSelector<T, SelectY>(y(b), y(a)), BoolSelector<T, SelectZ>(z(b), z(a)), BoolSelector<T, SelectW>(w(b), w(a)));
 	}
 
 	template <ASizeT X, ASizeT Y, bool SelectX, bool SelectY, typename T>
 	// generic swizzled blend
-	inline const UTVector<VectorSizes::Y, T> swizzledBlend(const UTVector<VectorSizes::Y, T> & a, const UTVector<VectorSizes::Y, T> & b)
+	inline const UTVector<VectorSizes::Y, T> swizzledBlend(const UTVector<VectorSizes::Y, T> & a, const UTVector<VectorSizes::Y, T> & b) noexcept
 	{
 		return blend<SelectX, SelectY, T>(swizzle<X, Y, T>(a), swizzle<X, Y, T>(b));
 	}
 
 	template <ASizeT X, ASizeT Y, ASizeT Z, ASizeT W, bool SelectX, bool SelectY, bool SelectZ, bool SelectW, typename T>
 	// generic swizzled blend
-	inline const UTVector<VectorSizes::W, T> swizzledBlend(const UTVector<VectorSizes::W, T> & a, const UTVector<VectorSizes::W, T> & b)
+	inline const UTVector<VectorSizes::W, T> swizzledBlend(const UTVector<VectorSizes::W, T> & a, const UTVector<VectorSizes::W, T> & b) noexcept
 	{
 		return blend<SelectX, SelectY, SelectZ, SelectW, T>(swizzle<X, Y, Z, W, T>(a), swizzle<X, Y, Z, W, T>(b));
 	}
@@ -246,7 +246,7 @@ namespace vectorization
 	// Special case swizzled blend of two vectors, in which only the first
 	// component of this vector and the last component of the other vector
 	// is taken for blending after swizzling.
-	inline const UTVector<VectorSizes::Y, T> swizzledBlend_1x1(const UTVector<VectorSizes::Y, T> & a, const UTVector<VectorSizes::Y, T> & b)
+	inline const UTVector<VectorSizes::Y, T> swizzledBlend_1x1(const UTVector<VectorSizes::Y, T> & a, const UTVector<VectorSizes::Y, T> & b) noexcept
 	{
 		return UTVector<VectorSizes::Y, T>(component<X>(a), component<Y>(b));
 	}
@@ -255,14 +255,14 @@ namespace vectorization
 	// Special case swizzled blend of two vectors, in which only the first
 	// two components of this vector and the last two components of the
 	// other vector are taken for blending after swizzling.
-	inline const UTVector<VectorSizes::W, T> swizzledBlend_2x2(const UTVector<VectorSizes::W, T> & a, const UTVector<VectorSizes::W, T> & b)
+	inline const UTVector<VectorSizes::W, T> swizzledBlend_2x2(const UTVector<VectorSizes::W, T> & a, const UTVector<VectorSizes::W, T> & b) noexcept
 	{
 		return UTVector<VectorSizes::W, T>(component<X>(a), component<Y>(a), component<Z>(b), component<W>(b));
 	}
 
 	template <ASizeT Size, typename T>
 	// variadic masked blend
-	inline const UTVector<Size, T> blendMasked(const UTVector<Size, T> & a, const UTVector<Size, T> & b, const typename UTVector<Size, T>::VectorBoolType & mask)
+	inline const UTVector<Size, T> blendMasked(const UTVector<Size, T> & a, const UTVector<Size, T> & b, const typename UTVector<Size, T>::VectorBoolType & mask) noexcept
 	{
 		UTVector<Size, T> t;
 		staticFor<VectorIndices::X, Size>([&](auto i) {
@@ -272,13 +272,21 @@ namespace vectorization
 	}
 
 	template <ASizeT X, ASizeT Y, typename T>
-	inline const UTVector<VectorSizes::Y, T> swizzledBlendMasked(const UTVector<VectorSizes::W, T> & a, const UTVector<VectorSizes::Y, T> & b, const typename UTVector<VectorSizes::Y, T>::VectorBoolType & mask)
+	inline const UTVector<VectorSizes::Y, T> swizzledBlendMasked(
+		const UTVector<VectorSizes::W, T> & a,
+		const UTVector<VectorSizes::Y, T> & b,
+		const typename UTVector<VectorSizes::Y, T>::VectorBoolType & mask
+	) noexcept
 	{
 		return blendMasked<T>(swizzle<X, Y, T>(a), swizzle<X, Y, T>(b), mask);
 	}
 
 	template <ASizeT X, ASizeT Y, ASizeT Z, ASizeT W, typename T>
-	inline const UTVector<VectorSizes::W, T> swizzledBlendMasked(const UTVector<VectorSizes::W, T> & a, const UTVector<VectorSizes::W, T> & b, const typename UTVector<VectorSizes::W, T>::VectorBoolType & mask)
+	inline const UTVector<VectorSizes::W, T> swizzledBlendMasked(
+		const UTVector<VectorSizes::W, T> & a,
+		const UTVector<VectorSizes::W, T> & b,
+		const typename UTVector<VectorSizes::W, T>::VectorBoolType & mask
+	) noexcept
 	{
 		return blendMasked<T>(swizzle<X, Y, Z, W, T>(a), swizzle<X, Y, Z, W, T>(b), mask);
 	}
@@ -290,217 +298,217 @@ namespace vectorization
 	//{ Blend swizzle accessors
 
 	template <typename T>
-	inline const UTVector<VectorSizes::Y, T> xx(const UTVector<VectorSizes::Y, T> & v)
+	inline const UTVector<VectorSizes::Y, T> xx(const UTVector<VectorSizes::Y, T> & v) noexcept
 	{
 		return UTVector<VectorSizes::Y, T>(x(v));
 	}
 
 	template <typename T>
-	inline const UTVector<VectorSizes::Y, T> yy(const UTVector<VectorSizes::Y, T> & v)
+	inline const UTVector<VectorSizes::Y, T> yy(const UTVector<VectorSizes::Y, T> & v) noexcept
 	{
 		return UTVector<VectorSizes::Y, T>(y(v));
 	}
 
 	template <typename T>
-	inline const UTVector<VectorSizes::Y, T> x_x(const UTVector<VectorSizes::Y, T> & a, const UTVector<VectorSizes::Y, T> & b)
+	inline const UTVector<VectorSizes::Y, T> x_x(const UTVector<VectorSizes::Y, T> & a, const UTVector<VectorSizes::Y, T> & b) noexcept
 	{
 		return UTVector<VectorSizes::Y, T>(x(a), x(b));
 	}
 
 	template <typename T>
-	inline const UTVector<VectorSizes::Y, T> x_y(const UTVector<VectorSizes::Y, T> & a, const UTVector<VectorSizes::Y, T> & b)
+	inline const UTVector<VectorSizes::Y, T> x_y(const UTVector<VectorSizes::Y, T> & a, const UTVector<VectorSizes::Y, T> & b) noexcept
 	{
 		return UTVector<VectorSizes::Y, T>(x(a), y(b));
 	}
 
 	template <typename T>
-	inline const UTVector<VectorSizes::Y, T> y_x(const UTVector<VectorSizes::Y, T> & a, const UTVector<VectorSizes::Y, T> & b)
+	inline const UTVector<VectorSizes::Y, T> y_x(const UTVector<VectorSizes::Y, T> & a, const UTVector<VectorSizes::Y, T> & b) noexcept
 	{
 		return UTVector<VectorSizes::Y, T>(y(a), x(b));
 	}
 
 	template <typename T>
-	inline const UTVector<VectorSizes::Y, T> y_y(const UTVector<VectorSizes::Y, T> & a, const UTVector<VectorSizes::Y, T> & b)
+	inline const UTVector<VectorSizes::Y, T> y_y(const UTVector<VectorSizes::Y, T> & a, const UTVector<VectorSizes::Y, T> & b) noexcept
 	{
 		return UTVector<VectorSizes::Y, T>(y(a), y(b));
 	}
 
 	template <typename T>
-	inline const UTVector<VectorSizes::W, T> xxxx(const UTVector<VectorSizes::W, T> & v)
+	inline const UTVector<VectorSizes::W, T> xxxx(const UTVector<VectorSizes::W, T> & v) noexcept
 	{
 		return UTVector<VectorSizes::W, T>(x(v));
 	}
 
 	template <typename T>
-	inline const UTVector<VectorSizes::W, T> yyyy(const UTVector<VectorSizes::W, T> & v)
+	inline const UTVector<VectorSizes::W, T> yyyy(const UTVector<VectorSizes::W, T> & v) noexcept
 	{
 		return UTVector<VectorSizes::W, T>(y(v));
 	}
 
 	template <typename T>
-	inline const UTVector<VectorSizes::W, T> zzzz(const UTVector<VectorSizes::W, T> & v)
+	inline const UTVector<VectorSizes::W, T> zzzz(const UTVector<VectorSizes::W, T> & v) noexcept
 	{
 		return UTVector<VectorSizes::W, T>(z(v));
 	}
 
 	template <typename T>
-	inline const UTVector<VectorSizes::W, T> wwww(const UTVector<VectorSizes::W, T> & v)
+	inline const UTVector<VectorSizes::W, T> wwww(const UTVector<VectorSizes::W, T> & v) noexcept
 	{
 		return UTVector<VectorSizes::W, T>(w(v));
 	}
 
 	template <typename T>
-	inline const UTVector<VectorSizes::W, T> xxxz(const UTVector<VectorSizes::W, T> & v)
+	inline const UTVector<VectorSizes::W, T> xxxz(const UTVector<VectorSizes::W, T> & v) noexcept
 	{
 		return swizzle<VectorIndices::X, VectorIndices::X, VectorIndices::X, VectorIndices::Z>(v);
 	}
 
 	template <typename T>
-	inline const UTVector<VectorSizes::W, T> xxyy(const UTVector<VectorSizes::W, T> & v)
+	inline const UTVector<VectorSizes::W, T> xxyy(const UTVector<VectorSizes::W, T> & v) noexcept
 	{
 		return swizzle<VectorIndices::X, VectorIndices::X, VectorIndices::Y, VectorIndices::Y>(v);
 	}
 
 	template <typename T>
-	inline const UTVector<VectorSizes::W, T> xxzz(const UTVector<VectorSizes::W, T> & v)
+	inline const UTVector<VectorSizes::W, T> xxzz(const UTVector<VectorSizes::W, T> & v) noexcept
 	{
 		return swizzle<VectorIndices::X, VectorIndices::X, VectorIndices::Z, VectorIndices::Z>(v);
 	}
 
 	template <typename T>
-	inline const UTVector<VectorSizes::W, T> xyxy(const UTVector<VectorSizes::W, T> & v)
+	inline const UTVector<VectorSizes::W, T> xyxy(const UTVector<VectorSizes::W, T> & v) noexcept
 	{
 		return swizzle<VectorIndices::X, VectorIndices::Y, VectorIndices::X, VectorIndices::Y>(v);
 	}
 
 	template <typename T>
-	inline const UTVector<VectorSizes::W, T> xzzz(const UTVector<VectorSizes::W, T> & v)
+	inline const UTVector<VectorSizes::W, T> xzzz(const UTVector<VectorSizes::W, T> & v) noexcept
 	{
 		return swizzle<VectorIndices::X, VectorIndices::Z, VectorIndices::Z, VectorIndices::Z>(v);
 	}
 
 	template <typename T>
-	inline const UTVector<VectorSizes::W, T> yxxy(const UTVector<VectorSizes::W, T> & v)
+	inline const UTVector<VectorSizes::W, T> yxxy(const UTVector<VectorSizes::W, T> & v) noexcept
 	{
 		return swizzle<VectorIndices::Y, VectorIndices::X, VectorIndices::X, VectorIndices::Y>(v);
 	}
 
 	template <typename T>
-	inline const UTVector<VectorSizes::W, T> yxwz(const UTVector<VectorSizes::W, T> & v)
+	inline const UTVector<VectorSizes::W, T> yxwz(const UTVector<VectorSizes::W, T> & v) noexcept
 	{
 		return swizzle<VectorIndices::Y, VectorIndices::X, VectorIndices::W, VectorIndices::Z>(v);
 	}
 
 	template <typename T>
-	inline const UTVector<VectorSizes::W, T> yzxw(const UTVector<VectorSizes::W, T> & v)
+	inline const UTVector<VectorSizes::W, T> yzxw(const UTVector<VectorSizes::W, T> & v) noexcept
 	{
 		return swizzle<VectorIndices::Y, VectorIndices::Z, VectorIndices::X, VectorIndices::W>(v);
 	}
 
 	template <typename T>
-	inline const UTVector<VectorSizes::W, T> yzwx(const UTVector<VectorSizes::W, T> & v)
+	inline const UTVector<VectorSizes::W, T> yzwx(const UTVector<VectorSizes::W, T> & v) noexcept
 	{
 		return swizzle<VectorIndices::Y, VectorIndices::Z, VectorIndices::W, VectorIndices::X>(v);
 	}
 
 	template <typename T>
-	inline const UTVector<VectorSizes::W, T> zxyw(const UTVector<VectorSizes::W, T> & v)
+	inline const UTVector<VectorSizes::W, T> zxyw(const UTVector<VectorSizes::W, T> & v) noexcept
 	{
 		return swizzle<VectorIndices::Z, VectorIndices::X, VectorIndices::Y, VectorIndices::W>(v);
 	}
 
 	template <typename T>
-	inline const UTVector<VectorSizes::W, T> zzyy(const UTVector<VectorSizes::W, T> & v)
+	inline const UTVector<VectorSizes::W, T> zzyy(const UTVector<VectorSizes::W, T> & v) noexcept
 	{
 		return swizzle<VectorIndices::Z, VectorIndices::Z, VectorIndices::Y, VectorIndices::Y>(v);
 	}
 
 	template <typename T>
-	inline const UTVector<VectorSizes::W, T> zzww(const UTVector<VectorSizes::W, T> & v)
+	inline const UTVector<VectorSizes::W, T> zzww(const UTVector<VectorSizes::W, T> & v) noexcept
 	{
 		return swizzle<VectorIndices::Z, VectorIndices::Z, VectorIndices::W, VectorIndices::W>(v);
 	}
 
 	template <typename T>
-	inline const UTVector<VectorSizes::W, T> zwxy(const UTVector<VectorSizes::W, T> & v)
+	inline const UTVector<VectorSizes::W, T> zwxy(const UTVector<VectorSizes::W, T> & v) noexcept
 	{
 		return swizzle<VectorIndices::Z, VectorIndices::W, VectorIndices::X, VectorIndices::Y>(v);
 	}
 
 	template <typename T>
-	inline const UTVector<VectorSizes::W, T> zwzw(const UTVector<VectorSizes::W, T> & v)
+	inline const UTVector<VectorSizes::W, T> zwzw(const UTVector<VectorSizes::W, T> & v) noexcept
 	{
 		return swizzle<VectorIndices::Z, VectorIndices::W, VectorIndices::Z, VectorIndices::W>(v);
 	}
 
 	template <typename T>
-	inline const UTVector<VectorSizes::W, T> wxyz(const UTVector<VectorSizes::W, T> & v)
+	inline const UTVector<VectorSizes::W, T> wxyz(const UTVector<VectorSizes::W, T> & v) noexcept
 	{
 		return swizzle<VectorIndices::W, VectorIndices::X, VectorIndices::Y, VectorIndices::Z>(v);
 	}
 
 	template <typename T>
-	inline const UTVector<VectorSizes::W, T> wzyx(const UTVector<VectorSizes::W, T> & v)
+	inline const UTVector<VectorSizes::W, T> wzyx(const UTVector<VectorSizes::W, T> & v) noexcept
 	{
 		return swizzle<VectorIndices::W, VectorIndices::Z, VectorIndices::Y, VectorIndices::X>(v);
 	}
 
 	template <typename T>
-	inline const UTVector<VectorSizes::W, T> xx_xx(const UTVector<VectorSizes::W, T> & a, const UTVector<VectorSizes::W, T> & b)
+	inline const UTVector<VectorSizes::W, T> xx_xx(const UTVector<VectorSizes::W, T> & a, const UTVector<VectorSizes::W, T> & b) noexcept
 	{
 		return swizzledBlend_2x2<VectorIndices::X, VectorIndices::X, VectorIndices::X, VectorIndices::X>(a, b);
 	}
 
 	template <typename T>
-	inline const UTVector<VectorSizes::W, T> xx_yy(const UTVector<VectorSizes::W, T> & a, const UTVector<VectorSizes::W, T> & b)
+	inline const UTVector<VectorSizes::W, T> xx_yy(const UTVector<VectorSizes::W, T> & a, const UTVector<VectorSizes::W, T> & b) noexcept
 	{
 		return swizzledBlend_2x2<VectorIndices::X, VectorIndices::X, VectorIndices::Y, VectorIndices::Y>(a, b);
 	}
 
 	template <typename T>
-	inline const UTVector<VectorSizes::W, T> xy_xy(const UTVector<VectorSizes::W, T> & a, const UTVector<VectorSizes::W, T> & b)
+	inline const UTVector<VectorSizes::W, T> xy_xy(const UTVector<VectorSizes::W, T> & a, const UTVector<VectorSizes::W, T> & b) noexcept
 	{
 		return swizzledBlend_2x2<VectorIndices::X, VectorIndices::Y, VectorIndices::X, VectorIndices::Y>(a, b);
 	}
 
 	template <typename T>
-	inline const UTVector<VectorSizes::W, T> xy_zw(const UTVector<VectorSizes::W, T> & a, const UTVector<VectorSizes::W, T> & b)
+	inline const UTVector<VectorSizes::W, T> xy_zw(const UTVector<VectorSizes::W, T> & a, const UTVector<VectorSizes::W, T> & b) noexcept
 	{
 		return swizzledBlend_2x2<VectorIndices::X, VectorIndices::Y, VectorIndices::Z, VectorIndices::W>(a, b);
 	}
 
 	template <typename T>
-	inline const UTVector<VectorSizes::W, T> xz_xz(const UTVector<VectorSizes::W, T> & a, const UTVector<VectorSizes::W, T> & b)
+	inline const UTVector<VectorSizes::W, T> xz_xz(const UTVector<VectorSizes::W, T> & a, const UTVector<VectorSizes::W, T> & b) noexcept
 	{
 		return swizzledBlend_2x2<VectorIndices::X, VectorIndices::Z, VectorIndices::X, VectorIndices::Z>(a, b);
 	}
 
 	template <typename T>
-	inline const UTVector<VectorSizes::W, T> yy_yy(const UTVector<VectorSizes::W, T> & a, const UTVector<VectorSizes::W, T> & b)
+	inline const UTVector<VectorSizes::W, T> yy_yy(const UTVector<VectorSizes::W, T> & a, const UTVector<VectorSizes::W, T> & b) noexcept
 	{
 		return swizzledBlend_2x2<VectorIndices::Y, VectorIndices::Y, VectorIndices::Y, VectorIndices::Y>(a, b);
 	}
 
 	template <typename T>
-	inline const UTVector<VectorSizes::W, T> yw_yw(const UTVector<VectorSizes::W, T> & a, const UTVector<VectorSizes::W, T> & b)
+	inline const UTVector<VectorSizes::W, T> yw_yw(const UTVector<VectorSizes::W, T> & a, const UTVector<VectorSizes::W, T> & b) noexcept
 	{
 		return swizzledBlend_2x2<VectorIndices::Y, VectorIndices::W, VectorIndices::Y, VectorIndices::W>(a, b);
 	}
 
 	template <typename T>
-	inline const UTVector<VectorSizes::W, T> zz_zz(const UTVector<VectorSizes::W, T> & a, const UTVector<VectorSizes::W, T> & b)
+	inline const UTVector<VectorSizes::W, T> zz_zz(const UTVector<VectorSizes::W, T> & a, const UTVector<VectorSizes::W, T> & b) noexcept
 	{
 		return swizzledBlend_2x2<VectorIndices::Z, VectorIndices::Z, VectorIndices::Z, VectorIndices::Z>(a, b);
 	}
 
 	template <typename T>
-	inline const UTVector<VectorSizes::W, T> zw_zw(const UTVector<VectorSizes::W, T> & a, const UTVector<VectorSizes::W, T> & b)
+	inline const UTVector<VectorSizes::W, T> zw_zw(const UTVector<VectorSizes::W, T> & a, const UTVector<VectorSizes::W, T> & b) noexcept
 	{
 		return swizzledBlend_2x2<VectorIndices::Z, VectorIndices::W, VectorIndices::Z, VectorIndices::W>(a, b);
 	}
 
 	template <typename T>
-	inline const UTVector<VectorSizes::W, T> ww_ww(const UTVector<VectorSizes::W, T> & a, const UTVector<VectorSizes::W, T> & b)
+	inline const UTVector<VectorSizes::W, T> ww_ww(const UTVector<VectorSizes::W, T> & a, const UTVector<VectorSizes::W, T> & b) noexcept
 	{
 		return swizzledBlend_2x2<VectorIndices::W, VectorIndices::W, VectorIndices::W, VectorIndices::W>(a, b);
 	}
@@ -512,38 +520,38 @@ namespace vectorization
 	//{ Accessors
 
 	template <ASizeT Index, ASizeT Size, typename T>
-	inline const T component(const UTVector<Size, T> & v)
+	inline const T component(const UTVector<Size, T> & v) noexcept
 	{
 		static_assert(Index < Size, "Index is out of range");
 		return v.components[Index];
 	}
 
 	template <ASizeT Size, typename T>
-	inline const T x(const UTVector<Size, T> & v)
+	inline const T x(const UTVector<Size, T> & v) noexcept
 	{
 		return component<VectorIndices::X>(v);
 	}
 
 	template <ASizeT Size, typename T>
-	inline const T y(const UTVector<Size, T> & v)
+	inline const T y(const UTVector<Size, T> & v) noexcept
 	{
 		return component<VectorIndices::Y>(v);
 	}
 
 	template <ASizeT Size, typename T>
-	inline const T z(const UTVector<Size, T> & v)
+	inline const T z(const UTVector<Size, T> & v) noexcept
 	{
 		return component<VectorIndices::Z>(v);
 	}
 
 	template <ASizeT Size, typename T>
-	inline const T w(const UTVector<Size, T> & v)
+	inline const T w(const UTVector<Size, T> & v) noexcept
 	{
 		return component<VectorIndices::W>(v);
 	}
 
 	template <ASizeT Index, ASizeT Size, typename T>
-	inline void setComponent(UTVector<Size, T> & v, const T & s)
+	inline void setComponent(UTVector<Size, T> & v, const T & s) noexcept
 	{
 		static_assert(Index < Size, "Size is too small");
 
@@ -551,7 +559,7 @@ namespace vectorization
 	}
 
 	template <ASizeT Index, ASizeT Size, typename T>
-	inline const UTVector<Size, T> replaceComponent(const UTVector<Size, T> & v, const T & s)
+	inline const UTVector<Size, T> replaceComponent(const UTVector<Size, T> & v, const T & s) noexcept
 	{
 		static_assert(Index < Size, "Size is too small");
 
@@ -561,25 +569,25 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline const UTVector<Size, T> replaceX(const UTVector<Size, T> & v, const T & s)
+	inline const UTVector<Size, T> replaceX(const UTVector<Size, T> & v, const T & s) noexcept
 	{
 		return replaceComponent<VectorIndices::X>(v, s);
 	}
 
 	template <ASizeT Size, typename T>
-	inline const UTVector<Size, T> replaceY(const UTVector<Size, T> & v, const T & s)
+	inline const UTVector<Size, T> replaceY(const UTVector<Size, T> & v, const T & s) noexcept
 	{
 		return replaceComponent<VectorIndices::Y>(v, s);
 	}
 
 	template <ASizeT Size, typename T>
-	inline const UTVector<Size, T> replaceZ(const UTVector<Size, T> & v, const T & s)
+	inline const UTVector<Size, T> replaceZ(const UTVector<Size, T> & v, const T & s) noexcept
 	{
 		return replaceComponent<VectorIndices::Z>(v, s);
 	}
 
 	template <ASizeT Size, typename T>
-	inline const UTVector<Size, T> replaceW(const UTVector<Size, T> & v, const T & s)
+	inline const UTVector<Size, T> replaceW(const UTVector<Size, T> & v, const T & s) noexcept
 	{
 		return replaceComponent<VectorIndices::W>(v, s);
 	}
@@ -591,7 +599,7 @@ namespace vectorization
 	//{ Operators
 
 	template <ASizeT Size, typename T>
-	inline const UTVector<Size, T> operator~(const UTVector<Size, T> & v)
+	inline const UTVector<Size, T> operator~(const UTVector<Size, T> & v) noexcept
 	{
 		static_assert(std::is_integral<T>::value, "T must be integral");
 
@@ -603,7 +611,7 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline const typename UTVector<Size, T>::VectorBoolType operator!(const UTVector<Size, T> & v)
+	inline const typename UTVector<Size, T>::VectorBoolType operator!(const UTVector<Size, T> & v) noexcept
 	{
 		typename UTVector<Size, T>::VectorBoolType t;
 		staticFor<VectorIndices::X, Size>([&](auto i) {
@@ -613,7 +621,7 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline const UTVector<Size, T> operator-(const UTVector<Size, T> & v)
+	inline const UTVector<Size, T> operator-(const UTVector<Size, T> & v) noexcept
 	{
 		static_assert(std::is_signed<T>::value, "T must be a signed type");
 
@@ -625,7 +633,7 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline const UTVector<Size, T> operator+(const UTVector<Size, T> & a, const UTVector<Size, T> & b)
+	inline const UTVector<Size, T> operator+(const UTVector<Size, T> & a, const UTVector<Size, T> & b) noexcept
 	{
 		UTVector<Size, T> t;
 		staticFor<VectorIndices::X, Size>([&](auto i) {
@@ -635,7 +643,7 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline const UTVector<Size, T> operator+(const UTVector<Size, T> & a, const T & b)
+	inline const UTVector<Size, T> operator+(const UTVector<Size, T> & a, const T & b) noexcept
 	{
 		UTVector<Size, T> t;
 		staticFor<VectorIndices::X, Size>([&](auto i) {
@@ -645,7 +653,7 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline const UTVector<Size, T> operator-(const UTVector<Size, T> & a, const UTVector<Size, T> & b)
+	inline const UTVector<Size, T> operator-(const UTVector<Size, T> & a, const UTVector<Size, T> & b) noexcept
 	{
 		UTVector<Size, T> t;
 		staticFor<VectorIndices::X, Size>([&](auto i) {
@@ -655,7 +663,7 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline const UTVector<Size, T> operator-(const UTVector<Size, T> & a, const T & b)
+	inline const UTVector<Size, T> operator-(const UTVector<Size, T> & a, const T & b) noexcept
 	{
 		UTVector<Size, T> t;
 		staticFor<VectorIndices::X, Size>([&](auto i) {
@@ -665,7 +673,7 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline const UTVector<Size, T> operator*(const UTVector<Size, T> & a, const UTVector<Size, T> & b)
+	inline const UTVector<Size, T> operator*(const UTVector<Size, T> & a, const UTVector<Size, T> & b) noexcept
 	{
 		UTVector<Size, T> t;
 		staticFor<VectorIndices::X, Size>([&](auto i) {
@@ -675,7 +683,7 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline const UTVector<Size, T> operator*(const UTVector<Size, T> & a, const T & b)
+	inline const UTVector<Size, T> operator*(const UTVector<Size, T> & a, const T & b) noexcept
 	{
 		UTVector<Size, T> t;
 		staticFor<VectorIndices::X, Size>([&](auto i) {
@@ -685,7 +693,7 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline const UTVector<Size, T> operator%(const UTVector<Size, T> & a, const UTVector<Size, T> & b)
+	inline const UTVector<Size, T> operator%(const UTVector<Size, T> & a, const UTVector<Size, T> & b) noexcept
 	{
 		UTVector<Size, T> t;
 		staticFor<VectorIndices::X, Size>([&](auto i) {
@@ -695,7 +703,7 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline const UTVector<Size, T> operator%(const UTVector<Size, T> & a, const T & b)
+	inline const UTVector<Size, T> operator%(const UTVector<Size, T> & a, const T & b) noexcept
 	{
 		UTVector<Size, T> t;
 		staticFor<VectorIndices::X, Size>([&](auto i) {
@@ -705,7 +713,7 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline const UTVector<Size, T> operator/(const UTVector<Size, T> & a, const UTVector<Size, T> & b)
+	inline const UTVector<Size, T> operator/(const UTVector<Size, T> & a, const UTVector<Size, T> & b) noexcept
 	{
 		UTVector<Size, T> t;
 		staticFor<VectorIndices::X, Size>([&](auto i) {
@@ -715,7 +723,7 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline const UTVector<Size, T> operator/(const UTVector<Size, T> & a, const T & b)
+	inline const UTVector<Size, T> operator/(const UTVector<Size, T> & a, const T & b) noexcept
 	{
 		typedef UTVector<Size, T> V;
 
@@ -725,7 +733,7 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline const UTVector<Size, T> operator<<(const UTVector<Size, T> & a, const typename UTVector<Size, T>::VectorBoolType & b)
+	inline const UTVector<Size, T> operator<<(const UTVector<Size, T> & a, const typename UTVector<Size, T>::VectorBoolType & b) noexcept
 	{
 		UTVector<Size, T> t;
 
@@ -740,7 +748,7 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline const UTVector<Size, T> operator<<(const UTVector<Size, T> & a, const typename UTVector<Size, T>::BoolType & b)
+	inline const UTVector<Size, T> operator<<(const UTVector<Size, T> & a, const typename UTVector<Size, T>::BoolType & b) noexcept
 	{
 		UTVector<Size, T> t;
 
@@ -755,7 +763,7 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline const UTVector<Size, T> operator>>(const UTVector<Size, T> & a, const typename UTVector<Size, T>::VectorBoolType & b)
+	inline const UTVector<Size, T> operator>>(const UTVector<Size, T> & a, const typename UTVector<Size, T>::VectorBoolType & b) noexcept
 	{
 		UTVector<Size, T> t;
 
@@ -770,7 +778,7 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline const UTVector<Size, T> operator>>(const UTVector<Size, T> & a, const typename UTVector<Size, T>::BoolType & b)
+	inline const UTVector<Size, T> operator>>(const UTVector<Size, T> & a, const typename UTVector<Size, T>::BoolType & b) noexcept
 	{
 		UTVector<Size, T> t;
 
@@ -785,7 +793,7 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline const UTVector<Size, T> operator&(const UTVector<Size, T> & a, const UTVector<Size, T> & b)
+	inline const UTVector<Size, T> operator&(const UTVector<Size, T> & a, const UTVector<Size, T> & b) noexcept
 	{
 		UTVector<Size, T> t;
 
@@ -801,7 +809,7 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline const UTVector<Size, T> operator&(const UTVector<Size, T> & a, const typename UTVector<Size, T>::BoolType & b)
+	inline const UTVector<Size, T> operator&(const UTVector<Size, T> & a, const typename UTVector<Size, T>::BoolType & b) noexcept
 	{
 		UTVector<Size, T> t;
 
@@ -816,7 +824,7 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline const UTVector<Size, T> operator|(const UTVector<Size, T> & a, const UTVector<Size, T> & b)
+	inline const UTVector<Size, T> operator|(const UTVector<Size, T> & a, const UTVector<Size, T> & b) noexcept
 	{
 		UTVector<Size, T> t;
 
@@ -832,7 +840,7 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline const UTVector<Size, T> operator|(const UTVector<Size, T> & a, const typename UTVector<Size, T>::BoolType & b)
+	inline const UTVector<Size, T> operator|(const UTVector<Size, T> & a, const typename UTVector<Size, T>::BoolType & b) noexcept
 	{
 		UTVector<Size, T> t;
 
@@ -847,7 +855,7 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline const UTVector<Size, T> operator^(const UTVector<Size, T> & a, const UTVector<Size, T> & b)
+	inline const UTVector<Size, T> operator^(const UTVector<Size, T> & a, const UTVector<Size, T> & b) noexcept
 	{
 		UTVector<Size, T> t;
 
@@ -863,7 +871,7 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline const UTVector<Size, T> operator^(const UTVector<Size, T> & a, const typename UTVector<Size, T>::BoolType & b)
+	inline const UTVector<Size, T> operator^(const UTVector<Size, T> & a, const typename UTVector<Size, T>::BoolType & b) noexcept
 	{
 		UTVector<Size, T> t;
 
@@ -878,7 +886,7 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline const typename UTVector<Size, T>::VectorBoolType operator==(const UTVector<Size, T> & a, const UTVector<Size, T> & b)
+	inline const typename UTVector<Size, T>::VectorBoolType operator==(const UTVector<Size, T> & a, const UTVector<Size, T> & b) noexcept
 	{
 		typename UTVector<Size, T>::VectorBoolType t;
 		staticFor<VectorIndices::X, Size>([&](auto i) {
@@ -888,7 +896,7 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline const typename UTVector<Size, T>::VectorBoolType operator==(const UTVector<Size, T> & a, const T & b)
+	inline const typename UTVector<Size, T>::VectorBoolType operator==(const UTVector<Size, T> & a, const T & b) noexcept
 	{
 		typename UTVector<Size, T>::VectorBoolType t;
 		staticFor<VectorIndices::X, Size>([&](auto i) {
@@ -898,7 +906,7 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline const typename UTVector<Size, T>::VectorBoolType operator!=(const UTVector<Size, T> & a, const UTVector<Size, T> & b)
+	inline const typename UTVector<Size, T>::VectorBoolType operator!=(const UTVector<Size, T> & a, const UTVector<Size, T> & b) noexcept
 	{
 		typename UTVector<Size, T>::VectorBoolType t;
 		staticFor<VectorIndices::X, Size>([&](auto i) {
@@ -908,7 +916,7 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline const typename UTVector<Size, T>::VectorBoolType operator!=(const UTVector<Size, T> & a, const T & b)
+	inline const typename UTVector<Size, T>::VectorBoolType operator!=(const UTVector<Size, T> & a, const T & b) noexcept
 	{
 		typename UTVector<Size, T>::VectorBoolType t;
 		staticFor<VectorIndices::X, Size>([&](auto i) {
@@ -918,7 +926,7 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline const typename UTVector<Size, T>::VectorBoolType operator<(const UTVector<Size, T> & a, const UTVector<Size, T> & b)
+	inline const typename UTVector<Size, T>::VectorBoolType operator<(const UTVector<Size, T> & a, const UTVector<Size, T> & b) noexcept
 	{
 		typename UTVector<Size, T>::VectorBoolType t;
 		staticFor<VectorIndices::X, Size>([&](auto i) {
@@ -928,7 +936,7 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline const typename UTVector<Size, T>::VectorBoolType operator<(const UTVector<Size, T> & a, const T & b)
+	inline const typename UTVector<Size, T>::VectorBoolType operator<(const UTVector<Size, T> & a, const T & b) noexcept
 	{
 		typename UTVector<Size, T>::VectorBoolType t;
 		staticFor<VectorIndices::X, Size>([&](auto i) {
@@ -938,7 +946,7 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline const typename UTVector<Size, T>::VectorBoolType operator<=(const UTVector<Size, T> & a, const UTVector<Size, T> & b)
+	inline const typename UTVector<Size, T>::VectorBoolType operator<=(const UTVector<Size, T> & a, const UTVector<Size, T> & b) noexcept
 	{
 		typename UTVector<Size, T>::VectorBoolType t;
 		staticFor<VectorIndices::X, Size>([&](auto i) {
@@ -948,7 +956,7 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline const typename UTVector<Size, T>::VectorBoolType operator<=(const UTVector<Size, T> & a, const T & b)
+	inline const typename UTVector<Size, T>::VectorBoolType operator<=(const UTVector<Size, T> & a, const T & b) noexcept
 	{
 		typename UTVector<Size, T>::VectorBoolType t;
 		staticFor<VectorIndices::X, Size>([&](auto i) {
@@ -958,7 +966,7 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline const typename UTVector<Size, T>::VectorBoolType operator>(const UTVector<Size, T> & a, const UTVector<Size, T> & b)
+	inline const typename UTVector<Size, T>::VectorBoolType operator>(const UTVector<Size, T> & a, const UTVector<Size, T> & b) noexcept
 	{
 		typename UTVector<Size, T>::VectorBoolType t;
 		staticFor<VectorIndices::X, Size>([&](auto i) {
@@ -968,7 +976,7 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline const typename UTVector<Size, T>::VectorBoolType operator>(const UTVector<Size, T> & a, const T & b)
+	inline const typename UTVector<Size, T>::VectorBoolType operator>(const UTVector<Size, T> & a, const T & b) noexcept
 	{
 		typename UTVector<Size, T>::VectorBoolType t;
 		staticFor<VectorIndices::X, Size>([&](auto i) {
@@ -978,7 +986,7 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline const typename UTVector<Size, T>::VectorBoolType operator>=(const UTVector<Size, T> & a, const UTVector<Size, T> & b)
+	inline const typename UTVector<Size, T>::VectorBoolType operator>=(const UTVector<Size, T> & a, const UTVector<Size, T> & b) noexcept
 	{
 		typename UTVector<Size, T>::VectorBoolType t;
 		staticFor<VectorIndices::X, Size>([&](auto i) {
@@ -988,7 +996,7 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline const typename UTVector<Size, T>::VectorBoolType operator>=(const UTVector<Size, T> & a, const T & b)
+	inline const typename UTVector<Size, T>::VectorBoolType operator>=(const UTVector<Size, T> & a, const T & b) noexcept
 	{
 		typename UTVector<Size, T>::VectorBoolType t;
 		staticFor<VectorIndices::X, Size>([&](auto i) {
@@ -998,7 +1006,7 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline UTVector<Size, T> & operator+=(UTVector<Size, T> & a, const UTVector<Size, T> & b)
+	inline UTVector<Size, T> & operator+=(UTVector<Size, T> & a, const UTVector<Size, T> & b) noexcept
 	{
 		staticFor<VectorIndices::X, Size>([&](auto i) {
 			a.components[i] += b.components[i];
@@ -1007,7 +1015,7 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline UTVector<Size, T> & operator+=(UTVector<Size, T> & a, const T & b)
+	inline UTVector<Size, T> & operator+=(UTVector<Size, T> & a, const T & b) noexcept
 	{
 		staticFor<VectorIndices::X, Size>([&](auto i) {
 			a.components[i] += b;
@@ -1016,7 +1024,7 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline UTVector<Size, T> & operator-=(UTVector<Size, T> & a, const UTVector<Size, T> & b)
+	inline UTVector<Size, T> & operator-=(UTVector<Size, T> & a, const UTVector<Size, T> & b) noexcept
 	{
 		staticFor<VectorIndices::X, Size>([&](auto i) {
 			a.components[i] -= b.components[i];
@@ -1025,7 +1033,7 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline UTVector<Size, T> & operator-=(UTVector<Size, T> & a, const T & b)
+	inline UTVector<Size, T> & operator-=(UTVector<Size, T> & a, const T & b) noexcept
 	{
 		staticFor<VectorIndices::X, Size>([&](auto i) {
 			a.components[i] -= b;
@@ -1034,7 +1042,7 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline UTVector<Size, T> & operator*=(UTVector<Size, T> & a, const UTVector<Size, T> & b)
+	inline UTVector<Size, T> & operator*=(UTVector<Size, T> & a, const UTVector<Size, T> & b) noexcept
 	{
 		staticFor<VectorIndices::X, Size>([&](auto i) {
 			a.components[i] *= b.components[i];
@@ -1043,7 +1051,7 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline UTVector<Size, T> & operator*=(UTVector<Size, T> & a, const T & b)
+	inline UTVector<Size, T> & operator*=(UTVector<Size, T> & a, const T & b) noexcept
 	{
 		staticFor<VectorIndices::X, Size>([&](auto i) {
 			a.components[i] *= b;
@@ -1052,7 +1060,7 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline UTVector<Size, T> & operator/=(UTVector<Size, T> & a, const UTVector<Size, T> & b)
+	inline UTVector<Size, T> & operator/=(UTVector<Size, T> & a, const UTVector<Size, T> & b) noexcept
 	{
 		staticFor<VectorIndices::X, Size>([&](auto i) {
 			a.components[i] /= b.components[i];
@@ -1061,14 +1069,14 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline UTVector<Size, T> & operator/=(UTVector<Size, T> & a, const T & b)
+	inline UTVector<Size, T> & operator/=(UTVector<Size, T> & a, const T & b) noexcept
 	{
 		UTVector<Size, T>::operator_div_internal(a, a, b, std::is_floating_point<T>());
 		return a;
 	}
 
 	template <ASizeT Size, typename T>
-	inline UTVector<Size, T> & operator%=(UTVector<Size, T> & a, const UTVector<Size, T> & b)
+	inline UTVector<Size, T> & operator%=(UTVector<Size, T> & a, const UTVector<Size, T> & b) noexcept
 	{
 		staticFor<VectorIndices::X, Size>([&](auto i) {
 			a.components[i] = mod(a.components[i], b.components[i]);
@@ -1077,7 +1085,7 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline UTVector<Size, T> & operator%=(UTVector<Size, T> & a, const T & b)
+	inline UTVector<Size, T> & operator%=(UTVector<Size, T> & a, const T & b) noexcept
 	{
 		staticFor<VectorIndices::X, Size>([&](auto i) {
 			a.components[i] = mod(a.components[i], b);
@@ -1086,7 +1094,7 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline UTVector<Size, T> & operator&=(UTVector<Size, T> & a, const UTVector<Size, T> & b)
+	inline UTVector<Size, T> & operator&=(UTVector<Size, T> & a, const UTVector<Size, T> & b) noexcept
 	{
 		typedef typename UTVector<Size, T>::BoolType B;
 		const B * const bitsInB = reinterpret_cast<const B * const>(b.components);
@@ -1099,7 +1107,7 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline UTVector<Size, T> & operator&=(UTVector<Size, T> & a, const typename UTVector<Size, T>::BoolType & b)
+	inline UTVector<Size, T> & operator&=(UTVector<Size, T> & a, const typename UTVector<Size, T>::BoolType & b) noexcept
 	{
 		typedef typename UTVector<Size, T>::BoolType B;
 		B * const bits = reinterpret_cast<B * const>(a.components);
@@ -1111,7 +1119,7 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline UTVector<Size, T> & operator|=(UTVector<Size, T> & a, const UTVector<Size, T> & b)
+	inline UTVector<Size, T> & operator|=(UTVector<Size, T> & a, const UTVector<Size, T> & b) noexcept
 	{
 		typedef typename UTVector<Size, T>::BoolType B;
 		const B * const bitsInB = reinterpret_cast<const B * const>(b.components);
@@ -1124,7 +1132,7 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline UTVector<Size, T> & operator|=(UTVector<Size, T> & a, const typename UTVector<Size, T>::BoolType & b)
+	inline UTVector<Size, T> & operator|=(UTVector<Size, T> & a, const typename UTVector<Size, T>::BoolType & b) noexcept
 	{
 		typedef typename UTVector<Size, T>::BoolType B;
 		B * const bits = reinterpret_cast<B * const>(a.components);
@@ -1136,7 +1144,7 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline UTVector<Size, T> & operator^=(UTVector<Size, T> & a, const UTVector<Size, T> & b)
+	inline UTVector<Size, T> & operator^=(UTVector<Size, T> & a, const UTVector<Size, T> & b) noexcept
 	{
 		typedef typename UTVector<Size, T>::BoolType B;
 		const B * const bitsInB = reinterpret_cast<const B * const>(b.components);
@@ -1149,7 +1157,7 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline UTVector<Size, T> & operator^=(UTVector<Size, T> & a, const typename UTVector<Size, T>::BoolType & b)
+	inline UTVector<Size, T> & operator^=(UTVector<Size, T> & a, const typename UTVector<Size, T>::BoolType & b) noexcept
 	{
 		typedef typename UTVector<Size, T>::BoolType B;
 		B * const bits = reinterpret_cast<B * const>(a.components);
@@ -1161,7 +1169,7 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline UTVector<Size, T> & operator<<=(UTVector<Size, T> & a, const typename UTVector<Size, T>::VectorBoolType & b)
+	inline UTVector<Size, T> & operator<<=(UTVector<Size, T> & a, const typename UTVector<Size, T>::VectorBoolType & b) noexcept
 	{
 		typedef typename UTVector<Size, T>::BoolType B;
 		B * const bits = reinterpret_cast<B * const>(a.components);
@@ -1173,7 +1181,7 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline  UTVector<Size, T> & operator<<=(UTVector<Size, T> & a, const typename UTVector<Size, T>::BoolType & b)
+	inline  UTVector<Size, T> & operator<<=(UTVector<Size, T> & a, const typename UTVector<Size, T>::BoolType & b) noexcept
 	{
 		typedef typename UTVector<Size, T>::BoolType B;
 		B * const bits = reinterpret_cast<B * const>(a.components);
@@ -1185,7 +1193,7 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline UTVector<Size, T> & operator>>=(UTVector<Size, T> & a, const typename UTVector<Size, T>::VectorBoolType & b)
+	inline UTVector<Size, T> & operator>>=(UTVector<Size, T> & a, const typename UTVector<Size, T>::VectorBoolType & b) noexcept
 	{
 		typedef typename UTVector<Size, T>::BoolType B;
 		B * const bits = reinterpret_cast<B * const>(a.components);
@@ -1197,7 +1205,7 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline UTVector<Size, T> & operator>>=(UTVector<Size, T> & a, const typename UTVector<Size, T>::BoolType & b)
+	inline UTVector<Size, T> & operator>>=(UTVector<Size, T> & a, const typename UTVector<Size, T>::BoolType & b) noexcept
 	{
 		typedef typename UTVector<Size, T>::BoolType B;
 		B * const bits = reinterpret_cast<B * const>(a.components);
@@ -1215,7 +1223,7 @@ namespace vectorization
 	//{ Special math operations
 
 	template <ASizeT Size, typename T>
-	inline const typename UTVector<Size, T>::BoolType isNegative(const UTVector<Size, T> & v)
+	inline const typename UTVector<Size, T>::BoolType isNegative(const UTVector<Size, T> & v) noexcept
 	{
 		typedef typename UTVector<Size, T>::BoolType B;
 
@@ -1227,7 +1235,7 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline const T dot(const UTVector<Size, T> & a, const UTVector<Size, T> & b)
+	inline const T dot(const UTVector<Size, T> & a, const UTVector<Size, T> & b) noexcept
 	{
 		T accumulator = Zero<T>();
 		staticFor<VectorIndices::X, Size>([&](auto i) {
@@ -1237,55 +1245,55 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline const UTVector<Size, T> dotv(const UTVector<Size, T> & a, const UTVector<Size, T> & b)
+	inline const UTVector<Size, T> dotv(const UTVector<Size, T> & a, const UTVector<Size, T> & b) noexcept
 	{
 		return UTVector<Size, T>(dot(a, b));
 	}
 
 	template <ASizeT Size, typename T>
-	inline const T dot3(const UTVector<Size, T> & a, const UTVector<Size, T> & b)
+	inline const T dot3(const UTVector<Size, T> & a, const UTVector<Size, T> & b) noexcept
 	{
 		return x(a) * x(b) + y(a) * y(b) + z(a) * z(b);
 	}
 
 	template <ASizeT Size, typename T>
-	inline const UTVector<Size, T> dot3v(const UTVector<Size, T> & a, const UTVector<Size, T> & b)
+	inline const UTVector<Size, T> dot3v(const UTVector<Size, T> & a, const UTVector<Size, T> & b) noexcept
 	{
 		return UTVector<Size, T>(dot3(a, b));
 	}
 
 	template <ASizeT Size, typename T>
-	inline const T length(const UTVector<Size, T> & v)
+	inline const T length(const UTVector<Size, T> & v) noexcept
 	{
 		return sqrt(dot(v, v));
 	}
 
 	template <ASizeT Size, typename T>
-	inline const UTVector<Size, T> lengthv(const UTVector<Size, T> & v)
+	inline const UTVector<Size, T> lengthv(const UTVector<Size, T> & v) noexcept
 	{
 		return UTVector<Size, T>(length(v));
 	}
 
 	template <ASizeT Size, typename T>
-	inline const T length3(const UTVector<Size, T> & v)
+	inline const T length3(const UTVector<Size, T> & v) noexcept
 	{
 		return sqrt(dot3(v, v));
 	}
 
 	template <ASizeT Size, typename T>
-	inline const UTVector<Size, T> length3v(const UTVector<Size, T> & v)
+	inline const UTVector<Size, T> length3v(const UTVector<Size, T> & v) noexcept
 	{
 		return UTVector<Size, T>(length3(v));
 	}
 
 	template <ASizeT Size, typename T>
-	inline const T distance(const UTVector<Size, T> & a, const UTVector<Size, T> & b)
+	inline const T distance(const UTVector<Size, T> & a, const UTVector<Size, T> & b) noexcept
 	{
 		return length(a - b);
 	}
 
 	template <ASizeT Size, typename T>
-	inline const T distance3(const UTVector<Size, T> & a, const UTVector<Size, T> & b)
+	inline const T distance3(const UTVector<Size, T> & a, const UTVector<Size, T> & b) noexcept
 	{
 		auto sqr = [](T v) {
 			return v * v;
@@ -1294,7 +1302,7 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline const UTVector<Size, T> min(const UTVector<Size, T> & a, const UTVector<Size, T> & b)
+	inline const UTVector<Size, T> min(const UTVector<Size, T> & a, const UTVector<Size, T> & b) noexcept
 	{
 		UTVector<Size, T> t;
 
@@ -1305,7 +1313,7 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline const T min(const UTVector<Size, T> & v)
+	inline const T min(const UTVector<Size, T> & v) noexcept
 	{
 		T accumulator = v.x();
 
@@ -1316,13 +1324,13 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline const T min3(const UTVector<Size, T> & v)
+	inline const T min3(const UTVector<Size, T> & v) noexcept
 	{
 		return min(v.x(), min(v.y(), v.z()));
 	}
 
 	template <ASizeT Size, typename T>
-	inline const UTVector<Size, T> max(const UTVector<Size, T> & a, const UTVector<Size, T> & b)
+	inline const UTVector<Size, T> max(const UTVector<Size, T> & a, const UTVector<Size, T> & b) noexcept
 	{
 		UTVector<Size, T> t;
 
@@ -1333,7 +1341,7 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline const T max(const UTVector<Size, T> & v)
+	inline const T max(const UTVector<Size, T> & v) noexcept
 	{
 		T accumulator = v.x();
 
@@ -1344,13 +1352,13 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline const T max3(const UTVector<Size, T> & v)
+	inline const T max3(const UTVector<Size, T> & v) noexcept
 	{
 		return max(x(v), max(y(v), z(v)));
 	}
 
 	template <ASizeT Size, typename T>
-	inline const T horizontalSum(const UTVector<Size, T> & v)
+	inline const T horizontalSum(const UTVector<Size, T> & v) noexcept
 	{
 		T accumulator = Zero<T>();
 
@@ -1361,13 +1369,13 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline const T horizontalSum3(const UTVector<Size, T> & v)
+	inline const T horizontalSum3(const UTVector<Size, T> & v) noexcept
 	{
 		return x(v) + y(v) + z(v);
 	}
 
 	template <ASizeT Size, typename T>
-	inline const UTVector<Size, T> floor(const UTVector<Size, T> & v)
+	inline const UTVector<Size, T> floor(const UTVector<Size, T> & v) noexcept
 	{
 		UTVector<Size, T> t;
 
@@ -1378,7 +1386,7 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline const UTVector<Size, T> fract(const UTVector<Size, T> & v)
+	inline const UTVector<Size, T> fract(const UTVector<Size, T> & v) noexcept
 	{
 		UTVector<Size, T> t;
 
@@ -1389,7 +1397,7 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline const UTVector<Size, T> exp(const UTVector<Size, T> & v)
+	inline const UTVector<Size, T> exp(const UTVector<Size, T> & v) noexcept
 	{
 		UTVector<Size, T> t;
 
@@ -1400,7 +1408,7 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline const UTVector<Size, T> exp3(const UTVector<Size, T> & v)
+	inline const UTVector<Size, T> exp3(const UTVector<Size, T> & v) noexcept
 	{
 		UTVector<Size, T> t;
 
@@ -1415,7 +1423,7 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline const UTVector<Size, T> log(const UTVector<Size, T> & v)
+	inline const UTVector<Size, T> log(const UTVector<Size, T> & v) noexcept
 	{
 		UTVector<Size, T> t;
 
@@ -1426,7 +1434,7 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline const UTVector<Size, T> log3(const UTVector<Size, T> & v)
+	inline const UTVector<Size, T> log3(const UTVector<Size, T> & v) noexcept
 	{
 		UTVector<Size, T> t;
 
@@ -1441,7 +1449,7 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline const UTVector<Size, T> clamp(const UTVector<Size, T> & v, const UTVector<Size, T> & l, const UTVector<Size, T> & m)
+	inline const UTVector<Size, T> clamp(const UTVector<Size, T> & v, const UTVector<Size, T> & l, const UTVector<Size, T> & m) noexcept
 	{
 		UTVector<Size, T> t;
 
@@ -1452,7 +1460,7 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline const UTVector<Size, T> clamp(const UTVector<Size, T> & v, const T & l, const T & m)
+	inline const UTVector<Size, T> clamp(const UTVector<Size, T> & v, const T & l, const T & m) noexcept
 	{
 		UTVector<Size, T> t;
 
@@ -1463,7 +1471,7 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline const UTVector<Size, T> abs(const UTVector<Size, T> & v)
+	inline const UTVector<Size, T> abs(const UTVector<Size, T> & v) noexcept
 	{
 		UTVector<Size, T> t;
 
@@ -1474,7 +1482,7 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline const UTVector<Size, T> mix(const UTVector<Size, T> & a, const UTVector<Size, T> & b, const UTVector<Size, T> & factor)
+	inline const UTVector<Size, T> mix(const UTVector<Size, T> & a, const UTVector<Size, T> & b, const UTVector<Size, T> & factor) noexcept
 	{
 		UTVector<Size, T> t;
 
@@ -1485,7 +1493,7 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline const UTVector<Size, T> mix(const UTVector<Size, T> & a, const UTVector<Size, T> & b, const T & factor)
+	inline const UTVector<Size, T> mix(const UTVector<Size, T> & a, const UTVector<Size, T> & b, const T & factor) noexcept
 	{
 		UTVector<Size, T> t;
 
@@ -1496,7 +1504,7 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline const UTVector<Size, T> cross3(const UTVector<Size, T> & a, const UTVector<Size, T> & b)
+	inline const UTVector<Size, T> cross3(const UTVector<Size, T> & a, const UTVector<Size, T> & b) noexcept
 	{
 		UTVector<Size, T> t;
 		x(t, y(a) * z(b) - y(b) * z(a));
@@ -1510,13 +1518,13 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline const UTVector<Size, T> normalize(const UTVector<Size, T> & v)
+	inline const UTVector<Size, T> normalize(const UTVector<Size, T> & v) noexcept
 	{
 		return v * reciprocal(length(v));
 	}
 
 	template <ASizeT Size, typename T>
-	inline const UTVector<Size, T> normalize3(const UTVector<Size, T> & v)
+	inline const UTVector<Size, T> normalize3(const UTVector<Size, T> & v) noexcept
 	{
 		const T rl = reciprocal(length3(v));
 		UTVector<Size, T> t;
@@ -1531,7 +1539,7 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline const UTVector<Size, T> reciprocal(const UTVector<Size, T> & v)
+	inline const UTVector<Size, T> reciprocal(const UTVector<Size, T> & v) noexcept
 	{
 		UTVector<Size, T> t;
 
@@ -1542,7 +1550,7 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline const UTVector<Size, T> pow(const UTVector<Size, T> & v, const UTVector<Size, T> & exponent)
+	inline const UTVector<Size, T> pow(const UTVector<Size, T> & v, const UTVector<Size, T> & exponent) noexcept
 	{
 		UTVector<Size, T> t;
 
@@ -1553,7 +1561,7 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline const UTVector<Size, T> pow(const UTVector<Size, T> & v, const T & exponent)
+	inline const UTVector<Size, T> pow(const UTVector<Size, T> & v, const T & exponent) noexcept
 	{
 		UTVector<Size, T> t;
 
@@ -1564,7 +1572,7 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline const UTVector<Size, T> pow3(const UTVector<Size, T> & v, const UTVector<Size, T> & exponent)
+	inline const UTVector<Size, T> pow3(const UTVector<Size, T> & v, const UTVector<Size, T> & exponent) noexcept
 	{
 		UTVector<Size, T> t;
 		x(t, pow(x(v), x(exponent)));
@@ -1578,7 +1586,7 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline const UTVector<Size, T> pow3(const UTVector<Size, T> & v, const T & exponent)
+	inline const UTVector<Size, T> pow3(const UTVector<Size, T> & v, const T & exponent) noexcept
 	{
 		UTVector<Size, T> t;
 		x(t, pow(x(v), exponent));
@@ -1592,7 +1600,7 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline const UTVector<Size, T> zeroW(const UTVector<Size, T> & v)
+	inline const UTVector<Size, T> zeroW(const UTVector<Size, T> & v) noexcept
 	{
 		UTVector<Size, T> t;
 		x(t, x(v));
@@ -1607,7 +1615,7 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline const UTVector<Size, T> oneW(const UTVector<Size, T> & v)
+	inline const UTVector<Size, T> oneW(const UTVector<Size, T> & v) noexcept
 	{
 		UTVector<Size, T> t;
 		x(t, x(v));
@@ -1622,7 +1630,7 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline const bool anyTrue(const UTVector<Size, T> & v)
+	inline const bool anyTrue(const UTVector<Size, T> & v) noexcept
 	{
 		for (ASizeT i = VectorIndices::X; i < Size; ++i)
 			if (v.components[i] != Zero<T>())
@@ -1631,13 +1639,13 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline const bool anyTrue3(const UTVector<Size, T> & v)
+	inline const bool anyTrue3(const UTVector<Size, T> & v) noexcept
 	{
 		return !!x(v) | !!y(v) | !!z(v);
 	}
 
 	template <ASizeT Size, typename T>
-	inline const bool anyFalse(const UTVector<Size, T> & v)
+	inline const bool anyFalse(const UTVector<Size, T> & v) noexcept
 	{
 		for (ASizeT i = VectorIndices::X; i < Size; ++i)
 			if (v.components[i] == Zero<T>())
@@ -1646,31 +1654,31 @@ namespace vectorization
 	}
 
 	template <ASizeT Size, typename T>
-	inline const bool anyFalse3(const UTVector<Size, T> & v)
+	inline const bool anyFalse3(const UTVector<Size, T> & v) noexcept
 	{
 		return !x(v) | !y(v) | !z(v);
 	}
 
 	template <ASizeT Size, typename T>
-	inline const bool allTrue(const UTVector<Size, T> & v)
+	inline const bool allTrue(const UTVector<Size, T> & v) noexcept
 	{
 		return !anyFalse(v);
 	}
 
 	template <ASizeT Size, typename T>
-	inline const bool allTrue3(const UTVector<Size, T> & v)
+	inline const bool allTrue3(const UTVector<Size, T> & v) noexcept
 	{
 		return !anyFalse3(v);
 	}
 
 	template <ASizeT Size, typename T>
-	inline const bool allFalse(const UTVector<Size, T> & v)
+	inline const bool allFalse(const UTVector<Size, T> & v) noexcept
 	{
 		return !anyTrue(v);
 	}
 
 	template <ASizeT Size, typename T>
-	inline const bool allFalse3(const UTVector<Size, T> & v)
+	inline const bool allFalse3(const UTVector<Size, T> & v) noexcept
 	{
 		return !anyTrue3(v);
 	}
@@ -1679,7 +1687,7 @@ namespace vectorization
 #pragma endregion
 
 	template <ASizeT Size, typename T>
-	std::ostream & operator<< (std::ostream & stream, const UTVector<Size, T> & v)
+	std::ostream & operator<< (std::ostream & stream, const UTVector<Size, T> & v) noexcept
 	{
 		stream << "{";
 		staticFor<VectorIndices::X, Size>([&](auto i) {
