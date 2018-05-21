@@ -511,7 +511,7 @@ namespace vectorization
 #pragma region unproject()
 	//{ unproject()
 
-	const v_f32_4 unproject(
+	const m_f32_4x4::RowVectorType unproject(
 		const m_f32_4x4::RowVectorType & screenPosition,
 		const m_f32_4x4 & inverseViewProjectionMatrix,
 		const m_f32_4x4::RowVectorType & viewport

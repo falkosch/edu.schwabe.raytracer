@@ -54,14 +54,6 @@ namespace vectorization
 
 		const ValueType & operator[](const ASizeT index) const noexcept;
 
-		void setX(const m_f32_4x4::RowVectorType & v) noexcept;
-
-		void setY(const m_f32_4x4::RowVectorType & v) noexcept;
-
-		void setZ(const m_f32_4x4::RowVectorType & v) noexcept;
-
-		void setW(const m_f32_4x4::RowVectorType & v) noexcept;
-
 	}; // m_f32_4x4
 
 #pragma region Constant generators
@@ -271,10 +263,10 @@ namespace vectorization
 	// view matrix seperately but requires a precomputed inverse of the
 	// view-projection-matrix. Also assumes that in viewport.z is "one over
 	// viewport-width" and in viewport.w is "one over viewport-height" stored.
-	const v_f32_4 unproject(
-		const v_f32_4 & screenPosition,
+	const m_f32_4x4::RowVectorType unproject(
+		const m_f32_4x4::RowVectorType & screenPosition,
 		const m_f32_4x4 & inverseViewProjectionMatrix,
-		const v_f32_4 & viewport
+		const m_f32_4x4::RowVectorType & viewport
 	) noexcept;
 
 	//}
