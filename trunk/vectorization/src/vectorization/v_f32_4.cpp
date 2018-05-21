@@ -1567,7 +1567,7 @@ namespace vectorization
 #pragma endregion
 
 
-	std::ostream & operator<< (std::ostream & stream, const v_f32_4 & v) noexcept
+	std::ostream & operator<< (std::ostream & stream, const v_f32_4 & v)
 	{
 		return stream << "{" << x(v) << ", " << y(v) << ", " << z(v) << ", " << w(v) << "}";
 	}
