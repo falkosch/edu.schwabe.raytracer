@@ -31,7 +31,7 @@ namespace vectorization
 
 	void * alloc(const ASizeT size, const std::align_val_t alignment) noexcept
 	{
-		return alloc(size, ASizeT(alignment));
+		return alloc(size, static_cast<ASizeT>(alignment));
 	}
 
 }
