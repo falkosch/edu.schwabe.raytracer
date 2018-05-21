@@ -12,9 +12,9 @@ namespace primitives
 
         ALIGNED_ALLOCATORS(__alignof(FacetEdges));
 
-        FacetEdges();
+        FacetEdges() noexcept;
 
-        explicit FacetEdges(const Float4 & v0, const Float4 & v1);
+        explicit FacetEdges(const Float4 & v0, const Float4 & v1) noexcept;
     };
 
 }

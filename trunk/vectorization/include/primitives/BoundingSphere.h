@@ -13,15 +13,15 @@ namespace primitives
 
         ALIGNED_ALLOCATORS(__alignof(BoundingSphere));
 
-        BoundingSphere();
+        BoundingSphere() noexcept;
 
-        explicit BoundingSphere(const Float4 & center, const Float radius);
+        explicit BoundingSphere(const Float4 & center, const Float radius) noexcept;
     };
 
-    const AxisAlignedBoundingBox bounding(const BoundingSphere & b);
+    const AxisAlignedBoundingBox bounding(const BoundingSphere & b) noexcept;
 
-    const bool overlaps(const Raycast & raycast, const BoundingSphere & by);
+    const bool overlaps(const Raycast & raycast, const BoundingSphere & by) noexcept;
 
-    const Float nearestIntersection(const Raycast & r, const BoundingSphere & b, const Size2::ValueType originId);
+    const Float nearestIntersection(const Raycast & r, const BoundingSphere & b, const Size2::ValueType originId) noexcept;
 
 }
