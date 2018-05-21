@@ -741,8 +741,8 @@ namespace vectorization
 		UTVector<Size, T> t;
 
 		typedef typename UTVector<Size, T>::BoolType B;
-		const B * const bitsIn = reinterpret_cast<const B * const>(a.components);
-		B * const bitsOut = reinterpret_cast<B * const>(t.components);
+		const B * const bitsIn = reinterpret_cast<const B * const>(&a.components[0]);
+		B * const bitsOut = reinterpret_cast<B * const>(&t.components[0]);
 
 		staticFor<VectorIndices::X, Size>([&](auto i) {
 			bitsOut[i] = bitsIn[i] << b.components[i];
@@ -756,8 +756,8 @@ namespace vectorization
 		UTVector<Size, T> t;
 
 		typedef typename UTVector<Size, T>::BoolType B;
-		const B * const bitsIn = reinterpret_cast<const B * const>(a.components);
-		B * const bitsOut = reinterpret_cast<B * const>(t.components);
+		const B * const bitsIn = reinterpret_cast<const B * const>(&a.components[0]);
+		B * const bitsOut = reinterpret_cast<B * const>(&t.components[0]);
 
 		staticFor<VectorIndices::X, Size>([&](auto i) {
 			bitsOut[i] = bitsIn[i] << b;
@@ -771,8 +771,8 @@ namespace vectorization
 		UTVector<Size, T> t;
 
 		typedef typename UTVector<Size, T>::BoolType B;
-		const B * const bitsIn = reinterpret_cast<const B * const>(a.components);
-		B * const bitsOut = reinterpret_cast<B * const>(t.components);
+		const B * const bitsIn = reinterpret_cast<const B * const>(&a.components[0]);
+		B * const bitsOut = reinterpret_cast<B * const>(&t.components[0]);
 
 		staticFor<VectorIndices::X, Size>([&](auto i) {
 			bitsOut[i] = bitsIn[i] >> b.components[i];
@@ -786,8 +786,8 @@ namespace vectorization
 		UTVector<Size, T> t;
 
 		typedef typename UTVector<Size, T>::BoolType B;
-		const B * const bitsIn = reinterpret_cast<const B * const>(a.components);
-		B * const bitsOut = reinterpret_cast<B * const>(t.components);
+		const B * const bitsIn = reinterpret_cast<const B * const>(&a.components[0]);
+		B * const bitsOut = reinterpret_cast<B * const>(&t.components[0]);
 
 		staticFor<VectorIndices::X, Size>([&](auto i) {
 			bitsOut[i] = bitsIn[i] >> b;
@@ -801,9 +801,9 @@ namespace vectorization
 		UTVector<Size, T> t;
 
 		typedef typename UTVector<Size, T>::BoolType B;
-		const B * const bitsInA = reinterpret_cast<const B * const>(a.components);
-		const B * const bitsInB = reinterpret_cast<const B * const>(b.components);
-		B * const bitsOut = reinterpret_cast<B * const>(t.components);
+		const B * const bitsInA = reinterpret_cast<const B * const>(&a.components[0]);
+		const B * const bitsInB = reinterpret_cast<const B * const>(&b.components[0]);
+		B * const bitsOut = reinterpret_cast<B * const>(&t.components[0]);
 
 		staticFor<VectorIndices::X, Size>([&](auto i) {
 			bitsOut[i] = bitsInA[i] & bitsInB[i];
@@ -817,8 +817,8 @@ namespace vectorization
 		UTVector<Size, T> t;
 
 		typedef typename UTVector<Size, T>::BoolType B;
-		const B * const bitsInA = reinterpret_cast<const B * const>(a.components);
-		B * const bitsOut = reinterpret_cast<B * const>(t.components);
+		const B * const bitsInA = reinterpret_cast<const B * const>(&a.components[0]);
+		B * const bitsOut = reinterpret_cast<B * const>(&t.components[0]);
 
 		staticFor<VectorIndices::X, Size>([&](auto i) {
 			bitsOut[i] = bitsInA[i] & b;
@@ -832,9 +832,9 @@ namespace vectorization
 		UTVector<Size, T> t;
 
 		typedef typename UTVector<Size, T>::BoolType B;
-		const B * const bitsInA = reinterpret_cast<const B * const>(a.components);
-		const B * const bitsInB = reinterpret_cast<const B * const>(b.components);
-		B * const bitsOut = reinterpret_cast<B * const>(t.components);
+		const B * const bitsInA = reinterpret_cast<const B * const>(&a.components[0]);
+		const B * const bitsInB = reinterpret_cast<const B * const>(&b.components[0]);
+		B * const bitsOut = reinterpret_cast<B * const>(&t.components[0]);
 
 		staticFor<VectorIndices::X, Size>([&](auto i) {
 			bitsOut[i] = bitsInA[i] | bitsInB[i];
@@ -848,8 +848,8 @@ namespace vectorization
 		UTVector<Size, T> t;
 
 		typedef typename UTVector<Size, T>::BoolType B;
-		const B * const bitsInA = reinterpret_cast<const B * const>(a.components);
-		B * const bitsOut = reinterpret_cast<B * const>(t.components);
+		const B * const bitsInA = reinterpret_cast<const B * const>(&a.components[0]);
+		B * const bitsOut = reinterpret_cast<B * const>(&t.components[0]);
 
 		staticFor<VectorIndices::X, Size>([&](auto i) {
 			bitsOut[i] = bitsInA[i] | b;
@@ -863,9 +863,9 @@ namespace vectorization
 		UTVector<Size, T> t;
 
 		typedef typename UTVector<Size, T>::BoolType B;
-		const B * const bitsInA = reinterpret_cast<const B * const>(a.components);
-		const B * const bitsInB = reinterpret_cast<const B * const>(b.components);
-		B * const bitsOut = reinterpret_cast<B * const>(t.components);
+		const B * const bitsInA = reinterpret_cast<const B * const>(&a.components[0]);
+		const B * const bitsInB = reinterpret_cast<const B * const>(&b.components[0]);
+		B * const bitsOut = reinterpret_cast<B * const>(&t.components[0]);
 
 		staticFor<VectorIndices::X, Size>([&](auto i) {
 			bitsOut[i] = bitsInA[i] ^ bitsInB[i];
@@ -879,8 +879,8 @@ namespace vectorization
 		UTVector<Size, T> t;
 
 		typedef typename UTVector<Size, T>::BoolType B;
-		const B * const bitsInA = reinterpret_cast<const B * const>(a.components);
-		B * const bitsOut = reinterpret_cast<B * const>(t.components);
+		const B * const bitsInA = reinterpret_cast<const B * const>(&a.components[0]);
+		B * const bitsOut = reinterpret_cast<B * const>(&t.components[0]);
 
 		staticFor<VectorIndices::X, Size>([&](auto i) {
 			bitsOut[i] = bitsInA[i] ^ b;
@@ -1100,8 +1100,8 @@ namespace vectorization
 	inline UTVector<Size, T> & operator&=(UTVector<Size, T> & a, const UTVector<Size, T> & b) noexcept
 	{
 		typedef typename UTVector<Size, T>::BoolType B;
-		const B * const bitsInB = reinterpret_cast<const B * const>(b.components);
-		B * const bits = reinterpret_cast<B * const>(a.components);
+		const B * const bitsInB = reinterpret_cast<const B * const>(&b.components[0]);
+		B * const bits = reinterpret_cast<B * const>(&a.components[0]);
 
 		staticFor<VectorIndices::X, Size>([&](auto i) {
 			bits[i] &= bitsInB[i];
@@ -1113,7 +1113,7 @@ namespace vectorization
 	inline UTVector<Size, T> & operator&=(UTVector<Size, T> & a, const typename UTVector<Size, T>::BoolType & b) noexcept
 	{
 		typedef typename UTVector<Size, T>::BoolType B;
-		B * const bits = reinterpret_cast<B * const>(a.components);
+		B * const bits = reinterpret_cast<B * const>(&a.components[0]);
 
 		staticFor<VectorIndices::X, Size>([&](auto i) {
 			bits[i] &= b;
@@ -1125,8 +1125,8 @@ namespace vectorization
 	inline UTVector<Size, T> & operator|=(UTVector<Size, T> & a, const UTVector<Size, T> & b) noexcept
 	{
 		typedef typename UTVector<Size, T>::BoolType B;
-		const B * const bitsInB = reinterpret_cast<const B * const>(b.components);
-		B * const bits = reinterpret_cast<B * const>(a.components);
+		const B * const bitsInB = reinterpret_cast<const B * const>(&b.components[0]);
+		B * const bits = reinterpret_cast<B * const>(&a.components[0]);
 
 		staticFor<VectorIndices::X, Size>([&](auto i) {
 			bits[i] |= bitsInB[i];
@@ -1138,7 +1138,7 @@ namespace vectorization
 	inline UTVector<Size, T> & operator|=(UTVector<Size, T> & a, const typename UTVector<Size, T>::BoolType & b) noexcept
 	{
 		typedef typename UTVector<Size, T>::BoolType B;
-		B * const bits = reinterpret_cast<B * const>(a.components);
+		B * const bits = reinterpret_cast<B * const>(&a.components[0]);
 
 		staticFor<VectorIndices::X, Size>([&](auto i) {
 			bits[i] |= b;
@@ -1150,8 +1150,8 @@ namespace vectorization
 	inline UTVector<Size, T> & operator^=(UTVector<Size, T> & a, const UTVector<Size, T> & b) noexcept
 	{
 		typedef typename UTVector<Size, T>::BoolType B;
-		const B * const bitsInB = reinterpret_cast<const B * const>(b.components);
-		B * const bits = reinterpret_cast<B * const>(a.components);
+		const B * const bitsInB = reinterpret_cast<const B * const>(&b.components[0]);
+		B * const bits = reinterpret_cast<B * const>(&a.components[0]);
 
 		staticFor<VectorIndices::X, Size>([&](auto i) {
 			bits[i] ^= bitsInB[i];
@@ -1163,7 +1163,7 @@ namespace vectorization
 	inline UTVector<Size, T> & operator^=(UTVector<Size, T> & a, const typename UTVector<Size, T>::BoolType & b) noexcept
 	{
 		typedef typename UTVector<Size, T>::BoolType B;
-		B * const bits = reinterpret_cast<B * const>(a.components);
+		B * const bits = reinterpret_cast<B * const>(&a.components[0]);
 
 		staticFor<VectorIndices::X, Size>([&](auto i) {
 			bits[i] ^= b;
@@ -1175,7 +1175,7 @@ namespace vectorization
 	inline UTVector<Size, T> & operator<<=(UTVector<Size, T> & a, const typename UTVector<Size, T>::VectorBoolType & b) noexcept
 	{
 		typedef typename UTVector<Size, T>::BoolType B;
-		B * const bits = reinterpret_cast<B * const>(a.components);
+		B * const bits = reinterpret_cast<B * const>(&a.components[0]);
 
 		staticFor<VectorIndices::X, Size>([&](auto i) {
 			bits[i] <<= b.components[i];
@@ -1187,7 +1187,7 @@ namespace vectorization
 	inline  UTVector<Size, T> & operator<<=(UTVector<Size, T> & a, const typename UTVector<Size, T>::BoolType & b) noexcept
 	{
 		typedef typename UTVector<Size, T>::BoolType B;
-		B * const bits = reinterpret_cast<B * const>(a.components);
+		B * const bits = reinterpret_cast<B * const>(&a.components[0]);
 
 		staticFor<VectorIndices::X, Size>([&](auto i) {
 			bits[i] <<= b;
@@ -1199,7 +1199,7 @@ namespace vectorization
 	inline UTVector<Size, T> & operator>>=(UTVector<Size, T> & a, const typename UTVector<Size, T>::VectorBoolType & b) noexcept
 	{
 		typedef typename UTVector<Size, T>::BoolType B;
-		B * const bits = reinterpret_cast<B * const>(a.components);
+		B * const bits = reinterpret_cast<B * const>(&a.components[0]);
 
 		staticFor<VectorIndices::X, Size>([&](auto i) {
 			bits[i] >>= b.components[i];
@@ -1211,7 +1211,7 @@ namespace vectorization
 	inline UTVector<Size, T> & operator>>=(UTVector<Size, T> & a, const typename UTVector<Size, T>::BoolType & b) noexcept
 	{
 		typedef typename UTVector<Size, T>::BoolType B;
-		B * const bits = reinterpret_cast<B * const>(a.components);
+		B * const bits = reinterpret_cast<B * const>(&a.components[0]);
 
 		staticFor<VectorIndices::X, Size>([&](auto i) {
 			bits[i] >>= b;

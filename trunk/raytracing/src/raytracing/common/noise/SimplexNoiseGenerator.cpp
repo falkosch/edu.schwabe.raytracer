@@ -35,8 +35,8 @@ namespace raytracer
 
     const Float SimplexNoiseGenerator::noise3(const Float3 & v) const
     {
-        const Float3 ijk = floor(v + average<3>(v.components));
-        const Float3 uvw = v - ijk + Half<Float>() * average<3>(ijk.components);
+        const Float3 ijk = floor(v + average<3>(&v.components[0]));
+        const Float3 uvw = v - ijk + Half<Float>() * average<3>(&ijk.components[0]);
         const Int hi1 = select(x(uvw) >= y(uvw), Zero<Int>(), One<Int>());
         const Int hi2 = select(y(uvw) >= z(uvw), One<Int>(), Two<Int>());
         const Int hi = select(x(uvw) >= z(uvw), hi1, hi2);
@@ -82,7 +82,7 @@ namespace raytracer
 
     const Float SimplexNoiseGenerator::K(const Int a, const Float3 &ijk, const Float3 &uvw, Float3 &A) const
     {
-        const Float3 xyz = uvw - A + Half<Float>() * average<3>(A.components);
+        const Float3 xyz = uvw - A + Half<Float>() * average<3>(&A.components[0]);
         ++(A[a]);
 
         Float t = Half<Float>() - dot(xyz, xyz);
