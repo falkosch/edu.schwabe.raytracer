@@ -45,9 +45,6 @@
     <ClInclude Include="include\vectorization\m_f32_4x4.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="include\vectorization\m_i32_4x4.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
     <ClInclude Include="include\vectorization\v_ui64_2.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
