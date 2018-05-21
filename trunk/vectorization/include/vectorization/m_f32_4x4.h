@@ -1,7 +1,6 @@
 #pragma once
 
 #include "v_f32_4.h"
-#include "m_i32_4x4.h"
 
 namespace vectorization
 {
@@ -19,8 +18,6 @@ namespace vectorization
 		static const ASizeT SIZE = RowVectorType::SIZE * ColumnVectorType::SIZE;
 		static const ASizeT ROWS = RowVectorType::SIZE;
 		static const ASizeT COLUMNS = ColumnVectorType::SIZE;
-
-		typedef m_i32_4x4 MatrixBoolType;
 
 		// Members
 		RowVectorType row0, row1, row2, row3;

@@ -21,8 +21,6 @@
 #include "vectorization/v_f32_4.h"
 #include "vectorization/v_f32_4x4.h"
 
-#include "vectorization/m_i32_4x4.h"
-
 #include "vectorization/m_f32_4x4.h"
 
 #include "vectorization/conversions.h"
@@ -113,7 +111,7 @@ namespace vectorization
 	typedef Float4_32 Float4;
 
 	//typedef m_ui32_4x4 UInt44;
-	typedef m_i32_4x4 Int44;
+	//typedef m_i32_4x4 Int44;
 	typedef m_f32_4x4 Float44;
 
 }
