@@ -57,13 +57,14 @@ namespace vectorization
 		typedef VectorType CompatibleVectorType;
 
 		// the actual data
-		ALIGNED(XMM_ALIGNMENT, ValueType components[Size]);
+		ALIGNED(XMM_ALIGNMENT, (std::array<ValueType, Size> components));
 
 		UTVector<Size, ValueType>() noexcept
 			: components()
 		{ }
 
 		explicit UTVector<Size, ValueType>(const ValueType & v) noexcept
+			: components()
 		{
 			staticFor<VectorIndices::X, Size>([&](auto i) {
 				components[i] = v;
@@ -71,6 +72,7 @@ namespace vectorization
 		}
 
 		explicit UTVector<Size, ValueType>(const ValueType & x, const ValueType & y) noexcept
+			: components()
 		{
 			staticCheckMinSize(VectorSizes::Y);
 
@@ -83,6 +85,7 @@ namespace vectorization
 		}
 
 		explicit UTVector<Size, ValueType>(const ValueType & x, const ValueType & y, const ValueType & z) noexcept
+			: components()
 		{
 			staticCheckMinSize(VectorSizes::Z);
 
@@ -96,6 +99,7 @@ namespace vectorization
 		}
 
 		explicit UTVector<Size, ValueType>(const ValueType & x, const ValueType & y, const ValueType & z, const ValueType & w) noexcept
+			: components()
 		{
 			staticCheckMinSize(VectorSizes::W);
 

@@ -43,8 +43,8 @@
 #define BEST_ALIGNMENT ARCH_ALIGNMENT
 #endif
 
-
-#define ALIGNED(alignment, decleration) BEGIN_ALIGNED(BEST_ALIGNMENT) decleration END_ALIGNED(BEST_ALIGNMENT)
+#define ALIGNED_UNPACK(...) __VA_ARGS__
+#define ALIGNED(alignment, decleration) BEGIN_ALIGNED(BEST_ALIGNMENT) ALIGNED_UNPACK decleration END_ALIGNED(BEST_ALIGNMENT)
 
 #define ALIGNED_ALLOCATORS(alignment) \
     static void * operator new(std::size_t size) { return vectorization::alloc(size, alignment); } \
