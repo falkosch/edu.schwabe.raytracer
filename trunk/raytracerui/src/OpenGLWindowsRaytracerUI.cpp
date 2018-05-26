@@ -1,8 +1,6 @@
 #include "OpenGLWindowsRaytracerUI.h"
 #include "stdafx.h"
 
-#include <GL/glext.h>
-
 namespace raytracerui
 {
 

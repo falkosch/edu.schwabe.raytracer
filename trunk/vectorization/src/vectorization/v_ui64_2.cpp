@@ -537,7 +537,7 @@ namespace vectorization
 	const v_ui64_2::ValueType component<VectorIndices::X>(const v_ui64_2 & v) noexcept
 	{
 #ifdef ARCH_X64
-		return static_cast<v_ui64_2::ValueType>(_mm_cvtsi128_si64x(v.components));
+		return gsl::narrow_cast<v_ui64_2::ValueType>(_mm_cvtsi128_si64x(v.components));
 #else
 		return reinterpret_cast<const v_ui64_2::ValueType * const>(&v)[VectorIndices::X];
 #endif
@@ -547,7 +547,7 @@ namespace vectorization
 	const v_ui64_2::ValueType component<VectorIndices::Y>(const v_ui64_2 & v) noexcept
 	{
 #ifdef ARCH_X64
-		return static_cast<v_ui64_2::ValueType>(_mm_cvtsi128_si64x(_mm_unpackhi_epi64(v.components, v.components)));
+		return gsl::narrow_cast<v_ui64_2::ValueType>(_mm_cvtsi128_si64x(_mm_unpackhi_epi64(v.components, v.components)));
 #else
 		return reinterpret_cast<const v_ui64_2::ValueType * const>(&v)[VectorIndices::Y];
 #endif

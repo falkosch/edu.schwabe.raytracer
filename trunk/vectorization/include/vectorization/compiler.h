@@ -16,11 +16,11 @@
 
 #define VECTORIZATION_INTRINSICS_LEVEL VECTORIZATION_SSE4
 
-//#define VECTORIZATION_APPROXIMATIONS 1
-//#define VECTORIZATION_FINE_APPROXIMATIONS 1
+ //#define VECTORIZATION_APPROXIMATIONS 1
+ //#define VECTORIZATION_FINE_APPROXIMATIONS 1
 
 
-// Compiler specific id switches for easier handling with different compiler types
+ // Compiler specific id switches for easier handling with different compiler types
 
 #if defined(__MINGW32__) && !defined(__GNUC__)
 #define __GNUC__
@@ -97,3 +97,12 @@
 #undef VECTORIZATION_INTRINSICS_LEVEL
 #define VECTORIZATION_INTRINSICS_LEVEL VECTORIZATION_AVX
 #endif
+
+
+// Just for controlling code analysis
+
+#include <CodeAnalysis/Warnings.h>
+#pragma warning( push )
+#pragma warning ( disable : ALL_CODE_ANALYSIS_WARNINGS )
+#include <gsl.h>
+#pragma warning( pop )
