@@ -35,10 +35,10 @@ namespace vectorization
 
 	m_f32_4x4::m_f32_4x4(const std::array<ValueType, SIZE> & m) noexcept
 		:
-		row0(&m.at(VectorIndices::X * COLUMNS)),
-		row1(&m.at(VectorIndices::Y * COLUMNS)),
-		row2(&m.at(VectorIndices::Z * COLUMNS)),
-		row3(&m.at(VectorIndices::W * COLUMNS))
+		row0(&m[VectorIndices::X * COLUMNS]),
+		row1(&m[VectorIndices::Y * COLUMNS]),
+		row2(&m[VectorIndices::Z * COLUMNS]),
+		row3(&m[VectorIndices::W * COLUMNS])
 	{ }
 
 	m_f32_4x4::m_f32_4x4(const m_f32_4x4::ValueType * const m) noexcept
