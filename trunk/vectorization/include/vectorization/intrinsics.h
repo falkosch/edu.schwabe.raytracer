@@ -48,32 +48,32 @@
 
 #define ALIGNED_ALLOCATORS(alignment) \
     static void * operator new(std::size_t size) noexcept { return vectorization::alloc(size, alignment); } \
-	static void * operator new(std::size_t size, const std::nothrow_t & nothrow) noexcept { return vectorization::alloc(size, alignment, nothrow); } \
+	static void * operator new(std::size_t size, const std::nothrow_t & _nothrow) noexcept { return vectorization::alloc(size, alignment, _nothrow); } \
 	static void * operator new(std::size_t size, std::align_val_t requestedAlignment) noexcept { return vectorization::alloc(size, requestedAlignment); } \
-	static void * operator new(std::size_t size, std::align_val_t requestedAlignment, const std::nothrow_t & nothrow) noexcept { return vectorization::alloc(size, requestedAlignment, nothrow); } \
+	static void * operator new(std::size_t size, std::align_val_t requestedAlignment, const std::nothrow_t & _nothrow) noexcept { return vectorization::alloc(size, requestedAlignment, _nothrow); } \
 	\
 	static void operator delete(void * ptr) noexcept { vectorization::free(ptr); } \
-	static void operator delete(void * ptr, const std::nothrow_t & nothrow) noexcept { vectorization::free(ptr, nothrow); } \
+	static void operator delete(void * ptr, const std::nothrow_t & _nothrow) noexcept { vectorization::free(ptr, _nothrow); } \
 	static void operator delete(void * ptr, std::align_val_t) noexcept { vectorization::free(ptr); } \
-	static void operator delete(void * ptr, std::align_val_t, const std::nothrow_t & nothrow) noexcept { vectorization::free(ptr, nothrow); } \
+	static void operator delete(void * ptr, std::align_val_t, const std::nothrow_t & _nothrow) noexcept { vectorization::free(ptr, _nothrow); } \
 	static void operator delete(void * ptr, std::size_t) noexcept { vectorization::free(ptr); } \
-	static void operator delete(void * ptr, std::size_t, const std::nothrow_t & nothrow) noexcept { vectorization::free(ptr, nothrow); } \
+	static void operator delete(void * ptr, std::size_t, const std::nothrow_t & _nothrow) noexcept { vectorization::free(ptr, _nothrow); } \
 	static void operator delete(void * ptr, std::size_t, std::align_val_t) noexcept { vectorization::free(ptr); } \
-	static void operator delete(void * ptr, std::size_t, std::align_val_t, const std::nothrow_t & nothrow) noexcept { vectorization::free(ptr, nothrow); } \
+	static void operator delete(void * ptr, std::size_t, std::align_val_t, const std::nothrow_t & _nothrow) noexcept { vectorization::free(ptr, _nothrow); } \
 	\
     static void * operator new[](std::size_t size) noexcept { return vectorization::alloc(size, alignment); } \
-	static void * operator new[](std::size_t size, const std::nothrow_t & nothrow) noexcept { return vectorization::alloc(size, alignment, nothrow); } \
+	static void * operator new[](std::size_t size, const std::nothrow_t & _nothrow) noexcept { return vectorization::alloc(size, alignment, _nothrow); } \
 	static void * operator new[](std::size_t size, std::align_val_t requestedAlignment) noexcept { return vectorization::alloc(size, requestedAlignment); } \
-	static void * operator new[](std::size_t size, std::align_val_t requestedAlignment, const std::nothrow_t & nothrow) noexcept { return vectorization::alloc(size, requestedAlignment, nothrow); } \
+	static void * operator new[](std::size_t size, std::align_val_t requestedAlignment, const std::nothrow_t & _nothrow) noexcept { return vectorization::alloc(size, requestedAlignment, _nothrow); } \
 	\
 	static void operator delete[](void * ptr) noexcept { vectorization::free(ptr); } \
-	static void operator delete[](void * ptr, const std::nothrow_t & nothrow) noexcept { vectorization::free(ptr, nothrow); } \
+	static void operator delete[](void * ptr, const std::nothrow_t & _nothrow) noexcept { vectorization::free(ptr, _nothrow); } \
 	static void operator delete[](void * ptr, std::align_val_t) noexcept { vectorization::free(ptr); } \
-	static void operator delete[](void * ptr, std::align_val_t, const std::nothrow_t & nothrow) noexcept { vectorization::free(ptr, nothrow); } \
+	static void operator delete[](void * ptr, std::align_val_t, const std::nothrow_t & _nothrow) noexcept { vectorization::free(ptr, _nothrow); } \
 	static void operator delete[](void * ptr, std::size_t) noexcept { vectorization::free(ptr); } \
-	static void operator delete[](void * ptr, std::size_t, const std::nothrow_t & nothrow) noexcept { vectorization::free(ptr, nothrow); } \
+	static void operator delete[](void * ptr, std::size_t, const std::nothrow_t & _nothrow) noexcept { vectorization::free(ptr, _nothrow); } \
 	static void operator delete[](void * ptr, std::size_t, std::align_val_t) noexcept { vectorization::free(ptr); } \
-	static void operator delete[](void * ptr, std::size_t, std::align_val_t, const std::nothrow_t & nothrow) noexcept { vectorization::free(ptr, nothrow); }
+	static void operator delete[](void * ptr, std::size_t, std::align_val_t, const std::nothrow_t & _nothrow) noexcept { vectorization::free(ptr, _nothrow); }
 
 
 #define BLEND_MASK(X, Y, Z, W) ( \

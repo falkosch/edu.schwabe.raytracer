@@ -607,7 +607,7 @@ namespace raytracer
         return mesh;
     }
 
-    const Float4 Mesh::findFacetIntersection(const Facet & trianglePlanes, const Raycast & r)
+    const Float4 Mesh::findFacetIntersection(const Facet & /* trianglePlanes */, const Raycast & /* r */)
     {
         return Float4();
     }

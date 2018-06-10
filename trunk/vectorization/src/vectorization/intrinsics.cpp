@@ -13,19 +13,19 @@ namespace vectorization
 	void free(void * & data) noexcept
 	{
 		assert(data);
-		_mm_free(data);
-		data = nullptr;
+		vectorization::free(data, std::nothrow_t());
 	}
 
 	void free(void * & data, const std::nothrow_t & /* nothrow */) noexcept
 	{
 		assert(data);
-		vectorization::free(data);
+		_mm_free(data);
+		data = nullptr;
 	}
 
 	void * alloc(const ASizeT size) noexcept
 	{
-		return vectorization::alloc(size, VectorAlignments::Best);
+		return vectorization::alloc(size, VectorAlignments::Best, std::nothrow_t());
 	}
 
 	void * alloc(const ASizeT size, const std::nothrow_t & nothrow) noexcept
@@ -35,7 +35,7 @@ namespace vectorization
 
 	void * alloc(const ASizeT size, const std::align_val_t alignment) noexcept
 	{
-		return vectorization::alloc(size, static_cast<ASizeT>(alignment));
+		return vectorization::alloc(size, static_cast<ASizeT>(alignment), std::nothrow_t());
 	}
 
 	void * alloc(const ASizeT size, const std::align_val_t alignment, const std::nothrow_t & nothrow) noexcept
