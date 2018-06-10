@@ -86,11 +86,11 @@
       <AdditionalIncludeDirectories>$(ProjectDir)include;$(SolutionDir)vectorization\include;$(SolutionDir)raytracing\include;$(SolutionDir)packages\Microsoft.Gsl.0.1.2.1\build\native\include;$(SolutionDir)packages\glew.v140.1.12.0\build\native\include</AdditionalIncludeDirectories>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <Optimization>Disabled</Optimization>
-      <DisableSpecificWarnings>4464;4514;4668;4710;4711;4820;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <CallingConvention>VectorCall</CallingConvention>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <WarningLevel>Level4</WarningLevel>
     </ClCompile>
     <Link>
       <AdditionalDependencies>vectorization.lib;raytracing.lib;glu32.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -107,11 +107,11 @@
       <PreprocessorDefinitions>WIN32_LEAN_AND_MEAN;NOMINMAX;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(ProjectDir)include;$(SolutionDir)vectorization\include;$(SolutionDir)raytracing\include;$(SolutionDir)packages\Microsoft.Gsl.0.1.2.1\build\native\include;$(SolutionDir)packages\glew.v140.1.12.0\build\native\include</AdditionalIncludeDirectories>
       <Optimization>Disabled</Optimization>
-      <DisableSpecificWarnings>4464;4514;4668;4710;4711;4820;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <CallingConvention>VectorCall</CallingConvention>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <WarningLevel>Level4</WarningLevel>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(OutDir)</AdditionalLibraryDirectories>
@@ -130,7 +130,6 @@
       <OpenMPSupport>true</OpenMPSupport>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
-      <DisableSpecificWarnings>4464;4514;4668;4710;4711;4820;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <EnablePREfast>false</EnablePREfast>
       <Optimization>Full</Optimization>
       <CallingConvention>VectorCall</CallingConvention>
@@ -140,6 +139,7 @@
       <ControlFlowGuard>false</ControlFlowGuard>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <WarningLevel>Level4</WarningLevel>
     </ClCompile>
     <Link>
       <AdditionalDependencies>vectorization.lib;raytracing.lib;glu32.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -160,7 +160,6 @@
       <AdditionalIncludeDirectories>$(ProjectDir)include;$(SolutionDir)vectorization\include;$(SolutionDir)raytracing\include;$(SolutionDir)packages\Microsoft.Gsl.0.1.2.1\build\native\include;$(SolutionDir)packages\glew.v140.1.12.0\build\native\include</AdditionalIncludeDirectories>
       <OpenMPSupport>true</OpenMPSupport>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <DisableSpecificWarnings>4464;4514;4668;4710;4711;4820;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <EnablePREfast>false</EnablePREfast>
       <Optimization>Full</Optimization>
       <CallingConvention>VectorCall</CallingConvention>
@@ -170,6 +169,7 @@
       <ControlFlowGuard>false</ControlFlowGuard>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <WarningLevel>Level4</WarningLevel>
     </ClCompile>
     <Link>
       <AdditionalDependencies>vectorization.lib;raytracing.lib;glu32.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>

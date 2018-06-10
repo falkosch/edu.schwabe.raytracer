@@ -98,7 +98,7 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <EnablePREfast>false</EnablePREfast>
       <AdditionalIncludeDirectories>$(ProjectDir)include;$(SolutionDir)packages\Microsoft.Gsl.0.1.2.1\build\native\include</AdditionalIncludeDirectories>
-      <DisableSpecificWarnings>4514;4711;4820</DisableSpecificWarnings>
+      <WarningLevel>Level4</WarningLevel>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -115,7 +115,7 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <EnablePREfast>false</EnablePREfast>
       <AdditionalIncludeDirectories>$(ProjectDir)include;$(SolutionDir)packages\Microsoft.Gsl.0.1.2.1\build\native\include</AdditionalIncludeDirectories>
-      <DisableSpecificWarnings>4514;4711;4820</DisableSpecificWarnings>
+      <WarningLevel>Level4</WarningLevel>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -138,7 +138,7 @@
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalIncludeDirectories>$(ProjectDir)include;$(SolutionDir)packages\Microsoft.Gsl.0.1.2.1\build\native\include</AdditionalIncludeDirectories>
-      <DisableSpecificWarnings>4514;4711;4820</DisableSpecificWarnings>
+      <WarningLevel>Level4</WarningLevel>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -165,7 +165,7 @@
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalIncludeDirectories>$(ProjectDir)include;$(SolutionDir)packages\Microsoft.Gsl.0.1.2.1\build\native\include</AdditionalIncludeDirectories>
-      <DisableSpecificWarnings>4514;4711;4820</DisableSpecificWarnings>
+      <WarningLevel>Level4</WarningLevel>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
