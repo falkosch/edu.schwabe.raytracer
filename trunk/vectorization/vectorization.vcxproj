@@ -67,38 +67,38 @@
     <IntDir>$(ProjectDir)build-x86\$(Configuration)\</IntDir>
     <OutDir>$(SolutionDir)build-x86\$(Configuration)\</OutDir>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <RunCodeAnalysis>true</RunCodeAnalysis>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)build-x64\$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)build-x64\$(Configuration)\</IntDir>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <RunCodeAnalysis>true</RunCodeAnalysis>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IntDir>$(ProjectDir)build-x86\$(Configuration)\</IntDir>
     <OutDir>$(SolutionDir)build-x86\$(Configuration)\</OutDir>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <RunCodeAnalysis>true</RunCodeAnalysis>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)build-x64\$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)build-x64\$(Configuration)\</IntDir>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <RunCodeAnalysis>true</RunCodeAnalysis>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <PreprocessorDefinitions>NOMINMAX;WIN32;_DEBUG;_LIB</PreprocessorDefinitions>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
-      <DisableSpecificWarnings>4464;4514;4668;4710;4711;4820;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <Optimization>Disabled</Optimization>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <CallingConvention>VectorCall</CallingConvention>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <EnablePREfast>true</EnablePREfast>
+      <EnablePREfast>false</EnablePREfast>
       <AdditionalIncludeDirectories>$(ProjectDir)include;$(SolutionDir)packages\Microsoft.Gsl.0.1.2.1\build\native\include</AdditionalIncludeDirectories>
+      <DisableSpecificWarnings>4514;4711;4820</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -108,14 +108,14 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <PreprocessorDefinitions>NOMINMAX;WIN32;_DEBUG;_LIB</PreprocessorDefinitions>
-      <DisableSpecificWarnings>4464;4514;4668;4710;4711;4820;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <Optimization>Disabled</Optimization>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <CallingConvention>VectorCall</CallingConvention>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <EnablePREfast>true</EnablePREfast>
+      <EnablePREfast>false</EnablePREfast>
       <AdditionalIncludeDirectories>$(ProjectDir)include;$(SolutionDir)packages\Microsoft.Gsl.0.1.2.1\build\native\include</AdditionalIncludeDirectories>
+      <DisableSpecificWarnings>4514;4711;4820</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -129,8 +129,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <Optimization>Full</Optimization>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
-      <DisableSpecificWarnings>4464;4514;4668;4710;4711;4820;%(DisableSpecificWarnings)</DisableSpecificWarnings>
-      <EnablePREfast>true</EnablePREfast>
+      <EnablePREfast>false</EnablePREfast>
       <CallingConvention>VectorCall</CallingConvention>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
@@ -139,6 +138,7 @@
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalIncludeDirectories>$(ProjectDir)include;$(SolutionDir)packages\Microsoft.Gsl.0.1.2.1\build\native\include</AdditionalIncludeDirectories>
+      <DisableSpecificWarnings>4514;4711;4820</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -156,8 +156,7 @@
       <OpenMPSupport>true</OpenMPSupport>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <Optimization>Full</Optimization>
-      <DisableSpecificWarnings>4464;4514;4668;4710;4711;4820;%(DisableSpecificWarnings)</DisableSpecificWarnings>
-      <EnablePREfast>true</EnablePREfast>
+      <EnablePREfast>false</EnablePREfast>
       <CallingConvention>VectorCall</CallingConvention>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
@@ -166,6 +165,7 @@
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalIncludeDirectories>$(ProjectDir)include;$(SolutionDir)packages\Microsoft.Gsl.0.1.2.1\build\native\include</AdditionalIncludeDirectories>
+      <DisableSpecificWarnings>4514;4711;4820</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -221,17 +221,6 @@
     <ClCompile Include="src\vectorization\v_ui32_4.cpp" />
     <ClCompile Include="src\vectorization\v_ui64_2.cpp" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
-  <ImportGroup Label="ExtensionTargets">
-    <Import Project="..\packages\Microsoft.Gsl.0.1.2.1\build\native\Microsoft.Gsl.targets" Condition="Exists('..\packages\Microsoft.Gsl.0.1.2.1\build\native\Microsoft.Gsl.targets')" />
-  </ImportGroup>
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>Dieses Projekt verweist auf mindestens ein NuGet-Paket, das auf diesem Computer fehlt. Verwenden Sie die Wiederherstellung von NuGet-Paketen, um die fehlenden Dateien herunterzuladen. Weitere Informationen finden Sie unter "http://go.microsoft.com/fwlink/?LinkID=322105". Die fehlende Datei ist "{0}".</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\packages\Microsoft.Gsl.0.1.2.1\build\native\Microsoft.Gsl.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Gsl.0.1.2.1\build\native\Microsoft.Gsl.targets'))" />
-  </Target>
+  <ImportGroup Label="ExtensionTargets" />
 </Project>

@@ -98,11 +98,3 @@
 #define VECTORIZATION_INTRINSICS_LEVEL VECTORIZATION_AVX
 #endif
 
-
-// Just for controlling code analysis
-
-#include <CodeAnalysis/Warnings.h>
-#pragma warning( push )
-#pragma warning ( disable : ALL_CODE_ANALYSIS_WARNINGS )
-#include <gsl.h>
-#pragma warning( pop )
