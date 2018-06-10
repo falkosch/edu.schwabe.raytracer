@@ -57,7 +57,7 @@ namespace vectorization
 		typedef VectorType CompatibleVectorType;
 
 		// the actual data
-		ALIGNED(XMM_ALIGNMENT, (std::array<ValueType, Size> components));
+		ALIGNED(ARCH_ALIGNMENT, (std::array<ValueType, Size> components));
 
 		UTVector<Size, ValueType>() noexcept
 			: components()

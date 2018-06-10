@@ -103,6 +103,9 @@ namespace vectorization
 	typedef __m128 PackedFloat4_128;
 	typedef __m128d PackedFloat2_128;
 	typedef __m128i PackedInts_128;
+	typedef __m256 PackedFloat8_256;
+	typedef __m256d PackedFloat4_256;
+	typedef __m256i PackedInts_256;
 
 	template <typename TValueType, ASizeT Size>
 	struct PackedTypes
@@ -171,13 +174,6 @@ namespace vectorization
 		typedef PackedInts_128 Type;
 	};
 
-
-#if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
-
-	typedef __m256 PackedFloat8_256;
-	typedef __m256d PackedFloat4_256;
-	typedef __m256i PackedInts_256;
-
 	template<>
 	struct PackedTypes < Float_32, 8 >
 	{
@@ -237,8 +233,6 @@ namespace vectorization
 	{
 		typedef PackedInts_256 Type;
 	};
-
-#endif
 
 	//}
 #pragma endregion

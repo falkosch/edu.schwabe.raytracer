@@ -44,11 +44,9 @@ namespace vectorization
 
 	const PackedFloat2_128 min(const PackedFloat2_128 & a, const PackedFloat2_128 & b) noexcept;
 
-#if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
 	const PackedFloat8_256 min(const PackedFloat8_256 & a, const PackedFloat8_256 & b) noexcept;
 
 	const PackedFloat4_256 min(const PackedFloat4_256 & a, const PackedFloat4_256 & b) noexcept;
-#endif
 
 	//}
 #pragma endregion
@@ -86,11 +84,9 @@ namespace vectorization
 
 	const PackedFloat2_128 max(const PackedFloat2_128 & a, const PackedFloat2_128 & b) noexcept;
 
-#if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
 	const PackedFloat8_256 max(const PackedFloat8_256 & a, const PackedFloat8_256 & b) noexcept;
 
 	const PackedFloat4_256 max(const PackedFloat4_256 & a, const PackedFloat4_256 & b) noexcept;
-#endif
 
 	//}
 #pragma endregion
@@ -128,11 +124,9 @@ namespace vectorization
 
 	const PackedFloat2_128 clamp(const PackedFloat2_128 & v, const PackedFloat2_128 & lower, const PackedFloat2_128 & upper) noexcept;
 
-#if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
 	const PackedFloat8_256 clamp(const PackedFloat8_256 & v, const PackedFloat8_256 & lower, const PackedFloat8_256 & upper) noexcept;
 
 	const PackedFloat4_256 clamp(const PackedFloat4_256 & v, const PackedFloat4_256 & lower, const PackedFloat4_256 & upper) noexcept;
-#endif
 
 	//}
 #pragma endregion
@@ -158,11 +152,9 @@ namespace vectorization
 
 	const PackedFloat2_128 sign(const PackedFloat2_128 & v) noexcept;
 
-#if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
 	const PackedFloat8_256 sign(const PackedFloat8_256 & v) noexcept;
 
 	const PackedFloat4_256 sign(const PackedFloat4_256 & v) noexcept;
-#endif
 
 	//}
 #pragma endregion
@@ -208,11 +200,9 @@ namespace vectorization
 
 	const PackedFloat2_128 abs(const PackedFloat2_128 & v) noexcept;
 
-#if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
 	const PackedFloat8_256 abs(const PackedFloat8_256 & v) noexcept;
 
 	const PackedFloat4_256 abs(const PackedFloat4_256 & v) noexcept;
-#endif
 
 	//}
 #pragma endregion
@@ -241,7 +231,6 @@ namespace vectorization
 	// Checks whether a is Nan or b is a NaN value
 	const PackedFloat2_128 isNaN(const PackedFloat2_128 & a, const PackedFloat2_128 & b) noexcept;
 
-#if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
 	const PackedFloat8_256 isNaN(const PackedFloat8_256 & v) noexcept;
 
 	// Checks whether a is Nan or b is a NaN value
@@ -251,7 +240,6 @@ namespace vectorization
 
 	// Checks whether a is Nan or b is a NaN value
 	const PackedFloat4_256 isNaN(const PackedFloat4_256 & a, const PackedFloat4_256 & b) noexcept;
-#endif
 
 	//}
 #pragma endregion
@@ -271,7 +259,6 @@ namespace vectorization
 
 	const PackedFloat2_128 mix(const PackedFloat2_128 & x, const PackedFloat2_128 & y, const PackedFloat2_128 & factor) noexcept;
 
-#if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
 	const PackedFloat8_256 mix(const PackedFloat8_256 & x, const PackedFloat8_256 & y, const Float_32 factor) noexcept;
 
 	const PackedFloat8_256 mix(const PackedFloat8_256 & x, const PackedFloat8_256 & y, const PackedFloat8_256 & factor) noexcept;
@@ -279,7 +266,6 @@ namespace vectorization
 	const PackedFloat4_256 mix(const PackedFloat4_256 & x, const PackedFloat4_256 & y, const Float_64 factor) noexcept;
 
 	const PackedFloat4_256 mix(const PackedFloat4_256 & x, const PackedFloat4_256 & y, const PackedFloat4_256 & factor) noexcept;
-#endif
 
 	//}
 #pragma endregion
@@ -295,11 +281,9 @@ namespace vectorization
 
 	const PackedFloat2_128 sqr(const PackedFloat2_128 & v) noexcept;
 
-#if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
 	const PackedFloat8_256 sqr(const PackedFloat8_256 & v) noexcept;
 
 	const PackedFloat4_256 sqr(const PackedFloat4_256 & v) noexcept;
-#endif
 
 	//}
 #pragma endregion
@@ -315,11 +299,9 @@ namespace vectorization
 
 	const PackedFloat2_128 reciprocal(const PackedFloat2_128 & v) noexcept;
 
-#if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
 	const PackedFloat8_256 reciprocal(const PackedFloat8_256 & v) noexcept;
 
 	const PackedFloat4_256 reciprocal(const PackedFloat4_256 & v) noexcept;
-#endif
 
 	//}
 #pragma endregion
@@ -335,11 +317,9 @@ namespace vectorization
 
 	const PackedFloat2_128 sqrt(const PackedFloat2_128 & v) noexcept;
 
-#if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
 	const PackedFloat8_256 sqrt(const PackedFloat8_256 & v) noexcept;
 
 	const PackedFloat4_256 sqrt(const PackedFloat4_256 & v) noexcept;
-#endif
 
 	//}
 #pragma endregion
@@ -355,11 +335,9 @@ namespace vectorization
 
 	const PackedFloat2_128 rsqrt(const PackedFloat2_128 & v) noexcept;
 
-#if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
 	const PackedFloat8_256 rsqrt(const PackedFloat8_256 & v) noexcept;
 
 	const PackedFloat4_256 rsqrt(const PackedFloat4_256 & v) noexcept;
-#endif
 
 	//}
 #pragma endregion
@@ -395,11 +373,9 @@ namespace vectorization
 
 	const PackedFloat2_128 floor(const PackedFloat2_128 & v) noexcept;
 
-#if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
 	const PackedFloat8_256 floor(const PackedFloat8_256 & v) noexcept;
 
 	const PackedFloat4_256 floor(const PackedFloat4_256 & v) noexcept;
-#endif
 
 	//}
 #pragma endregion
@@ -415,11 +391,9 @@ namespace vectorization
 
 	const PackedFloat2_128 round(const PackedFloat2_128 & v) noexcept;
 
-#if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
 	const PackedFloat8_256 round(const PackedFloat8_256 & v) noexcept;
 
 	const PackedFloat4_256 round(const PackedFloat4_256 & v) noexcept;
-#endif
 
 	//}
 #pragma endregion
@@ -435,11 +409,9 @@ namespace vectorization
 
 	const PackedFloat2_128 fract(const PackedFloat2_128 & v) noexcept;
 
-#if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
 	const PackedFloat8_256 fract(const PackedFloat8_256 & v) noexcept;
 
 	const PackedFloat4_256 fract(const PackedFloat4_256 & v) noexcept;
-#endif
 
 	//}
 #pragma endregion
@@ -475,11 +447,9 @@ namespace vectorization
 
 	const PackedFloat2_128 divide(const PackedFloat2_128 & a, const PackedFloat2_128 & b) noexcept;
 
-#if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
 	const PackedFloat8_256 divide(const PackedFloat8_256 & a, const PackedFloat8_256 & b) noexcept;
 
 	const PackedFloat4_256 divide(const PackedFloat4_256 & a, const PackedFloat4_256 & b) noexcept;
-#endif
 
 	//}
 #pragma endregion
@@ -515,11 +485,9 @@ namespace vectorization
 
 	const PackedFloat2_128 modulo(const PackedFloat2_128 & a, const PackedFloat2_128 & b) noexcept;
 
-#if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
 	const PackedFloat8_256 modulo(const PackedFloat8_256 & a, const PackedFloat8_256 & b) noexcept;
 
 	const PackedFloat4_256 modulo(const PackedFloat4_256 & a, const PackedFloat4_256 & b) noexcept;
-#endif
 
 	//}
 #pragma endregion
