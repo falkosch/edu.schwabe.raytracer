@@ -66,7 +66,7 @@ namespace vectorization
 		explicit UTVector<Size, ValueType>(const ValueType & v) noexcept
 			: components()
 		{
-			staticFor<VectorIndices::X, Size>([&](auto i) {
+			StaticFor<VectorIndices::X, Size>::apply([&](auto i) {
 				components[i] = v;
 			});
 		}
@@ -79,7 +79,7 @@ namespace vectorization
 			components[VectorIndices::X] = x;
 			components[VectorIndices::Y] = y;
 
-			staticFor<VectorIndices::Z, Size>([&](auto i) {
+			StaticFor<VectorIndices::Z, Size>::apply([&](auto i) {
 				components[i] = ValueType();
 			});
 		}
@@ -93,7 +93,7 @@ namespace vectorization
 			components[VectorIndices::Y] = y;
 			components[VectorIndices::Z] = z;
 
-			staticFor<VectorIndices::W, Size>([&](auto i) {
+			StaticFor<VectorIndices::W, Size>::apply([&](auto i) {
 				components[i] = ValueType();
 			});
 		}
@@ -108,7 +108,7 @@ namespace vectorization
 			components[VectorIndices::Z] = z;
 			components[VectorIndices::W] = w;
 
-			staticFor<VectorIndices::AboveW, Size>([&](auto i) {
+			StaticFor<VectorIndices::AboveW, Size>::apply([&](auto i) {
 				components[i] = ValueType();
 			});
 		}
@@ -186,7 +186,7 @@ namespace vectorization
 		static void operator_div_internal(VectorType & out, const VectorType & in, const ValueType & scalar, std::true_type) noexcept
 		{
 			const ValueType r = reciprocal(scalar);
-			staticFor<VectorIndices::X, Size>([&](auto i) {
+			StaticFor<VectorIndices::X, Size>::apply([&](auto i) {
 				out.components[i] = in[i] * r;
 			});
 		}
@@ -194,7 +194,7 @@ namespace vectorization
 		// integer reciprocal multiply
 		static void operator_div_internal(VectorType & out, const VectorType & in, const ValueType & scalar, std::false_type) noexcept
 		{
-			staticFor<VectorIndices::X, Size>([&](auto i) {
+			StaticFor<VectorIndices::X, Size>::apply([&](auto i) {
 				out.components[i] = in[i] / scalar;
 			});
 		}
@@ -268,7 +268,7 @@ namespace vectorization
 	inline const UTVector<Size, T> blendMasked(const UTVector<Size, T> & a, const UTVector<Size, T> & b, const typename UTVector<Size, T>::VectorBoolType & mask) noexcept
 	{
 		UTVector<Size, T> t;
-		staticFor<VectorIndices::X, Size>([&](auto i) {
+		StaticFor<VectorIndices::X, Size>::apply([&](auto i) {
 			blendMasked(a[i], b[i], mask[i]);
 		});
 		return t;
@@ -607,7 +607,7 @@ namespace vectorization
 		static_assert(std::is_integral<T>::value, "T must be integral");
 
 		UTVector<Size, T> t;
-		staticFor<VectorIndices::X, Size>([&](auto i) {
+		StaticFor<VectorIndices::X, Size>::apply([&](auto i) {
 			t.components[i] = ~v.components[i];
 		});
 		return t;
@@ -617,7 +617,7 @@ namespace vectorization
 	inline const typename UTVector<Size, T>::VectorBoolType operator!(const UTVector<Size, T> & v) noexcept
 	{
 		typename UTVector<Size, T>::VectorBoolType t;
-		staticFor<VectorIndices::X, Size>([&](auto i) {
+		StaticFor<VectorIndices::X, Size>::apply([&](auto i) {
 			t.components[i] = static_cast<typename UTVector<Size, T>::BoolType>(!v.components[i]);
 		});
 		return t;
@@ -629,7 +629,7 @@ namespace vectorization
 		static_assert(std::is_signed<T>::value, "T must be a signed type");
 
 		UTVector<Size, T> t;
-		staticFor<VectorIndices::X, Size>([&](auto i) {
+		StaticFor<VectorIndices::X, Size>::apply([&](auto i) {
 			t.components[i] = -v.components[i];
 		});
 		return t;
@@ -639,7 +639,7 @@ namespace vectorization
 	inline const UTVector<Size, T> operator+(const UTVector<Size, T> & a, const UTVector<Size, T> & b) noexcept
 	{
 		UTVector<Size, T> t;
-		staticFor<VectorIndices::X, Size>([&](auto i) {
+		StaticFor<VectorIndices::X, Size>::apply([&](auto i) {
 			t.components[i] = a.components[i] + b.components[i];
 		});
 		return t;
@@ -649,7 +649,7 @@ namespace vectorization
 	inline const UTVector<Size, T> operator+(const UTVector<Size, T> & a, const T & b) noexcept
 	{
 		UTVector<Size, T> t;
-		staticFor<VectorIndices::X, Size>([&](auto i) {
+		StaticFor<VectorIndices::X, Size>::apply([&](auto i) {
 			t.components[i] = a.components[i] + b;
 		});
 		return t;
@@ -659,7 +659,7 @@ namespace vectorization
 	inline const UTVector<Size, T> operator-(const UTVector<Size, T> & a, const UTVector<Size, T> & b) noexcept
 	{
 		UTVector<Size, T> t;
-		staticFor<VectorIndices::X, Size>([&](auto i) {
+		StaticFor<VectorIndices::X, Size>::apply([&](auto i) {
 			t.components[i] = a.components[i] - b.components[i];
 		});
 		return t;
@@ -669,7 +669,7 @@ namespace vectorization
 	inline const UTVector<Size, T> operator-(const UTVector<Size, T> & a, const T & b) noexcept
 	{
 		UTVector<Size, T> t;
-		staticFor<VectorIndices::X, Size>([&](auto i) {
+		StaticFor<VectorIndices::X, Size>::apply([&](auto i) {
 			t.components[i] = a.components[i] - b;
 		});
 		return t;
@@ -679,7 +679,7 @@ namespace vectorization
 	inline const UTVector<Size, T> operator*(const UTVector<Size, T> & a, const UTVector<Size, T> & b) noexcept
 	{
 		UTVector<Size, T> t;
-		staticFor<VectorIndices::X, Size>([&](auto i) {
+		StaticFor<VectorIndices::X, Size>::apply([&](auto i) {
 			t.components[i] = a.components[i] * b.components[i];
 		});
 		return t;
@@ -689,7 +689,7 @@ namespace vectorization
 	inline const UTVector<Size, T> operator*(const UTVector<Size, T> & a, const T & b) noexcept
 	{
 		UTVector<Size, T> t;
-		staticFor<VectorIndices::X, Size>([&](auto i) {
+		StaticFor<VectorIndices::X, Size>::apply([&](auto i) {
 			t.components[i] = a.components[i] * b;
 		});
 		return t;
@@ -699,7 +699,7 @@ namespace vectorization
 	inline const UTVector<Size, T> operator%(const UTVector<Size, T> & a, const UTVector<Size, T> & b) noexcept
 	{
 		UTVector<Size, T> t;
-		staticFor<VectorIndices::X, Size>([&](auto i) {
+		StaticFor<VectorIndices::X, Size>::apply([&](auto i) {
 			t.components[i] = mod(a.components[i], b.components[i]);
 		});
 		return t;
@@ -709,7 +709,7 @@ namespace vectorization
 	inline const UTVector<Size, T> operator%(const UTVector<Size, T> & a, const T & b) noexcept
 	{
 		UTVector<Size, T> t;
-		staticFor<VectorIndices::X, Size>([&](auto i) {
+		StaticFor<VectorIndices::X, Size>::apply([&](auto i) {
 			t.components[i] = mod(a.components[i], b);
 		});
 		return t;
@@ -719,7 +719,7 @@ namespace vectorization
 	inline const UTVector<Size, T> operator/(const UTVector<Size, T> & a, const UTVector<Size, T> & b) noexcept
 	{
 		UTVector<Size, T> t;
-		staticFor<VectorIndices::X, Size>([&](auto i) {
+		StaticFor<VectorIndices::X, Size>::apply([&](auto i) {
 			t.components[i] = a.components[i] / b.components[i];
 		});
 		return t;
@@ -744,7 +744,7 @@ namespace vectorization
 		const B * const bitsIn = reinterpret_cast<const B * const>(&a.components[0]);
 		B * const bitsOut = reinterpret_cast<B * const>(&t.components[0]);
 
-		staticFor<VectorIndices::X, Size>([&](auto i) {
+		StaticFor<VectorIndices::X, Size>::apply([&](auto i) {
 			bitsOut[i] = bitsIn[i] << b.components[i];
 		});
 		return t;
@@ -759,7 +759,7 @@ namespace vectorization
 		const B * const bitsIn = reinterpret_cast<const B * const>(&a.components[0]);
 		B * const bitsOut = reinterpret_cast<B * const>(&t.components[0]);
 
-		staticFor<VectorIndices::X, Size>([&](auto i) {
+		StaticFor<VectorIndices::X, Size>::apply([&](auto i) {
 			bitsOut[i] = bitsIn[i] << b;
 		});
 		return t;
@@ -774,7 +774,7 @@ namespace vectorization
 		const B * const bitsIn = reinterpret_cast<const B * const>(&a.components[0]);
 		B * const bitsOut = reinterpret_cast<B * const>(&t.components[0]);
 
-		staticFor<VectorIndices::X, Size>([&](auto i) {
+		StaticFor<VectorIndices::X, Size>::apply([&](auto i) {
 			bitsOut[i] = bitsIn[i] >> b.components[i];
 		});
 		return t;
@@ -789,7 +789,7 @@ namespace vectorization
 		const B * const bitsIn = reinterpret_cast<const B * const>(&a.components[0]);
 		B * const bitsOut = reinterpret_cast<B * const>(&t.components[0]);
 
-		staticFor<VectorIndices::X, Size>([&](auto i) {
+		StaticFor<VectorIndices::X, Size>::apply([&](auto i) {
 			bitsOut[i] = bitsIn[i] >> b;
 		});
 		return t;
@@ -805,7 +805,7 @@ namespace vectorization
 		const B * const bitsInB = reinterpret_cast<const B * const>(&b.components[0]);
 		B * const bitsOut = reinterpret_cast<B * const>(&t.components[0]);
 
-		staticFor<VectorIndices::X, Size>([&](auto i) {
+		StaticFor<VectorIndices::X, Size>::apply([&](auto i) {
 			bitsOut[i] = bitsInA[i] & bitsInB[i];
 		});
 		return t;
@@ -820,7 +820,7 @@ namespace vectorization
 		const B * const bitsInA = reinterpret_cast<const B * const>(&a.components[0]);
 		B * const bitsOut = reinterpret_cast<B * const>(&t.components[0]);
 
-		staticFor<VectorIndices::X, Size>([&](auto i) {
+		StaticFor<VectorIndices::X, Size>::apply([&](auto i) {
 			bitsOut[i] = bitsInA[i] & b;
 		});
 		return t;
@@ -836,7 +836,7 @@ namespace vectorization
 		const B * const bitsInB = reinterpret_cast<const B * const>(&b.components[0]);
 		B * const bitsOut = reinterpret_cast<B * const>(&t.components[0]);
 
-		staticFor<VectorIndices::X, Size>([&](auto i) {
+		StaticFor<VectorIndices::X, Size>::apply([&](auto i) {
 			bitsOut[i] = bitsInA[i] | bitsInB[i];
 		});
 		return t;
@@ -851,7 +851,7 @@ namespace vectorization
 		const B * const bitsInA = reinterpret_cast<const B * const>(&a.components[0]);
 		B * const bitsOut = reinterpret_cast<B * const>(&t.components[0]);
 
-		staticFor<VectorIndices::X, Size>([&](auto i) {
+		StaticFor<VectorIndices::X, Size>::apply([&](auto i) {
 			bitsOut[i] = bitsInA[i] | b;
 		});
 		return t;
@@ -867,7 +867,7 @@ namespace vectorization
 		const B * const bitsInB = reinterpret_cast<const B * const>(&b.components[0]);
 		B * const bitsOut = reinterpret_cast<B * const>(&t.components[0]);
 
-		staticFor<VectorIndices::X, Size>([&](auto i) {
+		StaticFor<VectorIndices::X, Size>::apply([&](auto i) {
 			bitsOut[i] = bitsInA[i] ^ bitsInB[i];
 		});
 		return t;
@@ -882,7 +882,7 @@ namespace vectorization
 		const B * const bitsInA = reinterpret_cast<const B * const>(&a.components[0]);
 		B * const bitsOut = reinterpret_cast<B * const>(&t.components[0]);
 
-		staticFor<VectorIndices::X, Size>([&](auto i) {
+		StaticFor<VectorIndices::X, Size>::apply([&](auto i) {
 			bitsOut[i] = bitsInA[i] ^ b;
 		});
 		return t;
@@ -892,7 +892,7 @@ namespace vectorization
 	inline const typename UTVector<Size, T>::VectorBoolType operator==(const UTVector<Size, T> & a, const UTVector<Size, T> & b) noexcept
 	{
 		typename UTVector<Size, T>::VectorBoolType t;
-		staticFor<VectorIndices::X, Size>([&](auto i) {
+		StaticFor<VectorIndices::X, Size>::apply([&](auto i) {
 			t.components[i] = static_cast<typename UTVector<Size, T>::BoolType>(a.components[i] == b.components[i]);
 		});
 		return t;
@@ -902,7 +902,7 @@ namespace vectorization
 	inline const typename UTVector<Size, T>::VectorBoolType operator==(const UTVector<Size, T> & a, const T & b) noexcept
 	{
 		typename UTVector<Size, T>::VectorBoolType t;
-		staticFor<VectorIndices::X, Size>([&](auto i) {
+		StaticFor<VectorIndices::X, Size>::apply([&](auto i) {
 			t.components[i] = static_cast<typename UTVector<Size, T>::BoolType>(a.components[i] == b);
 		});
 		return t;
@@ -912,7 +912,7 @@ namespace vectorization
 	inline const typename UTVector<Size, T>::VectorBoolType operator!=(const UTVector<Size, T> & a, const UTVector<Size, T> & b) noexcept
 	{
 		typename UTVector<Size, T>::VectorBoolType t;
-		staticFor<VectorIndices::X, Size>([&](auto i) {
+		StaticFor<VectorIndices::X, Size>::apply([&](auto i) {
 			t.components[i] = static_cast<typename UTVector<Size, T>::BoolType>(a.components[i] != b.components[i]);
 		});
 		return t;
@@ -922,7 +922,7 @@ namespace vectorization
 	inline const typename UTVector<Size, T>::VectorBoolType operator!=(const UTVector<Size, T> & a, const T & b) noexcept
 	{
 		typename UTVector<Size, T>::VectorBoolType t;
-		staticFor<VectorIndices::X, Size>([&](auto i) {
+		StaticFor<VectorIndices::X, Size>::apply([&](auto i) {
 			t.components[i] = static_cast<typename UTVector<Size, T>::BoolType>(a.components[i] != b);
 		});
 		return t;
@@ -932,7 +932,7 @@ namespace vectorization
 	inline const typename UTVector<Size, T>::VectorBoolType operator<(const UTVector<Size, T> & a, const UTVector<Size, T> & b) noexcept
 	{
 		typename UTVector<Size, T>::VectorBoolType t;
-		staticFor<VectorIndices::X, Size>([&](auto i) {
+		StaticFor<VectorIndices::X, Size>::apply([&](auto i) {
 			t.components[i] = static_cast<typename UTVector<Size, T>::BoolType>(a.components[i] < b.components[i]);
 		});
 		return t;
@@ -942,7 +942,7 @@ namespace vectorization
 	inline const typename UTVector<Size, T>::VectorBoolType operator<(const UTVector<Size, T> & a, const T & b) noexcept
 	{
 		typename UTVector<Size, T>::VectorBoolType t;
-		staticFor<VectorIndices::X, Size>([&](auto i) {
+		StaticFor<VectorIndices::X, Size>::apply([&](auto i) {
 			t.components[i] = static_cast<typename UTVector<Size, T>::BoolType>(a.components[i] < b);
 		});
 		return t;
@@ -952,7 +952,7 @@ namespace vectorization
 	inline const typename UTVector<Size, T>::VectorBoolType operator<=(const UTVector<Size, T> & a, const UTVector<Size, T> & b) noexcept
 	{
 		typename UTVector<Size, T>::VectorBoolType t;
-		staticFor<VectorIndices::X, Size>([&](auto i) {
+		StaticFor<VectorIndices::X, Size>::apply([&](auto i) {
 			t.components[i] = static_cast<typename UTVector<Size, T>::BoolType>(a.components[i] <= b.components[i]);
 		});
 		return t;
@@ -962,7 +962,7 @@ namespace vectorization
 	inline const typename UTVector<Size, T>::VectorBoolType operator<=(const UTVector<Size, T> & a, const T & b) noexcept
 	{
 		typename UTVector<Size, T>::VectorBoolType t;
-		staticFor<VectorIndices::X, Size>([&](auto i) {
+		StaticFor<VectorIndices::X, Size>::apply([&](auto i) {
 			t.components[i] = static_cast<typename UTVector<Size, T>::BoolType>(a.components[i] <= b);
 		});
 		return t;
@@ -972,7 +972,7 @@ namespace vectorization
 	inline const typename UTVector<Size, T>::VectorBoolType operator>(const UTVector<Size, T> & a, const UTVector<Size, T> & b) noexcept
 	{
 		typename UTVector<Size, T>::VectorBoolType t;
-		staticFor<VectorIndices::X, Size>([&](auto i) {
+		StaticFor<VectorIndices::X, Size>::apply([&](auto i) {
 			t.components[i] = static_cast<typename UTVector<Size, T>::BoolType>(a.components[i] > b.components[i]);
 		});
 		return t;
@@ -982,7 +982,7 @@ namespace vectorization
 	inline const typename UTVector<Size, T>::VectorBoolType operator>(const UTVector<Size, T> & a, const T & b) noexcept
 	{
 		typename UTVector<Size, T>::VectorBoolType t;
-		staticFor<VectorIndices::X, Size>([&](auto i) {
+		StaticFor<VectorIndices::X, Size>::apply([&](auto i) {
 			t.components[i] = static_cast<typename UTVector<Size, T>::BoolType>(a.components[i] > b);
 		});
 		return t;
@@ -992,7 +992,7 @@ namespace vectorization
 	inline const typename UTVector<Size, T>::VectorBoolType operator>=(const UTVector<Size, T> & a, const UTVector<Size, T> & b) noexcept
 	{
 		typename UTVector<Size, T>::VectorBoolType t;
-		staticFor<VectorIndices::X, Size>([&](auto i) {
+		StaticFor<VectorIndices::X, Size>::apply([&](auto i) {
 			t.components[i] = static_cast<typename UTVector<Size, T>::BoolType>(a.components[i] >= b.components[i]);
 		});
 		return t;
@@ -1002,7 +1002,7 @@ namespace vectorization
 	inline const typename UTVector<Size, T>::VectorBoolType operator>=(const UTVector<Size, T> & a, const T & b) noexcept
 	{
 		typename UTVector<Size, T>::VectorBoolType t;
-		staticFor<VectorIndices::X, Size>([&](auto i) {
+		StaticFor<VectorIndices::X, Size>::apply([&](auto i) {
 			t.components[i] = static_cast<typename UTVector<Size, T>::BoolType>(a.components[i] >= b);
 		});
 		return t;
@@ -1011,7 +1011,7 @@ namespace vectorization
 	template <ASizeT Size, typename T>
 	inline UTVector<Size, T> & operator+=(UTVector<Size, T> & a, const UTVector<Size, T> & b) noexcept
 	{
-		staticFor<VectorIndices::X, Size>([&](auto i) {
+		StaticFor<VectorIndices::X, Size>::apply([&](auto i) {
 			a.components[i] += b.components[i];
 		});
 		return a;
@@ -1020,7 +1020,7 @@ namespace vectorization
 	template <ASizeT Size, typename T>
 	inline UTVector<Size, T> & operator+=(UTVector<Size, T> & a, const T & b) noexcept
 	{
-		staticFor<VectorIndices::X, Size>([&](auto i) {
+		StaticFor<VectorIndices::X, Size>::apply([&](auto i) {
 			a.components[i] += b;
 		});
 		return a;
@@ -1029,7 +1029,7 @@ namespace vectorization
 	template <ASizeT Size, typename T>
 	inline UTVector<Size, T> & operator-=(UTVector<Size, T> & a, const UTVector<Size, T> & b) noexcept
 	{
-		staticFor<VectorIndices::X, Size>([&](auto i) {
+		StaticFor<VectorIndices::X, Size>::apply([&](auto i) {
 			a.components[i] -= b.components[i];
 		});
 		return a;
@@ -1038,7 +1038,7 @@ namespace vectorization
 	template <ASizeT Size, typename T>
 	inline UTVector<Size, T> & operator-=(UTVector<Size, T> & a, const T & b) noexcept
 	{
-		staticFor<VectorIndices::X, Size>([&](auto i) {
+		StaticFor<VectorIndices::X, Size>::apply([&](auto i) {
 			a.components[i] -= b;
 		});
 		return a;
@@ -1047,7 +1047,7 @@ namespace vectorization
 	template <ASizeT Size, typename T>
 	inline UTVector<Size, T> & operator*=(UTVector<Size, T> & a, const UTVector<Size, T> & b) noexcept
 	{
-		staticFor<VectorIndices::X, Size>([&](auto i) {
+		StaticFor<VectorIndices::X, Size>::apply([&](auto i) {
 			a.components[i] *= b.components[i];
 		});
 		return a;
@@ -1056,7 +1056,7 @@ namespace vectorization
 	template <ASizeT Size, typename T>
 	inline UTVector<Size, T> & operator*=(UTVector<Size, T> & a, const T & b) noexcept
 	{
-		staticFor<VectorIndices::X, Size>([&](auto i) {
+		StaticFor<VectorIndices::X, Size>::apply([&](auto i) {
 			a.components[i] *= b;
 		});
 		return a;
@@ -1065,7 +1065,7 @@ namespace vectorization
 	template <ASizeT Size, typename T>
 	inline UTVector<Size, T> & operator/=(UTVector<Size, T> & a, const UTVector<Size, T> & b) noexcept
 	{
-		staticFor<VectorIndices::X, Size>([&](auto i) {
+		StaticFor<VectorIndices::X, Size>::apply([&](auto i) {
 			a.components[i] /= b.components[i];
 		});
 		return a;
@@ -1081,7 +1081,7 @@ namespace vectorization
 	template <ASizeT Size, typename T>
 	inline UTVector<Size, T> & operator%=(UTVector<Size, T> & a, const UTVector<Size, T> & b) noexcept
 	{
-		staticFor<VectorIndices::X, Size>([&](auto i) {
+		StaticFor<VectorIndices::X, Size>::apply([&](auto i) {
 			a.components[i] = mod(a.components[i], b.components[i]);
 		});
 		return a;
@@ -1090,7 +1090,7 @@ namespace vectorization
 	template <ASizeT Size, typename T>
 	inline UTVector<Size, T> & operator%=(UTVector<Size, T> & a, const T & b) noexcept
 	{
-		staticFor<VectorIndices::X, Size>([&](auto i) {
+		StaticFor<VectorIndices::X, Size>::apply([&](auto i) {
 			a.components[i] = mod(a.components[i], b);
 		});
 		return a;
@@ -1103,7 +1103,7 @@ namespace vectorization
 		const B * const bitsInB = reinterpret_cast<const B * const>(&b.components[0]);
 		B * const bits = reinterpret_cast<B * const>(&a.components[0]);
 
-		staticFor<VectorIndices::X, Size>([&](auto i) {
+		StaticFor<VectorIndices::X, Size>::apply([&](auto i) {
 			bits[i] &= bitsInB[i];
 		});
 		return a;
@@ -1115,7 +1115,7 @@ namespace vectorization
 		typedef typename UTVector<Size, T>::BoolType B;
 		B * const bits = reinterpret_cast<B * const>(&a.components[0]);
 
-		staticFor<VectorIndices::X, Size>([&](auto i) {
+		StaticFor<VectorIndices::X, Size>::apply([&](auto i) {
 			bits[i] &= b;
 		});
 		return a;
@@ -1128,7 +1128,7 @@ namespace vectorization
 		const B * const bitsInB = reinterpret_cast<const B * const>(&b.components[0]);
 		B * const bits = reinterpret_cast<B * const>(&a.components[0]);
 
-		staticFor<VectorIndices::X, Size>([&](auto i) {
+		StaticFor<VectorIndices::X, Size>::apply([&](auto i) {
 			bits[i] |= bitsInB[i];
 		});
 		return a;
@@ -1140,7 +1140,7 @@ namespace vectorization
 		typedef typename UTVector<Size, T>::BoolType B;
 		B * const bits = reinterpret_cast<B * const>(&a.components[0]);
 
-		staticFor<VectorIndices::X, Size>([&](auto i) {
+		StaticFor<VectorIndices::X, Size>::apply([&](auto i) {
 			bits[i] |= b;
 		});
 		return a;
@@ -1153,7 +1153,7 @@ namespace vectorization
 		const B * const bitsInB = reinterpret_cast<const B * const>(&b.components[0]);
 		B * const bits = reinterpret_cast<B * const>(&a.components[0]);
 
-		staticFor<VectorIndices::X, Size>([&](auto i) {
+		StaticFor<VectorIndices::X, Size>::apply([&](auto i) {
 			bits[i] ^= bitsInB[i];
 		});
 		return a;
@@ -1165,7 +1165,7 @@ namespace vectorization
 		typedef typename UTVector<Size, T>::BoolType B;
 		B * const bits = reinterpret_cast<B * const>(&a.components[0]);
 
-		staticFor<VectorIndices::X, Size>([&](auto i) {
+		StaticFor<VectorIndices::X, Size>::apply([&](auto i) {
 			bits[i] ^= b;
 		});
 		return a;
@@ -1177,7 +1177,7 @@ namespace vectorization
 		typedef typename UTVector<Size, T>::BoolType B;
 		B * const bits = reinterpret_cast<B * const>(&a.components[0]);
 
-		staticFor<VectorIndices::X, Size>([&](auto i) {
+		StaticFor<VectorIndices::X, Size>::apply([&](auto i) {
 			bits[i] <<= b.components[i];
 		});
 		return a;
@@ -1189,7 +1189,7 @@ namespace vectorization
 		typedef typename UTVector<Size, T>::BoolType B;
 		B * const bits = reinterpret_cast<B * const>(&a.components[0]);
 
-		staticFor<VectorIndices::X, Size>([&](auto i) {
+		StaticFor<VectorIndices::X, Size>::apply([&](auto i) {
 			bits[i] <<= b;
 		});
 		return a;
@@ -1201,7 +1201,7 @@ namespace vectorization
 		typedef typename UTVector<Size, T>::BoolType B;
 		B * const bits = reinterpret_cast<B * const>(&a.components[0]);
 
-		staticFor<VectorIndices::X, Size>([&](auto i) {
+		StaticFor<VectorIndices::X, Size>::apply([&](auto i) {
 			bits[i] >>= b.components[i];
 		});
 		return a;
@@ -1213,7 +1213,7 @@ namespace vectorization
 		typedef typename UTVector<Size, T>::BoolType B;
 		B * const bits = reinterpret_cast<B * const>(&a.components[0]);
 
-		staticFor<VectorIndices::X, Size>([&](auto i) {
+		StaticFor<VectorIndices::X, Size>::apply([&](auto i) {
 			bits[i] >>= b;
 		});
 		return a;
@@ -1231,7 +1231,7 @@ namespace vectorization
 		typedef typename UTVector<Size, T>::BoolType B;
 
 		B t = Zero<B>();
-		staticFor<VectorIndices::X, Size>([&](auto i) {
+		StaticFor<VectorIndices::X, Size>::apply([&](auto i) {
 			t = (static_cast<B>(v.components[i] < Zero<T>()) & One<B>()) | (t << One<ASizeT>());
 		});
 		return t;
@@ -1241,7 +1241,7 @@ namespace vectorization
 	inline const T dot(const UTVector<Size, T> & a, const UTVector<Size, T> & b) noexcept
 	{
 		T accumulator = Zero<T>();
-		staticFor<VectorIndices::X, Size>([&](auto i) {
+		StaticFor<VectorIndices::X, Size>::apply([&](auto i) {
 			accumulator += a.components[i] * b.components[i];
 		});
 		return accumulator;
@@ -1309,7 +1309,7 @@ namespace vectorization
 	{
 		UTVector<Size, T> t;
 
-		staticFor<VectorIndices::X, Size>([&](auto i) {
+		StaticFor<VectorIndices::X, Size>::apply([&](auto i) {
 			t.components[i] = min(a.components[i], b.components[i]);
 		});
 		return t;
@@ -1320,7 +1320,7 @@ namespace vectorization
 	{
 		T accumulator = v.x();
 
-		staticFor<VectorIndices::X, Size>([&](auto i) {
+		StaticFor<VectorIndices::X, Size>::apply([&](auto i) {
 			accumulator = min(v.components[i], accumulator);
 		});
 		return accumulator;
@@ -1337,7 +1337,7 @@ namespace vectorization
 	{
 		UTVector<Size, T> t;
 
-		staticFor<VectorIndices::X, Size>([&](auto i) {
+		StaticFor<VectorIndices::X, Size>::apply([&](auto i) {
 			t.components[i] = max(a.components[i], b.components[i]);
 		});
 		return t;
@@ -1348,7 +1348,7 @@ namespace vectorization
 	{
 		T accumulator = v.x();
 
-		staticFor<VectorIndices::X, Size>([&](auto i) {
+		StaticFor<VectorIndices::X, Size>::apply([&](auto i) {
 			accumulator = max(v.components[i], accumulator);
 		});
 		return accumulator;
@@ -1365,7 +1365,7 @@ namespace vectorization
 	{
 		T accumulator = Zero<T>();
 
-		staticFor<VectorIndices::X, Size>([&](auto i) {
+		StaticFor<VectorIndices::X, Size>::apply([&](auto i) {
 			accumulator += v.components[i];
 		});
 		return accumulator;
@@ -1382,7 +1382,7 @@ namespace vectorization
 	{
 		UTVector<Size, T> t;
 
-		staticFor<VectorIndices::X, Size>([&](auto i) {
+		StaticFor<VectorIndices::X, Size>::apply([&](auto i) {
 			t.components[i] = floor(v.components[i]);
 		});
 		return t;
@@ -1393,7 +1393,7 @@ namespace vectorization
 	{
 		UTVector<Size, T> t;
 
-		staticFor<VectorIndices::X, Size>([&](auto i) {
+		StaticFor<VectorIndices::X, Size>::apply([&](auto i) {
 			t.components[i] = fract(v.components[i]);
 		});
 		return t;
@@ -1404,7 +1404,7 @@ namespace vectorization
 	{
 		UTVector<Size, T> t;
 
-		staticFor<VectorIndices::X, Size>([&](auto i) {
+		StaticFor<VectorIndices::X, Size>::apply([&](auto i) {
 			t.components[i] = exp(v.components[i]);
 		});
 		return t;
@@ -1415,11 +1415,11 @@ namespace vectorization
 	{
 		UTVector<Size, T> t;
 
-		staticFor<VectorIndices::X, VectorIndices::W>([&](auto i) {
+		StaticFor<VectorIndices::X, VectorIndices::W>::apply([&](auto i) {
 			t.components[i] = exp(v.components[i]);
 		});
 
-		staticFor<VectorIndices::W, Size>([&](auto i) {
+		StaticFor<VectorIndices::W, Size>::apply([&](auto i) {
 			t.components[i] = v.components[i];
 		});
 		return t;
@@ -1430,7 +1430,7 @@ namespace vectorization
 	{
 		UTVector<Size, T> t;
 
-		staticFor<VectorIndices::X, Size>([&](auto i) {
+		StaticFor<VectorIndices::X, Size>::apply([&](auto i) {
 			t.components[i] = log(v.components[i]);
 		});
 		return t;
@@ -1441,11 +1441,11 @@ namespace vectorization
 	{
 		UTVector<Size, T> t;
 
-		staticFor<VectorIndices::X, VectorIndices::W>([&](auto i) {
+		StaticFor<VectorIndices::X, VectorIndices::W>::apply([&](auto i) {
 			t.components[i] = log(v.components[i]);
 		});
 
-		staticFor<VectorIndices::W, Size>([&](auto i) {
+		StaticFor<VectorIndices::W, Size>::apply([&](auto i) {
 			t.components[i] = v.components[i];
 		});
 		return t;
@@ -1456,7 +1456,7 @@ namespace vectorization
 	{
 		UTVector<Size, T> t;
 
-		staticFor<VectorIndices::X, Size>([&](auto i) {
+		StaticFor<VectorIndices::X, Size>::apply([&](auto i) {
 			t.components[i] = clamp(v.components[i], l.components[i], m.components[i]);
 		});
 		return t;
@@ -1467,7 +1467,7 @@ namespace vectorization
 	{
 		UTVector<Size, T> t;
 
-		staticFor<VectorIndices::X, Size>([&](auto i) {
+		StaticFor<VectorIndices::X, Size>::apply([&](auto i) {
 			t.components[i] = clamp(v.components[i], l, m);
 		});
 		return t;
@@ -1478,7 +1478,7 @@ namespace vectorization
 	{
 		UTVector<Size, T> t;
 
-		staticFor<VectorIndices::X, Size>([&](auto i) {
+		StaticFor<VectorIndices::X, Size>::apply([&](auto i) {
 			t.components[i] = abs(v.components[i]);
 		});
 		return t;
@@ -1489,7 +1489,7 @@ namespace vectorization
 	{
 		UTVector<Size, T> t;
 
-		staticFor<VectorIndices::X, Size>([&](auto i) {
+		StaticFor<VectorIndices::X, Size>::apply([&](auto i) {
 			t.components[i] = mix(a.components[i], b.components[i], factor.components[i]);
 		});
 		return t;
@@ -1500,7 +1500,7 @@ namespace vectorization
 	{
 		UTVector<Size, T> t;
 
-		staticFor<VectorIndices::X, Size>([&](auto i) {
+		StaticFor<VectorIndices::X, Size>::apply([&](auto i) {
 			t.components[i] = mix(a.components[i], b.components[i], factor);
 		});
 		return t;
@@ -1514,7 +1514,7 @@ namespace vectorization
 		y(t, z(a) * x(b) - z(b) * x(a));
 		z(t, x(a) * y(b) - x(b) * y(a));
 
-		staticFor<VectorIndices::W, Size>([&](auto i) {
+		StaticFor<VectorIndices::W, Size>::apply([&](auto i) {
 			t.components[i] = Zero<T>();
 		});
 		return t;
@@ -1535,7 +1535,7 @@ namespace vectorization
 		y(t, y(v) * rl);
 		z(t, z(v) * rl);
 
-		staticFor<VectorIndices::W, Size>([&](auto i) {
+		StaticFor<VectorIndices::W, Size>::apply([&](auto i) {
 			t.components[i] = Zero<T>();
 		});
 		return t;
@@ -1546,7 +1546,7 @@ namespace vectorization
 	{
 		UTVector<Size, T> t;
 
-		staticFor<VectorIndices::X, Size>([&](auto i) {
+		StaticFor<VectorIndices::X, Size>::apply([&](auto i) {
 			t.components[i] = reciprocal(v.components[i]);
 		});
 		return t;
@@ -1557,7 +1557,7 @@ namespace vectorization
 	{
 		UTVector<Size, T> t;
 
-		staticFor<VectorIndices::X, Size>([&](auto i) {
+		StaticFor<VectorIndices::X, Size>::apply([&](auto i) {
 			t.components[i] = pow(v.components[i], exponent.components[i]);
 		});
 		return t;
@@ -1568,7 +1568,7 @@ namespace vectorization
 	{
 		UTVector<Size, T> t;
 
-		staticFor<VectorIndices::X, Size>([&](auto i) {
+		StaticFor<VectorIndices::X, Size>::apply([&](auto i) {
 			t.components[i] = pow(v.components[i], exponent);
 		});
 		return t;
@@ -1582,7 +1582,7 @@ namespace vectorization
 		y(t, pow(y(v), y(exponent)));
 		z(t, pow(z(v), z(exponent)));
 
-		staticFor<VectorIndices::W, Size>([&](auto i) {
+		StaticFor<VectorIndices::W, Size>::apply([&](auto i) {
 			t.components[i] = v.components[i];
 		});
 		return t;
@@ -1596,7 +1596,7 @@ namespace vectorization
 		y(t, pow(y(v), exponent));
 		z(t, pow(z(v), exponent));
 
-		staticFor<VectorIndices::W, Size>([&](auto i) {
+		StaticFor<VectorIndices::W, Size>::apply([&](auto i) {
 			t.components[i] = v.components[i];
 		});
 		return t;
@@ -1611,7 +1611,7 @@ namespace vectorization
 		z(t, z(v));
 		w(t, Zero<T>());
 
-		staticFor<VectorIndices::AboveW, Size>([&](auto i) {
+		StaticFor<VectorIndices::AboveW, Size>::apply([&](auto i) {
 			t.components[i] = v.components[i];
 		});
 		return t;
@@ -1626,7 +1626,7 @@ namespace vectorization
 		z(t, z(v));
 		w(t, One<T>());
 
-		staticFor<VectorIndices::AboveW, Size>([&](auto i) {
+		StaticFor<VectorIndices::AboveW, Size>::apply([&](auto i) {
 			t.components[i] = v.components[i];
 		});
 		return t;
@@ -1693,7 +1693,7 @@ namespace vectorization
 	std::ostream & operator<< (std::ostream & stream, const UTVector<Size, T> & v) noexcept
 	{
 		stream << "{";
-		staticFor<VectorIndices::X, Size>([&](auto i) {
+		StaticFor<VectorIndices::X, Size>::apply([&](auto i) {
 			if (i > VectorIndices::X) {
 				stream << ", ";
 			}

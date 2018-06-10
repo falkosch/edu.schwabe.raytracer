@@ -161,7 +161,8 @@ namespace vectorization
 		typedef typename U::ValueType OT;
 		U t;
 		t.setX(static_cast<OT>(x(v)));
-		staticFor<VectorIndices::Y, U::SIZE>([&](auto i) {
+
+		StaticFor<VectorIndices::Y, U::SIZE>::apply([&](auto i) {
 			t[i] = OT();
 		});
 		return t;
@@ -204,7 +205,7 @@ namespace vectorization
 		U t;
 		t.setX(static_cast<OT>(x(v)));
 		t.setY(static_cast<OT>(y(v)));
-		staticFor<VectorIndices::Z, U::SIZE>([&](auto i) {
+		StaticFor<VectorIndices::Z, U::SIZE>::apply([&](auto i) {
 			t[i] = OT();
 		});
 		return t;
@@ -260,7 +261,8 @@ namespace vectorization
 		t.setX(static_cast<OT>(x(v)));
 		t.setY(static_cast<OT>(y(v)));
 		t.setZ(static_cast<OT>(z(v)));
-		staticFor<VectorIndices::W, U::SIZE>([&](auto i) {
+
+		StaticFor<VectorIndices::W, U::SIZE>::apply([&](auto i) {
 			t[i] = OT();
 		});
 		return t;
@@ -299,7 +301,8 @@ namespace vectorization
 		t.setY(static_cast<OT>(y(v)));
 		t.setZ(static_cast<OT>(z(v)));
 		t.setW(static_cast<OT>(w(v)));
-		staticFor<VectorIndices::AboveW, U::SIZE>([&](auto i) {
+
+		StaticFor<VectorIndices::AboveW, U::SIZE>::apply([&](auto i) {
 			t[i] = OT();
 		});
 		return t;

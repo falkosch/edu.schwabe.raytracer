@@ -684,13 +684,35 @@ namespace vectorization
 #pragma region staticFor()
 	//{ staticFor()
 
-	template <ASizeT First, ASizeT Last, typename Lambda>
-	inline constexpr void staticFor(const Lambda & f) noexcept
+	// compile time static for loop for range [First, Last)
+	template < ASizeT First, ASizeT Last >
+	struct StaticFor
 	{
-		if constexpr (First < Last) {
-			f(std::integral_constant<ASizeT, First>{});
-			staticFor<First + 1, Last>(f);
+		template <typename Lambda>
+		static inline constexpr void apply(const Lambda & iteratee) {
+			if constexpr (First < Last) {
+				iteratee(First);
+				if constexpr (First + 1 < Last) {
+					StaticFor<First + 1, Last>::apply(iteratee);
+				}
+			}
 		}
+	};
+
+	// Can take care for C4100 when First equals Last index
+	template < ASizeT N >
+	struct StaticFor<N, N>
+	{
+		template <typename Lambda>
+		static inline constexpr void apply(const Lambda & /* iteratee */) {
+		}
+	};
+
+	// compile time static for loop for range [First, Last)
+	template < ASizeT First, ASizeT Last, typename Lambda >
+	inline constexpr void staticFor(const Lambda & iteratee) noexcept
+	{
+		StaticFor<First, Last>::apply(iteratee);
 	}
 
 	//}
@@ -705,7 +727,7 @@ namespace vectorization
 	{
 		T s = Zero<T>();
 
-		staticFor<VectorIndices::X, Size>([&](auto i) {
+		StaticFor<VectorIndices::X, Size>::apply([&](auto i) {
 			s += v[i];
 		});
 
@@ -723,12 +745,12 @@ namespace vectorization
 	{
 		T s = Zero<T>();
 
-		staticFor<VectorIndices::X, Size>([&](auto i) {
+		StaticFor<VectorIndices::X, Size>::apply([&](auto i) {
 			s += sqr(v[i]);
 		});
 
 		const T rs = rsqrt(s);
-		staticFor<VectorIndices::X, Size>([&](auto i) {
+		StaticFor<VectorIndices::X, Size>::apply([&](auto i) {
 			v[i] *= rs;
 		});
 	}
