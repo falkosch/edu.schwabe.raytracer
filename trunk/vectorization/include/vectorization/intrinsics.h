@@ -47,33 +47,33 @@
 #define ALIGNED(alignment, decleration) BEGIN_ALIGNED(BEST_ALIGNMENT) ALIGNED_UNPACK decleration END_ALIGNED(BEST_ALIGNMENT)
 
 #define ALIGNED_ALLOCATORS(alignment) \
-    static void * operator new(std::size_t size) { return vectorization::alloc(size, alignment); } \
+    static void * operator new(std::size_t size) noexcept { return vectorization::alloc(size, alignment); } \
 	static void * operator new(std::size_t size, const std::nothrow_t & nothrow) noexcept { return vectorization::alloc(size, alignment, nothrow); } \
-	static void * operator new(std::size_t size, std::align_val_t requestedAlignment) { return vectorization::alloc(size, requestedAlignment); } \
+	static void * operator new(std::size_t size, std::align_val_t requestedAlignment) noexcept { return vectorization::alloc(size, requestedAlignment); } \
 	static void * operator new(std::size_t size, std::align_val_t requestedAlignment, const std::nothrow_t & nothrow) noexcept { return vectorization::alloc(size, requestedAlignment, nothrow); } \
 	\
 	static void operator delete(void * ptr) noexcept { vectorization::free(ptr); } \
-	static void operator delete(void * ptr, const std::nothrow_t & nothrow) noexcept { vectorization::free(ptr); } \
+	static void operator delete(void * ptr, const std::nothrow_t & nothrow) noexcept { vectorization::free(ptr, nothrow); } \
 	static void operator delete(void * ptr, std::align_val_t) noexcept { vectorization::free(ptr); } \
-	static void operator delete(void * ptr, std::align_val_t, const std::nothrow_t & nothrow) noexcept { vectorization::free(ptr); } \
+	static void operator delete(void * ptr, std::align_val_t, const std::nothrow_t & nothrow) noexcept { vectorization::free(ptr, nothrow); } \
 	static void operator delete(void * ptr, std::size_t) noexcept { vectorization::free(ptr); } \
-	static void operator delete(void * ptr, std::size_t, const std::nothrow_t & nothrow) noexcept { vectorization::free(ptr); } \
+	static void operator delete(void * ptr, std::size_t, const std::nothrow_t & nothrow) noexcept { vectorization::free(ptr, nothrow); } \
 	static void operator delete(void * ptr, std::size_t, std::align_val_t) noexcept { vectorization::free(ptr); } \
-	static void operator delete(void * ptr, std::size_t, std::align_val_t, const std::nothrow_t & nothrow) noexcept { vectorization::free(ptr); } \
+	static void operator delete(void * ptr, std::size_t, std::align_val_t, const std::nothrow_t & nothrow) noexcept { vectorization::free(ptr, nothrow); } \
 	\
-    static void * operator new[](std::size_t size) { return vectorization::alloc(size, alignment); } \
+    static void * operator new[](std::size_t size) noexcept { return vectorization::alloc(size, alignment); } \
 	static void * operator new[](std::size_t size, const std::nothrow_t & nothrow) noexcept { return vectorization::alloc(size, alignment, nothrow); } \
-	static void * operator new[](std::size_t size, std::align_val_t requestedAlignment) { return vectorization::alloc(size, requestedAlignment); } \
+	static void * operator new[](std::size_t size, std::align_val_t requestedAlignment) noexcept { return vectorization::alloc(size, requestedAlignment); } \
 	static void * operator new[](std::size_t size, std::align_val_t requestedAlignment, const std::nothrow_t & nothrow) noexcept { return vectorization::alloc(size, requestedAlignment, nothrow); } \
 	\
 	static void operator delete[](void * ptr) noexcept { vectorization::free(ptr); } \
-	static void operator delete[](void * ptr, const std::nothrow_t & nothrow) noexcept { vectorization::free(ptr); } \
+	static void operator delete[](void * ptr, const std::nothrow_t & nothrow) noexcept { vectorization::free(ptr, nothrow); } \
 	static void operator delete[](void * ptr, std::align_val_t) noexcept { vectorization::free(ptr); } \
-	static void operator delete[](void * ptr, std::align_val_t, const std::nothrow_t & nothrow) noexcept { vectorization::free(ptr); } \
+	static void operator delete[](void * ptr, std::align_val_t, const std::nothrow_t & nothrow) noexcept { vectorization::free(ptr, nothrow); } \
 	static void operator delete[](void * ptr, std::size_t) noexcept { vectorization::free(ptr); } \
-	static void operator delete[](void * ptr, std::size_t, const std::nothrow_t & nothrow) noexcept { vectorization::free(ptr); } \
+	static void operator delete[](void * ptr, std::size_t, const std::nothrow_t & nothrow) noexcept { vectorization::free(ptr, nothrow); } \
 	static void operator delete[](void * ptr, std::size_t, std::align_val_t) noexcept { vectorization::free(ptr); } \
-	static void operator delete[](void * ptr, std::size_t, std::align_val_t, const std::nothrow_t & nothrow) noexcept { vectorization::free(ptr); }
+	static void operator delete[](void * ptr, std::size_t, std::align_val_t, const std::nothrow_t & nothrow) noexcept { vectorization::free(ptr, nothrow); }
 
 
 #define BLEND_MASK(X, Y, Z, W) ( \
@@ -248,6 +248,8 @@ namespace vectorization
 
 	void free(void * & data) noexcept;
 
+	void free(void * & data, const std::nothrow_t & nothrow) noexcept;
+
 	void * alloc(const ASizeT size) noexcept;
 
 	void * alloc(const ASizeT size, const std::nothrow_t & nothrow) noexcept;
@@ -276,7 +278,8 @@ namespace vectorization
 		// typedefs required for xmemory
 		typedef T value_type;
 		typedef T * pointer;
-		typedef ASizeT size_type;
+		typedef std::size_t size_type;
+		typedef std::true_type is_always_equal;
 
 		AlignedAllocator() noexcept
 		{
@@ -308,7 +311,7 @@ namespace vectorization
 				throw std::bad_array_new_length();
 			}
 
-			void* const pv = alloc(sizeof(T) * n, __alignof(T));
+			void * const pv = vectorization::alloc(sizeof(T) * n, __alignof(T));
 
 			if (!pv) {
 				throw std::bad_alloc();
@@ -321,15 +324,16 @@ namespace vectorization
 		{
 			if (p) {
 				void * vp = reinterpret_cast<void *>(p);
-				free(vp);
+				vectorization::free(vp);
 			}
 		}
 
 		// templated alloc
 		static pointer const allocElements(const size_type n, const size_type alignment)
 		{
-			return static_cast<pointer const>(alloc(sizeof(T) * n, alignment));
+			return static_cast<pointer const>(vectorization::alloc(sizeof(T) * n, alignment));
 		}
+
 		static pointer const allocElements(const size_type n)
 		{
 			return allocElements(n, __alignof(T));

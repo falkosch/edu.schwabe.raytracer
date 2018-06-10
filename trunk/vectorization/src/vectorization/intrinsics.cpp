@@ -17,6 +17,12 @@ namespace vectorization
 		data = nullptr;
 	}
 
+	void free(void * & data, const std::nothrow_t & /* nothrow */) noexcept
+	{
+		assert(data);
+		vectorization::free(data);
+	}
+
 	void * alloc(const ASizeT size) noexcept
 	{
 		return vectorization::alloc(size, VectorAlignments::Best);
@@ -42,7 +48,7 @@ namespace vectorization
 		return vectorization::alloc(size, alignment, std::nothrow_t());
 	}
 
-	void * alloc(const ASizeT size, const ASizeT alignment, const std::nothrow_t & nothrow) noexcept
+	void * alloc(const ASizeT size, const ASizeT alignment, const std::nothrow_t & /* nothrow */) noexcept
 	{
 		void * data = _mm_malloc(size, alignment);
 		assert(data);

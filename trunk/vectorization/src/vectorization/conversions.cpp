@@ -227,7 +227,10 @@ namespace vectorization
 	template <>
 	const v_ui64_2 convert<v_ui64_2>(const UTVector<VectorSizes::Y, v_i32_4::ValueType> & v) noexcept
 	{
-		return v_ui64_2(static_cast<v_ui64_2::ValueType>(x(v)), static_cast<v_ui64_2::ValueType>(y(v)));
+		return v_ui64_2(
+			static_cast<v_ui64_2::ValueType>(x(v)),
+			static_cast<v_ui64_2::ValueType>(y(v))
+		);
 	}
 
 	template <>

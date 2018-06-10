@@ -253,7 +253,7 @@ namespace vectorization
 
 	const long sign(const long v) noexcept
 	{
-		return (v > Zero<long>()) - (v < Zero<long>());
+		return static_cast<long>((v > Zero<long>()) - (v < Zero<long>()));
 	}
 
 	const Int_8 sign(const Int_8 v) noexcept
@@ -268,12 +268,12 @@ namespace vectorization
 
 	const Int_32 sign(const Int_32 v) noexcept
 	{
-		return (v > Zero<Int_32>()) - (v < Zero<Int_32>());
+		return static_cast<Int_32>((v > Zero<Int_32>()) - (v < Zero<Int_32>()));
 	}
 
 	const Int_64 sign(const Int_64 v) noexcept
 	{
-		return static_cast<Int_64>(v > Zero<Int_64>()) - static_cast<Int_64>(v < Zero<Int_64>());
+		return static_cast<Int_64>((v > Zero<Int_64>()) - (v < Zero<Int_64>()));
 	}
 
 	const PackedFloat4_128 sign(const PackedFloat4_128 & v) noexcept
@@ -1255,7 +1255,7 @@ namespace vectorization
 #else
 		return std::exp(v);
 #endif
-}
+	}
 
 	const Float_64 exp(const Float_64 v) noexcept
 	{

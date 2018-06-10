@@ -484,9 +484,12 @@ namespace vectorization
 	template <>
 	const PackedFloat2_128 NegZero<PackedFloat2_128>() noexcept
 	{
-		return _mm_castsi128_pd(_mm_slli_epi64(
-			MaskAll<PackedInts_128>(),
-			sizeof(Int_64) * CHAR_BIT - 1));
+		return _mm_castsi128_pd(
+			_mm_slli_epi64(
+				MaskAll<PackedInts_128>(),
+				sizeof(Int_64) * CHAR_BIT - 1
+			)
+		);
 	}
 
 	template <>
