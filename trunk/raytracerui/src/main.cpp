@@ -50,40 +50,40 @@ const ASizeT RAY_PACKET_SIZE = 15;
 namespace raytracerui {
 
 	const LRESULT runRaytracerUI() {
-		Resources resources = Resources();
-		Scene scene = Scene(
+		Resources * resources = new Resources();
+		Scene * scene = new Scene(
 			new NaiveKDTreeTraverser<SceneIntersection>(),
 			new FixedIterationsSAHKDTreeBalancer()
 		);
 
-		CornellBoxScene::setup(scene, resources);
-		//TestScene1::setup(scene, resources);
-		//TestScene2::setup(scene, resources);
-		//DragonScene::setup(scene, resources);
-		//ProceduralScene<3, 10>::setup(scene, resources);
+		CornellBoxScene::setup(*scene, *resources);
+		//TestScene1::setup(*scene, *resources);
+		//TestScene2::setup(*scene, *resources);
+		//DragonScene::setup(*scene, *resources);
+		//ProceduralScene<3, 10>::setup(*scene, *resources);
 
-		scene.buildSceneGraph();
+		scene->buildSceneGraph();
 
-		Camera camera = Camera();
-		camera.setProjection(PERSPECTIVE_FOV, PERSPECTIVE_Z_PLANE_EXTENDS, PERSPECTIVE_Z_PLANES);
-		camera.translate(CAMERA_INIT_TRANSLATION);
+		Camera * camera = new Camera();
+		camera->setProjection(PERSPECTIVE_FOV, PERSPECTIVE_Z_PLANE_EXTENDS, PERSPECTIVE_Z_PLANES);
+		camera->translate(CAMERA_INIT_TRANSLATION);
 
-		RaytraceParameters parameters = RaytraceParameters();
-		parameters.visibilityCutoff = VISIBILITY_CUTOFF;
-		parameters.maxDistance = MAX_DISTANCE;
-		parameters.maxTraceDepth = MAX_TRACE_DEPTH;
-		parameters.sceneShader = &scene;
-		parameters.cullingOrientation = CULLING_ORIENTATION;
-		parameters.perspectiveZPlanes = PERSPECTIVE_Z_PLANES;
-		parameters.perspectiveFOV = PERSPECTIVE_FOV;
-		parameters.samplingFactor = SAMPLING_FACTOR;
-		parameters.supersamplingFactor = SUPER_SAMPLING_FACTOR;
-		parameters.rayPacketSize = RAY_PACKET_SIZE;
-		parameters.camera = &camera;
+		RaytraceParameters * parameters = new RaytraceParameters();
+		parameters->visibilityCutoff = VISIBILITY_CUTOFF;
+		parameters->maxDistance = MAX_DISTANCE;
+		parameters->maxTraceDepth = MAX_TRACE_DEPTH;
+		parameters->sceneShader = scene;
+		parameters->cullingOrientation = CULLING_ORIENTATION;
+		parameters->perspectiveZPlanes = PERSPECTIVE_Z_PLANES;
+		parameters->perspectiveFOV = PERSPECTIVE_FOV;
+		parameters->samplingFactor = SAMPLING_FACTOR;
+		parameters->supersamplingFactor = SUPER_SAMPLING_FACTOR;
+		parameters->rayPacketSize = RAY_PACKET_SIZE;
+		parameters->camera = camera;
 
-		Raytracer raytracer = Raytracer();
+		Raytracer * raytracer = new Raytracer();
 
-		MessageLoopBasedUI * ui = new WindowsRaytracerUI(raytracer, parameters, FAST_PREVIEW_SIZE);
+		MessageLoopBasedUI * ui = new WindowsRaytracerUI(*raytracer, *parameters, FAST_PREVIEW_SIZE);
 		LRESULT returnCode = static_cast<LRESULT>(-1);
 		try {
 			returnCode = ui->run();
@@ -91,7 +91,14 @@ namespace raytracerui {
 		catch (const std::exception & exception) {
 			std::cout << exception.what() << std::endl;
 		}
+
 		delete ui;
+		delete raytracer;
+		delete parameters;
+		delete camera;
+		delete scene;
+		delete resources;
+
 		return returnCode;
 	}
 
