@@ -11,7 +11,7 @@ namespace vectorization
 	template <typename V>
 	const V MaskAll() noexcept
 	{
-		return static_cast<V>(static_cast<V>(0) - static_cast<V>(1));
+		return static_cast<V>(-1);
 	}
 
 	template const bool MaskAll<bool>() noexcept;
@@ -242,7 +242,7 @@ namespace vectorization
 	template <typename T>
 	const T One<T>() noexcept
 	{
-		return static_cast<T>(1);
+		return { 1 };
 	}
 
 	template const bool One<bool>() noexcept;
@@ -416,7 +416,7 @@ namespace vectorization
 	template <typename T>
 	const T Two<T>() noexcept
 	{
-		return static_cast<T>(2);
+		return { 2 };
 	}
 
 	template const long Two<long>() noexcept;
@@ -510,7 +510,7 @@ namespace vectorization
 	template <typename T>
 	const T NegOne<T>() noexcept
 	{
-		return static_cast<T>(-1);
+		return { -1 };
 	}
 
 	template const long NegOne<long>() noexcept;
@@ -552,7 +552,7 @@ namespace vectorization
 	template <typename T>
 	const T NegTwo<T>() noexcept
 	{
-		return static_cast<T>(-2);
+		return { -2 };
 	}
 
 	template const long NegTwo<long>() noexcept;
