@@ -1,5 +1,7 @@
 #include "vectorization/v_f32_4.h"
 
+#include <cassert>
+
 namespace vectorization
 {
 

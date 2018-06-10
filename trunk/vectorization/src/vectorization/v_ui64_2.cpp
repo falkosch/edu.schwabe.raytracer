@@ -1,6 +1,7 @@
 #include "vectorization/v_ui64_2.h"
 
-#include <limits.h>
+#include <limits>
+#include <cassert>
 
 namespace vectorization
 {

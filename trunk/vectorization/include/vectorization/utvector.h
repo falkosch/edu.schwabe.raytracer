@@ -10,6 +10,7 @@
 
 #include <iostream>
 #include <array>
+#include <cassert>
 
 #define staticCheckMinSize(size) static_assert(Size >= size, "Size is too small")
 

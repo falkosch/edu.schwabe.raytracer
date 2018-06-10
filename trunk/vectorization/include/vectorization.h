@@ -1,10 +1,6 @@
 #pragma once
 
-#include "vectorization/compiler.h"
-
-#include "vectorization/datatypes.h"
-
-#include "vectorization/intrinsics.h"
+#include "vectorization/architecture.h"
 
 #include "vectorization/constants.h"
 

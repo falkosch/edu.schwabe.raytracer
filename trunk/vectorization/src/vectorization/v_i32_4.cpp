@@ -1,6 +1,7 @@
 #include "vectorization/v_i32_4.h"
 
-#include <limits.h>
+#include <limits>
+#include <cassert>
 
 namespace vectorization
 {

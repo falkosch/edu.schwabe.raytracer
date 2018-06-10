@@ -1,50 +1,13 @@
 /*
 * Includes the required packed datatypes and defines some useful constants and
 * base functions.
-*
-* @file vectorization/intrinsics.h
 */
 
 #pragma once
 
-#include "datatypes.h"
+#include "compiler_intrinsics.h"
 
-#include <cassert>
 #include <new>
-
-#if defined(__GNUC__)
-
-#include <x86intrin.h>
-
-#define BEGIN_ALIGNED(alignment)
-#define END_ALIGNED(alignment) __attribute__((aligned(alignment)))
-
-#else
-
-#include <intrin.h>
-
-#define BEGIN_ALIGNED(alignment) __declspec(align(alignment))
-#define END_ALIGNED(alignment)
-
-#endif
-
-#define MM_ALIGNMENT 8
-#define XMM_ALIGNMENT 16
-#define YMM_ALIGNMENT 32
-#define ZMM_ALIGNMENT 64
-
-#if VECTORIZATION_INTRINSICS_LEVEL < VECTORIZATION_AVX
-#define BEST_ALIGNMENT XMM_ALIGNMENT
-#elif VECTORIZATION_INTRINSICS_LEVEL == VECTORIZATION_AVX
-#define BEST_ALIGNMENT YMM_ALIGNMENT
-#elif VECTORIZATION_INTRINSICS_LEVEL > VECTORIZATION_AVX
-#define BEST_ALIGNMENT ZMM_ALIGNMENT
-#else 
-#define BEST_ALIGNMENT ARCH_ALIGNMENT
-#endif
-
-#define ALIGNED_UNPACK(...) __VA_ARGS__
-#define ALIGNED(alignment, decleration) BEGIN_ALIGNED(BEST_ALIGNMENT) ALIGNED_UNPACK decleration END_ALIGNED(BEST_ALIGNMENT)
 
 #define ALIGNED_ALLOCATORS(alignment) \
     static void * operator new(std::size_t size) noexcept { return vectorization::alloc(size, alignment); } \
@@ -76,195 +39,37 @@
 	static void operator delete[](void * ptr, std::size_t, std::align_val_t, const std::nothrow_t & _nothrow) noexcept { vectorization::free(ptr, _nothrow); }
 
 
-#define BLEND_MASK(X, Y, Z, W) ( \
-		((X & 1) << 0) \
-		| ((Y & 1) << 1) \
-		| ((Z & 1) << 2) \
-		| ((W & 1) << 3) \
-		)
-
-#define BLEND_MASK_i4(X, Y, Z, W) ( \
-        ((X & 1) << 0) \
-		| ((X & 1) << 1) \
-		| ((Y & 1) << 2) \
-		| ((Y & 1) << 3) \
-        | ((Z & 1) << 4) \
-		| ((Z & 1) << 5) \
-		| ((W & 1) << 6) \
-		| ((W & 1) << 7) \
-		)
-
 namespace vectorization
 {
 
-#pragma region Packed types
-	//{Packed types
-
-	typedef __m128 PackedFloat4_128;
-	typedef __m128d PackedFloat2_128;
-	typedef __m128i PackedInts_128;
-	typedef __m256 PackedFloat8_256;
-	typedef __m256d PackedFloat4_256;
-	typedef __m256i PackedInts_256;
-
-	template <typename TValueType, ASizeT Size>
-	struct PackedTypes
+	struct Alignments
 	{
-		static const ASizeT SIZE = Size;
-		typedef TValueType ValueType;
+		static const std::size_t ARCH = ARCH_ALIGNMENT;
+		static const std::size_t X86 = X86_ALIGNMENT;
+		static const std::size_t MM = MM_ALIGNMENT;
+		static const std::size_t XMM = XMM_ALIGNMENT;
+		static const std::size_t YMM = YMM_ALIGNMENT;
+		static const std::size_t ZMM = ZMM_ALIGNMENT;
+		static const std::size_t Best = BEST_ALIGNMENT;
 	};
 
-	template<>
-	struct PackedTypes < Float_32, 4 >
-	{
-		typedef PackedFloat4_128 Type;
-	};
-
-	template<>
-	struct PackedTypes < Float_64, 2 >
-	{
-		typedef PackedFloat2_128 Type;
-	};
-
-	template<>
-	struct PackedTypes < Int_8, 16 >
-	{
-		typedef PackedInts_128 Type;
-	};
-
-	template<>
-	struct PackedTypes < UInt_8, 16 >
-	{
-		typedef PackedInts_128 Type;
-	};
-
-	template<>
-	struct PackedTypes < Int_16, 8 >
-	{
-		typedef PackedInts_128 Type;
-	};
-
-	template<>
-	struct PackedTypes < UInt_16, 8 >
-	{
-		typedef PackedInts_128 Type;
-	};
-
-	template<>
-	struct PackedTypes < Int_32, 4 >
-	{
-		typedef PackedInts_128 Type;
-	};
-
-	template<>
-	struct PackedTypes < UInt_32, 4 >
-	{
-		typedef PackedInts_128 Type;
-	};
-
-	template<>
-	struct PackedTypes < Int_64, 2 >
-	{
-		typedef PackedInts_128 Type;
-	};
-
-	template<>
-	struct PackedTypes < UInt_64, 2 >
-	{
-		typedef PackedInts_128 Type;
-	};
-
-	template<>
-	struct PackedTypes < Float_32, 8 >
-	{
-		typedef PackedFloat8_256 Type;
-	};
-
-	template<>
-	struct PackedTypes < Float_64, 4 >
-	{
-		typedef PackedFloat4_256 Type;
-	};
-
-	template<>
-	struct PackedTypes < Int_8, 32 >
-	{
-		typedef PackedInts_256 Type;
-	};
-
-	template<>
-	struct PackedTypes < UInt_8, 32 >
-	{
-		typedef PackedInts_256 Type;
-	};
-
-	template<>
-	struct PackedTypes < Int_16, 16 >
-	{
-		typedef PackedInts_256 Type;
-	};
-
-	template<>
-	struct PackedTypes < UInt_16, 16 >
-	{
-		typedef PackedInts_256 Type;
-	};
-
-	template<>
-	struct PackedTypes < Int_32, 8 >
-	{
-		typedef PackedInts_256 Type;
-	};
-
-	template<>
-	struct PackedTypes < UInt_32, 8 >
-	{
-		typedef PackedInts_256 Type;
-	};
-
-	template<>
-	struct PackedTypes < Int_64, 4 >
-	{
-		typedef PackedInts_256 Type;
-	};
-
-	template<>
-	struct PackedTypes < UInt_64, 4 >
-	{
-		typedef PackedInts_256 Type;
-	};
-
-	//}
-#pragma endregion
-
-#pragma region Alignments
-	//{Alignments
 
 	void free(void * & data) noexcept;
 
 	void free(void * & data, const std::nothrow_t & nothrow) noexcept;
 
-	void * alloc(const ASizeT size) noexcept;
+	void * alloc(const std::size_t size) noexcept;
 
-	void * alloc(const ASizeT size, const std::nothrow_t & nothrow) noexcept;
+	void * alloc(const std::size_t size, const std::nothrow_t & nothrow) noexcept;
 
-	void * alloc(const ASizeT size, const std::align_val_t alignment) noexcept;
+	void * alloc(const std::size_t size, const std::align_val_t alignment) noexcept;
 
-	void * alloc(const ASizeT size, const std::align_val_t alignment, const std::nothrow_t & nothrow) noexcept;
+	void * alloc(const std::size_t size, const std::align_val_t alignment, const std::nothrow_t & nothrow) noexcept;
 
-	void * alloc(const ASizeT size, const ASizeT alignment) noexcept;
+	void * alloc(const std::size_t size, const std::size_t alignment) noexcept;
 
-	void * alloc(const ASizeT size, const ASizeT alignment, const std::nothrow_t & nothrow) noexcept;
+	void * alloc(const std::size_t size, const std::size_t alignment, const std::nothrow_t & nothrow) noexcept;
 
-	struct VectorAlignments
-	{
-		static const ASizeT ARCH = ARCH_ALIGNMENT;
-		static const ASizeT MM = MM_ALIGNMENT;
-		static const ASizeT XMM = XMM_ALIGNMENT;
-		static const ASizeT YMM = YMM_ALIGNMENT;
-		static const ASizeT ZMM = ZMM_ALIGNMENT;
-		static const ASizeT Best = BEST_ALIGNMENT;
-	};
 
 	template <class T>
 	struct AlignedAllocator
@@ -275,12 +80,12 @@ namespace vectorization
 		typedef std::size_t size_type;
 		typedef std::true_type is_always_equal;
 
-		AlignedAllocator() noexcept
+		AlignedAllocator<T>() noexcept
 		{
 		}
 
 		template<class U>
-		AlignedAllocator(const AlignedAllocator<U> &) noexcept
+		AlignedAllocator<T>(const AlignedAllocator<U> &) noexcept
 		{
 		}
 
@@ -333,8 +138,5 @@ namespace vectorization
 			return allocElements(n, __alignof(T));
 		}
 	};
-
-	//}
-#pragma endregion
 
 }
