@@ -193,6 +193,7 @@
     <ClInclude Include="include\primitives\Ray.h" />
     <ClInclude Include="include\primitives\Raycast.h" />
     <ClInclude Include="include\vectorization\selects.h" />
+    <ClInclude Include="include\vectorization\api_type_definitions.h" />
     <ClInclude Include="include\vectorization\v_f32_4x4.h" />
     <ClInclude Include="include\vectorization\v_i32_4.h" />
     <ClInclude Include="include\vectorization\v_f32_4.h" />

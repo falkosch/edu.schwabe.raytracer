@@ -1,12 +1,16 @@
 #include "primitives/AxisAlignedBoundingBox.h"
 
+#include <limits>
+
 using namespace vectorization;
 
 namespace primitives
 {
 
 	AxisAlignedBoundingBox::AxisAlignedBoundingBox() noexcept
-		: minimum(Float_Limits::max()), maximum(Float_Limits::lowest())
+		:
+		minimum(std::numeric_limits<Float4::ValueType>::max()),
+		maximum(std::numeric_limits<Float4::ValueType>::lowest())
 	{ }
 
 	AxisAlignedBoundingBox::AxisAlignedBoundingBox(const Float4 & a, const Float4 & b) noexcept

@@ -1,12 +1,18 @@
 #include "primitives/Raycast.h"
 
+#include <limits>
+
 using namespace vectorization;
 
 namespace primitives
 {
 
 	Raycast::Raycast() noexcept
-		: ray(), cullingMask(), originIds(), maxDistance(Float_Limits::max())
+		:
+		ray(),
+		cullingMask(),
+		originIds(),
+		maxDistance(std::numeric_limits<Float>::max())
 	{}
 
 	Raycast::Raycast(

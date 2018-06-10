@@ -122,7 +122,7 @@ namespace raytracer
 			}
 		};
 
-		VectorType Imin = VectorType(Float_Limits::max());
+		VectorType Imin = VectorType(std::numeric_limits<VectorType::ValueType>::max());
 		VectorType Imax = VectorType(); // zero
 		minMax(Imin, Imax, &Selectors::min, &Selectors::max);
 
@@ -158,8 +158,8 @@ namespace raytracer
 			}
 		};
 
-		VectorType min = VectorType(Float_Limits::max());
-		VectorType max = VectorType(Float_Limits::lowest());
+		VectorType min = VectorType(std::numeric_limits<VectorType::ValueType>::max());
+		VectorType max = VectorType(std::numeric_limits<VectorType::ValueType>::lowest());
 		const int count = static_cast<int>(x(resolution) * y(resolution));
 		minMax(min, max, &Selectors::min, &Selectors::max);
 

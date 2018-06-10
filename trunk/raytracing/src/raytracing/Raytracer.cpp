@@ -55,7 +55,11 @@ namespace raytracer
 
         // build raytrace configuration
         current = parameters; // copies parameters into current
-        current.maxDistance = select(parameters.maxDistance > Zero<Float>(), parameters.maxDistance, Float_Limits::max());
+        current.maxDistance = select(
+			parameters.maxDistance > Zero<Float>(),
+			parameters.maxDistance,
+			std::numeric_limits<Float>::max()
+		);
         current.resolution = max(One<Size2>(), samplingResolution);
         current.state = false;
         current.runId = ++runId;
@@ -353,7 +357,7 @@ namespace raytracer
         else
         {
             // min absorbtion of material
-            absorbtion = Float4(vectorization::exp(Float_Limits::min() / min3(-brdf.surface.absorbtionCoefficient)));
+            absorbtion = Float4(vectorization::exp(std::numeric_limits<Float4::ValueType>::min() / min3(-brdf.surface.absorbtionCoefficient)));
         }
         brdf.absorbtionCoefficient = absorbtion;
 

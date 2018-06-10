@@ -37,7 +37,7 @@ const Float SAMPLING_FACTOR = 1.f;
 // n => (n+1)x(n+1) samples/image-pixel
 const ASizeT SUPER_SAMPLING_FACTOR = 0;
 
-const Float MAX_DISTANCE = Float_Limits::max();
+const Float MAX_DISTANCE = std::numeric_limits<Float>::max();
 
 const Int CULLING_ORIENTATION = -1;
 
