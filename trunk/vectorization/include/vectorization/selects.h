@@ -17,7 +17,7 @@ namespace vectorization
     //{ boolMask
 
     template <typename T>
-    inline const T boolMask(const bool mask) noexcept
+	inline constexpr T boolMask(const bool mask) noexcept
     {
         static_assert(std::is_integral<T>::value, "boolMask<T> must be an integral type");
         return static_cast<T>(-static_cast<typename std::make_signed<T>::type>(mask));
@@ -105,7 +105,7 @@ namespace vectorization
     const PackedFloat2_128 select(const PackedFloat2_128 & mask, const PackedFloat2_128 & onTrue, const PackedFloat2_128 & onFalse) noexcept;
 
     template <typename T>
-    inline const T & select(const bool mask, const T & onTrue, const T & onFalse) noexcept
+	inline constexpr T select(const bool mask, const T & onTrue, const T & onFalse) noexcept
     {
         return *(mask ? &onTrue : &onFalse);
     }
@@ -116,7 +116,7 @@ namespace vectorization
     template <typename T>
     struct BoolSelector < T, false >
     {
-        inline const T & operator()(const T & onTrue, const T & onFalse) noexcept
+		inline constexpr T & operator()(const T & onTrue, const T & onFalse) noexcept
         {
             return onFalse;
         }
@@ -125,7 +125,7 @@ namespace vectorization
     template <typename T>
     struct BoolSelector < T, true >
     {
-        inline const T & operator()(const T & onTrue, const T & onFalse) noexcept
+		inline constexpr T & operator()(const T & onTrue, const T & onFalse) noexcept
         {
             return onTrue;
         }
