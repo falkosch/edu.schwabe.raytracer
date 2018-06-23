@@ -6,7 +6,7 @@ WARNING_OPTS = -pedantic -pedantic-errors -Wall -Wextra -Wno-unknown-pragmas -Wn
 
 WARNING_OPTS_EXT = -Wabi-tag -Wc++0x-compat -Wcast-align -Wcast-qual -Wconditionally-supported -Wconversion -Wctor-dtor-privacy -Wdate-time -Wdelete-non-virtual-dtor -Wdisabled-optimization -Wdouble-promotion -Winit-self -Winline -Wlogical-op -Wmissing-declarations -Wnoexcept -Wnon-virtual-dtor -Wold-style-cast -Woverloaded-virtual -Wpacked -Wredundant-decls -Wreorder -Wshadow -Wsign-promo -Wstack-protector -Wstrict-null-sentinel -Wswitch-default -Wswitch-enum -Wsynth -Wtrampolines -Wunsafe-loop-optimizations -Wunused-macros -Wuseless-cast -Wvector-operation-performance -Wwrite-strings -Wzero-as-null-pointer-constant
 
-COMMON_OPTS = -march=native -mtune=native -fopenmp
+COMMON_OPTS = -march=native -mtune=native -fopenmp -D_WIN32
 RELEASE_OPTS = $(COMMON_OPTS) -Ofast -flto -funroll-loops
 DEBUG_OPTS = $(COMMON_OPTS) -Og -g2
 
@@ -15,9 +15,9 @@ LD_OPTS_RELEASE = $(RELEASE_OPTS)
 CPP_OPTS_DEBUG = $(WARNING_OPTS) $(WARNING_OPTS_EXT) $(DEBUG_OPTS) -D_DEBUG
 LD_OPTS_DEBUG = $(DEBUG_OPTS)
 
-CPP_OPTS = $(CPP_OPTS_$(TARGET)) -std=gnu++11
-#LD_OPTS = $(LD_OPTS_$(TARGET)) -static-libgcc -static -lopengl32 -lgdi32
-LD_OPTS = $(LD_OPTS_$(TARGET)) -lopengl32 -lgdi32
+CPP_OPTS = $(CPP_OPTS_$(TARGET)) -std=gnu++17
+#LD_OPTS = $(LD_OPTS_$(TARGET)) -static-libgcc -static -lgdi32 -lopengl32
+LD_OPTS = $(LD_OPTS_$(TARGET)) -lgdi32 -lopengl32
 
 CPP = @g++
 ASM = @g++
@@ -38,7 +38,7 @@ RAYTRACERUI_OBJS = $(patsubst raytracerui/src/%,$(BUILD_DIR)/raytracerui/%,$(RAY
 
 VECTORIZATION_OPTS = $(CPP_OPTS) -Ivectorization/include
 RAYTRACING_OPTS = $(VECTORIZATION_OPTS) -Iraytracing/include
-RAYTRACERUI_OPTS = $(RAYTRACING_OPTS) -Iraytracerui/include
+RAYTRACERUI_OPTS = $(RAYTRACING_OPTS) -Iraytracerui/include -Ipackages/glew.v140.1.12.0/build/native/include
 
 .PHONY: clean
 

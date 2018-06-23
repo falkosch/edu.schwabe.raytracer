@@ -1,6 +1,6 @@
 #include "vectorization/constants.h"
 
-#include <limits.h>
+#include <limits>
 
 namespace vectorization
 {
@@ -156,12 +156,12 @@ namespace vectorization
 	//{ Zero
 
 	template <typename T>
-	const T Zero<T>() noexcept
+	const T Zero() noexcept
 	{
 		return T();
 	}
 
-	template const bool Zero<bool>() noexcept;
+	template const bool Zero() noexcept;
 	template const long Zero<long>() noexcept;
 	template const unsigned long Zero<unsigned long>() noexcept;
 	template const Int_8 Zero<Int_8>() noexcept;
@@ -240,7 +240,7 @@ namespace vectorization
 	//{ One
 
 	template <typename T>
-	const T One<T>() noexcept
+	const T One() noexcept
 	{
 		return { 1 };
 	}
@@ -414,7 +414,7 @@ namespace vectorization
 	//{ Two
 
 	template <typename T>
-	const T Two<T>() noexcept
+	const T Two() noexcept
 	{
 		return { 2 };
 	}
@@ -435,7 +435,7 @@ namespace vectorization
 	{
 		return _mm_castsi128_ps(
 			_mm_srli_epi32(
-				_mm_slli_epi32(MaskAll<PackedInts_128>(), sizeof(Int_32) * CHAR_BIT - 1),
+				_mm_slli_epi32(MaskAll<PackedInts_128>(), sizeof(Int_32) * std::numeric_limits<unsigned char>::digits - 1),
 				1
 			)
 		);
@@ -446,7 +446,7 @@ namespace vectorization
 	{
 		return _mm_castsi128_pd(
 			_mm_srli_epi64(
-				_mm_slli_epi64(MaskAll<PackedInts_128>(), sizeof(Int_64) * CHAR_BIT - 1),
+				_mm_slli_epi64(MaskAll<PackedInts_128>(), sizeof(Int_64) * std::numeric_limits<unsigned char>::digits - 1),
 				1
 			)
 		);
@@ -476,7 +476,7 @@ namespace vectorization
 		return _mm_castsi128_ps(
 			_mm_slli_epi32(
 				MaskAll<PackedInts_128>(),
-				sizeof(Int_32) * CHAR_BIT - 1
+				sizeof(Int_32) * std::numeric_limits<unsigned char>::digits - 1
 			)
 		);
 	}
@@ -487,7 +487,7 @@ namespace vectorization
 		return _mm_castsi128_pd(
 			_mm_slli_epi64(
 				MaskAll<PackedInts_128>(),
-				sizeof(Int_64) * CHAR_BIT - 1
+				sizeof(Int_64) * std::numeric_limits<unsigned char>::digits - 1
 			)
 		);
 	}
@@ -511,7 +511,7 @@ namespace vectorization
 	//{ NegOne
 
 	template <typename T>
-	const T NegOne<T>() noexcept
+	const T NegOne() noexcept
 	{
 		return { -1 };
 	}
@@ -553,7 +553,7 @@ namespace vectorization
 	//{ NegTwo
 
 	template <typename T>
-	const T NegTwo<T>() noexcept
+	const T NegTwo() noexcept
 	{
 		return { -2 };
 	}
@@ -569,7 +569,7 @@ namespace vectorization
 	{
 		return _mm_castsi128_ps(_mm_slli_epi32(
 			MaskAll<PackedInts_128>(),
-			sizeof(Int_32) * CHAR_BIT - 2));
+			sizeof(Int_32) * std::numeric_limits<unsigned char>::digits - 2));
 	}
 
 	template <>
@@ -577,7 +577,7 @@ namespace vectorization
 	{
 		return _mm_castsi128_pd(_mm_slli_epi64(
 			MaskAll<PackedInts_128>(),
-			sizeof(Int_64) * CHAR_BIT - 2));
+			sizeof(Int_64) * std::numeric_limits<unsigned char>::digits - 2));
 	}
 
 	template <>

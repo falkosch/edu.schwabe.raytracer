@@ -38,10 +38,10 @@ namespace vectorization
 
 
 	/// Reflects the packed-type of the given typename TValueType
-	template <typename TValueType, ASizeT Elements>
+	template <typename TValueType, ASizeT TElements>
 	struct PackedTypes
 	{
-		static const ASizeT Elements = Elements;
+		static const ASizeT Elements = TElements;
 		typedef TValueType ValueType;
 		typedef void Type;
 	};

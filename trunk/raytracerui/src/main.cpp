@@ -10,7 +10,9 @@
 #include "ManualTests.h"
 #include "Benchmarks.h"
 
-#include <tchar.h>
+#include <string>
+
+#include <Windows.h>
 
 
 // MAX_TRACE_DEPTH = 969 already causes stackoverflows
@@ -61,6 +63,7 @@ namespace raytracerui {
 		//TestScene2::setup(*scene, *resources);
 		//DragonScene::setup(*scene, *resources);
 		//ProceduralScene<3, 10>::setup(*scene, *resources);
+		std::cout << "Yes" << std::endl;
 
 		scene->buildSceneGraph();
 
@@ -109,9 +112,10 @@ int __cdecl main()
 {
 	using namespace raytracerui;
 
-	TCHAR currentPath[MAX_PATH];
+	TCHAR currentPath[MAX_PATH + 1] = { 0 };
 	GetCurrentDirectory(MAX_PATH, currentPath);
-	_tprintf(TEXT("Working directory: %s\n"), currentPath);
+
+	std::cout << "Working directory: " << std::string(currentPath) << std::endl;
 
 	ManualTests()();
 	//Benchmarks()();

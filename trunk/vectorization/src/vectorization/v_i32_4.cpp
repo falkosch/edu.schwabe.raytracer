@@ -170,13 +170,13 @@ namespace vectorization
 	template <>
 	const v_i32_4 One<v_i32_4>() noexcept
 	{
-		return _mm_srli_epi32(MaskAll<v_i32_4::PackedType>(), sizeof(v_i32_4::ValueType) * CHAR_BIT - 1);
+		return _mm_srli_epi32(MaskAll<v_i32_4::PackedType>(), sizeof(v_i32_4::ValueType) * std::numeric_limits<unsigned char>::digits - 1);
 	}
 
 	template <>
 	const v_i32_4 Two<v_i32_4>() noexcept
 	{
-		return _mm_slli_epi32(_mm_srli_epi32(MaskAll<v_i32_4::PackedType>(), sizeof(v_i32_4::ValueType) * CHAR_BIT - 1), 1);
+		return _mm_slli_epi32(_mm_srli_epi32(MaskAll<v_i32_4::PackedType>(), sizeof(v_i32_4::ValueType) * std::numeric_limits<unsigned char>::digits - 1), 1);
 	}
 
 	template <>
