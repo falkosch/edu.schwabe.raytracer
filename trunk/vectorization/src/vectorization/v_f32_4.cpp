@@ -237,21 +237,21 @@ namespace vectorization
 	}
 
 	template <>
-	const v_f32_4 NegZero<v_f32_4>() noexcept
+	const v_f32_4 NegativeZero<v_f32_4>() noexcept
 	{
-		return NegZero<v_f32_4::PackedType>();
+		return NegativeZero<v_f32_4::PackedType>();
 	}
 
 	template <>
-	const v_f32_4 NegOne<v_f32_4>() noexcept
+	const v_f32_4 NegativeOne<v_f32_4>() noexcept
 	{
-		return NegOne<v_f32_4::PackedType>();
+		return NegativeOne<v_f32_4::PackedType>();
 	}
 
 	template <>
-	const v_f32_4 NegTwo<v_f32_4>() noexcept
+	const v_f32_4 NegativeTwo<v_f32_4>() noexcept
 	{
-		return NegTwo<v_f32_4::PackedType>();
+		return NegativeTwo<v_f32_4::PackedType>();
 	}
 
 	template <>
@@ -261,9 +261,9 @@ namespace vectorization
 	}
 
 	template <>
-	const v_f32_4 NegInfinity<v_f32_4>() noexcept
+	const v_f32_4 NegativeInfinity<v_f32_4>() noexcept
 	{
-		return NegInfinity<v_f32_4::PackedType>();
+		return NegativeInfinity<v_f32_4::PackedType>();
 	}
 
 	const v_f32_4 Epsilon_v_f32_4 = v_f32_4(Epsilon<v_f32_4::ValueType>());
@@ -467,7 +467,7 @@ namespace vectorization
 	// http://fastcpp.blogspot.de/2011/03/changing-sign-of-float-values-using-sse.html
 	const v_f32_4 operator-(const v_f32_4 & v) noexcept
 	{
-		return _mm_xor_ps(v.components, NegZero<v_f32_4::PackedType>());
+		return _mm_xor_ps(v.components, NegativeZero<v_f32_4::PackedType>());
 	}
 
 	const v_f32_4::VectorBoolType operator!(const v_f32_4 & v) noexcept

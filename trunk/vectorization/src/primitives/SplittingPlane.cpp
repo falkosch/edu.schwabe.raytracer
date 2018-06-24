@@ -5,7 +5,7 @@ using namespace vectorization;
 namespace primitives
 {
 
-	const Float4 SIGN_MASK = blend<false, true, false, true>(NegZero<Float4>(), Zero<Float4>());
+	const Float4 SIGN_MASK = blend<false, true, false, true>(NegativeZero<Float4>(), Zero<Float4>());
 
 	SplittingPlane::SplittingPlane() noexcept
 		: normalDistance(OneZ<Float4>())

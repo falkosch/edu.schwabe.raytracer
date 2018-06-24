@@ -180,13 +180,13 @@ namespace vectorization
 	}
 
 	template <>
-	const v_i32_4 NegOne<v_i32_4>() noexcept
+	const v_i32_4 NegativeOne<v_i32_4>() noexcept
 	{
 		return MaskAll<v_i32_4::PackedType>();
 	}
 
 	template <>
-	const v_i32_4 NegTwo<v_i32_4>() noexcept
+	const v_i32_4 NegativeTwo<v_i32_4>() noexcept
 	{
 		return _mm_slli_epi32(MaskAll<v_i32_4::PackedType>(), 1);
 	}

@@ -72,7 +72,7 @@ namespace primitives
 	const Int cullingOrientation(const Raycast & r) noexcept
 	{
 		if (notCulled(r)) return Zero<Int>();
-		return backfaceCulled(r) ? NegOne<Int>() : One<Int>();
+		return backfaceCulled(r) ? NegativeOne<Int>() : One<Int>();
 	}
 
 	const Float4::VectorBoolType cullingOrientationToMask(const Int cullingOrientation) noexcept

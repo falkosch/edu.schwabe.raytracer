@@ -5,7 +5,7 @@
 namespace vectorization
 {
 
-	const m_f32_4x4::RowVectorType SIGN_MASKR = blend<false, true, false, true>(Zero<m_f32_4x4::RowVectorType>(), NegZero<m_f32_4x4::RowVectorType>());
+	const m_f32_4x4::RowVectorType SIGN_MASKR = blend<false, true, false, true>(Zero<m_f32_4x4::RowVectorType>(), NegativeZero<m_f32_4x4::RowVectorType>());
 
 #pragma region m_f32_4x4::
 	//{ m_f32_4x4::
@@ -546,8 +546,8 @@ namespace vectorization
 		return m_f32_4x4(
 			RV(rRL + rRL, Zero<T>(), Zero<T>(), Zero<T>()),
 			RV(Zero<T>(), rTB + rTB, Zero<T>(), Zero<T>()),
-			RV(Zero<T>(), Zero<T>(), NegOne<T>(), Zero<T>()),
-			-RV((right + left) * rRL, (top + bottom) * rTB, NegZero<T>(), NegOne<T>())
+			RV(Zero<T>(), Zero<T>(), NegativeOne<T>(), Zero<T>()),
+			-RV((right + left) * rRL, (top + bottom) * rTB, NegativeZero<T>(), NegativeOne<T>())
 		);
 	}
 

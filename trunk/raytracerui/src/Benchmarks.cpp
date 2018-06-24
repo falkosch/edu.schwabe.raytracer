@@ -134,7 +134,7 @@ namespace raytracerui
 
 		const Raycast r = Raycast(
 			Ray(Float4(0.f, 0.f, -2.f, 1.f), Float4(0.f, 0.f, 1.f, 1.f)),
-			cullingOrientationToMask(NegOne<Int>()),
+			cullingOrientationToMask(NegativeOne<Int>()),
 			Zero<Size2>(),
 			100.f
 		);

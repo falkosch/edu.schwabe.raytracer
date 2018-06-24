@@ -112,10 +112,10 @@ namespace vectorization
 	const v_i32_4 Two<v_i32_4>() noexcept;
 
 	template <>
-	const v_i32_4 NegOne<v_i32_4>() noexcept;
+	const v_i32_4 NegativeOne<v_i32_4>() noexcept;
 
 	template <>
-	const v_i32_4 NegTwo<v_i32_4>() noexcept;
+	const v_i32_4 NegativeTwo<v_i32_4>() noexcept;
 
 	//}
 #pragma endregion

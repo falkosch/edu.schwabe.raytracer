@@ -28,7 +28,7 @@ namespace primitives
 		const Float4 ll = dotv(vl, vl);
 		const Float4 sqrM = ll - s * s;
 		if ((isNegative(s) & x(ll > sqrRadius)) | x(sqrM > sqrRadius)) {
-			return NegInfinity<Float4>();
+			return NegativeInfinity<Float4>();
 		}
 
 		const Float4 q = sqrt(sqrRadius - sqrM);

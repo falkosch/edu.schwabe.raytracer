@@ -283,7 +283,7 @@ namespace vectorization
 			Zero<PackedFloat4_128>(),
 			_mm_cmpeq_ps(
 				Zero<PackedFloat4_128>(),
-				_mm_andnot_ps(NegZero<PackedFloat4_128>(), v)
+				_mm_andnot_ps(NegativeZero<PackedFloat4_128>(), v)
 			)
 		);
 	}
@@ -295,7 +295,7 @@ namespace vectorization
 			Zero<PackedFloat2_128>(),
 			_mm_cmpeq_pd(
 				Zero<PackedFloat2_128>(),
-				_mm_andnot_pd(NegZero<PackedFloat2_128>(), v)
+				_mm_andnot_pd(NegativeZero<PackedFloat2_128>(), v)
 			)
 		);
 	}
@@ -308,7 +308,7 @@ namespace vectorization
 				copysign(vv),
 				Zero<PackedFloat4_128>(),
 				_mm_cmpeq_ss(Zero<PackedFloat4_128>(),
-					_mm_andnot_ps(NegZero<PackedFloat4_128>(), vv)
+					_mm_andnot_ps(NegativeZero<PackedFloat4_128>(), vv)
 				)
 			)
 		);
@@ -323,7 +323,7 @@ namespace vectorization
 				Zero<PackedFloat2_128>(),
 				_mm_cmpeq_sd(
 					Zero<PackedFloat2_128>(),
-					_mm_andnot_pd(NegZero<PackedFloat2_128>(), vv)
+					_mm_andnot_pd(NegativeZero<PackedFloat2_128>(), vv)
 				)
 			)
 		);
@@ -337,12 +337,12 @@ namespace vectorization
 
 	const PackedFloat4_128 copysign(const PackedFloat4_128 & v) noexcept
 	{
-		return _mm_or_ps(One<PackedFloat4_128>(), _mm_and_ps(NegZero<PackedFloat4_128>(), v));
+		return _mm_or_ps(One<PackedFloat4_128>(), _mm_and_ps(NegativeZero<PackedFloat4_128>(), v));
 	}
 
 	const PackedFloat2_128 copysign(const PackedFloat2_128 & v) noexcept
 	{
-		return _mm_or_pd(One<PackedFloat2_128>(), _mm_and_pd(NegZero<PackedFloat2_128>(), v));
+		return _mm_or_pd(One<PackedFloat2_128>(), _mm_and_pd(NegativeZero<PackedFloat2_128>(), v));
 	}
 
 	const Float_32 copysign(const Float_32 v) noexcept
@@ -398,12 +398,12 @@ namespace vectorization
 
 	const PackedFloat4_128 abs(const PackedFloat4_128 & v) noexcept
 	{
-		return _mm_andnot_ps(NegZero<PackedFloat4_128>(), v);
+		return _mm_andnot_ps(NegativeZero<PackedFloat4_128>(), v);
 	}
 
 	const PackedFloat2_128 abs(const PackedFloat2_128 & v) noexcept
 	{
-		return _mm_andnot_pd(NegZero<PackedFloat2_128>(), v);
+		return _mm_andnot_pd(NegativeZero<PackedFloat2_128>(), v);
 	}
 
 	//}

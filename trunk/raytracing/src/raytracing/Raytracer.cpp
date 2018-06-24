@@ -182,7 +182,7 @@ namespace raytracer
                     // Fill in depth information and store it in depthMap
                     store(packets.supersampledPixelDepth(
                         RaytracerPackets::samplePixelDepth(
-                            x_yzw(Infinity<Float4>(), NegInfinity<Float4>()),
+                            x_yzw(Infinity<Float4>(), NegativeInfinity<Float4>()),
                             x(hit.depth))),
                         pixelDepth);
                     // Store timings

@@ -13,7 +13,7 @@ namespace raytracer
 
     const AxisAlignedBoundingBox Form::getBounding() const
     {
-        return AxisAlignedBoundingBox(oneW(NegOne<Float4>()), One<Float4>());
+        return AxisAlignedBoundingBox(oneW(NegativeOne<Float4>()), One<Float4>());
     }
 
     void Form::includeInBounding(AxisAlignedBoundingBox & aabb) const
