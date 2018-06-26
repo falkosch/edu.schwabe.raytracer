@@ -8,6 +8,8 @@
 #include "raytracing/common/Tools.h"
 #include "raytracing/common/StatisticsCookie.h"
 
+#include <iostream>
+
 #include <profileapi.h>
 #include <omp.h>
 

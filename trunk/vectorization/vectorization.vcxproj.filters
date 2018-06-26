@@ -216,6 +216,36 @@
     <ClInclude Include="include\vectorization\constants\values\DegreeToRadian.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
+    <ClInclude Include="include\vectorization\utvector\swizzles.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vectorization\utvector\api.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vectorization\utvector\accessors.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vectorization\utvector\operators.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vectorization\utvector\functions.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vectorization\utvector\constants.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vectorization\utvector\conversions.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vectorization\utvector\type.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vectorization\utvector\swizzled_blends.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vectorization\utvector\blends.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\vectorization\functions.cpp">
@@ -240,9 +270,6 @@
       <Filter>Quelldateien</Filter>
     </ClCompile>
     <ClCompile Include="src\vectorization\selects.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="src\vectorization\conversions.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
     <ClCompile Include="src\primitives\Ray.cpp">
@@ -372,6 +399,21 @@
       <Filter>Quelldateien</Filter>
     </ClCompile>
     <ClCompile Include="src\vectorization\constants\values\Identity.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vectorization\utvector\utvector_constants.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vectorization\utvector\utvector_conversions.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vectorization\conversions\native.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vectorization\conversions\complex.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vectorization\architecture\compiler_intrinsics.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
   </ItemGroup>

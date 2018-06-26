@@ -4,6 +4,7 @@
 #include <sstream>
 #include <fstream>
 #include <ios>
+#include <iostream>
 
 namespace raytracer
 {

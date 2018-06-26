@@ -1,6 +1,7 @@
 #include "Benchmarks.h"
 #include "stdafx.h"
 
+#include <iostream>
 #include <thread>
 
 namespace raytracerui
@@ -105,7 +106,7 @@ namespace raytracerui
 		return out;
 	}
 
-	const ASizeT benchmarkCPUClockFrequency()
+	const Int_64 benchmarkCPUClockFrequency()
 	{
 		LARGE_INTEGER freq, time, stopTime;
 		QueryPerformanceFrequency(&freq);

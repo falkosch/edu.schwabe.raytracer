@@ -1,6 +1,8 @@
 #include "WindowsRaytracerUI.h"
 #include "stdafx.h"
 
+#include <iostream>
+
 #include <windowsx.h>
 
 namespace raytracerui

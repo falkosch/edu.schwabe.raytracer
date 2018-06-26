@@ -1,6 +1,8 @@
 #include "raytracing/scene/Scene.h"
 #include "../../stdafx.h"
 
+#include <iostream>
+
 // disables the generation of a BVH for the scene objects (the scene tree)
 //#define DISABLE_BVH
 

@@ -17,7 +17,7 @@ namespace vectorization
 			e = f;
 			f *= Half<T>();
 		}
-		std::cout << "Machine epsilon for " << typeid(T).name() << " is " << e;
+		std::cout << "Machine epsilon for " << typeid(T).name() << " is " << e << std::endl;
 		return e;
 	}
 

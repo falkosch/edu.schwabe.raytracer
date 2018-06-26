@@ -1,6 +1,8 @@
 #include "RaytracerUI.h"
 #include "stdafx.h"
 
+#include <iostream>
+
 namespace raytracerui
 {
 

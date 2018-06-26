@@ -10,6 +10,7 @@
 #include "ManualTests.h"
 #include "Benchmarks.h"
 
+#include <iostream>
 #include <string>
 
 #include <Windows.h>
@@ -116,7 +117,11 @@ int __cdecl main()
 	GetCurrentDirectory(MAX_PATH, currentPath);
 
 	std::cout << "Working directory: " << std::string(currentPath) << std::endl;
-
+	
+	std::cout << sizeof(int) << std::endl;
+	std::cout << sizeof(long) << std::endl;
+	std::cout << sizeof(long long) << std::endl;
+		
 	ManualTests()();
 	//Benchmarks()();
 
