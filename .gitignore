@@ -1,10 +1,8 @@
-trunk/build-x86/
-trunk/**/build-x86/
-trunk/build-x64/
-trunk/**/build-x64/
+trunk/build-*/
+trunk/*/build-*/
 
 trunk/.vs/**
-trunk/**/*.vcxproj.user
+trunk/*/*.vcxproj.user
 
 trunk/*.VC.VC.opendb
 trunk/*.VC.db
