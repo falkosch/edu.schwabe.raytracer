@@ -99,6 +99,7 @@
       <EnablePREfast>false</EnablePREfast>
       <AdditionalIncludeDirectories>$(ProjectDir)include;$(SolutionDir)packages\Microsoft.Gsl.0.1.2.1\build\native\include</AdditionalIncludeDirectories>
       <WarningLevel>Level4</WarningLevel>
+      <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -116,6 +117,7 @@
       <EnablePREfast>false</EnablePREfast>
       <AdditionalIncludeDirectories>$(ProjectDir)include;$(SolutionDir)packages\Microsoft.Gsl.0.1.2.1\build\native\include</AdditionalIncludeDirectories>
       <WarningLevel>Level4</WarningLevel>
+      <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -139,6 +141,7 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalIncludeDirectories>$(ProjectDir)include;$(SolutionDir)packages\Microsoft.Gsl.0.1.2.1\build\native\include</AdditionalIncludeDirectories>
       <WarningLevel>Level4</WarningLevel>
+      <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -166,6 +169,7 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalIncludeDirectories>$(ProjectDir)include;$(SolutionDir)packages\Microsoft.Gsl.0.1.2.1\build\native\include</AdditionalIncludeDirectories>
       <WarningLevel>Level4</WarningLevel>
+      <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
