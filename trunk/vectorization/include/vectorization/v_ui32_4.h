@@ -53,14 +53,6 @@ namespace vectorization
 
 		const ValueType & operator[](const ASizeT index) const noexcept;
 
-		void setX(const ValueType v) noexcept;
-
-		void setY(const ValueType v) noexcept;
-
-		void setZ(const ValueType v) noexcept;
-
-		void setW(const ValueType v) noexcept;
-
 	}; // v_ui32_4
 
 #pragma region Constant generators

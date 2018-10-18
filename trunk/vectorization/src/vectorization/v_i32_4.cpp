@@ -63,26 +63,6 @@ namespace vectorization
 		return reinterpret_cast<const v_i32_4::ValueType * const>(this)[index];
 	}
 
-	void v_i32_4::setX(const v_i32_4::ValueType v) noexcept
-	{
-		components = _mm_insert_epi32(components, v, VectorIndices::X);
-	}
-
-	void v_i32_4::setY(const v_i32_4::ValueType v) noexcept
-	{
-		components = _mm_insert_epi32(components, v, VectorIndices::Y);
-	}
-
-	void v_i32_4::setZ(const v_i32_4::ValueType v) noexcept
-	{
-		components = _mm_insert_epi32(components, v, VectorIndices::Z);
-	}
-
-	void v_i32_4::setW(const v_i32_4::ValueType v) noexcept
-	{
-		components = _mm_insert_epi32(components, v, VectorIndices::W);
-	}
-
 	//}
 #pragma endregion
 

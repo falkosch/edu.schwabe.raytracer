@@ -11,7 +11,7 @@
 namespace vectorization
 {
 
-	/// Standard implementation of an universal template vector type
+	/// Standard implementation of a universal template vector type
 	template <ASizeT Size, typename T>
 	struct UTVector
 	{
@@ -135,34 +135,6 @@ namespace vectorization
 		{
 			assert(VectorIndices::X <= index && index < Size);
 			return components[index];
-		}
-
-		void setX(const T & v) noexcept
-		{
-			if constexpr (VectorIndices::X < Size) {
-				components[VectorIndices::X] = v;
-			}
-		}
-
-		void setY(const T & v) noexcept
-		{
-			if constexpr (VectorIndices::Y < Size) {
-				components[VectorIndices::Y] = v;
-			}
-		}
-
-		void setZ(const T & v) noexcept
-		{
-			if constexpr (VectorIndices::Z < Size) {
-				components[VectorIndices::Z] = v;
-			}
-		}
-
-		void setW(const T & v) noexcept
-		{
-			if constexpr (VectorIndices::W < Size) {
-				components[VectorIndices::W] = v;
-			}
 		}
 
 		// float reciprocal multiply

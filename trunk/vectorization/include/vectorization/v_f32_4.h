@@ -59,14 +59,6 @@ namespace vectorization
 
 		const ValueType & operator[](const ASizeT index) const noexcept;
 
-		void setX(const ValueType s) noexcept;
-
-		void setY(const ValueType s) noexcept;
-
-		void setZ(const ValueType s) noexcept;
-
-		void setW(const ValueType s) noexcept;
-
 	}; // v_f32_4
 
 #pragma region Load/Store

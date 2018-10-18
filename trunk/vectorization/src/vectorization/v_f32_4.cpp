@@ -74,26 +74,6 @@ namespace vectorization
 		return reinterpret_cast<const v_f32_4::ValueType * const>(this)[index];
 	}
 
-	void v_f32_4::setX(const v_f32_4::ValueType s) noexcept
-	{
-		components = replaceComponent<VectorIndices::X>(*this, s).components;
-	}
-
-	void v_f32_4::setY(const v_f32_4::ValueType s) noexcept
-	{
-		components = replaceComponent<VectorIndices::Y>(*this, s).components;
-	}
-
-	void v_f32_4::setZ(const v_f32_4::ValueType s) noexcept
-	{
-		components = replaceComponent<VectorIndices::Z>(*this, s).components;
-	}
-
-	void v_f32_4::setW(const v_f32_4::ValueType s) noexcept
-	{
-		components = replaceComponent<VectorIndices::W>(*this, s).components;
-	}
-
 	//}
 #pragma endregion
 

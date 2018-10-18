@@ -73,16 +73,6 @@ namespace vectorization
 		return reinterpret_cast<const v_ui64_2::ValueType * const>(this)[index];
 	}
 
-	void v_ui64_2::setX(const v_ui64_2::ValueType v) noexcept
-	{
-		setComponent<VectorIndices::X>(*this, v);
-	}
-
-	void v_ui64_2::setY(const v_ui64_2::ValueType v) noexcept
-	{
-		setComponent<VectorIndices::Y>(*this, v);
-	}
-
 	//}
 #pragma endregion
 

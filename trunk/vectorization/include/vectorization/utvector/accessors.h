@@ -9,7 +9,7 @@ namespace vectorization
 	template <ASizeT Index, ASizeT Size, typename T>
 	inline const T component(const UTVector<Size, T> & v) noexcept
 	{
-		if constexpr (Index < Size) {
+		if constexpr (Index >= 0 && Index < Size) {
 			return v.components[Index];
 		}
 		else {
@@ -44,7 +44,7 @@ namespace vectorization
 	template <ASizeT Index, ASizeT Size, typename T>
 	inline void setComponent(UTVector<Size, T> & v, const T & s) noexcept
 	{
-		if constexpr (Index < Size) {
+		if constexpr (Index >= 0 && Index < Size) {
 			v.components[Index] = s;
 		}
 	}
@@ -53,7 +53,7 @@ namespace vectorization
 	inline const UTVector<Size, T> replaceComponent(const UTVector<Size, T> & v, const T & s) noexcept
 	{
 		UTVector<Size, T> t = v;
-		if constexpr (Index < Size) {
+		if constexpr (Index >= 0 && Index < Size) {
 			t.components[Index] = s;
 		}
 		return t;
