@@ -1,6 +1,8 @@
 #include "raytracing/geometry/partitioning/treebalancer/MedianKDTreeBalancer.h"
 #include "../../../../stdafx.h"
 
+#include <cassert>
+
 namespace raytracer
 {
 

@@ -2,6 +2,8 @@
 
 #include "../KDTreeTraverser.h"
 
+#include <cassert>
+
 namespace raytracer
 {
 	using namespace vectorization;

@@ -12,6 +12,7 @@
 #include "raytracing/common/HDRImage.h"
 
 #include <algorithm>
+#include <cassert>
 
 namespace raytracer
 {

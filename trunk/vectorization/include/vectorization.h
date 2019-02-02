@@ -1,14 +1,12 @@
 #pragma once
 
-#include "vectorization/architecture.h"
+ #include "vectorization/architecture.h"
 
 #include "vectorization/constants.h"
 
 #include "vectorization/selects.h"
 
 #include "vectorization/functions.h"
-
-#include "vectorization/utvector.h"
 
 #include "vectorization/v_i32_4.h"
 #include "vectorization/v_ui32_4.h"

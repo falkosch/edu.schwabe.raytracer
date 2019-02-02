@@ -20,11 +20,7 @@ namespace raytracer
 
         const Float noise(const Float4 & v) const;
 
-        const Float noise2(const Float2 & v) const;
-
         const Float noise2(const Float4 & v) const;
-
-        const Float noise3(const Float3 & v) const;
 
         const Float noise3(const Float4 & v) const;
 

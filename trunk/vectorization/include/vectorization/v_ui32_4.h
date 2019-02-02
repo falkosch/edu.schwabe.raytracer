@@ -1,6 +1,7 @@
 #pragma once
 
-#include "utvector.h"
+#include "constants.h"
+#include "functions.h"
 
 namespace vectorization
 {

@@ -1,5 +1,8 @@
 #include "vectorization/functions.h"
 
+#include "vectorization/selects.h"
+//#include "vectorization/constants.h"
+
 #include <cmath>
 
 namespace vectorization

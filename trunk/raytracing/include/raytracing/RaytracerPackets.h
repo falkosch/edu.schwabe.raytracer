@@ -62,7 +62,7 @@ namespace raytracer
 
         static const Size2::ValueType imageIndexOfPixel(const Size2 & coordsOfPixel, const Size2 & resolution);
 
-        static const Float4 samplePixelDepth(const Float4 & sampledPixelDepth, const Float & depth);
+        static const Float4 samplePixelDepth(const Float4 & sampledPixelDepth, const Float4 & depth);
     };
 
 }

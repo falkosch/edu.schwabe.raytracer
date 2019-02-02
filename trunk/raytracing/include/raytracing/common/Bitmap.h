@@ -13,7 +13,11 @@ namespace raytracer
 	class Bitmap
 	{
 	public:
-		typedef UInt3_8 VectorType;
+		typedef struct {
+			static const ASizeT SIZE = VectorSizes::Z;
+			typedef UInt_8 ValueType;
+			typedef UInt_8 BoolType;
+		} VectorType;
 
 	private:
 
@@ -42,15 +46,15 @@ namespace raytracer
 			typedef typename ImageVectorType::ValueType ImageValueType;
 
 			init();
-			const Int4 BMIN = Int4(BitmapValueLimits::lowest());
-			const Int4 BMAX = Int4(BitmapValueLimits::max());
-			const ImageVectorType VMIN = ImageVectorType(convert<ImageValueType>(BitmapValueLimits::lowest()));
-			const ImageVectorType VMAX = ImageVectorType(convert<ImageValueType>(BitmapValueLimits::max()));
-			const int heighti = static_cast<int>(y(resolution));
+			const Int4 BMIN = Int4(convert<Int4::ValueType>(BitmapValueLimits::lowest()));
+			const Int4 BMAX = Int4(convert<Int4::ValueType>(BitmapValueLimits::max()));
+			const ImageVectorType VMIN = convert<ImageVectorType>(BMIN);
+			const ImageVectorType VMAX = convert<ImageVectorType>(BMAX);
+			const int heighti = convert<int>(y(resolution));
 
 #pragma omp parallel for
 			for (int yi = Zero<int>(); yi < heighti; ++yi) {
-				const ASizeT sy = static_cast<ASizeT>(yi);
+				const ASizeT sy = convert<ASizeT>(yi);
 				const ASizeT rx = x(resolution);
 				const ASizeT scanlineIn = sy * rx;
 				const ASizeT scanlineOut = sy * stride;
@@ -63,9 +67,9 @@ namespace raytracer
 					);
 					BitmapValueType * dataOut = &data[scanlineOut + sx * VectorType::SIZE];
 					// need to swap r,g,b to b,g,r
-					*(dataOut++) = static_cast<BitmapValueType>(z(scaled)); // blue
-					*(dataOut++) = static_cast<BitmapValueType>(y(scaled)); // green
-					*dataOut = static_cast<BitmapValueType>(x(scaled)); // red
+					*(dataOut++) = convert<BitmapValueType>(z(scaled)); // blue
+					*(dataOut++) = convert<BitmapValueType>(y(scaled)); // green
+					*dataOut = convert<BitmapValueType>(x(scaled)); // red
 				}
 			}
 		}

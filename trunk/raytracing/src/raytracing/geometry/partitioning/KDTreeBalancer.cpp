@@ -1,6 +1,7 @@
 #include "raytracing/geometry/partitioning/KDTreeBalancer.h"
 #include "../../../stdafx.h"
 
+#include <cassert>
 #include <numeric>
 #include <thread>
 

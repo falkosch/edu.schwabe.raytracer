@@ -129,11 +129,11 @@ namespace raytracer
 		typedef VectorType::ValueType BitmapValueType;
 		typedef std::numeric_limits<BitmapValueType> BitmapValueLimits;
 
-		const BitmapValueType MIN = static_cast<Int>(BitmapValueLimits::lowest());
-		const BitmapValueType MAX = static_cast<Int>(BitmapValueLimits::max());
-		const Int4 VSCALE = Int4((MAX - MIN) / static_cast<Int>(rawMaxValue));
-		const Int4 VOFFSET = Int4(-MIN);
-		const int heighti = static_cast<int>(y(resolution));
+		const BitmapValueType MIN = BitmapValueLimits::lowest();
+		const BitmapValueType MAX = BitmapValueLimits::max();
+		const Int4 VSCALE = Int4((MAX - MIN) / convert<Int4::ValueType>(rawMaxValue));
+		const Int4 VOFFSET = Int4(-convert<Int4::ValueType>(MIN));
+		const int heighti = convert<int>(y(resolution));
 
 #pragma omp parallel for
 		for (int i = Zero<int>(); i < heighti; ++i) {

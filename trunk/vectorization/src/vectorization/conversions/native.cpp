@@ -6,6 +6,36 @@ namespace vectorization
 {
 
 	template <>
+	const Int_8 convert<Int_8>(const Int_32 v) noexcept
+	{
+		return static_cast<Int_8>(v);
+	}
+
+	template <>
+	const UInt_8 convert<UInt_8>(const Int_32 v) noexcept
+	{
+		return static_cast<UInt_8>(v);
+	}
+
+	template <>
+	const Int_16 convert<Int_16>(const Int_32 v) noexcept
+	{
+		return static_cast<Int_16>(v);
+	}
+
+	template <>
+	const UInt_16 convert<UInt_16>(const Int_32 v) noexcept
+	{
+		return static_cast<UInt_16>(v);
+	}
+
+	template <>
+	const Int_32 convert<Int_32>(const Int_32 v) noexcept
+	{
+		return v;
+	}
+
+	template <>
 	const UInt_32 convert<UInt_32>(const Int_32 v) noexcept
 	{
 		return static_cast<UInt_32>(v);

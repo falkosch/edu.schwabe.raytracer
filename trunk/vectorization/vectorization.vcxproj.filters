@@ -21,12 +21,6 @@
     <ClInclude Include="include\vectorization\functions.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="include\vectorization\utvector.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="include\vectorization\v_f32_4.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
     <ClInclude Include="include\vectorization\v_f32_4x4.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
@@ -216,34 +210,145 @@
     <ClInclude Include="include\vectorization\constants\values\DegreeToRadian.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="include\vectorization\utvector\swizzles.h">
+    <ClInclude Include="include\vectorization\v_f32_4\accessors.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="include\vectorization\utvector\api.h">
+    <ClInclude Include="include\vectorization\v_f32_4\api.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="include\vectorization\utvector\accessors.h">
+    <ClInclude Include="include\vectorization\v_f32_4\blends.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="include\vectorization\utvector\operators.h">
+    <ClInclude Include="include\vectorization\v_f32_4\constants.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="include\vectorization\utvector\functions.h">
+    <ClInclude Include="include\vectorization\v_f32_4\conversions.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="include\vectorization\utvector\constants.h">
+    <ClInclude Include="include\vectorization\v_f32_4\functions.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="include\vectorization\utvector\conversions.h">
+    <ClInclude Include="include\vectorization\v_f32_4\operators.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="include\vectorization\utvector\type.h">
+    <ClInclude Include="include\vectorization\v_f32_4\swizzled_blends.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="include\vectorization\utvector\swizzled_blends.h">
+    <ClInclude Include="include\vectorization\v_f32_4\swizzles.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="include\vectorization\utvector\blends.h">
+    <ClInclude Include="include\vectorization\v_f32_4\type.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vectorization\v_f32_4\selects.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vectorization\v_f32_4.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vectorization\selects\blends.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vectorization\selects\selects.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vectorization\functions\min.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vectorization\functions\max.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vectorization\functions\clamp.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vectorization\functions\sign.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vectorization\functions\copysign.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vectorization\functions\abs.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vectorization\functions\isNaN.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vectorization\functions\mix.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vectorization\functions\sqr.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vectorization\functions\reciprocal.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vectorization\functions\sqrt.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vectorization\functions\rsqrt.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vectorization\functions\ceil.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vectorization\functions\floor.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vectorization\functions\round.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vectorization\functions\fract.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vectorization\functions\divide.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vectorization\functions\modulo.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vectorization\functions\roundDown.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vectorization\functions\bitpad.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vectorization\functions\modpad.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vectorization\functions\log.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vectorization\functions\logN.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vectorization\functions\pow.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vectorization\functions\exp.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vectorization\functions\cos.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vectorization\functions\sin.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vectorization\functions\atan2.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vectorization\functions\acos.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vectorization\functions\tan.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vectorization\functions\staticFor.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vectorization\functions\average.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vectorization\functions\normalize.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>
@@ -252,9 +357,6 @@
       <Filter>Quelldateien</Filter>
     </ClCompile>
     <ClCompile Include="src\vectorization\m_f32_4x4.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="src\vectorization\v_f32_4.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
     <ClCompile Include="src\vectorization\v_f32_4x4.cpp">
@@ -267,9 +369,6 @@
       <Filter>Quelldateien</Filter>
     </ClCompile>
     <ClCompile Include="src\vectorization\v_ui32_4.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="src\vectorization\selects.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
     <ClCompile Include="src\primitives\Ray.cpp">
@@ -401,12 +500,6 @@
     <ClCompile Include="src\vectorization\constants\values\Identity.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="src\vectorization\utvector\utvector_constants.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="src\vectorization\utvector\utvector_conversions.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
     <ClCompile Include="src\vectorization\conversions\native.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
@@ -414,6 +507,45 @@
       <Filter>Quelldateien</Filter>
     </ClCompile>
     <ClCompile Include="src\vectorization\architecture\compiler_intrinsics.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vectorization\v_f32_4\swizzles.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vectorization\v_f32_4\type.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vectorization\v_f32_4\swizzle_blends.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vectorization\v_f32_4\operators.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vectorization\v_f32_4\functions.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vectorization\v_f32_4\conversions.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vectorization\v_f32_4\constants.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vectorization\v_f32_4\blends.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vectorization\v_f32_4\accessors.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vectorization\v_f32_4\api.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vectorization\v_f32_4\selects.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vectorization\selects\blends.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vectorization\selects\selects.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
   </ItemGroup>

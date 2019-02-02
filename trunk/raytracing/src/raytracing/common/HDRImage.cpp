@@ -1,6 +1,8 @@
 #include "raytracing/common/HDRImage.h"
 #include "../../stdafx.h"
 
+#include <type_traits>
+
 namespace raytracer
 {
 
@@ -24,10 +26,10 @@ namespace raytracer
 		typedef VectorType::ValueType ImageValueType;
 
 		init();
-		const BitmapValueType MIN = static_cast<Int>(BitmapValueLimits::lowest());
-		const BitmapValueType MAX = static_cast<Int>(BitmapValueLimits::max());
+		const BitmapValueType MIN = BitmapValueLimits::lowest();
+		const BitmapValueType MAX = BitmapValueLimits::max();
 		const ImageValueType W = convert<ImageValueType>(MAX);
-		const ImageValueType OFFSET = convert<ImageValueType>(-MIN);
+		const ImageValueType OFFSET = -convert<ImageValueType>(MIN);
 		const ImageValueType RSCALE = reciprocal(W + OFFSET);
 		const ASizeT width = x(resolution), stride = bitmap.getStride();
 		const int heighti = static_cast<int>(y(resolution));

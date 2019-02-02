@@ -89,16 +89,6 @@ namespace raytracer
         return mix(x(uv), y(uv), x(splineCurve(rx)));
     }
 
-    const Float PerlinNoiseGenerator::noise(const Float4 & v) const
-    {
-        return noise(x(v));
-    }
-
-    const Float PerlinNoiseGenerator::noise2(const Float2 & v) const
-    {
-        return noise2(Float4(x(v), y(v)));
-    }
-
     const Float PerlinNoiseGenerator::noise2(const Float4 & v) const
     {
         Int4 bx, by;
@@ -118,11 +108,6 @@ namespace raytracer
             dot3(Float4(y(rx), y(ry)), gradients2[y(b1)]),
             x(s));
         return mix(a, b, y(s));
-    }
-
-    const Float PerlinNoiseGenerator::noise3(const Float3 & v) const
-    {
-        return noise3(Float4(x(v), y(v), z(v)));
     }
 
     const Float PerlinNoiseGenerator::noise3(const Float4 & v) const
