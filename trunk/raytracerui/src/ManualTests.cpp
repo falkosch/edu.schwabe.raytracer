@@ -22,27 +22,9 @@ namespace raytracerui
 		delete n;
 	}
 
-	ARCH_NOINLINE void staticForTest() {
-		auto a = UTVector<100, Float>(One<Float>());
-		auto b = UTVector<100, Float>(Two<Float>());
-
-		auto c = a + b;
-		std::cout << c << std::endl;
-	}
-
-	ARCH_NOINLINE void intrinsicsTest() {
-		auto a = One<v_i32_4>();
-		auto b = convert<UTVector<2, Int_32>>(a);
-		auto c = UTVector<2, Int_32>(One<Int_32>());
-
-		std::cout << (b + c)[0] << std::endl;
-	}
-
 	void ManualTests::operator()() const
 	{
 		collisionTest();
-		staticForTest();
-		intrinsicsTest();
 	}
 
 }
