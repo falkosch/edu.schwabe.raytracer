@@ -8,17 +8,19 @@
 
 #pragma once
 
- //#define VECTORIZATION_APPROXIMATIONS 1
- //#define VECTORIZATION_FINE_APPROXIMATIONS 1
+//#define VECTORIZATION_APPROXIMATIONS 1
+//#define VECTORIZATION_FINE_APPROXIMATIONS 1
 
 #define VECTORIZATION_SSE 0 // up to SSE 3
-#define VECTORIZATION_SSE4 4 // up to SSSE3 & SSE 4.2
-#define VECTORIZATION_AVX 5 // AVX1
+#define VECTORIZATION_SSE4 4 // up to SSE 4.2 including SSSE3
+#define VECTORIZATION_AVX 5 // up to AVX1
+#define VECTORIZATION_AVX2 6 // up to AVX2
+#define VECTORIZATION_AVX512 7 // up to AVX2
 
 #define VECTORIZATION_INTRINSICS_LEVEL VECTORIZATION_SSE4
 
 
- // Compiler specific id switches for easier handling with different compiler types
+// Compiler specific id switches for easier handling with different compiler types
 
 #if defined(__MINGW32__) && !defined(__GNUC__)
 #define __GNUC__
@@ -29,8 +31,10 @@
 
 #if defined(_M_AMD64) || defined(__amd64__)
 #define ARCH_X64
+
 #else
 #define ARCH_X86
+
 #endif
 
 #ifndef NDEBUG
@@ -56,15 +60,11 @@
 
 // Define architecture switches which are there for MSVC but left out in GNUC or others
 
-#if !defined(__AVX__) && (defined(_M_IX86_FP) && _M_IX86_FP > 2)
-#define __AVX__ 1
-#endif
-
-#if !defined(__SSE2__) && (defined(__AVX__) || (defined(_M_IX86_FP) && _M_IX86_FP > 1) || defined(ARCH_X64))
+#if !defined(__SSE2__) && ((defined(_M_IX86_FP) && _M_IX86_FP > 1) || defined(ARCH_X64))
 #define __SSE2__ 1
 #endif
 
-#if !defined(__SSE__) && (defined(__SSE2__) || defined(__AVX__) || (defined(_M_IX86_FP) && _M_IX86_FP > 0) || defined(ARCH_X64))
+#if !defined(__SSE__) && (defined(__SSE2__) || (defined(_M_IX86_FP) && _M_IX86_FP > 0))
 #define __SSE__ 1
 #endif
 
@@ -72,6 +72,16 @@
 #if VECTORIZATION_INTRINSICS_LEVEL < VECTORIZATION_AVX && defined(__AVX__)
 #undef VECTORIZATION_INTRINSICS_LEVEL
 #define VECTORIZATION_INTRINSICS_LEVEL VECTORIZATION_AVX
+#endif
+
+#if VECTORIZATION_INTRINSICS_LEVEL < VECTORIZATION_AVX2 && defined(__AVX2__)
+#undef VECTORIZATION_INTRINSICS_LEVEL
+#define VECTORIZATION_INTRINSICS_LEVEL VECTORIZATION_AVX2
+#endif
+
+#if VECTORIZATION_INTRINSICS_LEVEL < VECTORIZATION_AVX512 && defined(__AVX512F__)
+#undef VECTORIZATION_INTRINSICS_LEVEL
+#define VECTORIZATION_INTRINSICS_LEVEL VECTORIZATION_AVX512
 #endif
 
 
@@ -85,20 +95,29 @@
 
 #ifdef ARCH_X64
 #define ARCH_ALIGNMENT XMM_ALIGNMENT
+
 #else
 #define ARCH_ALIGNMENT X86_ALIGNMENT
+
 #endif
 
 // Default alignment specifications
 
 #if VECTORIZATION_INTRINSICS_LEVEL < VECTORIZATION_AVX
 #define BEST_ALIGNMENT XMM_ALIGNMENT
+
 #elif VECTORIZATION_INTRINSICS_LEVEL == VECTORIZATION_AVX
 #define BEST_ALIGNMENT YMM_ALIGNMENT
-#elif VECTORIZATION_INTRINSICS_LEVEL > VECTORIZATION_AVX
+
+#elif VECTORIZATION_INTRINSICS_LEVEL == VECTORIZATION_AVX2
+#define BEST_ALIGNMENT YMM_ALIGNMENT
+
+#elif VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX512
 #define BEST_ALIGNMENT ZMM_ALIGNMENT
+
 #else 
 #define BEST_ALIGNMENT ARCH_ALIGNMENT
+
 #endif
 
 

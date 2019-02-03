@@ -59,31 +59,31 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>$(SolutionDir)build-x86\$(Configuration)\</OutDir>
-    <IntDir>$(ProjectDir)build-x86\$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)build-$(PlatformShortName)\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)build-$(PlatformShortName)\$(Configuration)\</IntDir>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>$(SolutionDir)build-x64\$(Configuration)\</OutDir>
-    <IntDir>$(ProjectDir)build-x64\$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)build-$(PlatformShortName)\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)build-$(PlatformShortName)\$(Configuration)\</IntDir>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>$(SolutionDir)build-x86\$(Configuration)\</OutDir>
-    <IntDir>$(ProjectDir)build-x86\$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)build-$(PlatformShortName)\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)build-$(PlatformShortName)\$(Configuration)\</IntDir>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <RunCodeAnalysis>false</RunCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>$(SolutionDir)build-x64\$(Configuration)\</OutDir>
-    <IntDir>$(ProjectDir)build-x64\$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)build-$(PlatformShortName)\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)build-$(PlatformShortName)\$(Configuration)\</IntDir>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <RunCodeAnalysis>false</RunCodeAnalysis>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <PreprocessorDefinitions>WIN32_LEAN_AND_MEAN;NOMINMAX;WIN32;_DEBUG;_CONSOLE</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ProjectDir)include;$(SolutionDir)vectorization\include;$(SolutionDir)raytracing\include;$(SolutionDir)packages\Microsoft.Gsl.0.1.2.1\build\native\include;$(SolutionDir)packages\glew.v140.1.12.0\build\native\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)include;$(SolutionDir)vectorization\include;$(SolutionDir)raytracing\include;$(SolutionDir)packages\glew.v140.1.12.0\build\native\include</AdditionalIncludeDirectories>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <Optimization>Disabled</Optimization>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
@@ -105,8 +105,8 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <PreprocessorDefinitions>WIN32_LEAN_AND_MEAN;NOMINMAX;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ProjectDir)include;$(SolutionDir)vectorization\include;$(SolutionDir)raytracing\include;$(SolutionDir)packages\Microsoft.Gsl.0.1.2.1\build\native\include;$(SolutionDir)packages\glew.v140.1.12.0\build\native\include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32_LEAN_AND_MEAN;NOMINMAX;X64;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir)include;$(SolutionDir)vectorization\include;$(SolutionDir)raytracing\include;$(SolutionDir)packages\glew.v140.1.12.0\build\native\include</AdditionalIncludeDirectories>
       <Optimization>Disabled</Optimization>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -128,7 +128,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <PreprocessorDefinitions>WIN32_LEAN_AND_MEAN;NOMINMAX;WIN32;NDEBUG;_CONSOLE</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ProjectDir)include;$(SolutionDir)vectorization\include;$(SolutionDir)raytracing\include;$(SolutionDir)packages\Microsoft.Gsl.0.1.2.1\build\native\include;$(SolutionDir)packages\glew.v140.1.12.0\build\native\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)include;$(SolutionDir)vectorization\include;$(SolutionDir)raytracing\include;$(SolutionDir)packages\glew.v140.1.12.0\build\native\include</AdditionalIncludeDirectories>
       <OpenMPSupport>true</OpenMPSupport>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
@@ -159,8 +159,8 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <PreprocessorDefinitions>WIN32_LEAN_AND_MEAN;NOMINMAX;WIN32;NDEBUG;_CONSOLE</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ProjectDir)include;$(SolutionDir)vectorization\include;$(SolutionDir)raytracing\include;$(SolutionDir)packages\Microsoft.Gsl.0.1.2.1\build\native\include;$(SolutionDir)packages\glew.v140.1.12.0\build\native\include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32_LEAN_AND_MEAN;NOMINMAX;X64;NDEBUG;_CONSOLE</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir)include;$(SolutionDir)vectorization\include;$(SolutionDir)raytracing\include;$(SolutionDir)packages\glew.v140.1.12.0\build\native\include</AdditionalIncludeDirectories>
       <OpenMPSupport>true</OpenMPSupport>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <EnablePREfast>false</EnablePREfast>
