@@ -25,7 +25,11 @@ namespace vectorization
 #else
 		// blend is a more general form of shuffle for interleaving same-index components of two vectors
 		// and has a better throughput!
-		return _mm_blend_ps(a.components, b.components, BLEND_MASK(SelectX, SelectY, SelectZ, SelectW));
+		return _mm_blend_ps(
+			a.components,
+			b.components,
+			BLEND_MASK_FLOAT4_32(SelectX, SelectY, SelectZ, SelectW)
+		);
 #endif
 	}
 

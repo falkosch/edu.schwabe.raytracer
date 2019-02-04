@@ -241,7 +241,11 @@ namespace vectorization
 	// generic blend of two vectors
 	inline const v_ui32_4 blend(const v_ui32_4 & a, const v_ui32_4 & b) noexcept
 	{
-		return _mm_blend_epi16(a.components, b.components, BLEND_MASK_i4(SelectX, SelectY, SelectZ, SelectW));
+		return _mm_blend_epi16(
+			a.components,
+			b.components,
+			BLEND_MASK_INT4_32(SelectX, SelectY, SelectZ, SelectW)
+		);
 	}
 
 	template <>

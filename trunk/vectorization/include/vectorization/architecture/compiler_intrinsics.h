@@ -13,14 +13,14 @@
 #endif
 
 
-#define BLEND_MASK(X, Y, Z, W) ( \
+#define BLEND_MASK_FLOAT4_32(X, Y, Z, W) ( \
 		((X & 1) << 0) \
 		| ((Y & 1) << 1) \
 		| ((Z & 1) << 2) \
 		| ((W & 1) << 3) \
 		)
 
-#define BLEND_MASK_i4(X, Y, Z, W) ( \
+#define BLEND_MASK_INT4_32(X, Y, Z, W) ( \
         ((X & 1) << 0) \
 		| ((X & 1) << 1) \
 		| ((Y & 1) << 2) \

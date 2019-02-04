@@ -5,6 +5,9 @@
     <ClCompile Include="compiler_definitions_test.cpp">
       <Filter>vectorization\architecture</Filter>
     </ClCompile>
+    <ClCompile Include="compiler_intrinsics_test.cpp">
+      <Filter>vectorization\architecture</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -16,5 +19,8 @@
     <Filter Include="vectorization\architecture">
       <UniqueIdentifier>{0484ed9f-4592-45e8-a8ae-9b83b425a785}</UniqueIdentifier>
     </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>
