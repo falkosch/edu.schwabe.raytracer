@@ -2,8 +2,6 @@
 
 #include <typeinfo>
 
-#define ASSERT_MSG(msg) const wchar_t * const MESSAGE = L#msg;
-
 namespace vectorization
 {
     TEST_CLASS(Float44Test)
