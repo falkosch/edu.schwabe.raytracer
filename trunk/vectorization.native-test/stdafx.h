@@ -11,5 +11,3 @@
 #include <CppUnitTest.h>
 
 #include <vectorization.h>
-
-#define ASSERT_MSG(msg) const wchar_t * const MESSAGE = L#msg;

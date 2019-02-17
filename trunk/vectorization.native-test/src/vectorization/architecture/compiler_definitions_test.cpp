@@ -4,69 +4,67 @@
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
-namespace vectorizationnativetest
+namespace vectorization
 {
-
-	TEST_CLASS(CompilerDefinitions)
+	namespace test
 	{
-	public:
 
-		TEST_METHOD(HasIntrinsicsLevels)
+		TEST_CLASS(CompilerDefinitionsTest)
 		{
-			ASSERT_MSG("Malformed intrinsics levels");
+		public:
 
-			Assert::AreEqual(0, VECTORIZATION_SSE, MESSAGE, LINE_INFO());
-			Assert::IsTrue(VECTORIZATION_SSE < VECTORIZATION_SSE4, MESSAGE, LINE_INFO());
-			Assert::IsTrue(VECTORIZATION_SSE4 < VECTORIZATION_AVX, MESSAGE, LINE_INFO());
-			Assert::IsTrue(VECTORIZATION_AVX < VECTORIZATION_AVX2, MESSAGE, LINE_INFO());
-			Assert::IsTrue(VECTORIZATION_AVX2 < VECTORIZATION_AVX512, MESSAGE, LINE_INFO());
+			TEST_METHOD(testHasIntrinsicsLevels)
+			{
+				Assert::AreEqual(0, VECTORIZATION_SSE, L"Bad intrinsics levels", LINE_INFO());
+				Assert::IsTrue(VECTORIZATION_SSE < VECTORIZATION_SSE4, L"Bad intrinsics levels", LINE_INFO());
+				Assert::IsTrue(VECTORIZATION_SSE4 < VECTORIZATION_AVX, L"Bad intrinsics levels", LINE_INFO());
+				Assert::IsTrue(VECTORIZATION_AVX < VECTORIZATION_AVX2, L"Bad intrinsics levels", LINE_INFO());
+				Assert::IsTrue(VECTORIZATION_AVX2 < VECTORIZATION_AVX512, L"Bad intrinsics levels", LINE_INFO());
 
-			Assert::IsTrue(VECTORIZATION_SSE <= VECTORIZATION_INTRINSICS_LEVEL, MESSAGE, LINE_INFO());
-			Assert::IsTrue(VECTORIZATION_AVX512 >= VECTORIZATION_INTRINSICS_LEVEL, MESSAGE, LINE_INFO());
-		}
+				Assert::IsTrue(VECTORIZATION_SSE <= VECTORIZATION_INTRINSICS_LEVEL, L"Bad intrinsics levels", LINE_INFO());
+				Assert::IsTrue(VECTORIZATION_AVX512 >= VECTORIZATION_INTRINSICS_LEVEL, L"Bad intrinsics levels", LINE_INFO());
+			}
 
-		TEST_METHOD(HasEitherDebugOrNDebugSet)
-		{
+			TEST_METHOD(testHasEitherDebugOrNDebugSet)
+			{
 #if defined(DEBUG) && defined(NDEBUG)
-			Assert::Fail();
+				Assert::Fail();
 #endif
-		}
+			}
 
-		TEST_METHOD(EnforcesIntrinsicsCodePathWhenCompilerFlagIsOn)
-		{
-			ASSERT_MSG("Invalid code path");
-
-			Assert::IsTrue(VECTORIZATION_SSE <= VECTORIZATION_INTRINSICS_LEVEL, MESSAGE, LINE_INFO());
+			TEST_METHOD(testEnforcesIntrinsicsCodePathWhenCompilerFlagIsOn)
+			{
+				Assert::IsTrue(VECTORIZATION_SSE <= VECTORIZATION_INTRINSICS_LEVEL, L"Invalid code path", LINE_INFO());
 
 #if defined(__AVX__)
-			Assert::IsTrue(VECTORIZATION_AVX <= VECTORIZATION_INTRINSICS_LEVEL, MESSAGE, LINE_INFO());
+				Assert::IsTrue(VECTORIZATION_AVX <= VECTORIZATION_INTRINSICS_LEVEL, L"Invalid code path", LINE_INFO());
 #endif
 
 #if defined(__AVX2__)
-			Assert::IsTrue(VECTORIZATION_AVX2 <= VECTORIZATION_INTRINSICS_LEVEL, MESSAGE, LINE_INFO());
+				Assert::IsTrue(VECTORIZATION_AVX2 <= VECTORIZATION_INTRINSICS_LEVEL, L"Invalid code path", LINE_INFO());
 #endif
 
 #if defined(__AVX512F__)
-			Assert::IsTrue(VECTORIZATION_AVX512 <= VECTORIZATION_INTRINSICS_LEVEL, MESSAGE, LINE_INFO());
+				Assert::IsTrue(VECTORIZATION_AVX512 <= VECTORIZATION_INTRINSICS_LEVEL, L"Invalid code path", LINE_INFO());
 #endif
-		}
+			}
 
-		TEST_METHOD(HasAlignmentParameters)
-		{
-			ASSERT_MSG("Malformed alignment parameters");
+			TEST_METHOD(testHasAlignmentParameters)
+			{
+				Assert::IsTrue(0 < X86_ALIGNMENT, L"Bad alignment parameters", LINE_INFO());
+				Assert::IsTrue(X86_ALIGNMENT < MM_ALIGNMENT, L"Bad alignment parameters", LINE_INFO());
+				Assert::IsTrue(MM_ALIGNMENT < XMM_ALIGNMENT, L"Bad alignment parameters", LINE_INFO());
+				Assert::IsTrue(XMM_ALIGNMENT < YMM_ALIGNMENT, L"Bad alignment parameters", LINE_INFO());
+				Assert::IsTrue(YMM_ALIGNMENT < ZMM_ALIGNMENT, L"Bad alignment parameters", LINE_INFO());
 
-			Assert::IsTrue(0 < X86_ALIGNMENT, MESSAGE, LINE_INFO());
-			Assert::IsTrue(X86_ALIGNMENT < MM_ALIGNMENT, MESSAGE, LINE_INFO());
-			Assert::IsTrue(MM_ALIGNMENT < XMM_ALIGNMENT, MESSAGE, LINE_INFO());
-			Assert::IsTrue(XMM_ALIGNMENT < YMM_ALIGNMENT, MESSAGE, LINE_INFO());
-			Assert::IsTrue(YMM_ALIGNMENT < ZMM_ALIGNMENT, MESSAGE, LINE_INFO());
+				Assert::IsTrue(0 < ARCH_ALIGNMENT, L"Bad arch alignment parameters", LINE_INFO());
+				Assert::IsTrue(ZMM_ALIGNMENT >= ARCH_ALIGNMENT, L"Bad arch alignment parameters", LINE_INFO());
 
-			Assert::IsTrue(0 < ARCH_ALIGNMENT, MESSAGE, LINE_INFO());
-			Assert::IsTrue(ZMM_ALIGNMENT >= ARCH_ALIGNMENT, MESSAGE, LINE_INFO());
+				Assert::IsTrue(0 < BEST_ALIGNMENT, L"Bad best alignment parameters", LINE_INFO());
+				Assert::IsTrue(ZMM_ALIGNMENT >= BEST_ALIGNMENT, L"Bad best alignment parameters", LINE_INFO());
+			}
 
-			Assert::IsTrue(0 < BEST_ALIGNMENT, MESSAGE, LINE_INFO());
-			Assert::IsTrue(ZMM_ALIGNMENT >= BEST_ALIGNMENT, MESSAGE, LINE_INFO());
-		}
-	};
+		};
 
+	}
 }

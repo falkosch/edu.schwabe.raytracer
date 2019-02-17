@@ -32,7 +32,10 @@
     <ClCompile Include="src\vectorization\architecture\compiler_intrinsics_test.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="src\vectorization\architecture\memory.cpp">
+    <ClCompile Include="src\vectorization\architecture\memory_test.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vectorization\architecture\meta_types_test.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
   </ItemGroup>
