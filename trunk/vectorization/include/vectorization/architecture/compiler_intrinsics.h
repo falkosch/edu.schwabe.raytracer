@@ -60,10 +60,14 @@ namespace vectorization
 	typedef __m128 PackedFloat4_128;
 	typedef __m128d PackedFloat2_128;
 	typedef __m128i PackedInts_128;
+
 	typedef __m256 PackedFloat8_256;
 	typedef __m256d PackedFloat4_256;
 	typedef __m256i PackedInts_256;
 
+	typedef __m512 PackedFloat16_512;
+	typedef __m512d PackedFloat8_512;
+	typedef __m512i PackedInts_512;
 
 
 	const PackedFloat4_128 _mm_cvtepu32_ps(const PackedInts_128 v);

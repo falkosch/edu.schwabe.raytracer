@@ -26,6 +26,7 @@ namespace vectorization
 	};
 
 
+	// Vector bit mask
 	struct VectorBits
 	{
 		static const ASizeT None = 0;

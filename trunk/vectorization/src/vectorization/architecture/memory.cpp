@@ -6,6 +6,7 @@ namespace vectorization
 {
 
 	const std::size_t Alignments::ARCH;
+	const std::size_t Alignments::X86;
 	const std::size_t Alignments::MM;
 	const std::size_t Alignments::XMM;
 	const std::size_t Alignments::YMM;
