@@ -38,5 +38,8 @@
     <ClCompile Include="src\vectorization\architecture\meta_types_test.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="src\vectorization\v_f32_4\accessors.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
