@@ -144,7 +144,42 @@
     <ClCompile Include="src\vectorization\architecture\compiler_intrinsics_test.cpp" />
     <ClCompile Include="src\vectorization\architecture\memory_test.cpp" />
     <ClCompile Include="src\vectorization\architecture\meta_types_test.cpp" />
-    <ClCompile Include="src\vectorization\v_f32_4\accessors.cpp" />
+    <ClCompile Include="src\vectorization\v_f32_4\accessors_test.cpp" />
+    <ClCompile Include="src\vectorization\v_f32_4\blends_test.cpp">
+      <SubType>
+      </SubType>
+    </ClCompile>
+    <ClCompile Include="src\vectorization\v_f32_4\constants_test.cpp">
+      <SubType>
+      </SubType>
+    </ClCompile>
+    <ClCompile Include="src\vectorization\v_f32_4\conversions_test.cpp">
+      <SubType>
+      </SubType>
+    </ClCompile>
+    <ClCompile Include="src\vectorization\v_f32_4\functions_test.cpp">
+      <SubType>
+      </SubType>
+    </ClCompile>
+    <ClCompile Include="src\vectorization\v_f32_4\operators_test.cpp">
+      <SubType>
+      </SubType>
+    </ClCompile>
+    <ClCompile Include="src\vectorization\v_f32_4\selects_test.cpp">
+      <SubType>
+      </SubType>
+    </ClCompile>
+    <ClCompile Include="src\vectorization\v_f32_4\swizzles_test.cpp">
+      <SubType>
+      </SubType>
+    </ClCompile>
+    <ClCompile Include="src\vectorization\v_f32_4\swizzle_blends_test.cpp">
+      <SubType>
+      </SubType>
+    </ClCompile>
+    <ClCompile Include="src\vectorization\v_f32_4\type_test.cpp">
+      <SubType>
+      </SubType>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

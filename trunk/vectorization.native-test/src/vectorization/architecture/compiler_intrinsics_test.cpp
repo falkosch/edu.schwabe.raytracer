@@ -49,10 +49,10 @@ namespace vectorization
 				std::array<vectorization::UInt_32, 5> specimen = { 0, 1, 2, 3, 4 };
 
 				for (const auto & v : specimen) {
-					auto test = _mm_set1_epi32(v);
+					auto test = vectorization::v_ui32_4(v);
 					auto actual = vectorization::_mm_cvtepu32_ps(test);
-					auto expected = _mm_set1_ps(static_cast<vectorization::Float_32>(v));
-					Assert::AreEqual(1, _mm_comieq_ss(expected, actual), L"Conversion error in _mm_cvtepu32_ps", LINE_INFO());
+					auto expected = vectorization::v_f32_4(vectorization::convert<vectorization::Float_32>(v));
+					Assert::IsTrue(vectorization::allTrue(expected == actual), L"Conversion error in _mm_cvtepu32_ps", LINE_INFO());
 				}
 			}
 
