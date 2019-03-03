@@ -377,7 +377,10 @@ namespace raytracer
 		else
 		{
 			// min absorbtion of material
-			absorbtion = Float4(vectorization::exp(std::numeric_limits<Float4::ValueType>::min() / min3(-brdf.surface.absorbtionCoefficient)));
+			absorbtion = vectorization::exp(
+				Float4(std::numeric_limits<Float4::ValueType>::min()) /
+				min3(-brdf.surface.absorbtionCoefficient)
+			);
 		}
 		brdf.absorbtionCoefficient = absorbtion;
 
