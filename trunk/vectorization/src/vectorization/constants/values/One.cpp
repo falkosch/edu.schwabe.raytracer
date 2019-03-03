@@ -26,13 +26,28 @@ namespace vectorization
 	template <>
 	const PackedFloat4_128 One<PackedFloat4_128>() noexcept
 	{
-		return _mm_castsi128_ps(_mm_srli_epi32(_mm_slli_epi32(MaskAll<PackedInts_128>(), 25), 2));
+		return _mm_castsi128_ps(
+			_mm_srli_epi32(
+				_mm_slli_epi32(MaskAll<PackedInts_128>(),
+					25
+				),
+				2
+			)
+		);
 	}
 
 	template <>
 	const PackedFloat2_128 One<PackedFloat2_128>() noexcept
 	{
-		return _mm_castsi128_pd(_mm_srli_epi64(_mm_slli_epi64(MaskAll<PackedInts_128>(), 54), 2));
+		return _mm_castsi128_pd(
+			_mm_srli_epi64(
+				_mm_slli_epi64(
+					MaskAll<PackedInts_128>(),
+					54
+				),
+				2
+			)
+		);
 	}
 
 	template <>

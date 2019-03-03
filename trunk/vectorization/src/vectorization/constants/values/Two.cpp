@@ -29,7 +29,10 @@ namespace vectorization
 	{
 		return _mm_castsi128_ps(
 			_mm_srli_epi32(
-				_mm_slli_epi32(MaskAll<PackedInts_128>(), sizeof(Int_32) * std::numeric_limits<unsigned char>::digits - 1),
+				_mm_slli_epi32(
+					MaskAll<PackedInts_128>(),
+					sizeof(Int_32) * std::numeric_limits<unsigned char>::digits - 1
+				),
 				1
 			)
 		);
@@ -40,7 +43,10 @@ namespace vectorization
 	{
 		return _mm_castsi128_pd(
 			_mm_srli_epi64(
-				_mm_slli_epi64(MaskAll<PackedInts_128>(), sizeof(Int_64) * std::numeric_limits<unsigned char>::digits - 1),
+				_mm_slli_epi64(
+					MaskAll<PackedInts_128>(),
+					sizeof(Int_64) * std::numeric_limits<unsigned char>::digits - 1
+				),
 				1
 			)
 		);

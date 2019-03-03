@@ -22,17 +22,22 @@ namespace vectorization
 	template <>
 	const PackedFloat4_128 NegativeTwo<PackedFloat4_128>() noexcept
 	{
-		return _mm_castsi128_ps(_mm_slli_epi32(
-			MaskAll<PackedInts_128>(),
-			sizeof(Int_32) * std::numeric_limits<unsigned char>::digits - 2));
+		return _mm_castsi128_ps(
+			_mm_slli_epi32(
+				MaskAll<PackedInts_128>(),
+				sizeof(Int_32) * std::numeric_limits<unsigned char>::digits - 2
+			)
+		);
 	}
 
 	template <>
 	const PackedFloat2_128 NegativeTwo<PackedFloat2_128>() noexcept
 	{
-		return _mm_castsi128_pd(_mm_slli_epi64(
-			MaskAll<PackedInts_128>(),
-			sizeof(Int_64) * std::numeric_limits<unsigned char>::digits - 2));
+		return _mm_castsi128_pd(
+			_mm_slli_epi64(
+				MaskAll<PackedInts_128>(),
+				sizeof(Int_64) * std::numeric_limits<unsigned char>::digits - 2)
+		);
 	}
 
 	template <>
