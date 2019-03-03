@@ -155,6 +155,12 @@ namespace vectorization
 		return NegativeInfinity<v_f32_4::PackedType>();
 	}
 
+	template <>
+	const v_f32_4 NotANumber<v_f32_4>() noexcept
+	{
+		return NotANumber<v_f32_4::PackedType>();
+	}
+
 	const v_f32_4 Epsilon_v_f32_4 = v_f32_4(Epsilon<v_f32_4::ValueType>());
 
 	template <>

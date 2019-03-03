@@ -9,6 +9,7 @@
 #include "values/NegativeOne.h"
 #include "values/NegativeTwo.h"
 #include "values/NegativeZero.h"
+#include "values/NotANumber.h"
 #include "values/One.h"
 #include "values/OneHalf.h"
 #include "values/OneX.h"

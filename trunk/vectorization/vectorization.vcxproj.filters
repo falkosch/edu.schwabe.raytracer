@@ -351,6 +351,9 @@
     <ClInclude Include="include\vectorization\functions\normalize.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
+    <ClInclude Include="include\vectorization\constants\values\NotANumber.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\vectorization\functions.cpp">
@@ -546,6 +549,9 @@
       <Filter>Quelldateien</Filter>
     </ClCompile>
     <ClCompile Include="src\vectorization\selects\selects.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vectorization\constants\values\NotANumber.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
   </ItemGroup>

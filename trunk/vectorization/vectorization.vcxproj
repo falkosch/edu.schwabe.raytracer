@@ -197,6 +197,7 @@
     <ClInclude Include="include\vectorization\constants\values.h" />
     <ClInclude Include="include\vectorization\constants\masks.h" />
     <ClInclude Include="include\vectorization\constants\values\Half.h" />
+    <ClInclude Include="include\vectorization\constants\values\NotANumber.h" />
     <ClInclude Include="include\vectorization\constants\values\One.h" />
     <ClInclude Include="include\vectorization\constants\values\OneX.h" />
     <ClInclude Include="include\vectorization\constants\values\OneY.h" />
@@ -301,6 +302,7 @@
     <ClCompile Include="src\vectorization\architecture\memory.cpp" />
     <ClCompile Include="src\vectorization\constants\values\Identity.cpp" />
     <ClCompile Include="src\vectorization\constants\values\DegreeToRadian.cpp" />
+    <ClCompile Include="src\vectorization\constants\values\NotANumber.cpp" />
     <ClCompile Include="src\vectorization\constants\values\RadianToDegree.cpp" />
     <ClCompile Include="src\vectorization\constants\values\RadianToUniform.cpp" />
     <ClCompile Include="src\vectorization\constants\values\Sin45.cpp" />

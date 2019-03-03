@@ -74,6 +74,9 @@ namespace vectorization
 	const v_f32_4 NegativeTwo<v_f32_4>() noexcept;
 
 	template <>
+	const v_f32_4 NotANumber<v_f32_4>() noexcept;
+
+	template <>
 	const v_f32_4 Half<v_f32_4>() noexcept;
 
 	template <>
