@@ -64,7 +64,6 @@ namespace raytracerui {
 		//TestScene2::setup(*scene, *resources);
 		//DragonScene::setup(*scene, *resources);
 		//ProceduralScene<3, 10>::setup(*scene, *resources);
-		std::cout << "Yes" << std::endl;
 
 		scene->buildSceneGraph();
 
@@ -111,19 +110,13 @@ namespace raytracerui {
 
 int __cdecl main()
 {
-	using namespace raytracerui;
-
 	TCHAR currentPath[MAX_PATH + 1] = { 0 };
 	GetCurrentDirectory(MAX_PATH, currentPath);
 
 	std::cout << "Working directory: " << std::string(currentPath) << std::endl;
-	
-	std::cout << sizeof(int) << std::endl;
-	std::cout << sizeof(long) << std::endl;
-	std::cout << sizeof(long long) << std::endl;
-		
-	ManualTests()();
-	//Benchmarks()();
 
-	return static_cast<int>(runRaytracerUI());
+	raytracerui::ManualTests()();
+	//raytracerui::Benchmarks()();
+
+	return static_cast<int>(raytracerui::runRaytracerUI());
 }
