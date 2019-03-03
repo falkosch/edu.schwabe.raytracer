@@ -161,6 +161,10 @@
       <SubType>
       </SubType>
     </ClCompile>
+    <ClCompile Include="src\vectorization\v_f32_4\functions_trigonometry_test.cpp">
+      <SubType>
+      </SubType>
+    </ClCompile>
     <ClCompile Include="src\vectorization\v_f32_4\operators_test.cpp">
       <SubType>
       </SubType>

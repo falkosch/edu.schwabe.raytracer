@@ -96,7 +96,7 @@
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <EnablePREfast>false</EnablePREfast>
-      <AdditionalIncludeDirectories>$(ProjectDir)include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)include;$(ProjectDir)3rdparty</AdditionalIncludeDirectories>
       <WarningLevel>Level4</WarningLevel>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
     </ClCompile>
@@ -113,7 +113,7 @@
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <EnablePREfast>false</EnablePREfast>
-      <AdditionalIncludeDirectories>$(ProjectDir)include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)include;$(ProjectDir)3rdparty</AdditionalIncludeDirectories>
       <WarningLevel>Level4</WarningLevel>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
     </ClCompile>
@@ -136,7 +136,7 @@
       <ControlFlowGuard>false</ControlFlowGuard>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)include;$(ProjectDir)3rdparty</AdditionalIncludeDirectories>
       <WarningLevel>Level4</WarningLevel>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
     </ClCompile>
@@ -163,7 +163,7 @@
       <ControlFlowGuard>false</ControlFlowGuard>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)include;$(ProjectDir)3rdparty</AdditionalIncludeDirectories>
       <WarningLevel>Level4</WarningLevel>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
     </ClCompile>
@@ -176,6 +176,8 @@
     <Bscmake />
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="3rdparty\avx_mathfun.h" />
+    <ClInclude Include="3rdparty\sse_mathfun.h" />
     <ClInclude Include="include\primitives\AxisAlignedBoundingBox.h" />
     <ClInclude Include="include\primitives\BoundingSphere.h" />
     <ClInclude Include="include\primitives\Facet.h" />
@@ -281,6 +283,7 @@
     <ClInclude Include="include\vectorization\v_f32_4\constants.h" />
     <ClInclude Include="include\vectorization\v_f32_4\conversions.h" />
     <ClInclude Include="include\vectorization\v_f32_4\functions.h" />
+    <ClInclude Include="include\vectorization\v_f32_4\functions_trigonometry.h" />
     <ClInclude Include="include\vectorization\v_f32_4\operators.h" />
     <ClInclude Include="include\vectorization\v_f32_4\selects.h" />
     <ClInclude Include="include\vectorization\v_f32_4\swizzled_blends.h" />
@@ -343,6 +346,7 @@
     <ClCompile Include="src\vectorization\selects\blends.cpp" />
     <ClCompile Include="src\vectorization\selects\selects.cpp" />
     <ClCompile Include="src\vectorization\v_f32_4x4.cpp" />
+    <ClCompile Include="src\vectorization\v_f32_4\functions_trigonometry.cpp" />
     <ClCompile Include="src\vectorization\v_f32_4\selects.cpp" />
     <ClCompile Include="src\vectorization\v_f32_4\swizzles.cpp" />
     <ClCompile Include="src\vectorization\v_f32_4\type.cpp" />

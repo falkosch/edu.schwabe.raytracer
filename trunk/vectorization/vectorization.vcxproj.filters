@@ -354,6 +354,15 @@
     <ClInclude Include="include\vectorization\constants\values\NotANumber.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
+    <ClInclude Include="include\vectorization\v_f32_4\functions_trigonometry.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdparty\avx_mathfun.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdparty\sse_mathfun.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\vectorization\functions.cpp">
@@ -552,6 +561,9 @@
       <Filter>Quelldateien</Filter>
     </ClCompile>
     <ClCompile Include="src\vectorization\constants\values\NotANumber.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vectorization\v_f32_4\functions_trigonometry.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
   </ItemGroup>
