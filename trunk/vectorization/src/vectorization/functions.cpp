@@ -1244,20 +1244,9 @@ namespace vectorization
 #pragma region exp()
 	//{ exp()
 
-	// Fixes error in std::exp for MSVC on X64
 	const Float_32 exp(const Float_32 v) noexcept
 	{
-#if defined(ARCH_X64) && _MSC_VER < 1900
-		return _mm_cvtss_f32(
-			blendMasked(
-				_mm_set_ss(std::exp(v)),
-				Zero<PackedFloat4_128>(),
-				_mm_cmpeq_ss(_mm_set_ss(v), NegInfinity<PackedFloat4_128>())
-			)
-		);
-#else
 		return std::exp(v);
-#endif
 	}
 
 	const Float_64 exp(const Float_64 v) noexcept
