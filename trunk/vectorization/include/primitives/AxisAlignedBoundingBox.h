@@ -4,50 +4,51 @@
 
 namespace primitives
 {
+	using namespace vectorization;
 
-    struct AxisAlignedBoundingBox
-    {
-        vectorization::Float4 minimum, maximum;
+	struct AxisAlignedBoundingBox
+	{
+		Float4 minimum, maximum;
 
-        ALIGNED_ALLOCATORS(__alignof(AxisAlignedBoundingBox));
+		ALIGNED_ALLOCATORS(__alignof(AxisAlignedBoundingBox));
 
-        AxisAlignedBoundingBox();
+		AxisAlignedBoundingBox() noexcept;
 
-        explicit AxisAlignedBoundingBox(const vectorization::Float4 & a, const vectorization::Float4 & b);
-    };
+		explicit AxisAlignedBoundingBox(const Float4 & a, const Float4 & b) noexcept;
+	};
 
-    const vectorization::Float4 extents(const AxisAlignedBoundingBox & a);
+	const Float4 extents(const AxisAlignedBoundingBox & a) noexcept;
 
-    const vectorization::Float4 halfLengths(const AxisAlignedBoundingBox & a);
+	const Float4 halfLengths(const AxisAlignedBoundingBox & a) noexcept;
 
-    const vectorization::Float4 center(const AxisAlignedBoundingBox & a);
+	const Float4 center(const AxisAlignedBoundingBox & a) noexcept;
 
-    const vectorization::Float4 center(const AxisAlignedBoundingBox & a, const vectorization::Float4 & halfLengths);
+	const Float4 center(const AxisAlignedBoundingBox & a, const Float4 & halfLengths) noexcept;
 
-    const vectorization::Float surfaceArea(const AxisAlignedBoundingBox & a);
+	const Float surfaceArea(const AxisAlignedBoundingBox & a) noexcept;
 
-    // extents = (x, y, z, 0); returns A = 2(w * d + w * h + d * h) = 2(z * y + z * x + y * x)
-    const vectorization::Float surfaceArea(const AxisAlignedBoundingBox & a, const vectorization::Float4 & extents);
+	// extents = (x, y, z, 0); returns A = 2(w * d + w * h + d * h) = 2(z * y + z * x + y * x)
+	const Float surfaceArea(const AxisAlignedBoundingBox & a, const Float4 & extents) noexcept;
 
-    const AxisAlignedBoundingBox extendBy(const AxisAlignedBoundingBox & a, const vectorization::Float4 & by);
+	const AxisAlignedBoundingBox extendBy(const AxisAlignedBoundingBox & a, const Float4 & by) noexcept;
 
-    const AxisAlignedBoundingBox extendBy(const AxisAlignedBoundingBox & a, const vectorization::Float4 & byMin, const vectorization::Float4 & byMax);
+	const AxisAlignedBoundingBox extendBy(const AxisAlignedBoundingBox & a, const Float4 & byMin, const Float4 & byMax) noexcept;
 
-    const AxisAlignedBoundingBox extendBy(const AxisAlignedBoundingBox & a, const AxisAlignedBoundingBox & by);
+	const AxisAlignedBoundingBox extendBy(const AxisAlignedBoundingBox & a, const AxisAlignedBoundingBox & by) noexcept;
 
-    const AxisAlignedBoundingBox clamp(const AxisAlignedBoundingBox & a, const AxisAlignedBoundingBox & by);
+	const AxisAlignedBoundingBox clamp(const AxisAlignedBoundingBox & a, const AxisAlignedBoundingBox & by) noexcept;
 
-    const AxisAlignedBoundingBox transform(const AxisAlignedBoundingBox & a, const vectorization::Float44 & by);
+	const AxisAlignedBoundingBox transform(const AxisAlignedBoundingBox & a, const Float44 & by) noexcept;
 
-    const bool overlaps(const AxisAlignedBoundingBox & a, const vectorization::Float4 & by);
+	const bool overlaps(const AxisAlignedBoundingBox & a, const Float4 & by) noexcept;
 
-    // Checks for intersection of this box with another box.
-    const bool overlaps(const AxisAlignedBoundingBox & a, const AxisAlignedBoundingBox & by);
+	// Checks for intersection of this box with another box.
+	const bool overlaps(const AxisAlignedBoundingBox & a, const AxisAlignedBoundingBox & by) noexcept;
 
-    const vectorization::Float4::VectorBoolType overlaps(const Raycast & raycast, const AxisAlignedBoundingBox & a, const AxisAlignedBoundingBox & b);
+	const Float4::VectorBoolType overlaps(const Raycast & raycast, const AxisAlignedBoundingBox & a, const AxisAlignedBoundingBox & b) noexcept;
 
-    const bool overlaps(const Raycast & raycast, const AxisAlignedBoundingBox & by);
+	const bool overlaps(const Raycast & raycast, const AxisAlignedBoundingBox & by) noexcept;
 
-    const vectorization::Float nearestIntersection(const Raycast & raycast, const AxisAlignedBoundingBox & a, const vectorization::Size2::ValueType originId);
+	const Float nearestIntersection(const Raycast & raycast, const AxisAlignedBoundingBox & a, const Size2::ValueType originId) noexcept;
 
 }

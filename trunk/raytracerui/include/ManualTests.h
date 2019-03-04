@@ -1,6 +1,6 @@
 #pragma once
 
-namespace raytracer
+namespace raytracerui
 {
 
 	struct ManualTests

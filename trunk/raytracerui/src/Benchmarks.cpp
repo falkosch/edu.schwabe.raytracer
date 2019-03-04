@@ -1,102 +1,100 @@
+#include "Benchmarks.h"
 #include "stdafx.h"
 
-#include "Benchmarks.h"
-
-#include <geometry/forms/meshes/Mesh.h>
-
+#include <iostream>
 #include <thread>
 
-namespace raytracer
+namespace raytracerui
 {
 
 	// Ray-AABBx2 overlaps test
-	const bool benchmarkAABBOverlaps(const primitives::Raycast & r, const vectorization::ASizeT iterations)
+	const bool benchmarkAABBOverlaps(const Raycast & r, const ASizeT iterations)
 	{
-		const primitives::AxisAlignedBoundingBox a = primitives::AxisAlignedBoundingBox(
-			vectorization::Float4(-1.f, -1.f, -1.f, 1.f),
-			vectorization::Float4(1.f, 1.f, 1.f, 1.f)
+		const AxisAlignedBoundingBox a = AxisAlignedBoundingBox(
+			Float4(-1.f, -1.f, -1.f, 1.f),
+			Float4(1.f, 1.f, 1.f, 1.f)
 		);
-		const primitives::AxisAlignedBoundingBox b = primitives::AxisAlignedBoundingBox(
-			vectorization::Float4(-2.f, -2.f, -1.f, 1.f),
-			vectorization::Float4(2.f, 2.f, 2.f, 1.f)
+		const AxisAlignedBoundingBox b = AxisAlignedBoundingBox(
+			Float4(-2.f, -2.f, -1.f, 1.f),
+			Float4(2.f, 2.f, 2.f, 1.f)
 		);
 
 		// trick the compiler to not optimize the calculations away
 		volatile bool out = false;
-		for (vectorization::ASizeT i = vectorization::VectorIndices::X; i < iterations; ++i)
+		for (ASizeT i = VectorIndices::X; i < iterations; ++i)
 		{
-			out = out || vectorization::allTrue(primitives::overlaps(r, a, b));
-			out = out || vectorization::allTrue(primitives::overlaps(r, a, b));
-			out = out || vectorization::allTrue(primitives::overlaps(r, a, b));
-			out = out || vectorization::allTrue(primitives::overlaps(r, a, b));
+			out = out || allTrue(overlaps(r, a, b));
+			out = out || allTrue(overlaps(r, a, b));
+			out = out || allTrue(overlaps(r, a, b));
+			out = out || allTrue(overlaps(r, a, b));
 		}
 		return out;
 	}
 
 	// Ray-AABB nearest intersection
-	const vectorization::Float benchmarkAABB(const primitives::Raycast & r, const vectorization::ASizeT iterations)
+	const Float benchmarkAABB(const Raycast & r, const ASizeT iterations)
 	{
-		const primitives::AxisAlignedBoundingBox a = primitives::AxisAlignedBoundingBox(
-			vectorization::Float4(-1.f, -1.f, -1.f, 1.f),
-			vectorization::Float4(1.f, 1.f, 1.f, 1.f)
+		const AxisAlignedBoundingBox a = AxisAlignedBoundingBox(
+			Float4(-1.f, -1.f, -1.f, 1.f),
+			Float4(1.f, 1.f, 1.f, 1.f)
 		);
 
 		// trick the compiler to not optimize the calculations away
-		volatile vectorization::Float out = vectorization::Zero<vectorization::Float>();
-		for (vectorization::ASizeT i = vectorization::VectorIndices::X; i < iterations; ++i)
+		volatile Float out = Zero<Float>();
+		for (ASizeT i = VectorIndices::X; i < iterations; ++i)
 		{
-			out += primitives::nearestIntersection(r, a, vectorization::MaskAll<vectorization::Size2::ValueType>());
-			out += primitives::nearestIntersection(r, a, vectorization::MaskAll<vectorization::Size2::ValueType>());
-			out += primitives::nearestIntersection(r, a, vectorization::MaskAll<vectorization::Size2::ValueType>());
-			out += primitives::nearestIntersection(r, a, vectorization::MaskAll<vectorization::Size2::ValueType>());
+			out += nearestIntersection(r, a, MaskAll<Size2::ValueType>());
+			out += nearestIntersection(r, a, MaskAll<Size2::ValueType>());
+			out += nearestIntersection(r, a, MaskAll<Size2::ValueType>());
+			out += nearestIntersection(r, a, MaskAll<Size2::ValueType>());
 		}
 		return out;
 	}
 
 	// Ray-BoundingSphere nearest intersection
-	const vectorization::Float benchmarkSphere(const primitives::Raycast & r, const vectorization::ASizeT iterations)
+	const Float benchmarkSphere(const Raycast & r, const ASizeT iterations)
 	{
-		primitives::BoundingSphere a = primitives::BoundingSphere(vectorization::Float4(0.0f, 0.0f, 0.0f, 1.f), 1.0f);
+		BoundingSphere a = BoundingSphere(Float4(0.0f, 0.0f, 0.0f, 1.f), 1.0f);
 
 		// trick the compiler to not optimize the calculations away
-		volatile vectorization::Float out = vectorization::Zero<vectorization::Float>();
-		for (vectorization::ASizeT i = vectorization::VectorIndices::X; i < iterations; ++i)
+		volatile Float out = Zero<Float>();
+		for (ASizeT i = VectorIndices::X; i < iterations; ++i)
 		{
-			out += primitives::nearestIntersection(r, a, vectorization::MaskAll<vectorization::Size2::ValueType>());
-			out += primitives::nearestIntersection(r, a, vectorization::MaskAll<vectorization::Size2::ValueType>());
-			out += primitives::nearestIntersection(r, a, vectorization::MaskAll<vectorization::Size2::ValueType>());
-			out += primitives::nearestIntersection(r, a, vectorization::MaskAll<vectorization::Size2::ValueType>());
+			out += nearestIntersection(r, a, MaskAll<Size2::ValueType>());
+			out += nearestIntersection(r, a, MaskAll<Size2::ValueType>());
+			out += nearestIntersection(r, a, MaskAll<Size2::ValueType>());
+			out += nearestIntersection(r, a, MaskAll<Size2::ValueType>());
 		}
 		return out;
 	}
 
 	// Ray-SplittingPlane nearest intersection
-	const vectorization::Float benchmarkPlane(const primitives::Raycast & r, const vectorization::ASizeT iterations)
+	const Float benchmarkPlane(const Raycast & r, const ASizeT iterations)
 	{
-		const primitives::SplittingPlane a = primitives::SplittingPlane(Float4(0.f, 0.f, 0.f, 0.f), Float4(0.f, 0.f, -1.f, 0.f));
+		const SplittingPlane a = SplittingPlane(Float4(0.f, 0.f, 0.f, 0.f), Float4(0.f, 0.f, -1.f, 0.f));
 
 		// trick the compiler to not optimize the calculations away
-		volatile vectorization::Float out = vectorization::Zero<vectorization::Float>();
-		for (vectorization::ASizeT i = vectorization::VectorIndices::X; i < iterations; ++i)
+		volatile Float out = Zero<Float>();
+		for (ASizeT i = VectorIndices::X; i < iterations; ++i)
 		{
-			out += primitives::nearestIntersection(r, a, vectorization::MaskAll<vectorization::Size2::ValueType>());
-			out += primitives::nearestIntersection(r, a, vectorization::MaskAll<vectorization::Size2::ValueType>());
-			out += primitives::nearestIntersection(r, a, vectorization::MaskAll<vectorization::Size2::ValueType>());
-			out += primitives::nearestIntersection(r, a, vectorization::MaskAll<vectorization::Size2::ValueType>());
+			out += nearestIntersection(r, a, MaskAll<Size2::ValueType>());
+			out += nearestIntersection(r, a, MaskAll<Size2::ValueType>());
+			out += nearestIntersection(r, a, MaskAll<Size2::ValueType>());
+			out += nearestIntersection(r, a, MaskAll<Size2::ValueType>());
 		}
 		return out;
 	}
 
 	// Ray-SplittingPlane nearest intersection
-	const vectorization::Float benchmarkMeshFacet(const primitives::Raycast & r, const vectorization::ASizeT iterations)
+	const Float benchmarkMeshFacet(const Raycast & r, const ASizeT iterations)
 	{
 		const Mesh * m = Mesh::buildTriangleMesh();
 		const FacetIntersection f1;
 		FacetIntersection f2;
 
 		// trick the compiler to not optimize the calculations away
-		volatile vectorization::Float out = vectorization::Zero<vectorization::Float>();
-		for (vectorization::ASizeT i = vectorization::VectorIndices::X; i < iterations; ++i)
+		volatile Float out = Zero<Float>();
+		for (ASizeT i = VectorIndices::X; i < iterations; ++i)
 		{
 			out += m->findNearestIntersection(r, &f1, f2);
 			out += m->findNearestIntersection(r, &f1, f2);
@@ -108,7 +106,7 @@ namespace raytracer
 		return out;
 	}
 
-	const ASizeT benchmarkCPUClockFrequency()
+	const Int_64 benchmarkCPUClockFrequency()
 	{
 		LARGE_INTEGER freq, time, stopTime;
 		QueryPerformanceFrequency(&freq);
@@ -129,7 +127,7 @@ namespace raytracer
 
 	void runBenchmarks()
 	{
-		const Int_64 cpuClockFrequency = benchmarkCPUClockFrequency();
+		benchmarkCPUClockFrequency();
 		const ASizeT iterations = 4 * 100000000;
 		const Float_64 timeFactor = reciprocal(static_cast<Float_64>(iterations));
 
@@ -137,7 +135,7 @@ namespace raytracer
 
 		const Raycast r = Raycast(
 			Ray(Float4(0.f, 0.f, -2.f, 1.f), Float4(0.f, 0.f, 1.f, 1.f)),
-			cullingOrientationToMask(NegOne<Int>()),
+			cullingOrientationToMask(NegativeOne<Int>()),
 			Zero<Size2>(),
 			100.f
 		);

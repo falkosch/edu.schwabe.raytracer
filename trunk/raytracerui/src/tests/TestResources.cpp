@@ -1,12 +1,7 @@
+#include "tests/TestResources.h"
 #include "../stdafx.h"
 
-#include "tests/TestResources.h"
-
-#include <shading/shaders/NoiseGeneratorMap.h>
-#include <common/noise/PerlinNoiseGenerator.h>
-#include <common/Tools.h>
-
-namespace raytracer
+namespace raytracerui
 {
 
     void TestResources::setup(Resources & /*resources*/)

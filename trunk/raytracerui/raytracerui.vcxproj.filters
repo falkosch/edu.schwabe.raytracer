@@ -56,9 +56,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\stdafx.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
     <ClInclude Include="include\MessageLoopBasedUI.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
@@ -98,5 +95,11 @@
     <ClInclude Include="include\Benchmarks.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
+    <ClInclude Include="src\stdafx.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>

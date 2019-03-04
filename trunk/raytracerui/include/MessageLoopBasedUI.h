@@ -2,7 +2,7 @@
 
 #include <Windows.h>
 
-namespace raytracer
+namespace raytracerui
 {
 
     class MessageLoopBasedUI

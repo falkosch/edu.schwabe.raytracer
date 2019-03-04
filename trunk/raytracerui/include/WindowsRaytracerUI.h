@@ -3,8 +3,10 @@
 #include "RaytracerUI.h"
 #include "MessageLoopBasedUI.h"
 
-namespace raytracer
+namespace raytracerui
 {
+	using namespace vectorization;
+	using namespace raytracer;
 
     enum class MouseButtons : ASizeT
     {

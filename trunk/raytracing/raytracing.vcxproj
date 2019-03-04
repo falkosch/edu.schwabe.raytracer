@@ -25,7 +25,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{5F0A5F3C-702C-4BE4-8DD3-2453AA935E9C}</ProjectGuid>
     <RootNamespace>raytracing</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -63,38 +63,38 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>$(SolutionDir)build-x86\$(Configuration)\</OutDir>
-    <IntDir>$(ProjectDir)build-x86\$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)build-$(PlatformShortName)\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)build-$(PlatformShortName)\$(Configuration)\</IntDir>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>$(SolutionDir)build-x64\$(Configuration)\</OutDir>
-    <IntDir>$(ProjectDir)build-x64\$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)build-$(PlatformShortName)\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)build-$(PlatformShortName)\$(Configuration)\</IntDir>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>$(SolutionDir)build-x86\$(Configuration)\</OutDir>
-    <IntDir>$(ProjectDir)build-x86\$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)build-$(PlatformShortName)\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)build-$(PlatformShortName)\$(Configuration)\</IntDir>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <RunCodeAnalysis>false</RunCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>$(SolutionDir)build-x64\$(Configuration)\</OutDir>
-    <IntDir>$(ProjectDir)build-x64\$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)build-$(PlatformShortName)\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)build-$(PlatformShortName)\$(Configuration)\</IntDir>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <RunCodeAnalysis>false</RunCodeAnalysis>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ProjectDir)\include;$(SolutionDir)\vectorization\include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32_LEAN_AND_MEAN;NOMINMAX;WIN32;_DEBUG;_LIB</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir)include;$(SolutionDir)vectorization\include</AdditionalIncludeDirectories>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
-      <DisableSpecificWarnings>4464;4514;4668;4710;4711;4820;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <Optimization>Disabled</Optimization>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <CallingConvention>VectorCall</CallingConvention>
-      <BrowseInformation>true</BrowseInformation>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <WarningLevel>Level4</WarningLevel>
+      <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -103,14 +103,14 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ProjectDir)\include;$(SolutionDir)\vectorization\include</AdditionalIncludeDirectories>
-      <DisableSpecificWarnings>4464;4514;4668;4710;4711;4820;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <PreprocessorDefinitions>WIN32_LEAN_AND_MEAN;NOMINMAX;X64;_DEBUG;_LIB</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir)include;$(SolutionDir)vectorization\include</AdditionalIncludeDirectories>
       <Optimization>Disabled</Optimization>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <CallingConvention>VectorCall</CallingConvention>
-      <BrowseInformation>true</BrowseInformation>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <WarningLevel>Level4</WarningLevel>
+      <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -119,21 +119,21 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ProjectDir)\include;$(SolutionDir)\vectorization\include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32_LEAN_AND_MEAN;NOMINMAX;WIN32;NDEBUG;_LIB</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir)include;$(SolutionDir)vectorization\include</AdditionalIncludeDirectories>
       <OpenMPSupport>true</OpenMPSupport>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
-      <DisableSpecificWarnings>4464;4514;4668;4710;4711;4820;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <EnablePREfast>false</EnablePREfast>
       <Optimization>Full</Optimization>
-      <CallingConvention>VectorCall</CallingConvention>
-      <BrowseInformation>true</BrowseInformation>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <ControlFlowGuard>false</ControlFlowGuard>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <WarningLevel>Level4</WarningLevel>
+      <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -148,20 +148,20 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ProjectDir)\include;$(SolutionDir)\vectorization\include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32_LEAN_AND_MEAN;NOMINMAX;X64;NDEBUG;_LIB</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir)include;$(SolutionDir)vectorization\include</AdditionalIncludeDirectories>
       <OpenMPSupport>true</OpenMPSupport>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <DisableSpecificWarnings>4464;4514;4668;4710;4711;4820;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <EnablePREfast>false</EnablePREfast>
       <Optimization>Full</Optimization>
-      <CallingConvention>VectorCall</CallingConvention>
-      <BrowseInformation>true</BrowseInformation>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <ControlFlowGuard>false</ControlFlowGuard>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <WarningLevel>Level4</WarningLevel>
+      <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -171,142 +171,142 @@
     <Bscmake />
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="include\BRDFParameters.h" />
-    <ClInclude Include="include\common\Bitmap.h" />
-    <ClInclude Include="include\common\HDRImage.h" />
-    <ClInclude Include="include\common\Image.h" />
-    <ClInclude Include="include\common\noise\NoiseGenerator.h" />
-    <ClInclude Include="include\common\noise\PerlinNoiseGenerator.h" />
-    <ClInclude Include="include\common\noise\SimplexNoiseGenerator.h" />
-    <ClInclude Include="include\common\RefractionIndices.h" />
-    <ClInclude Include="include\common\StatisticsCookie.h" />
-    <ClInclude Include="include\common\Tools.h" />
-    <ClInclude Include="include\geometry\forms\Box.h" />
-    <ClInclude Include="include\geometry\forms\Form.h" />
-    <ClInclude Include="include\geometry\forms\meshes\Mesh.h" />
-    <ClInclude Include="include\geometry\forms\meshes\MeshGeometryNode.h" />
-    <ClInclude Include="include\geometry\forms\Plane.h" />
-    <ClInclude Include="include\geometry\forms\Sphere.h" />
-    <ClInclude Include="include\geometry\ObjectGeometry.h" />
-    <ClInclude Include="include\geometry\partitioning\GeometryNode.h" />
-    <ClInclude Include="include\geometry\partitioning\GeometryNodesTraverser.h" />
-    <ClInclude Include="include\geometry\partitioning\KDTreeBalancer.h" />
-    <ClInclude Include="include\geometry\partitioning\KDTreeBounding.h" />
-    <ClInclude Include="include\geometry\partitioning\KDTreeBuildParameters.h" />
-    <ClInclude Include="include\geometry\partitioning\KDTreeNode.h" />
-    <ClInclude Include="include\geometry\partitioning\KDTreeNodeChilds.h" />
-    <ClInclude Include="include\geometry\partitioning\KDTreePlane.h" />
-    <ClInclude Include="include\geometry\partitioning\KDTreeRoot.h" />
-    <ClInclude Include="include\geometry\partitioning\KDTreeTraverser.h" />
-    <ClInclude Include="include\geometry\partitioning\treebalancer\ArithmeticMeanKDTreeBalancer.h" />
-    <ClInclude Include="include\geometry\partitioning\treebalancer\BruteForceSAHKDTreeBalancer.h" />
-    <ClInclude Include="include\geometry\partitioning\treebalancer\FixedIterationsSAHKDTreeBalancer.h" />
-    <ClInclude Include="include\geometry\partitioning\treebalancer\MaxAxisKDTreeBalancer.h" />
-    <ClInclude Include="include\geometry\partitioning\treebalancer\MedianKDTreeBalancer.h" />
-    <ClInclude Include="include\geometry\partitioning\treebalancer\RotatingAxisKDTreeBalancer.h" />
-    <ClInclude Include="include\geometry\partitioning\treebalancer\SAHKDTreeBalancer.h" />
-    <ClInclude Include="include\geometry\partitioning\treebalancer\SamplingKDTreeBalancer.h" />
-    <ClInclude Include="include\geometry\partitioning\treetraverser\NaiveKDTreeTraverser.h" />
-    <ClInclude Include="include\geometry\partitioning\treetraverser\VoxelizationKDTreeTraverser.h" />
-    <ClInclude Include="include\geometry\FacetIntersection.h" />
-    <ClInclude Include="include\geometry\Intersectable.h" />
-    <ClInclude Include="include\geometry\SceneGeometry.h" />
-    <ClInclude Include="include\geometry\SceneIntersection.h" />
-    <ClInclude Include="include\geometry\TransformInfo.h" />
-    <ClInclude Include="include\IlluminatedIntersection.h" />
-    <ClInclude Include="include\RaytraceConfiguration.h" />
-    <ClInclude Include="include\RaytraceObserver.h" />
-    <ClInclude Include="include\RaytraceOutput.h" />
-    <ClInclude Include="include\RaytraceParameters.h" />
-    <ClInclude Include="include\Raytracer.h" />
-    <ClInclude Include="include\RaytracerCache.h" />
-    <ClInclude Include="include\RaytracerPackets.h" />
+    <ClInclude Include="include\raytracing\BRDFParameters.h" />
+    <ClInclude Include="include\raytracing\common\Bitmap.h" />
+    <ClInclude Include="include\raytracing\common\HDRImage.h" />
+    <ClInclude Include="include\raytracing\common\Image.h" />
+    <ClInclude Include="include\raytracing\common\noise\NoiseGenerator.h" />
+    <ClInclude Include="include\raytracing\common\noise\PerlinNoiseGenerator.h" />
+    <ClInclude Include="include\raytracing\common\noise\SimplexNoiseGenerator.h" />
+    <ClInclude Include="include\raytracing\common\RefractionIndices.h" />
+    <ClInclude Include="include\raytracing\common\StatisticsCookie.h" />
+    <ClInclude Include="include\raytracing\common\Tools.h" />
+    <ClInclude Include="include\raytracing\geometry\forms\Box.h" />
+    <ClInclude Include="include\raytracing\geometry\forms\Form.h" />
+    <ClInclude Include="include\raytracing\geometry\forms\meshes\Mesh.h" />
+    <ClInclude Include="include\raytracing\geometry\forms\meshes\MeshGeometryNode.h" />
+    <ClInclude Include="include\raytracing\geometry\forms\Plane.h" />
+    <ClInclude Include="include\raytracing\geometry\forms\Sphere.h" />
+    <ClInclude Include="include\raytracing\geometry\ObjectGeometry.h" />
+    <ClInclude Include="include\raytracing\geometry\partitioning\GeometryNode.h" />
+    <ClInclude Include="include\raytracing\geometry\partitioning\GeometryNodesTraverser.h" />
+    <ClInclude Include="include\raytracing\geometry\partitioning\KDTreeBalancer.h" />
+    <ClInclude Include="include\raytracing\geometry\partitioning\KDTreeBounding.h" />
+    <ClInclude Include="include\raytracing\geometry\partitioning\KDTreeBuildParameters.h" />
+    <ClInclude Include="include\raytracing\geometry\partitioning\KDTreeNode.h" />
+    <ClInclude Include="include\raytracing\geometry\partitioning\KDTreeNodeChilds.h" />
+    <ClInclude Include="include\raytracing\geometry\partitioning\KDTreePlane.h" />
+    <ClInclude Include="include\raytracing\geometry\partitioning\KDTreeRoot.h" />
+    <ClInclude Include="include\raytracing\geometry\partitioning\KDTreeTraverser.h" />
+    <ClInclude Include="include\raytracing\geometry\partitioning\treebalancer\ArithmeticMeanKDTreeBalancer.h" />
+    <ClInclude Include="include\raytracing\geometry\partitioning\treebalancer\BruteForceSAHKDTreeBalancer.h" />
+    <ClInclude Include="include\raytracing\geometry\partitioning\treebalancer\FixedIterationsSAHKDTreeBalancer.h" />
+    <ClInclude Include="include\raytracing\geometry\partitioning\treebalancer\MaxAxisKDTreeBalancer.h" />
+    <ClInclude Include="include\raytracing\geometry\partitioning\treebalancer\MedianKDTreeBalancer.h" />
+    <ClInclude Include="include\raytracing\geometry\partitioning\treebalancer\RotatingAxisKDTreeBalancer.h" />
+    <ClInclude Include="include\raytracing\geometry\partitioning\treebalancer\SAHKDTreeBalancer.h" />
+    <ClInclude Include="include\raytracing\geometry\partitioning\treebalancer\SamplingKDTreeBalancer.h" />
+    <ClInclude Include="include\raytracing\geometry\partitioning\treetraverser\NaiveKDTreeTraverser.h" />
+    <ClInclude Include="include\raytracing\geometry\partitioning\treetraverser\VoxelizationKDTreeTraverser.h" />
+    <ClInclude Include="include\raytracing\geometry\FacetIntersection.h" />
+    <ClInclude Include="include\raytracing\geometry\Intersectable.h" />
+    <ClInclude Include="include\raytracing\geometry\SceneGeometry.h" />
+    <ClInclude Include="include\raytracing\geometry\SceneIntersection.h" />
+    <ClInclude Include="include\raytracing\geometry\TransformInfo.h" />
+    <ClInclude Include="include\raytracing\IlluminatedIntersection.h" />
+    <ClInclude Include="include\raytracing\RaytraceConfiguration.h" />
+    <ClInclude Include="include\raytracing\RaytraceObserver.h" />
+    <ClInclude Include="include\raytracing\RaytraceOutput.h" />
+    <ClInclude Include="include\raytracing\RaytraceParameters.h" />
+    <ClInclude Include="include\raytracing\Raytracer.h" />
+    <ClInclude Include="include\raytracing\RaytracerCache.h" />
+    <ClInclude Include="include\raytracing\RaytracerPackets.h" />
     <ClInclude Include="include\raytracing.h" />
-    <ClInclude Include="include\scene\Camera.h" />
-    <ClInclude Include="include\scene\Resources.h" />
-    <ClInclude Include="include\scene\Scene.h" />
-    <ClInclude Include="include\scene\SceneObject.h" />
-    <ClInclude Include="include\shading\LightInfo.h" />
-    <ClInclude Include="include\shading\LightShading.h" />
-    <ClInclude Include="include\shading\ObjectShader.h" />
-    <ClInclude Include="include\shading\PerLightShadowCache.h" />
-    <ClInclude Include="include\shading\RaytraceBaseParameters.h" />
-    <ClInclude Include="include\shading\SceneShader.h" />
-    <ClInclude Include="include\shading\SceneShaderContainment.h" />
-    <ClInclude Include="include\shading\Shader.h" />
-    <ClInclude Include="include\shading\shaders\ConcatenatingShader.h" />
-    <ClInclude Include="include\shading\shaders\ConstShader.h" />
-    <ClInclude Include="include\shading\shaders\EnvironmentShader.h" />
-    <ClInclude Include="include\shading\shaders\HDRImageShader.h" />
-    <ClInclude Include="include\shading\shaders\IntersectionNormalShader.h" />
-    <ClInclude Include="include\shading\shaders\MultiplyByConstShader.h" />
-    <ClInclude Include="include\shading\shaders\NoiseGeneratorMap.h" />
-    <ClInclude Include="include\shading\SurfaceShading.h" />
-    <ClInclude Include="include\shading\TextureTransformInfo.h" />
-    <ClInclude Include="include\shading\Raytrace.h" />
+    <ClInclude Include="include\raytracing\scene\Camera.h" />
+    <ClInclude Include="include\raytracing\scene\Resources.h" />
+    <ClInclude Include="include\raytracing\scene\Scene.h" />
+    <ClInclude Include="include\raytracing\scene\SceneObject.h" />
+    <ClInclude Include="include\raytracing\shading\LightInfo.h" />
+    <ClInclude Include="include\raytracing\shading\LightShading.h" />
+    <ClInclude Include="include\raytracing\shading\ObjectShader.h" />
+    <ClInclude Include="include\raytracing\shading\PerLightShadowCache.h" />
+    <ClInclude Include="include\raytracing\shading\RaytraceBaseParameters.h" />
+    <ClInclude Include="include\raytracing\shading\SceneShader.h" />
+    <ClInclude Include="include\raytracing\shading\SceneShaderContainment.h" />
+    <ClInclude Include="include\raytracing\shading\Shader.h" />
+    <ClInclude Include="include\raytracing\shading\shaders\ConcatenatingShader.h" />
+    <ClInclude Include="include\raytracing\shading\shaders\ConstShader.h" />
+    <ClInclude Include="include\raytracing\shading\shaders\EnvironmentShader.h" />
+    <ClInclude Include="include\raytracing\shading\shaders\HDRImageShader.h" />
+    <ClInclude Include="include\raytracing\shading\shaders\IntersectionNormalShader.h" />
+    <ClInclude Include="include\raytracing\shading\shaders\MultiplyByConstShader.h" />
+    <ClInclude Include="include\raytracing\shading\shaders\NoiseGeneratorMap.h" />
+    <ClInclude Include="include\raytracing\shading\SurfaceShading.h" />
+    <ClInclude Include="include\raytracing\shading\TextureTransformInfo.h" />
+    <ClInclude Include="include\raytracing\shading\Raytrace.h" />
     <ClInclude Include="src\stdafx.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\BRDFParameters.cpp" />
-    <ClCompile Include="src\common\Bitmap.cpp" />
-    <ClCompile Include="src\common\HDRImage.cpp" />
-    <ClCompile Include="src\common\noise\PerlinNoiseGenerator.cpp" />
-    <ClCompile Include="src\common\noise\SimplexNoiseGenerator.cpp" />
-    <ClCompile Include="src\common\RefractionIndices.cpp" />
-    <ClCompile Include="src\common\StatisticsCookie.cpp" />
-    <ClCompile Include="src\common\Tools.cpp" />
-    <ClCompile Include="src\geometry\forms\Box.cpp" />
-    <ClCompile Include="src\geometry\forms\Form.cpp" />
-    <ClCompile Include="src\geometry\forms\meshes\Mesh.cpp" />
-    <ClCompile Include="src\geometry\forms\meshes\MeshGeometryNode.cpp" />
-    <ClCompile Include="src\geometry\forms\Plane.cpp" />
-    <ClCompile Include="src\geometry\forms\Sphere.cpp" />
-    <ClCompile Include="src\geometry\ObjectGeometry.cpp" />
-    <ClCompile Include="src\geometry\partitioning\GeometryNode.cpp" />
-    <ClCompile Include="src\geometry\partitioning\KDTreeBalancer.cpp" />
-    <ClCompile Include="src\geometry\partitioning\KDTreeBounding.cpp" />
-    <ClCompile Include="src\geometry\partitioning\KDTreeBuildParameters.cpp" />
-    <ClCompile Include="src\geometry\partitioning\KDTreeNode.cpp" />
-    <ClCompile Include="src\geometry\partitioning\KDTreeNodeChilds.cpp" />
-    <ClCompile Include="src\geometry\partitioning\KDTreePlane.cpp" />
-    <ClCompile Include="src\geometry\partitioning\KDTreeRoot.cpp" />
-    <ClCompile Include="src\geometry\partitioning\treebalancer\ArithmeticMeanKDTreeBalancer.cpp" />
-    <ClCompile Include="src\geometry\partitioning\treebalancer\BruteForceSAHKDTreeBalancer.cpp" />
-    <ClCompile Include="src\geometry\partitioning\treebalancer\FixedIterationsSAHKDTreeBalancer.cpp" />
-    <ClCompile Include="src\geometry\partitioning\treebalancer\MaxAxisKDTreeBalancer.cpp" />
-    <ClCompile Include="src\geometry\partitioning\treebalancer\MedianKDTreeBalancer.cpp" />
-    <ClCompile Include="src\geometry\partitioning\treebalancer\RotatingAxisKDTreeBalancer.cpp" />
-    <ClCompile Include="src\geometry\partitioning\treebalancer\SAHKDTreeBalancer.cpp" />
-    <ClCompile Include="src\geometry\partitioning\treebalancer\SamplingKDTreeBalancer.cpp" />
-    <ClCompile Include="src\geometry\FacetIntersection.cpp" />
-    <ClCompile Include="src\geometry\SceneGeometry.cpp" />
-    <ClCompile Include="src\geometry\SceneIntersection.cpp" />
-    <ClCompile Include="src\geometry\TransformInfo.cpp" />
-    <ClCompile Include="src\IlluminatedIntersection.cpp" />
-    <ClCompile Include="src\shading\Raytrace.cpp" />
-    <ClCompile Include="src\RaytraceConfiguration.cpp" />
-    <ClCompile Include="src\RaytraceObserver.cpp" />
-    <ClCompile Include="src\RaytraceOutput.cpp" />
-    <ClCompile Include="src\RaytraceParameters.cpp" />
-    <ClCompile Include="src\Raytracer.cpp" />
-    <ClCompile Include="src\RaytracerCache.cpp" />
-    <ClCompile Include="src\RaytracerPackets.cpp" />
-    <ClCompile Include="src\scene\Camera.cpp" />
-    <ClCompile Include="src\scene\Resources.cpp" />
-    <ClCompile Include="src\scene\Scene.cpp" />
-    <ClCompile Include="src\scene\SceneObject.cpp" />
-    <ClCompile Include="src\shading\LightInfo.cpp" />
-    <ClCompile Include="src\shading\LightShading.cpp" />
-    <ClCompile Include="src\shading\ObjectShader.cpp" />
-    <ClCompile Include="src\shading\PerLightShadowCache.cpp" />
-    <ClCompile Include="src\shading\RaytraceBaseParameters.cpp" />
-    <ClCompile Include="src\shading\SceneShader.cpp" />
-    <ClCompile Include="src\shading\SceneShaderContainment.cpp" />
-    <ClCompile Include="src\shading\shaders\EnvironmentShader.cpp" />
-    <ClCompile Include="src\shading\shaders\HDRImageShader.cpp" />
-    <ClCompile Include="src\shading\shaders\IntersectionNormalShader.cpp" />
-    <ClCompile Include="src\shading\SurfaceShading.cpp" />
-    <ClCompile Include="src\shading\TextureTransformInfo.cpp" />
+    <ClCompile Include="src\raytracing\BRDFParameters.cpp" />
+    <ClCompile Include="src\raytracing\common\Bitmap.cpp" />
+    <ClCompile Include="src\raytracing\common\HDRImage.cpp" />
+    <ClCompile Include="src\raytracing\common\noise\PerlinNoiseGenerator.cpp" />
+    <ClCompile Include="src\raytracing\common\noise\SimplexNoiseGenerator.cpp" />
+    <ClCompile Include="src\raytracing\common\RefractionIndices.cpp" />
+    <ClCompile Include="src\raytracing\common\StatisticsCookie.cpp" />
+    <ClCompile Include="src\raytracing\common\Tools.cpp" />
+    <ClCompile Include="src\raytracing\geometry\forms\Box.cpp" />
+    <ClCompile Include="src\raytracing\geometry\forms\Form.cpp" />
+    <ClCompile Include="src\raytracing\geometry\forms\meshes\Mesh.cpp" />
+    <ClCompile Include="src\raytracing\geometry\forms\meshes\MeshGeometryNode.cpp" />
+    <ClCompile Include="src\raytracing\geometry\forms\Plane.cpp" />
+    <ClCompile Include="src\raytracing\geometry\forms\Sphere.cpp" />
+    <ClCompile Include="src\raytracing\geometry\ObjectGeometry.cpp" />
+    <ClCompile Include="src\raytracing\geometry\partitioning\GeometryNode.cpp" />
+    <ClCompile Include="src\raytracing\geometry\partitioning\KDTreeBalancer.cpp" />
+    <ClCompile Include="src\raytracing\geometry\partitioning\KDTreeBounding.cpp" />
+    <ClCompile Include="src\raytracing\geometry\partitioning\KDTreeBuildParameters.cpp" />
+    <ClCompile Include="src\raytracing\geometry\partitioning\KDTreeNode.cpp" />
+    <ClCompile Include="src\raytracing\geometry\partitioning\KDTreeNodeChilds.cpp" />
+    <ClCompile Include="src\raytracing\geometry\partitioning\KDTreePlane.cpp" />
+    <ClCompile Include="src\raytracing\geometry\partitioning\KDTreeRoot.cpp" />
+    <ClCompile Include="src\raytracing\geometry\partitioning\treebalancer\ArithmeticMeanKDTreeBalancer.cpp" />
+    <ClCompile Include="src\raytracing\geometry\partitioning\treebalancer\BruteForceSAHKDTreeBalancer.cpp" />
+    <ClCompile Include="src\raytracing\geometry\partitioning\treebalancer\FixedIterationsSAHKDTreeBalancer.cpp" />
+    <ClCompile Include="src\raytracing\geometry\partitioning\treebalancer\MaxAxisKDTreeBalancer.cpp" />
+    <ClCompile Include="src\raytracing\geometry\partitioning\treebalancer\MedianKDTreeBalancer.cpp" />
+    <ClCompile Include="src\raytracing\geometry\partitioning\treebalancer\RotatingAxisKDTreeBalancer.cpp" />
+    <ClCompile Include="src\raytracing\geometry\partitioning\treebalancer\SAHKDTreeBalancer.cpp" />
+    <ClCompile Include="src\raytracing\geometry\partitioning\treebalancer\SamplingKDTreeBalancer.cpp" />
+    <ClCompile Include="src\raytracing\geometry\FacetIntersection.cpp" />
+    <ClCompile Include="src\raytracing\geometry\SceneGeometry.cpp" />
+    <ClCompile Include="src\raytracing\geometry\SceneIntersection.cpp" />
+    <ClCompile Include="src\raytracing\geometry\TransformInfo.cpp" />
+    <ClCompile Include="src\raytracing\IlluminatedIntersection.cpp" />
+    <ClCompile Include="src\raytracing\shading\Raytrace.cpp" />
+    <ClCompile Include="src\raytracing\RaytraceConfiguration.cpp" />
+    <ClCompile Include="src\raytracing\RaytraceObserver.cpp" />
+    <ClCompile Include="src\raytracing\RaytraceOutput.cpp" />
+    <ClCompile Include="src\raytracing\RaytraceParameters.cpp" />
+    <ClCompile Include="src\raytracing\Raytracer.cpp" />
+    <ClCompile Include="src\raytracing\RaytracerCache.cpp" />
+    <ClCompile Include="src\raytracing\RaytracerPackets.cpp" />
+    <ClCompile Include="src\raytracing\scene\Camera.cpp" />
+    <ClCompile Include="src\raytracing\scene\Resources.cpp" />
+    <ClCompile Include="src\raytracing\scene\Scene.cpp" />
+    <ClCompile Include="src\raytracing\scene\SceneObject.cpp" />
+    <ClCompile Include="src\raytracing\shading\LightInfo.cpp" />
+    <ClCompile Include="src\raytracing\shading\LightShading.cpp" />
+    <ClCompile Include="src\raytracing\shading\ObjectShader.cpp" />
+    <ClCompile Include="src\raytracing\shading\PerLightShadowCache.cpp" />
+    <ClCompile Include="src\raytracing\shading\RaytraceBaseParameters.cpp" />
+    <ClCompile Include="src\raytracing\shading\SceneShader.cpp" />
+    <ClCompile Include="src\raytracing\shading\SceneShaderContainment.cpp" />
+    <ClCompile Include="src\raytracing\shading\shaders\EnvironmentShader.cpp" />
+    <ClCompile Include="src\raytracing\shading\shaders\HDRImageShader.cpp" />
+    <ClCompile Include="src\raytracing\shading\shaders\IntersectionNormalShader.cpp" />
+    <ClCompile Include="src\raytracing\shading\SurfaceShading.cpp" />
+    <ClCompile Include="src\raytracing\shading\TextureTransformInfo.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\vectorization\vectorization.vcxproj">
@@ -314,6 +314,5 @@
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
-  <ImportGroup Label="ExtensionTargets">
-  </ImportGroup>
+  <ImportGroup Label="ExtensionTargets" />
 </Project>

@@ -2,10 +2,13 @@
 
 #include "WindowsRaytracerUI.h"
 
+#include <GL/glew.h>
 #include <GL/GL.h>
 
-namespace raytracer
+namespace raytracerui
 {
+	using namespace vectorization;
+	using namespace raytracer;
 
     class OpenGLWindowsRaytracerUI : public WindowsRaytracerUI
     {

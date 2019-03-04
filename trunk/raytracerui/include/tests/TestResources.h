@@ -1,9 +1,10 @@
 #pragma once
 
-#include <scene/Resources.h>
+#include <raytracing.h>
 
-namespace raytracer
+namespace raytracerui
 {
+	using namespace raytracer;
 
     struct TestResources
     {

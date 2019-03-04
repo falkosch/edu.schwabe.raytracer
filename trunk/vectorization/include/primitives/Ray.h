@@ -1,33 +1,34 @@
 #pragma once
 
-#include "../vectorization/vectorization.h"
+#include <vectorization.h>
 
 namespace primitives
 {
+	using namespace vectorization;
 
     /*
     * A simple structure to contain a ray
     */
     struct Ray
     {
-        vectorization::Float4 origin, direction, reciprocalDirection;
+        Float4 origin, direction, reciprocalDirection;
 
         ALIGNED_ALLOCATORS(__alignof(Ray));
 
-        Ray();
+        Ray() noexcept;
 
-        explicit Ray(const vectorization::Float4 & origin);
+        explicit Ray(const Float4 & origin) noexcept;
 
-        explicit Ray(const vectorization::Float4 & origin, const vectorization::Float4 & direction);
+        explicit Ray(const Float4 & origin, const Float4 & direction) noexcept;
 
-        void setDirection(const vectorization::Float4 & direction);
+        void setDirection(const Float4 & direction) noexcept;
 
     };
 
-    const Ray replaceDirection(const Ray & r, const vectorization::Float4 & value);
+    const Ray replaceDirection(const Ray & r, const Float4 & value) noexcept;
 
-    const vectorization::Float4 point(const Ray & r, const vectorization::Float t);
+    const Float4 point(const Ray & r, const Float t) noexcept;
 
-    const vectorization::Float4 point(const Ray & r, const vectorization::Float4 & v);
+    const Float4 point(const Ray & r, const Float4 & v) noexcept;
 
 }
