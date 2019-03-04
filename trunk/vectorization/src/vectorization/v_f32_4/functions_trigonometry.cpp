@@ -7,16 +7,12 @@
 
 #if defined(USE_THIRD_PARTY)
 
-#if VECTORIZATION_INTRINSICS_LEVEL < VECTORIZATION_AVX
-
 #define USE_SSE2 1
 #include <sse_mathfun.h>
 #undef USE_SSE2
 
-#else
-
-#include <avx_mathfun.h>
-
+#if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
+//#include <avx_mathfun.h>
 #endif
 
 #endif
