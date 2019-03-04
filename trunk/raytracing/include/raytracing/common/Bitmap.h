@@ -13,7 +13,7 @@ namespace raytracer
 	class Bitmap
 	{
 	public:
-		typedef struct {
+		typedef struct _BitmapVectorType {
 			static const ASizeT SIZE = VectorSizes::Z;
 			typedef UInt_8 ValueType;
 			typedef UInt_8 BoolType;
@@ -43,7 +43,6 @@ namespace raytracer
 		{
 			typedef VectorType::ValueType BitmapValueType;
 			typedef std::numeric_limits<BitmapValueType> BitmapValueLimits;
-			typedef typename ImageVectorType::ValueType ImageValueType;
 
 			init();
 			const Int4 BMIN = Int4(convert<Int4::ValueType>(BitmapValueLimits::lowest()));

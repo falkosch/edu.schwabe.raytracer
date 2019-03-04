@@ -2,6 +2,8 @@
 
 #include "v_f32_4.h"
 
+#include <array>
+
 namespace vectorization
 {
 

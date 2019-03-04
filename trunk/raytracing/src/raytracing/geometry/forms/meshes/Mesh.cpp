@@ -102,14 +102,14 @@ namespace raytracer
 
 		// triangle bound check on U
 		const Float4 u = dotv(tvec, pvec) * det;
-		if (allTrue(u < Zero<Float4>() | u > One<Float4>())) {
+		if (allTrue((u < Zero<Float4>()) | (u > One<Float4>()))) {
 			return maxDistance;
 		}
 
 		// triangle bound check on V
 		const Float4 qvec = cross3(tvec, facetEdges.v0);
 		const Float4 v = dotv(ray.direction, qvec) * det;
-		if (allTrue(v < Zero<Float4>() | (u + v) > One<Float4>())) {
+		if (allTrue((v < Zero<Float4>()) | ((u + v) > One<Float4>()))) {
 			return maxDistance;
 		}
 
@@ -380,11 +380,13 @@ namespace raytracer
 		vertexNormals(),
 		facets(),
 		texCoords(),
-		smoothNormals(),
 		flatNormals(),
+		smoothNormals(),
 		facetsEdges(),
-		balancer(),
-		traverser()
+		nodes(),
+		graph(),
+		traverser(),
+		balancer()
 	{ }
 
 	Mesh::Mesh(const KDTreeTraverser<FacetIntersection> * const traverser, const KDTreeBalancer * const balancer)
@@ -395,16 +397,23 @@ namespace raytracer
 		vertexNormals(),
 		facets(),
 		texCoords(),
-		smoothNormals(),
 		flatNormals(),
+		smoothNormals(),
 		facetsEdges(),
-		balancer(balancer),
-		traverser(traverser)
+		nodes(),
+		graph(),
+		traverser(traverser),
+		balancer(balancer)
 	{ }
 
 	Mesh::~Mesh()
 	{
 		clear();
+		if (graph)
+		{
+			delete graph;
+			graph = nullptr;
+		}
 		if (traverser)
 		{
 			delete traverser;

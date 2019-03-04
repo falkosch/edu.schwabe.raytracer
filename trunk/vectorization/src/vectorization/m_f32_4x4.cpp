@@ -1,5 +1,8 @@
 #include "vectorization/m_f32_4x4.h"
 
+#include "vectorization/functions/sin.h"
+#include "vectorization/functions/cos.h"
+
 #include <array>
 #include <cassert>
 

@@ -19,6 +19,12 @@ namespace vectorization
 	const U convert(const Int_32 v) noexcept;
 
 	template <>
+	const long convert<long>(const Int_32 v) noexcept;
+
+	template <>
+	const unsigned long convert<unsigned long>(const Int_32 v) noexcept;
+
+	template <>
 	const Int_8 convert<Int_8>(const Int_32 v) noexcept;
 
 	template <>
@@ -57,10 +63,10 @@ namespace vectorization
 	const Int_32 convert<Int_32>(const UInt_32 v) noexcept;
 
 	template <>
-	const Int_64 convert<Int_64>(const Int_32 v) noexcept;
+	const Int_64 convert<Int_64>(const UInt_32 v) noexcept;
 
 	template <>
-	const UInt_64 convert<UInt_64>(const Int_32 v) noexcept;
+	const UInt_64 convert<UInt_64>(const UInt_32 v) noexcept;
 
 	template <>
 	const Float_32 convert<Float_32>(const UInt_32 v) noexcept;

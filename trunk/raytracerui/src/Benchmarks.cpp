@@ -127,7 +127,7 @@ namespace raytracerui
 
 	void runBenchmarks()
 	{
-		const Int_64 cpuClockFrequency = benchmarkCPUClockFrequency();
+		benchmarkCPUClockFrequency();
 		const ASizeT iterations = 4 * 100000000;
 		const Float_64 timeFactor = reciprocal(static_cast<Float_64>(iterations));
 

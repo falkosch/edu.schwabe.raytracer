@@ -35,7 +35,7 @@ namespace raytracer
 		const Float4 yzxE = yzxw(edge);
 		const Float4 p135 = zxyE * w00 - yzxE * w01;
 		const Float4 p246 = zxyE * w10 - yzxE * w11;
-		return anyTrue3(min(p135, p246) > rad | max(p135, p246) < -rad);
+		return anyTrue3((min(p135, p246) > rad) | (max(p135, p246) < -rad));
 	}
 
 	const bool triBoxOverlap(const AxisAlignedBoundingBox & aabb, const Facet & trianglePlanes)

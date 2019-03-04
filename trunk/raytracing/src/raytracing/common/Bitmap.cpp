@@ -131,7 +131,9 @@ namespace raytracer
 
 		const BitmapValueType MIN = BitmapValueLimits::lowest();
 		const BitmapValueType MAX = BitmapValueLimits::max();
-		const Int4 VSCALE = Int4((MAX - MIN) / convert<Int4::ValueType>(rawMaxValue));
+		const Int4 VSCALE = Int4(
+			(MAX - MIN) / convert<Int4::ValueType>(static_cast<UInt_64>(rawMaxValue))
+		);
 		const Int4 VOFFSET = Int4(-convert<Int4::ValueType>(MIN));
 		const int heighti = convert<int>(y(resolution));
 
