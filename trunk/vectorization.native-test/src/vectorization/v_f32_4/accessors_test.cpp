@@ -14,33 +14,50 @@ namespace vectorization
 		{
 		public:
 
+			static const std::array<v_f32_4::ValueType, v_f32_4::SIZE> sample() {
+				return {
+					One<v_f32_4::ValueType>(),
+					Two<v_f32_4::ValueType>(),
+					OneHalf<v_f32_4::ValueType>(),
+					Infinity<v_f32_4::ValueType>()
+				};
+			}
+
+			static const v_f32_4 sampleVector() {
+				auto sampleComponents = sample();
+				return vectorization::v_f32_4(
+					sampleComponents.at(VectorIndices::X),
+					sampleComponents.at(VectorIndices::Y),
+					sampleComponents.at(VectorIndices::Z),
+					sampleComponents.at(VectorIndices::W)
+				);
+			}
+
 			TEST_METHOD(testComponent)
 			{
-				std::array<vectorization::Float_32, VectorSizes::W> specimen = { 0.5f, 1.0f, 2.0f, 3.0f };
-				auto testValue = v_f32_4(&specimen.at(VectorIndices::X));
+				auto expected = sample();
+				auto testValue = sampleVector();
 
-				Assert::AreEqual(specimen.at(VectorIndices::X), component<VectorIndices::X>(testValue));
-				Assert::AreEqual(specimen.at(VectorIndices::Y), component<VectorIndices::Y>(testValue));
-				Assert::AreEqual(specimen.at(VectorIndices::Z), component<VectorIndices::Z>(testValue));
-				Assert::AreEqual(specimen.at(VectorIndices::W), component<VectorIndices::W>(testValue));
+				Assert::AreEqual(expected.at(VectorIndices::X), component<VectorIndices::X>(testValue));
+				Assert::AreEqual(expected.at(VectorIndices::Y), component<VectorIndices::Y>(testValue));
+				Assert::AreEqual(expected.at(VectorIndices::Z), component<VectorIndices::Z>(testValue));
+				Assert::AreEqual(expected.at(VectorIndices::W), component<VectorIndices::W>(testValue));
 			}
 
 			TEST_METHOD(testXYZW)
 			{
-				std::array<vectorization::Float_32, VectorSizes::W> specimen = { 0.5f, 1.0f, 2.0f, 3.0f };
-				auto testValue = v_f32_4(&specimen.at(VectorIndices::X));
+				auto expected = sample();
+				auto testValue = sampleVector();
 
-				Assert::AreEqual(specimen.at(VectorIndices::X), x(testValue));
-				Assert::AreEqual(specimen.at(VectorIndices::Y), y(testValue));
-				Assert::AreEqual(specimen.at(VectorIndices::Z), z(testValue));
-				Assert::AreEqual(specimen.at(VectorIndices::W), w(testValue));
+				Assert::AreEqual(expected.at(VectorIndices::X), x(testValue));
+				Assert::AreEqual(expected.at(VectorIndices::Y), y(testValue));
+				Assert::AreEqual(expected.at(VectorIndices::Z), z(testValue));
+				Assert::AreEqual(expected.at(VectorIndices::W), w(testValue));
 			}
 
 			TEST_METHOD(testReplaceComponent)
 			{
-				std::array<vectorization::Float_32, 4> specimen = { 0.5f, 1.0f, 2.0f, 3.0f };
-
-				auto testValue = v_f32_4(&specimen.at(VectorIndices::X));
+				auto testValue = sampleVector();
 				auto testReplacement = 5.0f;
 				v_f32_4 testReplaced;
 
@@ -71,9 +88,7 @@ namespace vectorization
 
 			TEST_METHOD(testReplaceXYZW)
 			{
-				std::array<vectorization::Float_32, 4> specimen = { 0.5f, 1.0f, 2.0f, 3.0f };
-
-				auto testValue = v_f32_4(&specimen.at(VectorIndices::X));
+				auto testValue = sampleVector();
 				auto testReplacement = 5.0f;
 				v_f32_4 testReplaced;
 
@@ -104,33 +119,31 @@ namespace vectorization
 
 			TEST_METHOD(testSetComponent)
 			{
-				std::array<vectorization::Float_32, 4> specimen = { 0.5f, 1.0f, 2.0f, 3.0f };
-
 				auto testReplacement = 5.0f;
 				v_f32_4 testValue;
 
-				testValue = v_f32_4(&specimen.at(VectorIndices::X));
+				testValue = sampleVector();
 				setComponent<VectorIndices::X>(testValue, testReplacement);
 				Assert::AreEqual(testReplacement, x(testValue));
 				Assert::AreNotEqual(testReplacement, y(testValue));
 				Assert::AreNotEqual(testReplacement, z(testValue));
 				Assert::AreNotEqual(testReplacement, w(testValue));
 
-				testValue = v_f32_4(&specimen.at(VectorIndices::X));
+				testValue = sampleVector();
 				setComponent<VectorIndices::Y>(testValue, testReplacement);
 				Assert::AreNotEqual(testReplacement, x(testValue));
 				Assert::AreEqual(testReplacement, y(testValue));
 				Assert::AreNotEqual(testReplacement, z(testValue));
 				Assert::AreNotEqual(testReplacement, w(testValue));
 
-				testValue = v_f32_4(&specimen.at(VectorIndices::X));
+				testValue = sampleVector();
 				setComponent<VectorIndices::Z>(testValue, testReplacement);
 				Assert::AreNotEqual(testReplacement, x(testValue));
 				Assert::AreNotEqual(testReplacement, y(testValue));
 				Assert::AreEqual(testReplacement, z(testValue));
 				Assert::AreNotEqual(testReplacement, w(testValue));
 
-				testValue = v_f32_4(&specimen.at(VectorIndices::X));
+				testValue = sampleVector();
 				setComponent<VectorIndices::W>(testValue, testReplacement);
 				Assert::AreNotEqual(testReplacement, x(testValue));
 				Assert::AreNotEqual(testReplacement, y(testValue));
