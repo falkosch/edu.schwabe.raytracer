@@ -29,11 +29,13 @@ namespace vectorization
 
 			TEST_METHOD(testAlignedAllocWithSize)
 			{
+				auto dummyAllocation = vectorization::alloc(1);
 				auto memoryPtr = vectorization::alloc(1);
 				auto memoryAddress = reinterpret_cast<std::size_t>(memoryPtr);
 				auto zeroAddress = reinterpret_cast<std::size_t>(nullptr);
 
 				vectorization::free(memoryPtr);
+				vectorization::free(dummyAllocation);
 
 				Assert::AreEqual(zeroAddress, memoryAddress % Alignments::Best);
 				Assert::AreNotEqual(zeroAddress, memoryAddress);
@@ -43,11 +45,13 @@ namespace vectorization
 
 			TEST_METHOD(testAlignedAllocWithSizeAndX86Alignment)
 			{
+				auto dummyAllocation = vectorization::alloc(1);
 				auto memoryPtr = vectorization::alloc(1, Alignments::X86);
 				auto memoryAddress = reinterpret_cast<std::size_t>(memoryPtr);
 				auto zeroAddress = reinterpret_cast<std::size_t>(nullptr);
 
 				vectorization::free(memoryPtr);
+				vectorization::free(dummyAllocation);
 
 				Assert::AreEqual(zeroAddress, memoryAddress % Alignments::X86);
 				Assert::AreNotEqual(zeroAddress, memoryAddress);
@@ -57,11 +61,13 @@ namespace vectorization
 
 			TEST_METHOD(testAlignedAllocWithSizeAndMMAlignment)
 			{
+				auto dummyAllocation = vectorization::alloc(1);
 				auto memoryPtr = vectorization::alloc(1, Alignments::MM);
 				auto memoryAddress = reinterpret_cast<std::size_t>(memoryPtr);
 				auto zeroAddress = reinterpret_cast<std::size_t>(nullptr);
 
 				vectorization::free(memoryPtr);
+				vectorization::free(dummyAllocation);
 
 				Assert::AreEqual(zeroAddress, memoryAddress % Alignments::MM);
 				Assert::AreNotEqual(zeroAddress, memoryAddress);
@@ -71,11 +77,13 @@ namespace vectorization
 
 			TEST_METHOD(testAlignedAllocWithSizeAndXMMAlignment)
 			{
+				auto dummyAllocation = vectorization::alloc(1);
 				auto memoryPtr = vectorization::alloc(1, Alignments::XMM);
 				auto memoryAddress = reinterpret_cast<std::size_t>(memoryPtr);
 				auto zeroAddress = reinterpret_cast<std::size_t>(nullptr);
 
 				vectorization::free(memoryPtr);
+				vectorization::free(dummyAllocation);
 
 				Assert::AreEqual(zeroAddress, memoryAddress % Alignments::XMM);
 				Assert::AreNotEqual(zeroAddress, memoryAddress);
@@ -85,11 +93,13 @@ namespace vectorization
 
 			TEST_METHOD(testAlignedAllocWithSizeAndYMMAlignment)
 			{
+				auto dummyAllocation = vectorization::alloc(1);
 				auto memoryPtr = vectorization::alloc(1, Alignments::YMM);
 				auto memoryAddress = reinterpret_cast<std::size_t>(memoryPtr);
 				auto zeroAddress = reinterpret_cast<std::size_t>(nullptr);
 
 				vectorization::free(memoryPtr);
+				vectorization::free(dummyAllocation);
 
 				Assert::AreEqual(zeroAddress, memoryAddress % Alignments::YMM);
 				Assert::AreNotEqual(zeroAddress, memoryAddress);
@@ -99,11 +109,13 @@ namespace vectorization
 
 			TEST_METHOD(testAlignedAllocWithSizeAndZMMAlignment)
 			{
+				auto dummyAllocation = vectorization::alloc(1);
 				auto memoryPtr = vectorization::alloc(1, Alignments::ZMM);
 				auto memoryAddress = reinterpret_cast<std::size_t>(memoryPtr);
 				auto zeroAddress = reinterpret_cast<std::size_t>(nullptr);
 
 				vectorization::free(memoryPtr);
+				vectorization::free(dummyAllocation);
 
 				Assert::AreEqual(zeroAddress, memoryAddress % Alignments::ZMM);
 				Assert::AreNotEqual(zeroAddress, memoryAddress);
@@ -113,11 +125,13 @@ namespace vectorization
 
 			TEST_METHOD(testAlignedAllocWithSizeAndARCHAlignment)
 			{
+				auto dummyAllocation = vectorization::alloc(1);
 				auto memoryPtr = vectorization::alloc(1, Alignments::ARCH);
 				auto memoryAddress = reinterpret_cast<std::size_t>(memoryPtr);
 				auto zeroAddress = reinterpret_cast<std::size_t>(nullptr);
 
 				vectorization::free(memoryPtr);
+				vectorization::free(dummyAllocation);
 
 				Assert::AreEqual(zeroAddress, memoryAddress % Alignments::ARCH);
 				Assert::AreNotEqual(zeroAddress, memoryAddress);
@@ -127,11 +141,13 @@ namespace vectorization
 
 			TEST_METHOD(testAlignedAllocWithSizeAndBestAlignment)
 			{
+				auto dummyAllocation = vectorization::alloc(1);
 				auto memoryPtr = vectorization::alloc(1, Alignments::Best);
 				auto memoryAddress = reinterpret_cast<std::size_t>(memoryPtr);
 				auto zeroAddress = reinterpret_cast<std::size_t>(nullptr);
 
 				vectorization::free(memoryPtr);
+				vectorization::free(dummyAllocation);
 
 				Assert::AreEqual(zeroAddress, memoryAddress % Alignments::Best);
 				Assert::AreNotEqual(zeroAddress, memoryAddress);
