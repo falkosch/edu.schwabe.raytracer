@@ -52,6 +52,204 @@ namespace vectorization
 				);
 			}
 
+			// "-"
+			TEST_METHOD(testNegationOperator)
+			{
+				auto expected = v_f32_4(
+					-sample1().at(VectorIndices::X),
+					-sample1().at(VectorIndices::Y),
+					-sample1().at(VectorIndices::Z)
+				);
+				auto actual = -sampleVector1();
+
+				Assert::AreEqual(x(expected), x(actual), L"'-' op value mismatch", LINE_INFO());
+				Assert::AreEqual(y(expected), y(actual), L"'-' op value mismatch", LINE_INFO());
+				Assert::AreEqual(z(expected), z(actual), L"'-' op value mismatch", LINE_INFO());
+				Assert::IsTrue(isNaN(w(actual)), L"'-' op value mismatch", LINE_INFO());
+			}
+
+			// "~"
+			TEST_METHOD(testOnesComplementOperator)
+			{
+				auto expected = Zero<v_f32_4>();
+				auto actual = ~MaskAll<v_f32_4>();
+
+				Assert::AreEqual(x(expected), x(actual), L"'~' op value mismatch", LINE_INFO());
+				Assert::AreEqual(y(expected), y(actual), L"'~' op value mismatch", LINE_INFO());
+				Assert::AreEqual(z(expected), z(actual), L"'~' op value mismatch", LINE_INFO());
+				Assert::AreEqual(w(expected), w(actual), L"'~' op value mismatch", LINE_INFO());
+			}
+
+			// "!"
+			TEST_METHOD(testLogicalNegationOperator)
+			{
+				auto expected = v_f32_4::VectorBoolType(MaskAll<v_f32_4::BoolType>(), 0, 0, 0);
+				auto actual = !sampleVector1();
+
+				Assert::AreEqual(x(expected), x(actual), L"'!' op value mismatch", LINE_INFO());
+				Assert::AreEqual(y(expected), y(actual), L"'!' op value mismatch", LINE_INFO());
+				Assert::AreEqual(z(expected), z(actual), L"'!' op value mismatch", LINE_INFO());
+				Assert::AreEqual(w(expected), w(actual), L"'!' op value mismatch", LINE_INFO());
+			}
+
+			TEST_METHOD(testAddVectorOperator)
+			{
+				auto expected = Zero<v_f32_4>();
+				auto actual = sampleVector1() + sampleVector2();
+
+				Assert::AreEqual(x(expected), x(actual), L"'+' op value mismatch", LINE_INFO());
+				Assert::AreEqual(y(expected), y(actual), L"'+' op value mismatch", LINE_INFO());
+				Assert::IsTrue(isNaN(z(actual)), L"'+' op value mismatch", LINE_INFO());
+				Assert::IsTrue(isNaN(w(actual)), L"'+' op value mismatch", LINE_INFO());
+			}
+
+			TEST_METHOD(testAddLeftHandValueOperator)
+			{
+				auto expected = v_f32_4(
+					One<v_f32_4::ValueType>(),
+					Two<v_f32_4::ValueType>(),
+					Infinity<v_f32_4::ValueType>()
+				);
+				auto actual = One<v_f32_4::ValueType>() + sampleVector1();
+
+				Assert::AreEqual(x(expected), x(actual), L"'+' op value mismatch", LINE_INFO());
+				Assert::AreEqual(y(expected), y(actual), L"'+' op value mismatch", LINE_INFO());
+				Assert::AreEqual(z(expected), z(actual), L"'+' op value mismatch", LINE_INFO());
+				Assert::IsTrue(isNaN(w(actual)), L"'+' op value mismatch", LINE_INFO());
+			}
+
+			TEST_METHOD(testAddRightHandValueOperator)
+			{
+				auto expected = v_f32_4(
+					One<v_f32_4::ValueType>(),
+					Two<v_f32_4::ValueType>(),
+					Infinity<v_f32_4::ValueType>()
+				);
+				auto actual = sampleVector1() + One<v_f32_4::ValueType>();
+
+				Assert::AreEqual(x(expected), x(actual), L"'+' op value mismatch", LINE_INFO());
+				Assert::AreEqual(y(expected), y(actual), L"'+' op value mismatch", LINE_INFO());
+				Assert::AreEqual(z(expected), z(actual), L"'+' op value mismatch", LINE_INFO());
+				Assert::IsTrue(isNaN(w(actual)), L"'+' op value mismatch", LINE_INFO());
+			}
+
+			TEST_METHOD(testSubtractVectorOperator)
+			{
+				auto expected = v_f32_4(
+					Zero<v_f32_4::ValueType>(),
+					Two<v_f32_4::ValueType>(),
+					Infinity<v_f32_4::ValueType>()
+				);
+				auto actual = sampleVector1() - sampleVector2();
+
+				Assert::AreEqual(x(expected), x(actual), L"'-' op value mismatch", LINE_INFO());
+				Assert::AreEqual(y(expected), y(actual), L"'-' op value mismatch", LINE_INFO());
+				Assert::AreEqual(z(expected), z(actual), L"'-' op value mismatch", LINE_INFO());
+				Assert::IsTrue(isNaN(w(actual)), L"'-' op value mismatch", LINE_INFO());
+			}
+
+			TEST_METHOD(testSubtractLeftHandValueOperator)
+			{
+				auto expected = v_f32_4(
+					One<v_f32_4::ValueType>(),
+					Zero<v_f32_4::ValueType>(),
+					NegativeInfinity<v_f32_4::ValueType>()
+				);
+				auto actual = One<v_f32_4::ValueType>() - sampleVector1();
+
+				Assert::AreEqual(x(expected), x(actual), L"'-' op value mismatch", LINE_INFO());
+				Assert::AreEqual(y(expected), y(actual), L"'-' op value mismatch", LINE_INFO());
+				Assert::AreEqual(z(expected), z(actual), L"'-' op value mismatch", LINE_INFO());
+				Assert::IsTrue(isNaN(w(actual)), L"'-' op value mismatch", LINE_INFO());
+			}
+
+			TEST_METHOD(testSubtractRightHandValueOperator)
+			{
+				auto expected = v_f32_4(
+					NegativeOne<v_f32_4::ValueType>(),
+					Zero<v_f32_4::ValueType>(),
+					Infinity<v_f32_4::ValueType>()
+				);
+				auto actual = sampleVector1() - One<v_f32_4::ValueType>();
+
+				Assert::AreEqual(x(expected), x(actual), L"'-' op value mismatch", LINE_INFO());
+				Assert::AreEqual(y(expected), y(actual), L"'-' op value mismatch", LINE_INFO());
+				Assert::AreEqual(z(expected), z(actual), L"'-' op value mismatch", LINE_INFO());
+				Assert::IsTrue(isNaN(w(actual)), L"'-' op value mismatch", LINE_INFO());
+			}
+
+			TEST_METHOD(testMultiplyComponentWiseVectorOperator)
+			{
+				auto expected = v_f32_4(sampleVector2());
+				auto actual = sampleVector1() * sampleVector2();
+
+				Assert::AreEqual(x(expected), x(actual), L"'*' op value mismatch", LINE_INFO());
+				Assert::AreEqual(y(expected), y(actual), L"'*' op value mismatch", LINE_INFO());
+				Assert::AreEqual(z(expected), z(actual), L"'*' op value mismatch", LINE_INFO());
+				Assert::IsTrue(isNaN(w(actual)), L"'*' op value mismatch", LINE_INFO());
+			}
+
+			TEST_METHOD(testMultiplyLeftHandValueOperator)
+			{
+				auto expected = v_f32_4(sampleVector2());
+				auto actual = NegativeOne<v_f32_4::ValueType>() * sampleVector1();
+
+				Assert::AreEqual(x(expected), x(actual), L"'*' op value mismatch", LINE_INFO());
+				Assert::AreEqual(y(expected), y(actual), L"'*' op value mismatch", LINE_INFO());
+				Assert::AreEqual(z(expected), z(actual), L"'*' op value mismatch", LINE_INFO());
+				Assert::IsTrue(isNaN(w(actual)), L"'*' op value mismatch", LINE_INFO());
+			}
+
+			TEST_METHOD(testMultiplyRightHandValueOperator)
+			{
+				auto expected = v_f32_4(sampleVector2());
+				auto actual = sampleVector1() * NegativeOne<v_f32_4::ValueType>();
+
+				Assert::AreEqual(x(expected), x(actual), L"'*' op value mismatch", LINE_INFO());
+				Assert::AreEqual(y(expected), y(actual), L"'*' op value mismatch", LINE_INFO());
+				Assert::AreEqual(z(expected), z(actual), L"'*' op value mismatch", LINE_INFO());
+				Assert::IsTrue(isNaN(w(actual)), L"'*' op value mismatch", LINE_INFO());
+			}
+
+			TEST_METHOD(testDivideComponentWiseVectorOperator)
+			{
+				auto expected = v_f32_4(sampleVector2());
+				auto actual = sampleVector1() / NegativeOne<v_f32_4>();
+
+				Assert::AreEqual(x(expected), x(actual), L"'*' op value mismatch", LINE_INFO());
+				Assert::AreEqual(y(expected), y(actual), L"'*' op value mismatch", LINE_INFO());
+				Assert::AreEqual(z(expected), z(actual), L"'*' op value mismatch", LINE_INFO());
+				Assert::IsTrue(isNaN(w(actual)), L"'*' op value mismatch", LINE_INFO());
+			}
+
+			TEST_METHOD(testDivideLeftHandValueOperator)
+			{
+				auto expected = v_f32_4(
+					NegativeInfinity<v_f32_4::ValueType>(),
+					sample2().at(VectorIndices::Y),
+					NegativeZero<v_f32_4::ValueType>()
+				);
+				auto actual = NegativeOne<v_f32_4>() / sampleVector1();
+
+				Assert::AreEqual(x(expected), x(actual), L"'*' op value mismatch", LINE_INFO());
+				Assert::AreEqual(y(expected), y(actual), L"'*' op value mismatch", LINE_INFO());
+				Assert::AreEqual(z(expected), z(actual), L"'*' op value mismatch", LINE_INFO());
+				Assert::IsTrue(isNaN(w(actual)), L"'*' op value mismatch", LINE_INFO());
+			}
+
+			TEST_METHOD(testDivideRightHandValueOperator)
+			{
+				auto expected = v_f32_4(sampleVector2());
+				auto actual = sampleVector1() / NegativeOne<v_f32_4>();
+
+				Assert::AreEqual(x(expected), x(actual), L"'*' op value mismatch", LINE_INFO());
+				Assert::AreEqual(y(expected), y(actual), L"'*' op value mismatch", LINE_INFO());
+				Assert::AreEqual(z(expected), z(actual), L"'*' op value mismatch", LINE_INFO());
+				Assert::IsTrue(isNaN(w(actual)), L"'*' op value mismatch", LINE_INFO());
+			}
+
+
+
 			TEST_METHOD(testEqualsOperator)
 			{
 				auto actual = sampleVector1() == sampleVector2();
