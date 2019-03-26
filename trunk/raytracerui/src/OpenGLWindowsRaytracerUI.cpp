@@ -1,10 +1,7 @@
+#include "OpenGLWindowsRaytracerUI.h"
 #include "stdafx.h"
 
-#include "OpenGLWindowsRaytracerUI.h"
-
-#include <GL/glext.h>
-
-namespace raytracer
+namespace raytracerui
 {
 
     const Float4_32 QUAD_VERTICES[] = {

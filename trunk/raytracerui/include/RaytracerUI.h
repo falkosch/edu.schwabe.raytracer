@@ -2,8 +2,10 @@
 
 #include <raytracing.h>
 
-namespace raytracer
+namespace raytracerui
 {
+	using namespace vectorization;
+	using namespace raytracer;
 
     class RaytracerUI : public RaytraceObserver
     {

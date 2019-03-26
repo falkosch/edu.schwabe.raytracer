@@ -1,16 +1,10 @@
-#include "../stdafx.h"
-
 #include "tests/DragonScene.h"
+#include "../stdafx.h"
 
 #include "tests/TestResources.h"
 #include "tests/TestLightScene.h"
 
-#include <shading/shaders/HDRImageShader.h>
-#include <scene/SceneObject.h>
-#include <geometry/forms/Plane.h>
-#include <common/RefractionIndices.h>
-
-namespace raytracer
+namespace raytracerui
 {
 
     void DragonScene::setup(Scene & scene, Resources & resources)

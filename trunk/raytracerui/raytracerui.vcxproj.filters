@@ -48,11 +48,14 @@
     <ClCompile Include="src\tests\CornellBoxScene.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="src\ManualTests.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Benchmarks.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\stdafx.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
     <ClInclude Include="include\MessageLoopBasedUI.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
@@ -86,11 +89,17 @@
     <ClInclude Include="include\tests\CornellBoxScene.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="include\benchmarks.h">
+    <ClInclude Include="include\ManualTests.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="include\tests.h">
+    <ClInclude Include="include\Benchmarks.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
+    <ClInclude Include="src\stdafx.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>

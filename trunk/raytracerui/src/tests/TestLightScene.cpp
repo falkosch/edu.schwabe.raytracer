@@ -1,10 +1,7 @@
+#include "tests/TestLightScene.h"
 #include "../stdafx.h"
 
-#include <shading/shaders/EnvironmentShader.h>
-
-#include "tests/TestLightScene.h"
-
-namespace raytracer
+namespace raytracerui
 {
 
     void TestLightScene::setup(Scene & scene, Resources & resources)

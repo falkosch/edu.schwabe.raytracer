@@ -1,16 +1,9 @@
 #pragma once
 
-#define VC_EXTRALEAN
-#define WIN32_LEAN_AND_MEAN
-#ifndef NOMINMAX
-#define NOMINMAX
-#endif
-
-#include <vectorization/vectorization.h>
-using namespace vectorization;
-
-#include <primitives/primitives.h>
-using namespace primitives;
-
+#include <vectorization.h>
+#include <primitives.h>
 #include <raytracing.h>
-//using namespace raytracer;
+
+using namespace vectorization;
+using namespace primitives;
+using namespace raytracer;

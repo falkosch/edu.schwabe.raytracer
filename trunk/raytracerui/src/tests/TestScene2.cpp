@@ -1,18 +1,10 @@
-#include "../stdafx.h"
-
 #include "tests/TestScene2.h"
+#include "../stdafx.h"
 
 #include "tests/TestResources.h"
 #include "tests/TestLightScene.h"
 
-#include <shading/shaders/HDRImageShader.h>
-#include <scene/SceneObject.h>
-#include <geometry/forms/Plane.h>
-#include <geometry/forms/Box.h>
-#include <geometry/forms/Sphere.h>
-#include <common/RefractionIndices.h>
-
-namespace raytracer
+namespace raytracerui
 {
 
     void TestScene2::setup(Scene & scene, Resources & resources)
