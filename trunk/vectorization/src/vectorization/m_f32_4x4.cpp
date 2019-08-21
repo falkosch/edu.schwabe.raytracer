@@ -110,7 +110,7 @@ namespace vectorization
 #pragma endregion
 
 #pragma region Operators
-	//{ Binary math operators
+	//{ Operators
 
 	const m_f32_4x4 operator*(const m_f32_4x4 & m, const m_f32_4x4::ValueType v) noexcept
 	{
