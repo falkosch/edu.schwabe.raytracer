@@ -3,103 +3,113 @@
 
 #include <iostream>
 #include <thread>
+#include <array>
 
 namespace raytracerui
 {
 
-	// Ray-AABBx2 overlaps test
-	const bool benchmarkAABBOverlaps(const Raycast & r, const ASizeT iterations)
-	{
-		const AxisAlignedBoundingBox a = AxisAlignedBoundingBox(
+	// Ray-AxisAlignedBoundingBox overlaps test
+	ARCH_NOINLINE const bool benchmarkAABBOverlaps(
+		const std::array<Raycast, 4> & r,
+		const ASizeT iterations
+	) {
+		auto a = AxisAlignedBoundingBox(
 			Float4(-1.f, -1.f, -1.f, 1.f),
-			Float4(1.f, 1.f, 1.f, 1.f)
+			Float4(2.f, 1.f, 1.f, 1.f)
 		);
-		const AxisAlignedBoundingBox b = AxisAlignedBoundingBox(
-			Float4(-2.f, -2.f, -1.f, 1.f),
-			Float4(2.f, 2.f, 2.f, 1.f)
+		auto b = AxisAlignedBoundingBox(
+			Float4(-1.f, -1.f, 1.f, 1.f),
+			Float4(1.f, 1.f, 2.f, 1.f)
 		);
 
-		// trick the compiler to not optimize the calculations away
-		volatile bool out = false;
+		auto out = Float4::VectorBoolType();
 		for (ASizeT i = VectorIndices::X; i < iterations; ++i)
 		{
-			out = out || allTrue(overlaps(r, a, b));
-			out = out || allTrue(overlaps(r, a, b));
-			out = out || allTrue(overlaps(r, a, b));
-			out = out || allTrue(overlaps(r, a, b));
+			a.minimum = replaceX(a.minimum, x(-a.minimum));
+			out = out | overlaps(r[0], a, b);
+			out = out | overlaps(r[1], a, b);
+			out = out | overlaps(r[2], a, b);
+			out = out | overlaps(r[3], a, b);
 		}
-		return out;
+		return allTrue(out);
 	}
 
-	// Ray-AABB nearest intersection
-	const Float benchmarkAABB(const Raycast & r, const ASizeT iterations)
-	{
-		const AxisAlignedBoundingBox a = AxisAlignedBoundingBox(
+	// Ray-AxisAlignedBoundingBox nearest intersection
+	ARCH_NOINLINE const Float benchmarkAABB(
+		const std::array<Raycast, 4> & r,
+		const ASizeT iterations
+	) {
+		auto a = AxisAlignedBoundingBox(
 			Float4(-1.f, -1.f, -1.f, 1.f),
 			Float4(1.f, 1.f, 1.f, 1.f)
 		);
 
-		// trick the compiler to not optimize the calculations away
-		volatile Float out = Zero<Float>();
+		auto out = Zero<Float>();
 		for (ASizeT i = VectorIndices::X; i < iterations; ++i)
 		{
-			out += nearestIntersection(r, a, MaskAll<Size2::ValueType>());
-			out += nearestIntersection(r, a, MaskAll<Size2::ValueType>());
-			out += nearestIntersection(r, a, MaskAll<Size2::ValueType>());
-			out += nearestIntersection(r, a, MaskAll<Size2::ValueType>());
+			a.minimum = replaceX(a.minimum, x(-a.minimum));
+			out += nearestIntersection(r[0], a, MaskAll<Size2::ValueType>());
+			out += nearestIntersection(r[1], a, MaskAll<Size2::ValueType>());
+			out += nearestIntersection(r[2], a, MaskAll<Size2::ValueType>());
+			out += nearestIntersection(r[3], a, MaskAll<Size2::ValueType>());
 		}
 		return out;
 	}
 
 	// Ray-BoundingSphere nearest intersection
-	const Float benchmarkSphere(const Raycast & r, const ASizeT iterations)
-	{
-		BoundingSphere a = BoundingSphere(Float4(0.0f, 0.0f, 0.0f, 1.f), 1.0f);
+	ARCH_NOINLINE const Float benchmarkSphere(
+		const std::array<Raycast, 4> & r,
+		const ASizeT iterations
+	) {
+		auto a = BoundingSphere(Float4(0.f, 0.f, 0.f, 1.f), 1.0f);
 
-		// trick the compiler to not optimize the calculations away
-		volatile Float out = Zero<Float>();
+		auto out = Zero<Float>();
 		for (ASizeT i = VectorIndices::X; i < iterations; ++i)
 		{
-			out += nearestIntersection(r, a, MaskAll<Size2::ValueType>());
-			out += nearestIntersection(r, a, MaskAll<Size2::ValueType>());
-			out += nearestIntersection(r, a, MaskAll<Size2::ValueType>());
-			out += nearestIntersection(r, a, MaskAll<Size2::ValueType>());
+			a.centerRadius = replaceX(a.centerRadius, x(-a.centerRadius));
+			out += nearestIntersection(r[0], a, MaskAll<Size2::ValueType>());
+			out += nearestIntersection(r[1], a, MaskAll<Size2::ValueType>());
+			out += nearestIntersection(r[2], a, MaskAll<Size2::ValueType>());
+			out += nearestIntersection(r[3], a, MaskAll<Size2::ValueType>());
 		}
 		return out;
 	}
 
 	// Ray-SplittingPlane nearest intersection
-	const Float benchmarkPlane(const Raycast & r, const ASizeT iterations)
-	{
-		const SplittingPlane a = SplittingPlane(Float4(0.f, 0.f, 0.f, 0.f), Float4(0.f, 0.f, -1.f, 0.f));
+	ARCH_NOINLINE const Float benchmarkPlane(
+		const std::array<Raycast, 4> & r,
+		const ASizeT iterations
+	) {
+		auto a = SplittingPlane(Float4(0.f, 0.f, 0.f, 0.f), Float4(0.f, 0.f, -1.f, 0.f));
 
-		// trick the compiler to not optimize the calculations away
-		volatile Float out = Zero<Float>();
+		auto out = Zero<Float>();
 		for (ASizeT i = VectorIndices::X; i < iterations; ++i)
 		{
-			out += nearestIntersection(r, a, MaskAll<Size2::ValueType>());
-			out += nearestIntersection(r, a, MaskAll<Size2::ValueType>());
-			out += nearestIntersection(r, a, MaskAll<Size2::ValueType>());
-			out += nearestIntersection(r, a, MaskAll<Size2::ValueType>());
+			a.normalDistance = replaceW(a.normalDistance, w(-a.normalDistance));
+			out += nearestIntersection(r[0], a, MaskAll<Size2::ValueType>());
+			out += nearestIntersection(r[1], a, MaskAll<Size2::ValueType>());
+			out += nearestIntersection(r[2], a, MaskAll<Size2::ValueType>());
+			out += nearestIntersection(r[3], a, MaskAll<Size2::ValueType>());
 		}
 		return out;
 	}
 
-	// Ray-SplittingPlane nearest intersection
-	const Float benchmarkMeshFacet(const Raycast & r, const ASizeT iterations)
-	{
-		const Mesh * m = Mesh::buildTriangleMesh();
-		const FacetIntersection f1;
-		FacetIntersection f2;
+	// Ray-Mesh nearest intersection
+	ARCH_NOINLINE const Float benchmarkMeshFacet(
+		const std::array<Raycast, 4> & r,
+		const ASizeT iterations
+	) {
+		auto m = Mesh::buildTriangleMesh();
+		auto f1 = FacetIntersection();
+		auto f2 = FacetIntersection();
 
-		// trick the compiler to not optimize the calculations away
-		volatile Float out = Zero<Float>();
+		auto out = Zero<Float>();
 		for (ASizeT i = VectorIndices::X; i < iterations; ++i)
 		{
-			out += m->findNearestIntersection(r, &f1, f2);
-			out += m->findNearestIntersection(r, &f1, f2);
-			out += m->findNearestIntersection(r, &f1, f2);
-			out += m->findNearestIntersection(r, &f1, f2);
+			out += m->findNearestIntersection(r[0], &f1, f2);
+			out += m->findNearestIntersection(r[1], &f1, f2);
+			out += m->findNearestIntersection(r[2], &f1, f2);
+			out += m->findNearestIntersection(r[3], &f1, f2);
 		}
 
 		delete m;
@@ -128,17 +138,48 @@ namespace raytracerui
 	void runBenchmarks()
 	{
 		benchmarkCPUClockFrequency();
-		const ASizeT iterations = 4 * 100000000;
-		const Float_64 timeFactor = reciprocal(static_cast<Float_64>(iterations));
+		const ASizeT iterations = 100000000;
+		const Float_64 timeFactor = reciprocal(static_cast<Float_64>(4 * iterations));
 
 		Int_64 start, stop;
-
-		const Raycast r = Raycast(
-			Ray(Float4(0.f, 0.f, -2.f, 1.f), Float4(0.f, 0.f, 1.f, 1.f)),
-			cullingOrientationToMask(NegativeOne<Int>()),
-			Zero<Size2>(),
-			100.f
-		);
+		const std::array<Raycast, 4> r = {
+			Raycast(
+				Ray(
+					Float4(0.f, 0.f, -4.f, 1.f),
+					Float4(0.f, 0.f, 1.f, 0.f)
+				),
+				cullingOrientationToMask(NegativeOne<Int>()),
+				Zero<Size2>(),
+				100.f
+			),
+			Raycast(
+				Ray(
+					Float4(0.f, 0.f, 4.f, 1.f),
+					Float4(0.f, 0.f, -1.f, 0.f)
+				),
+				cullingOrientationToMask(NegativeOne<Int>()),
+				Zero<Size2>(),
+				100.f
+			),
+			Raycast(
+				Ray(
+					Float4(4.f, 0.f, 0.f, 1.f),
+					Float4(-1.f, 0.f, 0.f, 0.f)
+				),
+				cullingOrientationToMask(NegativeOne<Int>()),
+				Zero<Size2>(),
+				100.f
+			),
+			Raycast(
+				Ray(
+					Float4(0.f, 4.f, 0.f, 1.f),
+					Float4(0.f, -1.f, 0.f, 0.f)
+				),
+				cullingOrientationToMask(NegativeOne<Int>()),
+				Zero<Size2>(),
+				100.f
+			)
+		};
 
 		// Ray-AABBx2 overlaps benchmark (=traversal costs of kd-tree)
 		start = __rdtsc();
@@ -171,11 +212,11 @@ namespace raytracerui
 		const Float_64 b5t = static_cast<Float_64>(stop - start) * timeFactor;
 
 
-		std::cout << "Ray-AABBx2 overlaps " << b1 << " " << b1t << std::endl;
-		std::cout << "Ray-AABB nearest " << b2 << " " << b2t << std::endl;
-		std::cout << "Ray-Sphere nearest " << b3 << " " << b3t << std::endl;
-		std::cout << "Ray-Plane nearest " << b4 << " " << b4t << std::endl;
-		std::cout << "Ray-Triangle nearest " << b5 << " " << b5t << std::endl;
+		std::cout << "benchmarkAABBOverlaps " << b1 << " " << b1t << std::endl;
+		std::cout << "benchmarkAABB " << b2 << " " << b2t << std::endl;
+		std::cout << "benchmarkSphere " << b3 << " " << b3t << std::endl;
+		std::cout << "benchmarkPlane " << b4 << " " << b4t << std::endl;
+		std::cout << "benchmarkMeshFacet " << b5 << " " << b5t << std::endl;
 
 	}
 
