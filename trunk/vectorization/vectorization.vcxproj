@@ -186,6 +186,7 @@
     <ClInclude Include="include\primitives\SplittingPlane.h" />
     <ClInclude Include="include\vectorization\architecture\memory.h" />
     <ClInclude Include="include\vectorization\constants\masks\MaskAll.h" />
+    <ClInclude Include="include\vectorization\constants\masks\MaskNone.h" />
     <ClInclude Include="include\vectorization\constants\masks\MaskZW.h" />
     <ClInclude Include="include\vectorization\constants\masks\MaskYZW.h" />
     <ClInclude Include="include\vectorization\constants\masks\MaskYZ.h" />
@@ -303,6 +304,7 @@
     <ClCompile Include="src\primitives\SplittingPlane.cpp" />
     <ClCompile Include="src\vectorization\architecture\compiler_intrinsics.cpp" />
     <ClCompile Include="src\vectorization\architecture\memory.cpp" />
+    <ClCompile Include="src\vectorization\constants\masks\MaskNone.cpp" />
     <ClCompile Include="src\vectorization\constants\values\Identity.cpp" />
     <ClCompile Include="src\vectorization\constants\values\DegreeToRadian.cpp" />
     <ClCompile Include="src\vectorization\constants\values\NotANumber.cpp" />

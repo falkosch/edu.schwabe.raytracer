@@ -1,5 +1,6 @@
 #pragma once
 
+#include "masks/MaskNone.h"
 #include "masks/MaskAll.h"
 #include "masks/MaskX.h"
 #include "masks/MaskXY.h"

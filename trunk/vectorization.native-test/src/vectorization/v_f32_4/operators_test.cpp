@@ -65,14 +65,16 @@ namespace vectorization
 				Assert::AreEqual(x(expected), x(actual), L"'-' op value mismatch", LINE_INFO());
 				Assert::AreEqual(y(expected), y(actual), L"'-' op value mismatch", LINE_INFO());
 				Assert::AreEqual(z(expected), z(actual), L"'-' op value mismatch", LINE_INFO());
+
 				Assert::IsTrue(isNaN(w(actual)), L"'-' op value mismatch", LINE_INFO());
 			}
 
 			// "~"
 			TEST_METHOD(testOnesComplementOperator)
 			{
+				auto sample = MaskAll<v_f32_4>();
 				auto expected = Zero<v_f32_4>();
-				auto actual = ~MaskAll<v_f32_4>();
+				auto actual = ~sample;
 
 				Assert::AreEqual(x(expected), x(actual), L"'~' op value mismatch", LINE_INFO());
 				Assert::AreEqual(y(expected), y(actual), L"'~' op value mismatch", LINE_INFO());
@@ -83,7 +85,12 @@ namespace vectorization
 			// "!"
 			TEST_METHOD(testLogicalNegationOperator)
 			{
-				auto expected = v_f32_4::VectorBoolType(MaskAll<v_f32_4::BoolType>(), 0, 0, 0);
+				auto expected = v_f32_4::VectorBoolType(
+					MaskAll<v_f32_4::BoolType>(),
+					0,
+					0,
+					0
+				);
 				auto actual = !sampleVector1();
 
 				Assert::AreEqual(x(expected), x(actual), L"'!' op value mismatch", LINE_INFO());
@@ -216,10 +223,10 @@ namespace vectorization
 				auto expected = v_f32_4(sampleVector2());
 				auto actual = sampleVector1() / NegativeOne<v_f32_4>();
 
-				Assert::AreEqual(x(expected), x(actual), L"'*' op value mismatch", LINE_INFO());
-				Assert::AreEqual(y(expected), y(actual), L"'*' op value mismatch", LINE_INFO());
-				Assert::AreEqual(z(expected), z(actual), L"'*' op value mismatch", LINE_INFO());
-				Assert::IsTrue(isNaN(w(actual)), L"'*' op value mismatch", LINE_INFO());
+				Assert::AreEqual(x(expected), x(actual), L"'/' op value mismatch", LINE_INFO());
+				Assert::AreEqual(y(expected), y(actual), L"'/' op value mismatch", LINE_INFO());
+				Assert::AreEqual(z(expected), z(actual), L"'/' op value mismatch", LINE_INFO());
+				Assert::IsTrue(isNaN(w(actual)), L"'/' op value mismatch", LINE_INFO());
 			}
 
 			TEST_METHOD(testDivideLeftHandValueOperator)
@@ -231,10 +238,10 @@ namespace vectorization
 				);
 				auto actual = NegativeOne<v_f32_4>() / sampleVector1();
 
-				Assert::AreEqual(x(expected), x(actual), L"'*' op value mismatch", LINE_INFO());
-				Assert::AreEqual(y(expected), y(actual), L"'*' op value mismatch", LINE_INFO());
-				Assert::AreEqual(z(expected), z(actual), L"'*' op value mismatch", LINE_INFO());
-				Assert::IsTrue(isNaN(w(actual)), L"'*' op value mismatch", LINE_INFO());
+				Assert::AreEqual(x(expected), x(actual), L"'/' op value mismatch", LINE_INFO());
+				Assert::AreEqual(y(expected), y(actual), L"'/' op value mismatch", LINE_INFO());
+				Assert::AreEqual(z(expected), z(actual), L"'/' op value mismatch", LINE_INFO());
+				Assert::IsTrue(isNaN(w(actual)), L"'/' op value mismatch", LINE_INFO());
 			}
 
 			TEST_METHOD(testDivideRightHandValueOperator)
@@ -242,10 +249,10 @@ namespace vectorization
 				auto expected = v_f32_4(sampleVector2());
 				auto actual = sampleVector1() / NegativeOne<v_f32_4>();
 
-				Assert::AreEqual(x(expected), x(actual), L"'*' op value mismatch", LINE_INFO());
-				Assert::AreEqual(y(expected), y(actual), L"'*' op value mismatch", LINE_INFO());
-				Assert::AreEqual(z(expected), z(actual), L"'*' op value mismatch", LINE_INFO());
-				Assert::IsTrue(isNaN(w(actual)), L"'*' op value mismatch", LINE_INFO());
+				Assert::AreEqual(x(expected), x(actual), L"'/' op value mismatch", LINE_INFO());
+				Assert::AreEqual(y(expected), y(actual), L"'/' op value mismatch", LINE_INFO());
+				Assert::AreEqual(z(expected), z(actual), L"'/' op value mismatch", LINE_INFO());
+				Assert::IsTrue(isNaN(w(actual)), L"'/' op value mismatch", LINE_INFO());
 			}
 
 

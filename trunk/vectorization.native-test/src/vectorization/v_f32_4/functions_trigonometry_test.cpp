@@ -17,8 +17,6 @@ namespace vectorization
 		{
 		public:
 
-			typedef const v_f32_4::VectorBoolType(*MatcherFunctionPtr)(const v_f32_4 &, const v_f32_4 &);
-
 			static const std::wstring format(const ASizeT index, const v_f32_4::ValueType value, const std::string & prefix, const v_f32_4::ValueType actual, const std::string & operatorText, const v_f32_4::ValueType expected)
 			{
 				auto nmessage = (std::ostringstream() << "[" << index << "]: " << value << " " << prefix << ": "

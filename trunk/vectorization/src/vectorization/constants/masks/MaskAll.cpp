@@ -1,5 +1,7 @@
 #include "vectorization/constants/masks/MaskAll.h"
 
+#include "vectorization/constants/values/Zero.h"
+
 namespace vectorization
 {
 
@@ -72,7 +74,7 @@ namespace vectorization
 	template <>
 	const PackedInts_128 MaskAll<PackedInts_128>() noexcept
 	{
-		return _mm_cmpeq_epi32(_mm_setzero_si128(), _mm_setzero_si128());
+		return _mm_cmpeq_epi32(Zero<PackedInts_128>(), Zero<PackedInts_128>());
 	}
 
 	template <>

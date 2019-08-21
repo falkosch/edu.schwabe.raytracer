@@ -1,6 +1,8 @@
 #include <CppUnitTest.h>
 #include <vectorization.h>
 
+#include "../../TestUtils.h"
+
 #include <array>
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
@@ -45,46 +47,32 @@ namespace vectorization
 
 			TEST_METHOD(testCtorZero)
 			{
-				auto expected = Zero<v_f32_4::ValueType>();
-				auto actual = v_f32_4();
-
-				Assert::AreEqual(expected, x(actual), L"Ctor value mismatch", LINE_INFO());
-				Assert::AreEqual(expected, y(actual), L"Ctor value mismatch", LINE_INFO());
-				Assert::AreEqual(expected, z(actual), L"Ctor value mismatch", LINE_INFO());
-				Assert::AreEqual(expected, w(actual), L"Ctor value mismatch", LINE_INFO());
+				TestUtils::testEachComponent<VectorIndices::AboveW>([](auto i, auto message) {
+					Assert::AreEqual(Zero<v_f32_4::ValueType>(), v_f32_4()[i], message);
+				});
 			}
 
 			TEST_METHOD(testCtorCopy)
 			{
-				auto expected = sampleVector();
-				auto actual = expected;
-
-				Assert::AreEqual(x(expected), x(actual), L"Ctor value mismatch", LINE_INFO());
-				Assert::AreEqual(y(expected), y(actual), L"Ctor value mismatch", LINE_INFO());
-				Assert::AreEqual(z(expected), z(actual), L"Ctor value mismatch", LINE_INFO());
-				Assert::AreEqual(w(expected), w(actual), L"Ctor value mismatch", LINE_INFO());
+				TestUtils::testEachComponent<VectorIndices::AboveW>([](auto i, auto message) {
+					Assert::AreEqual(sampleVector()[i], v_f32_4(sampleVector())[i], message);
+				});
 			}
 
 			TEST_METHOD(testCtorPackedType)
 			{
-				auto expected = sampleVector();
-				auto actual = v_f32_4(expected.components);
-
-				Assert::AreEqual(x(expected), x(actual), L"Ctor value mismatch", LINE_INFO());
-				Assert::AreEqual(y(expected), y(actual), L"Ctor value mismatch", LINE_INFO());
-				Assert::AreEqual(z(expected), z(actual), L"Ctor value mismatch", LINE_INFO());
-				Assert::AreEqual(w(expected), w(actual), L"Ctor value mismatch", LINE_INFO());
+				TestUtils::testEachComponent<VectorIndices::AboveW>([](auto i, auto message) {
+					Assert::AreEqual(sampleVector()[i], v_f32_4(sampleVector().components)[i], message);
+				});
 			}
 
 			TEST_METHOD(testCtorValueType)
 			{
-				auto expected = sampleVector();
-				auto actual = v_f32_4(x(expected));
-
-				Assert::AreEqual(x(expected), x(actual), L"Ctor value mismatch", LINE_INFO());
-				Assert::AreEqual(x(expected), y(actual), L"Ctor value mismatch", LINE_INFO());
-				Assert::AreEqual(x(expected), z(actual), L"Ctor value mismatch", LINE_INFO());
-				Assert::AreEqual(x(expected), w(actual), L"Ctor value mismatch", LINE_INFO());
+				TestUtils::testEachComponent<VectorIndices::AboveW>([](auto i, auto message) {
+					staticFor<VectorIndices::X, VectorIndices::AboveW>([&](auto j) {
+						Assert::AreEqual(sampleVector()[i], v_f32_4(sampleVector()[i])[j], message);
+					});
+				});
 			}
 
 			TEST_METHOD(testCtorXY00)
