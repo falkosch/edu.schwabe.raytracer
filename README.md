@@ -1,4 +1,4 @@
-# My project's README
+# edu.schwabe.raytracer
 
 ![alt text](./project-logo.jpg "Project Logo")
 
