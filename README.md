@@ -1,4 +1,8 @@
-# My project's README
+# edu.schwabe.raytracer
+
+![alt text](./project-logo.jpg "Project Logo")
+
+SSE/AVX based implementation of recursive raytracing (a.k.a. Whitted Raytracing). Creative commons CC-BY-NC-SA licensed.
 
 This is my private raytracing project for hobby and learning purposes only.
 
