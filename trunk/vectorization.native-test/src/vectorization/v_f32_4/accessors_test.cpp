@@ -1,3 +1,5 @@
+#include "../../StandardSample.h"
+
 #include <CppUnitTest.h>
 #include <vectorization.h>
 
@@ -7,151 +9,161 @@ using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
 namespace vectorization
 {
-	namespace test
-	{
+    namespace test
+    {
 
-		TEST_CLASS(v_f32_4_AccessorsTest)
-		{
-		public:
+        TEST_CLASS(v_f32_4_Accessors)
+        {
+        public:
 
-			static const std::array<v_f32_4::ValueType, v_f32_4::SIZE> sample() {
-				return {
-					One<v_f32_4::ValueType>(),
-					Two<v_f32_4::ValueType>(),
-					OneHalf<v_f32_4::ValueType>(),
-					Infinity<v_f32_4::ValueType>()
-				};
-			}
+            static const std::array<v_f32_4::ValueType, v_f32_4::SIZE> sampleArray() {
+                return StandardSample::ofArrayType<v_f32_4::ValueType, v_f32_4::SIZE>();
+            }
 
-			static const v_f32_4 sampleVector() {
-				auto sampleComponents = sample();
-				return vectorization::v_f32_4(
-					sampleComponents.at(VectorIndices::X),
-					sampleComponents.at(VectorIndices::Y),
-					sampleComponents.at(VectorIndices::Z),
-					sampleComponents.at(VectorIndices::W)
-				);
-			}
+            static const v_f32_4 sampleVector() {
+                return StandardSample::ofVectorType<v_f32_4>();
+            }
 
-			TEST_METHOD(testComponent)
-			{
-				auto expected = sample();
-				auto testValue = sampleVector();
+            TEST_METHOD(readsComponent)
+            {
+                auto expected = sampleArray();
+                auto testValue = sampleVector();
 
-				Assert::AreEqual(expected.at(VectorIndices::X), component<VectorIndices::X>(testValue));
-				Assert::AreEqual(expected.at(VectorIndices::Y), component<VectorIndices::Y>(testValue));
-				Assert::AreEqual(expected.at(VectorIndices::Z), component<VectorIndices::Z>(testValue));
-				Assert::AreEqual(expected.at(VectorIndices::W), component<VectorIndices::W>(testValue));
-			}
+                Assert::AreEqual(expected.at(VectorIndices::X), component<VectorIndices::X>(testValue));
+                Assert::AreEqual(expected.at(VectorIndices::Y), component<VectorIndices::Y>(testValue));
+                Assert::AreEqual(expected.at(VectorIndices::Z), component<VectorIndices::Z>(testValue));
+                Assert::AreEqual(expected.at(VectorIndices::W), component<VectorIndices::W>(testValue));
+            }
 
-			TEST_METHOD(testXYZW)
-			{
-				auto expected = sample();
-				auto testValue = sampleVector();
+            TEST_METHOD(readsXYZW)
+            {
+                auto expected = sampleArray();
+                auto testValue = sampleVector();
 
-				Assert::AreEqual(expected.at(VectorIndices::X), x(testValue));
-				Assert::AreEqual(expected.at(VectorIndices::Y), y(testValue));
-				Assert::AreEqual(expected.at(VectorIndices::Z), z(testValue));
-				Assert::AreEqual(expected.at(VectorIndices::W), w(testValue));
-			}
+                Assert::AreEqual(expected.at(VectorIndices::X), x(testValue));
+                Assert::AreEqual(expected.at(VectorIndices::Y), y(testValue));
+                Assert::AreEqual(expected.at(VectorIndices::Z), z(testValue));
+                Assert::AreEqual(expected.at(VectorIndices::W), w(testValue));
+            }
 
-			TEST_METHOD(testReplaceComponent)
-			{
-				auto testValue = sampleVector();
-				auto testReplacement = 5.0f;
-				v_f32_4 testReplaced;
+            TEST_METHOD(replacesComponent)
+            {
+                auto testValue = sampleVector();
+                auto testReplacement = 5.0f;
 
-				testReplaced = replaceComponent<VectorIndices::X>(testValue, testReplacement);
-				Assert::AreEqual(testReplacement, x(testReplaced));
-				Assert::AreNotEqual(testReplacement, y(testReplaced));
-				Assert::AreNotEqual(testReplacement, z(testReplaced));
-				Assert::AreNotEqual(testReplacement, w(testReplaced));
+                {
+                    auto testReplaced = replaceComponent<VectorIndices::X>(testValue, testReplacement);
+                    Assert::AreEqual(testReplacement, x(testReplaced));
+                    Assert::AreNotEqual(testReplacement, y(testReplaced));
+                    Assert::AreNotEqual(testReplacement, z(testReplaced));
+                    Assert::AreNotEqual(testReplacement, w(testReplaced));
+                }
 
-				testReplaced = replaceComponent<VectorIndices::Y>(testValue, testReplacement);
-				Assert::AreNotEqual(testReplacement, x(testReplaced));
-				Assert::AreEqual(testReplacement, y(testReplaced));
-				Assert::AreNotEqual(testReplacement, z(testReplaced));
-				Assert::AreNotEqual(testReplacement, w(testReplaced));
+                {
+                    auto testReplaced = replaceComponent<VectorIndices::Y>(testValue, testReplacement);
+                    Assert::AreNotEqual(testReplacement, x(testReplaced));
+                    Assert::AreEqual(testReplacement, y(testReplaced));
+                    Assert::AreNotEqual(testReplacement, z(testReplaced));
+                    Assert::AreNotEqual(testReplacement, w(testReplaced));
+                }
 
-				testReplaced = replaceComponent<VectorIndices::Z>(testValue, testReplacement);
-				Assert::AreNotEqual(testReplacement, x(testReplaced));
-				Assert::AreNotEqual(testReplacement, y(testReplaced));
-				Assert::AreEqual(testReplacement, z(testReplaced));
-				Assert::AreNotEqual(testReplacement, w(testReplaced));
+                {
+                    auto testReplaced = replaceComponent<VectorIndices::Z>(testValue, testReplacement);
+                    Assert::AreNotEqual(testReplacement, x(testReplaced));
+                    Assert::AreNotEqual(testReplacement, y(testReplaced));
+                    Assert::AreEqual(testReplacement, z(testReplaced));
+                    Assert::AreNotEqual(testReplacement, w(testReplaced));
+                }
 
-				testReplaced = replaceComponent<VectorIndices::W>(testValue, testReplacement);
-				Assert::AreNotEqual(testReplacement, x(testReplaced));
-				Assert::AreNotEqual(testReplacement, y(testReplaced));
-				Assert::AreNotEqual(testReplacement, z(testReplaced));
-				Assert::AreEqual(testReplacement, w(testReplaced));
-			}
+                {
+                    auto testReplaced = replaceComponent<VectorIndices::W>(testValue, testReplacement);
+                    Assert::AreNotEqual(testReplacement, x(testReplaced));
+                    Assert::AreNotEqual(testReplacement, y(testReplaced));
+                    Assert::AreNotEqual(testReplacement, z(testReplaced));
+                    Assert::AreEqual(testReplacement, w(testReplaced));
+                }
+            }
 
-			TEST_METHOD(testReplaceXYZW)
-			{
-				auto testValue = sampleVector();
-				auto testReplacement = 5.0f;
-				v_f32_4 testReplaced;
+            TEST_METHOD(replacesXYZW)
+            {
+                auto testValue = sampleVector();
+                auto testReplacement = 5.0f;
 
-				testReplaced = replaceX(testValue, testReplacement);
-				Assert::AreEqual(testReplacement, x(testReplaced));
-				Assert::AreNotEqual(testReplacement, y(testReplaced));
-				Assert::AreNotEqual(testReplacement, z(testReplaced));
-				Assert::AreNotEqual(testReplacement, w(testReplaced));
+                {
+                    auto testReplaced = replaceX(testValue, testReplacement);
+                    Assert::AreEqual(testReplacement, x(testReplaced));
+                    Assert::AreNotEqual(testReplacement, y(testReplaced));
+                    Assert::AreNotEqual(testReplacement, z(testReplaced));
+                    Assert::AreNotEqual(testReplacement, w(testReplaced));
+                }
 
-				testReplaced = replaceY(testValue, testReplacement);
-				Assert::AreNotEqual(testReplacement, x(testReplaced));
-				Assert::AreEqual(testReplacement, y(testReplaced));
-				Assert::AreNotEqual(testReplacement, z(testReplaced));
-				Assert::AreNotEqual(testReplacement, w(testReplaced));
+                {
+                    auto testReplaced = replaceY(testValue, testReplacement);
+                    Assert::AreNotEqual(testReplacement, x(testReplaced));
+                    Assert::AreEqual(testReplacement, y(testReplaced));
+                    Assert::AreNotEqual(testReplacement, z(testReplaced));
+                    Assert::AreNotEqual(testReplacement, w(testReplaced));
+                }
 
-				testReplaced = replaceZ(testValue, testReplacement);
-				Assert::AreNotEqual(testReplacement, x(testReplaced));
-				Assert::AreNotEqual(testReplacement, y(testReplaced));
-				Assert::AreEqual(testReplacement, z(testReplaced));
-				Assert::AreNotEqual(testReplacement, w(testReplaced));
+                {
+                    auto testReplaced = replaceZ(testValue, testReplacement);
+                    Assert::AreNotEqual(testReplacement, x(testReplaced));
+                    Assert::AreNotEqual(testReplacement, y(testReplaced));
+                    Assert::AreEqual(testReplacement, z(testReplaced));
+                    Assert::AreNotEqual(testReplacement, w(testReplaced));
+                }
 
-				testReplaced = replaceW(testValue, testReplacement);
-				Assert::AreNotEqual(testReplacement, x(testReplaced));
-				Assert::AreNotEqual(testReplacement, y(testReplaced));
-				Assert::AreNotEqual(testReplacement, z(testReplaced));
-				Assert::AreEqual(testReplacement, w(testReplaced));
-			}
+                {
+                    auto testReplaced = replaceW(testValue, testReplacement);
+                    Assert::AreNotEqual(testReplacement, x(testReplaced));
+                    Assert::AreNotEqual(testReplacement, y(testReplaced));
+                    Assert::AreNotEqual(testReplacement, z(testReplaced));
+                    Assert::AreEqual(testReplacement, w(testReplaced));
+                }
+            }
 
-			TEST_METHOD(testSetComponent)
-			{
-				auto testReplacement = 5.0f;
-				v_f32_4 testValue;
+            TEST_METHOD(setsComponent)
+            {
+                auto testReplacement = 5.0f;
 
-				testValue = sampleVector();
-				setComponent<VectorIndices::X>(testValue, testReplacement);
-				Assert::AreEqual(testReplacement, x(testValue));
-				Assert::AreNotEqual(testReplacement, y(testValue));
-				Assert::AreNotEqual(testReplacement, z(testValue));
-				Assert::AreNotEqual(testReplacement, w(testValue));
+                {
+                    auto testValue = sampleVector();
+                    setComponent<VectorIndices::X>(testValue, testReplacement);
+                    Assert::AreEqual(testReplacement, x(testValue));
+                    Assert::AreNotEqual(testReplacement, y(testValue));
+                    Assert::AreNotEqual(testReplacement, z(testValue));
+                    Assert::AreNotEqual(testReplacement, w(testValue));
+                }
 
-				testValue = sampleVector();
-				setComponent<VectorIndices::Y>(testValue, testReplacement);
-				Assert::AreNotEqual(testReplacement, x(testValue));
-				Assert::AreEqual(testReplacement, y(testValue));
-				Assert::AreNotEqual(testReplacement, z(testValue));
-				Assert::AreNotEqual(testReplacement, w(testValue));
+                {
+                    auto testValue = sampleVector();
+                    setComponent<VectorIndices::Y>(testValue, testReplacement);
+                    Assert::AreNotEqual(testReplacement, x(testValue));
+                    Assert::AreEqual(testReplacement, y(testValue));
+                    Assert::AreNotEqual(testReplacement, z(testValue));
+                    Assert::AreNotEqual(testReplacement, w(testValue));
+                }
 
-				testValue = sampleVector();
-				setComponent<VectorIndices::Z>(testValue, testReplacement);
-				Assert::AreNotEqual(testReplacement, x(testValue));
-				Assert::AreNotEqual(testReplacement, y(testValue));
-				Assert::AreEqual(testReplacement, z(testValue));
-				Assert::AreNotEqual(testReplacement, w(testValue));
+                {
+                    auto testValue = sampleVector();
+                    setComponent<VectorIndices::Z>(testValue, testReplacement);
+                    Assert::AreNotEqual(testReplacement, x(testValue));
+                    Assert::AreNotEqual(testReplacement, y(testValue));
+                    Assert::AreEqual(testReplacement, z(testValue));
+                    Assert::AreNotEqual(testReplacement, w(testValue));
+                }
 
-				testValue = sampleVector();
-				setComponent<VectorIndices::W>(testValue, testReplacement);
-				Assert::AreNotEqual(testReplacement, x(testValue));
-				Assert::AreNotEqual(testReplacement, y(testValue));
-				Assert::AreNotEqual(testReplacement, z(testValue));
-				Assert::AreEqual(testReplacement, w(testValue));
-			}
+                {
+                    auto testValue = sampleVector();
+                    setComponent<VectorIndices::W>(testValue, testReplacement);
+                    Assert::AreNotEqual(testReplacement, x(testValue));
+                    Assert::AreNotEqual(testReplacement, y(testValue));
+                    Assert::AreNotEqual(testReplacement, z(testValue));
+                    Assert::AreEqual(testReplacement, w(testValue));
+                }
+            }
 
-		};
+        };
 
-	}
+    }
 }

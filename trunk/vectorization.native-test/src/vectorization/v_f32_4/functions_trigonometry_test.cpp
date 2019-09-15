@@ -1,224 +1,154 @@
+#include "../../Compare.h"
+#include "../../MessageFormat.h"
+#include "../../StandardSample.h"
+
 #include <CppUnitTest.h>
 #include <vectorization.h>
 
 #include <algorithm>
 #include <array>
-#include <limits>
 #include <cmath>
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
 namespace vectorization
 {
-	namespace test
-	{
+    namespace test
+    {
 
-		TEST_CLASS(v_f32_4_FunctionsTrigonometryTest)
-		{
-		public:
+        TEST_CLASS(v_f32_4_FunctionsTrigonometryTest)
+        {
+        public:
 
-			static const std::wstring format(const ASizeT index, const v_f32_4::ValueType value, const std::string & prefix, const v_f32_4::ValueType actual, const std::string & operatorText, const v_f32_4::ValueType expected)
-			{
-				auto nmessage = (std::ostringstream() << "[" << index << "]: " << value << " " << prefix << ": "
-					<< actual << " " << operatorText << " " << expected).str();
-				return std::wstring(nmessage.cbegin(), nmessage.cend());
-			}
+            TEST_METHOD(computesLog)
+            {
+                auto test = StandardSample::importantFloatConstants();
 
-			static const v_f32_4::VectorBoolType nearEqualsRelative(const v_f32_4 & a, const v_f32_4 & b)
-			{
-				const auto maxOfAbsoluteOfBoth = max(abs(a), abs(b));
-				return (abs(a - b) / maxOfAbsoluteOfBoth) < Epsilon<v_f32_4>();
-			}
+                auto matchers = {
+                    Compare::equalsOrdered, // Zero
+                    Compare::equalsOrdered,
+                    Compare::nearEqualsRelative,
+                    Compare::isBothNotANumber,
+                    Compare::equalsOrdered, // One
+                    Compare::isBothNotANumber,
+                    Compare::nearEqualsRelative,
+                    Compare::isBothNotANumber,
 
-			static const v_f32_4::VectorBoolType equalsOrdered(const v_f32_4 & a, const v_f32_4 & b)
-			{
-				return a == b;
-			}
+                    Compare::nearEqualsRelative, // Two
+                    Compare::isBothNotANumber,
+                    Compare::nearEqualsRelative,
+                    Compare::isBothNotANumber,
+                    Compare::nearEqualsRelative, // ReciprocalPi
+                    Compare::isBothNotANumber,
+                    Compare::nearEqualsRelative,
+                    Compare::isBothNotANumber,
 
-			static const v_f32_4::VectorBoolType isBothNotANumber(const v_f32_4 & a, const v_f32_4 & b)
-			{
-				return vectorization::isNaN(a) & vectorization::isNaN(b);
-			}
+                    Compare::nearEqualsRelative, // RadianToDegree
+                    Compare::isBothNotANumber,
+                    Compare::nearEqualsRelative,
+                    Compare::isBothNotANumber,
+                    Compare::nearEqualsRelative, // Sin45
+                    Compare::isBothNotANumber,
+                    Compare::equalsOrdered,
+                    Compare::isBothNotANumber,
 
-			static const std::array<v_f32_4::ValueType, 39> samples()
-			{
-				return {
-					Zero<v_f32_4::ValueType>(),
-					NegativeZero<v_f32_4::ValueType>(),
-					Half<v_f32_4::ValueType>(),
-					-Half<v_f32_4::ValueType>(),
-					One<v_f32_4::ValueType>(),
-					NegativeOne<v_f32_4::ValueType>(),
-					OneHalf<v_f32_4::ValueType>(),
-					-OneHalf<v_f32_4::ValueType>(),
+                    Compare::nearEqualsRelative, // Epsilon
+                    Compare::isBothNotANumber,
+                    Compare::nearEqualsRelative,
+                    Compare::isBothNotANumber,
+                    Compare::nearEqualsRelative, // max
+                    Compare::isBothNotANumber,
+                    Compare::nearEqualsRelative,
+                    Compare::isBothNotANumber,
 
-					Two<v_f32_4::ValueType>(),
-					NegativeTwo<v_f32_4::ValueType>(),
-					Pi<v_f32_4::ValueType>(),
-					-Pi<v_f32_4::ValueType>(),
-					ReciprocalPi<v_f32_4::ValueType>(),
-					-ReciprocalPi<v_f32_4::ValueType>(),
-					DegreeToRadian<v_f32_4::ValueType>(),
-					-DegreeToRadian<v_f32_4::ValueType>(),
+                    Compare::nearEqualsRelative, // denorm_min
+                    Compare::isBothNotANumber,
+                    Compare::nearEqualsRelative,
+                    Compare::isBothNotANumber,
+                    Compare::nearEqualsRelative, // round_error
+                    Compare::isBothNotANumber,
+                    Compare::isBothNotANumber
+                };
 
-					RadianToDegree<v_f32_4::ValueType>(),
-					-RadianToDegree<v_f32_4::ValueType>(),
-					RadianToUniform<v_f32_4::ValueType>(),
-					-RadianToUniform<v_f32_4::ValueType>(),
-					Sin45<v_f32_4::ValueType>(),
-					-Sin45<v_f32_4::ValueType>(),
-					Infinity<v_f32_4::ValueType>(),
-					NegativeInfinity<v_f32_4::ValueType>(),
+                auto matcher = matchers.begin();
+                for (auto i = Zero<ASizeT>(); i < test.size(); ++i, ++matcher)
+                {
+                    auto testValue = test.at(i);
+                    auto testVector = v_f32_4(testValue);
+                    auto actual = vectorization::log(testVector);
+                    auto expected = v_f32_4(std::log(testValue));
+                    auto match = (*matcher)(actual, expected);
 
-					Epsilon<v_f32_4::ValueType>(),
-					-Epsilon<v_f32_4::ValueType>(),
-					SelfOcclusionEpsilon<v_f32_4::ValueType>(),
-					-SelfOcclusionEpsilon<v_f32_4::ValueType>(),
-					std::numeric_limits<v_f32_4::ValueType>::max(),
-					std::numeric_limits<v_f32_4::ValueType>::lowest(),
-					std::numeric_limits<v_f32_4::ValueType>::min(),
-					-std::numeric_limits<v_f32_4::ValueType>::min(),
+                    auto wmessage = MessageFormat::forFunction(i, testValue, "value mismatch ", x(actual), " !~~ ", x(expected));
+                    Assert::IsTrue(allTrue(match), wmessage.c_str(), LINE_INFO());
+                }
+            }
 
-					std::numeric_limits<v_f32_4::ValueType>::denorm_min(),
-					-std::numeric_limits<v_f32_4::ValueType>::denorm_min(),
-					std::numeric_limits<v_f32_4::ValueType>::epsilon(),
-					-std::numeric_limits<v_f32_4::ValueType>::epsilon(),
-					std::numeric_limits<v_f32_4::ValueType>::round_error(),
-					-std::numeric_limits<v_f32_4::ValueType>::round_error(),
-					NotANumber<v_f32_4::ValueType>()
-				};
-			}
+            TEST_METHOD(computesExp)
+            {
+                auto test = StandardSample::importantFloatConstants();
 
-			TEST_METHOD(testLog)
-			{
-				auto test = samples();
+                auto matchers = {
+                    Compare::nearEqualsRelative, // Zero
+                    Compare::nearEqualsRelative,
+                    Compare::nearEqualsRelative,
+                    Compare::nearEqualsRelative,
+                    Compare::nearEqualsRelative, // One
+                    Compare::nearEqualsRelative,
+                    Compare::nearEqualsRelative,
+                    Compare::nearEqualsRelative,
 
-				auto matchers = {
-					equalsOrdered, // Zero
-					equalsOrdered,
-					nearEqualsRelative,
-					isBothNotANumber,
-					equalsOrdered, // One
-					isBothNotANumber,
-					nearEqualsRelative,
-					isBothNotANumber,
+                    Compare::nearEqualsRelative, // Two
+                    Compare::nearEqualsRelative,
+                    Compare::nearEqualsRelative,
+                    Compare::nearEqualsRelative,
+                    Compare::nearEqualsRelative, // ReciprocalPi
+                    Compare::nearEqualsRelative,
+                    Compare::nearEqualsRelative,
+                    Compare::nearEqualsRelative,
 
-					nearEqualsRelative, // Two
-					isBothNotANumber,
-					nearEqualsRelative,
-					isBothNotANumber,
-					nearEqualsRelative, // ReciprocalPi
-					isBothNotANumber,
-					nearEqualsRelative,
-					isBothNotANumber,
+                    Compare::nearEqualsRelative, // RadianToDegree
+                    Compare::nearEqualsRelative,
+                    Compare::nearEqualsRelative,
+                    Compare::nearEqualsRelative,
+                    Compare::nearEqualsRelative, // Sin45
+                    Compare::nearEqualsRelative,
+                    Compare::equalsOrdered,
+                    Compare::equalsOrdered,
 
-					nearEqualsRelative, // RadianToDegree
-					isBothNotANumber,
-					nearEqualsRelative,
-					isBothNotANumber,
-					nearEqualsRelative, // Sin45
-					isBothNotANumber,
-					equalsOrdered,
-					isBothNotANumber,
+                    Compare::nearEqualsRelative, // Epsilon
+                    Compare::nearEqualsRelative,
+                    Compare::nearEqualsRelative,
+                    Compare::nearEqualsRelative,
+                    Compare::equalsOrdered, // max
+                    Compare::equalsOrdered,
+                    Compare::nearEqualsRelative,
+                    Compare::nearEqualsRelative,
 
-					nearEqualsRelative, // Epsilon
-					isBothNotANumber,
-					nearEqualsRelative,
-					isBothNotANumber,
-					nearEqualsRelative, // max
-					isBothNotANumber,
-					nearEqualsRelative,
-					isBothNotANumber,
+                    Compare::nearEqualsRelative, // denorm_min
+                    Compare::nearEqualsRelative,
+                    Compare::nearEqualsRelative,
+                    Compare::nearEqualsRelative,
+                    Compare::nearEqualsRelative, // round_error
+                    Compare::nearEqualsRelative,
+                    Compare::isBothNotANumber
+                };
 
-					nearEqualsRelative, // denorm_min
-					isBothNotANumber,
-					nearEqualsRelative,
-					isBothNotANumber,
-					nearEqualsRelative, // round_error
-					isBothNotANumber,
-					isBothNotANumber
-				};
+                auto matcher = matchers.begin();
+                for (auto i = Zero<ASizeT>(); i < test.size(); ++i, ++matcher)
+                {
+                    auto testValue = test.at(i);
+                    auto actual = vectorization::exp(v_f32_4(testValue));
+                    auto expected = v_f32_4(std::exp(testValue));
+                    auto match = (*matcher)(actual, expected);
 
-				auto matcher = matchers.begin();
-				for (auto i = Zero<ASizeT>(); i < test.size(); ++i, ++matcher)
-				{
-					auto testValue = test.at(i);
-					auto testVector = v_f32_4(testValue);
-					auto actual = vectorization::log(testVector);
-					auto actual3 = vectorization::log3(testVector);
-					auto expected = v_f32_4(std::log(testValue));
-					auto match = (*matcher)(actual, expected);
-
-					auto wmessage = format(i, testValue, "value mismatch ", x(actual), " !~~ ", x(expected));
-					Assert::IsTrue(allTrue(match), wmessage.data(), LINE_INFO());
-				}
-			}
-
-			TEST_METHOD(testExp)
-			{
-				auto test = samples();
-
-				auto matchers = {
-					nearEqualsRelative, // Zero
-					nearEqualsRelative,
-					nearEqualsRelative,
-					nearEqualsRelative,
-					nearEqualsRelative, // One
-					nearEqualsRelative,
-					nearEqualsRelative,
-					nearEqualsRelative,
-
-					nearEqualsRelative, // Two
-					nearEqualsRelative,
-					nearEqualsRelative,
-					nearEqualsRelative,
-					nearEqualsRelative, // ReciprocalPi
-					nearEqualsRelative,
-					nearEqualsRelative,
-					nearEqualsRelative,
-
-					nearEqualsRelative, // RadianToDegree
-					nearEqualsRelative,
-					nearEqualsRelative,
-					nearEqualsRelative,
-					nearEqualsRelative, // Sin45
-					nearEqualsRelative,
-					equalsOrdered,
-					equalsOrdered,
-
-					nearEqualsRelative, // Epsilon
-					nearEqualsRelative,
-					nearEqualsRelative,
-					nearEqualsRelative,
-					equalsOrdered, // max
-					equalsOrdered,
-					nearEqualsRelative,
-					nearEqualsRelative,
-
-					nearEqualsRelative, // denorm_min
-					nearEqualsRelative,
-					nearEqualsRelative,
-					nearEqualsRelative,
-					nearEqualsRelative, // round_error
-					nearEqualsRelative,
-					isBothNotANumber
-				};
-
-				auto matcher = matchers.begin();
-				for (auto i = Zero<ASizeT>(); i < test.size(); ++i, ++matcher)
-				{
-					auto testValue = test.at(i);
-					auto actual = vectorization::exp(v_f32_4(testValue));
-					auto expected = v_f32_4(std::exp(testValue));
-					auto match = (*matcher)(actual, expected);
-
-					auto wmessage = format(i, testValue, "value mismatch ", x(actual), " !~~ ", x(expected));
-					Assert::IsTrue(allTrue(match), wmessage.data(), LINE_INFO());
-				}
-			}
+                    auto wmessage = MessageFormat::forFunction(i, testValue, "value mismatch ", x(actual), " !~~ ", x(expected));
+                    Assert::IsTrue(allTrue(match), wmessage.c_str(), LINE_INFO());
+                }
+            }
 
 
-		};
+        };
 
-	}
+    }
 }

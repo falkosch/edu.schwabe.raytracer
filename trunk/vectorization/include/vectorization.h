@@ -1,6 +1,6 @@
 #pragma once
 
- #include "vectorization/architecture.h"
+#include "vectorization/architecture.h"
 
 #include "vectorization/constants.h"
 

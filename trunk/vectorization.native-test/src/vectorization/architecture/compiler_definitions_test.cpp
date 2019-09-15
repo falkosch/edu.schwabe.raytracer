@@ -8,11 +8,11 @@ namespace vectorization
 	namespace test
 	{
 
-		TEST_CLASS(CompilerDefinitionsTest)
+		TEST_CLASS(CompilerDefinitions)
 		{
 		public:
 
-			TEST_METHOD(testHasIntrinsicsLevels)
+			TEST_METHOD(hasIntrinsicsLevels)
 			{
 				Assert::AreEqual(0, VECTORIZATION_SSE, L"Bad intrinsics levels", LINE_INFO());
 				Assert::IsTrue(VECTORIZATION_SSE < VECTORIZATION_SSE4, L"Bad intrinsics levels", LINE_INFO());
@@ -24,14 +24,14 @@ namespace vectorization
 				Assert::IsTrue(VECTORIZATION_AVX512 >= VECTORIZATION_INTRINSICS_LEVEL, L"Bad intrinsics levels", LINE_INFO());
 			}
 
-			TEST_METHOD(testHasEitherDebugOrNDebugSet)
+			TEST_METHOD(hasEitherDebugOrNDebugSet)
 			{
 #if defined(DEBUG) && defined(NDEBUG)
 				Assert::Fail();
 #endif
 			}
 
-			TEST_METHOD(testEnforcesIntrinsicsCodePathWhenCompilerFlagIsOn)
+			TEST_METHOD(enforcesIntrinsicsCodePathWhenCompilerFlagIsOn)
 			{
 				Assert::IsTrue(VECTORIZATION_SSE <= VECTORIZATION_INTRINSICS_LEVEL, L"Invalid code path", LINE_INFO());
 
@@ -48,7 +48,7 @@ namespace vectorization
 #endif
 			}
 
-			TEST_METHOD(testHasAlignmentParameters)
+			TEST_METHOD(hasAlignmentParameters)
 			{
 				Assert::IsTrue(0 < X86_ALIGNMENT, L"Bad alignment parameters", LINE_INFO());
 				Assert::IsTrue(X86_ALIGNMENT < MM_ALIGNMENT, L"Bad alignment parameters", LINE_INFO());
