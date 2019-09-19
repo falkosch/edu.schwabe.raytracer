@@ -67,8 +67,8 @@ namespace raytracerui
 
 	LRESULT WindowsRaytracerUI::run()
 	{
-		BOOL bRet;
-		MSG msg;
+		auto bRet = BOOL();
+		auto msg = MSG();
 		LRESULT returnCode = Zero<LRESULT>();
 		while (Zero<BOOL>() != (bRet = GetMessage(&msg, hWnd, Zero<UINT>(), Zero<UINT>()))) {
 			if (bRet == NegativeOne<BOOL>()) {

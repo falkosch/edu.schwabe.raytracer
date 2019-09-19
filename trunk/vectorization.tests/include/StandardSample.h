@@ -77,17 +77,30 @@ namespace vectorization
 
 
             template <typename T>
-            static const T ofVectorType();
+            static const T ofVectorTypeFromArrayType(
+                const std::array<typename T::ValueType, T::SIZE> & sampleComponents
+            );
 
             template <>
-            static const v_f32_4 ofVectorType() {
-                auto sampleComponents = StandardSample::ofArrayType<v_f32_4::ValueType, v_f32_4::SIZE>();
+            static const v_f32_4 ofVectorTypeFromArrayType(
+                const std::array<v_f32_4::ValueType, v_f32_4::SIZE> & sampleComponents
+            ) {
                 return v_f32_4(
                     sampleComponents.at(VectorIndices::X),
                     sampleComponents.at(VectorIndices::Y),
                     sampleComponents.at(VectorIndices::Z),
                     sampleComponents.at(VectorIndices::W)
                 );
+            }
+
+
+            template <typename T>
+            static const T ofVectorType();
+
+            template <>
+            static const v_f32_4 ofVectorType() {
+                return ofVectorTypeFromArrayType<v_f32_4>(
+                    ofArrayType<v_f32_4::ValueType, v_f32_4::SIZE>());
             }
 
         };

@@ -39,7 +39,7 @@ namespace vectorization
                 std::string message
             ) {
                 Iterate::toExclusiveEnd<exclusiveEnd>(test, [&](auto & stream) -> auto & {
-                    return stream << " --- " << message;
+                    return stream << " | " << message;
                 });
             }
 
