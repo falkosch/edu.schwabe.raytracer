@@ -1,6 +1,6 @@
-#include "../../Compare.h"
-#include "../../MessageFormat.h"
-#include "../../StandardSample.h"
+#include "Compare.h"
+#include "MessageFormat.h"
+#include "StandardSample.h"
 
 #include <CppUnitTest.h>
 #include <vectorization.h>

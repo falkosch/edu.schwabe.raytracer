@@ -1,4 +1,4 @@
-#include "../../StandardSample.h"
+#include "StandardSample.h"
 
 #include <CppUnitTest.h>
 #include <vectorization.h>

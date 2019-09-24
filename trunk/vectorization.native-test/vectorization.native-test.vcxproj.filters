@@ -62,19 +62,16 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\vectorization\v_f32_4\_tools.h">
+    <ClInclude Include="include\Compare.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="src\Iterate.h">
+    <ClInclude Include="include\Iterate.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="src\Compare.h">
+    <ClInclude Include="include\MessageFormat.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="src\StandardSample.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="src\MessageFormat.h">
+    <ClInclude Include="include\StandardSample.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>

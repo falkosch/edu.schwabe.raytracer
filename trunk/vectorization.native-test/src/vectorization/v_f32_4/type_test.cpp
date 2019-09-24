@@ -1,5 +1,5 @@
-#include "../../Iterate.h"
-#include "../../StandardSample.h"
+#include "Iterate.h"
+#include "StandardSample.h"
 
 #include <CppUnitTest.h>
 #include <vectorization.h>
