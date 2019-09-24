@@ -19,9 +19,6 @@ namespace vectorization
 				Assert::IsTrue(VECTORIZATION_SSE4 < VECTORIZATION_AVX, L"Bad intrinsics levels", LINE_INFO());
 				Assert::IsTrue(VECTORIZATION_AVX < VECTORIZATION_AVX2, L"Bad intrinsics levels", LINE_INFO());
 				Assert::IsTrue(VECTORIZATION_AVX2 < VECTORIZATION_AVX512, L"Bad intrinsics levels", LINE_INFO());
-
-				Assert::IsTrue(VECTORIZATION_SSE <= VECTORIZATION_INTRINSICS_LEVEL, L"Bad intrinsics levels", LINE_INFO());
-				Assert::IsTrue(VECTORIZATION_AVX512 >= VECTORIZATION_INTRINSICS_LEVEL, L"Bad intrinsics levels", LINE_INFO());
 			}
 
 			TEST_METHOD(hasEitherDebugOrNDebugSet)
@@ -34,6 +31,7 @@ namespace vectorization
 			TEST_METHOD(enforcesIntrinsicsCodePathWhenCompilerFlagIsOn)
 			{
 				Assert::IsTrue(VECTORIZATION_SSE <= VECTORIZATION_INTRINSICS_LEVEL, L"Invalid code path", LINE_INFO());
+                Assert::IsTrue(VECTORIZATION_AVX512 >= VECTORIZATION_INTRINSICS_LEVEL, L"Invalid code path", LINE_INFO());
 
 #if defined(__AVX__)
 				Assert::IsTrue(VECTORIZATION_AVX <= VECTORIZATION_INTRINSICS_LEVEL, L"Invalid code path", LINE_INFO());
