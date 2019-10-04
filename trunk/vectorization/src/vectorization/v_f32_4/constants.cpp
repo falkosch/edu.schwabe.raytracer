@@ -5,6 +5,12 @@
 namespace vectorization
 {
 
+    template <>
+    const v_f32_4 MaskNone<v_f32_4>() noexcept
+    {
+        return MaskNone<v_f32_4::PackedType>();
+    }
+
 	template <>
 	const v_f32_4 MaskAll<v_f32_4>() noexcept
 	{

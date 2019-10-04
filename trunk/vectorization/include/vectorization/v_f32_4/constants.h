@@ -7,7 +7,10 @@
 namespace vectorization
 {
 
-	template <>
+    template <>
+    const v_f32_4 MaskNone<v_f32_4>() noexcept;
+
+    template <>
 	const v_f32_4 MaskAll<v_f32_4>() noexcept;
 
 	template <>
