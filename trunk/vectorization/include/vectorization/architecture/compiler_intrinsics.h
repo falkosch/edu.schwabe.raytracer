@@ -12,6 +12,8 @@
 #include <intrin.h>
 #endif
 
+#include <cstdint>
+
 
 #define BLEND_MASK_FLOAT4_32(X, Y, Z, W) ( \
 		((X & 1) << 0) \
@@ -35,16 +37,16 @@
 namespace vectorization
 {
 
-	typedef char Int_8;
-	typedef short Int_16;
-	typedef int Int_32;
-	typedef long long Int_64;
+	typedef int8_t Int_8;
+	typedef int16_t Int_16;
+	typedef int32_t Int_32;
+	typedef int64_t Int_64;
 
 
-	typedef unsigned char UInt_8;
-	typedef unsigned short UInt_16;
-	typedef unsigned int UInt_32;
-	typedef unsigned long long UInt_64;
+	typedef uint8_t UInt_8;
+	typedef uint16_t UInt_16;
+	typedef uint32_t UInt_32;
+	typedef uint64_t UInt_64;
 
 
 	typedef float Float_32;
