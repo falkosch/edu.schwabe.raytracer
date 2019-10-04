@@ -12,7 +12,7 @@ namespace vectorization
     namespace test
     {
 
-        TEST_CLASS(v_f32_4_Accessors)
+        TEST_CLASS(v_f32_4_AccessorsTest)
         {
         public:
 

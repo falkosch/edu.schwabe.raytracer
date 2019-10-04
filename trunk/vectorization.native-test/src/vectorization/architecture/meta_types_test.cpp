@@ -10,7 +10,7 @@ namespace vectorization
     namespace test
     {
 
-        TEST_CLASS(MetaTypes)
+        TEST_CLASS(MetaTypesTest)
         {
         public:
 

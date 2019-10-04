@@ -10,7 +10,7 @@ namespace vectorization
 	namespace test
 	{
 
-		TEST_CLASS(selects_testTest)
+		TEST_CLASS(v_f32_4_SelectsTest)
 		{
 		public:
 

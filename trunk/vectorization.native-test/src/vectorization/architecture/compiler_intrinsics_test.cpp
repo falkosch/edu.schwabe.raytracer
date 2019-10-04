@@ -10,7 +10,7 @@ namespace vectorization
     namespace test
     {
 
-        TEST_CLASS(CompilerIntrinsics)
+        TEST_CLASS(CompilerIntrinsicsTest)
         {
         public:
 

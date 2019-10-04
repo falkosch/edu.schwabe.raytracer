@@ -8,7 +8,7 @@ namespace vectorization
 	namespace test
 	{
 
-		TEST_CLASS(CompilerDefinitions)
+		TEST_CLASS(CompilerDefinitionsTest)
 		{
 		public:
 

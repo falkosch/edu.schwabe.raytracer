@@ -8,7 +8,7 @@ namespace vectorization
     namespace test
     {
 
-        TEST_CLASS(Memory)
+        TEST_CLASS(MemoryTest)
         {
         public:
 

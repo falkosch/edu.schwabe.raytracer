@@ -10,7 +10,7 @@ namespace vectorization
 	namespace test
 	{
 
-		TEST_CLASS(swizzle_blends_testTest)
+		TEST_CLASS(v_f32_4_SwizzleBlendsTest)
 		{
 		public:
 
