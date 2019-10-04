@@ -1,3 +1,5 @@
+#include "StandardSample.h"
+
 #include <CppUnitTest.h>
 #include <vectorization.h>
 
@@ -7,37 +9,65 @@ using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
 namespace vectorization
 {
-	namespace test
-	{
+    namespace test
+    {
 
-		TEST_CLASS(blends_testTest)
-		{
-		public:
+        TEST_CLASS(v_f32_4_BlendsTest)
+        {
+        public:
 
-			TEST_METHOD(testExample1)
-			{
-				auto expected = 0;
-				auto actual = 0;
-				Assert::AreEqual(expected, actual, L"", LINE_INFO());
-			}
+            static const std::array<v_f32_4::ValueType, v_f32_4::SIZE> sampleArray() {
+                return StandardSample::ofArrayType<v_f32_4::ValueType, v_f32_4::SIZE>();
+            }
 
-			TEST_METHOD(testExample2)
-			{
-				auto expected = 0;
-				auto actual = 1;
-				Assert::AreEqual(expected, actual, L"", LINE_INFO());
-			}
+            static const v_f32_4 sampleVector() {
+                return StandardSample::ofVectorType<v_f32_4>();
+            }
 
-			TEST_METHOD(testExample3)
-			{
-				std::array<vectorization::UInt_32, 5> specimen = { 0, 1, 2, 3, 4 };
+            TEST_METHOD(blendsXYZWGenerically)
+            {
+                auto givenVector = One<v_f32_4>();
+                auto expectedBlends = Two<v_f32_4>();
 
-				for (const auto & v : specimen) {
-					Assert::IsTrue(v > -1, L"", LINE_INFO());
-				}
-			}
+                {
+                    auto testBlended = blend<false, false, false, false>(givenVector, expectedBlends);
+                    Assert::IsTrue(allTrue(expectedBlends != testBlended));
+                }
 
-		};
+                {
+                    auto testBlended = blend<true, false, false, false>(givenVector, expectedBlends);
+                    Assert::AreEqual(x(expectedBlends), x(testBlended));
+                    Assert::AreNotEqual(y(expectedBlends), y(testBlended));
+                    Assert::AreNotEqual(z(expectedBlends), z(testBlended));
+                    Assert::AreNotEqual(w(expectedBlends), w(testBlended));
+                }
 
-	}
+                {
+                    auto testBlended = blend<false, true, false, false>(givenVector, expectedBlends);
+                    Assert::AreNotEqual(x(expectedBlends), x(testBlended));
+                    Assert::AreEqual(y(expectedBlends), y(testBlended));
+                    Assert::AreNotEqual(z(expectedBlends), z(testBlended));
+                    Assert::AreNotEqual(w(expectedBlends), w(testBlended));
+                }
+
+                {
+                    auto testBlended = blend<false, false, true, false>(givenVector, expectedBlends);
+                    Assert::AreNotEqual(x(expectedBlends), x(testBlended));
+                    Assert::AreNotEqual(y(expectedBlends), y(testBlended));
+                    Assert::AreEqual(z(expectedBlends), z(testBlended));
+                    Assert::AreNotEqual(w(expectedBlends), w(testBlended));
+                }
+
+                {
+                    auto testBlended = blend<false, false, false, true>(givenVector, expectedBlends);
+                    Assert::AreNotEqual(x(expectedBlends), x(testBlended));
+                    Assert::AreNotEqual(y(expectedBlends), y(testBlended));
+                    Assert::AreNotEqual(z(expectedBlends), z(testBlended));
+                    Assert::AreEqual(w(expectedBlends), w(testBlended));
+                }
+            }
+
+        };
+
+    }
 }
