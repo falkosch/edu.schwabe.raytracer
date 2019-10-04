@@ -78,16 +78,16 @@ namespace vectorization
 
             TEST_METHOD(convertsUnsignedIntegersToFloats)
             {
-                auto specimen = std::array<vectorization::UInt_32, 5>({ 0, 1, 2, 3, 4 });
+                auto givenValues = std::array<vectorization::UInt_32, 5>({ 0, 1, 2, 3, 4 });
 
-                for (const auto v : specimen) {
-                    auto test = vectorization::v_ui32_4(v);
-                    auto actual = vectorization::_mm_cvtepu32_ps(test);
-                    auto expected = vectorization::v_f32_4(
-                        vectorization::convert<vectorization::Float_32>(v)
-                    );
+                for (auto givenValue : givenValues) {
+                    auto expected = vectorization::convert<vectorization::Float_32>(givenValue);
+                    auto expectedVector = vectorization::v_f32_4(expected);
+                    auto givenVector = vectorization::v_ui32_4(givenValue);
+                    auto actualVector = vectorization::_mm_cvtepu32_ps(givenVector);
+
                     Assert::IsTrue(
-                        vectorization::allTrue(expected == actual),
+                        vectorization::allTrue(expectedVector == actualVector),
                         L"Conversion error in _mm_cvtepu32_ps",
                         LINE_INFO()
                     );

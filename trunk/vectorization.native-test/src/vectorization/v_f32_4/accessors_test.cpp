@@ -26,140 +26,140 @@ namespace vectorization
 
             TEST_METHOD(readsComponent)
             {
-                auto expected = sampleArray();
-                auto testValue = sampleVector();
+                auto expectedComponents = sampleArray();
+                auto givenVector = sampleVector();
 
-                Assert::AreEqual(expected.at(VectorIndices::X), component<VectorIndices::X>(testValue));
-                Assert::AreEqual(expected.at(VectorIndices::Y), component<VectorIndices::Y>(testValue));
-                Assert::AreEqual(expected.at(VectorIndices::Z), component<VectorIndices::Z>(testValue));
-                Assert::AreEqual(expected.at(VectorIndices::W), component<VectorIndices::W>(testValue));
+                Assert::AreEqual(expectedComponents.at(VectorIndices::X), component<VectorIndices::X>(givenVector));
+                Assert::AreEqual(expectedComponents.at(VectorIndices::Y), component<VectorIndices::Y>(givenVector));
+                Assert::AreEqual(expectedComponents.at(VectorIndices::Z), component<VectorIndices::Z>(givenVector));
+                Assert::AreEqual(expectedComponents.at(VectorIndices::W), component<VectorIndices::W>(givenVector));
             }
 
             TEST_METHOD(readsXYZW)
             {
-                auto expected = sampleArray();
-                auto testValue = sampleVector();
+                auto expectedComponents = sampleArray();
+                auto givenVector = sampleVector();
 
-                Assert::AreEqual(expected.at(VectorIndices::X), x(testValue));
-                Assert::AreEqual(expected.at(VectorIndices::Y), y(testValue));
-                Assert::AreEqual(expected.at(VectorIndices::Z), z(testValue));
-                Assert::AreEqual(expected.at(VectorIndices::W), w(testValue));
+                Assert::AreEqual(expectedComponents.at(VectorIndices::X), x(givenVector));
+                Assert::AreEqual(expectedComponents.at(VectorIndices::Y), y(givenVector));
+                Assert::AreEqual(expectedComponents.at(VectorIndices::Z), z(givenVector));
+                Assert::AreEqual(expectedComponents.at(VectorIndices::W), w(givenVector));
             }
 
             TEST_METHOD(replacesComponent)
             {
-                auto testValue = sampleVector();
-                auto testReplacement = 5.0f;
+                auto givenVector = sampleVector();
+                auto expectedReplacement = 5.0f;
 
                 {
-                    auto testReplaced = replaceComponent<VectorIndices::X>(testValue, testReplacement);
-                    Assert::AreEqual(testReplacement, x(testReplaced));
-                    Assert::AreNotEqual(testReplacement, y(testReplaced));
-                    Assert::AreNotEqual(testReplacement, z(testReplaced));
-                    Assert::AreNotEqual(testReplacement, w(testReplaced));
+                    auto actualX = replaceComponent<VectorIndices::X>(givenVector, expectedReplacement);
+                    Assert::AreEqual(expectedReplacement, x(actualX));
+                    Assert::AreNotEqual(expectedReplacement, y(actualX));
+                    Assert::AreNotEqual(expectedReplacement, z(actualX));
+                    Assert::AreNotEqual(expectedReplacement, w(actualX));
                 }
 
                 {
-                    auto testReplaced = replaceComponent<VectorIndices::Y>(testValue, testReplacement);
-                    Assert::AreNotEqual(testReplacement, x(testReplaced));
-                    Assert::AreEqual(testReplacement, y(testReplaced));
-                    Assert::AreNotEqual(testReplacement, z(testReplaced));
-                    Assert::AreNotEqual(testReplacement, w(testReplaced));
+                    auto actualY = replaceComponent<VectorIndices::Y>(givenVector, expectedReplacement);
+                    Assert::AreNotEqual(expectedReplacement, x(actualY));
+                    Assert::AreEqual(expectedReplacement, y(actualY));
+                    Assert::AreNotEqual(expectedReplacement, z(actualY));
+                    Assert::AreNotEqual(expectedReplacement, w(actualY));
                 }
 
                 {
-                    auto testReplaced = replaceComponent<VectorIndices::Z>(testValue, testReplacement);
-                    Assert::AreNotEqual(testReplacement, x(testReplaced));
-                    Assert::AreNotEqual(testReplacement, y(testReplaced));
-                    Assert::AreEqual(testReplacement, z(testReplaced));
-                    Assert::AreNotEqual(testReplacement, w(testReplaced));
+                    auto actualZ = replaceComponent<VectorIndices::Z>(givenVector, expectedReplacement);
+                    Assert::AreNotEqual(expectedReplacement, x(actualZ));
+                    Assert::AreNotEqual(expectedReplacement, y(actualZ));
+                    Assert::AreEqual(expectedReplacement, z(actualZ));
+                    Assert::AreNotEqual(expectedReplacement, w(actualZ));
                 }
 
                 {
-                    auto testReplaced = replaceComponent<VectorIndices::W>(testValue, testReplacement);
-                    Assert::AreNotEqual(testReplacement, x(testReplaced));
-                    Assert::AreNotEqual(testReplacement, y(testReplaced));
-                    Assert::AreNotEqual(testReplacement, z(testReplaced));
-                    Assert::AreEqual(testReplacement, w(testReplaced));
+                    auto actualW = replaceComponent<VectorIndices::W>(givenVector, expectedReplacement);
+                    Assert::AreNotEqual(expectedReplacement, x(actualW));
+                    Assert::AreNotEqual(expectedReplacement, y(actualW));
+                    Assert::AreNotEqual(expectedReplacement, z(actualW));
+                    Assert::AreEqual(expectedReplacement, w(actualW));
                 }
             }
 
             TEST_METHOD(replacesXYZW)
             {
-                auto testValue = sampleVector();
-                auto testReplacement = 5.0f;
+                auto givenVector = sampleVector();
+                auto expectedReplacement = 5.0f;
 
                 {
-                    auto testReplaced = replaceX(testValue, testReplacement);
-                    Assert::AreEqual(testReplacement, x(testReplaced));
-                    Assert::AreNotEqual(testReplacement, y(testReplaced));
-                    Assert::AreNotEqual(testReplacement, z(testReplaced));
-                    Assert::AreNotEqual(testReplacement, w(testReplaced));
+                    auto actualX = replaceX(givenVector, expectedReplacement);
+                    Assert::AreEqual(expectedReplacement, x(actualX));
+                    Assert::AreNotEqual(expectedReplacement, y(actualX));
+                    Assert::AreNotEqual(expectedReplacement, z(actualX));
+                    Assert::AreNotEqual(expectedReplacement, w(actualX));
                 }
 
                 {
-                    auto testReplaced = replaceY(testValue, testReplacement);
-                    Assert::AreNotEqual(testReplacement, x(testReplaced));
-                    Assert::AreEqual(testReplacement, y(testReplaced));
-                    Assert::AreNotEqual(testReplacement, z(testReplaced));
-                    Assert::AreNotEqual(testReplacement, w(testReplaced));
+                    auto actualY = replaceY(givenVector, expectedReplacement);
+                    Assert::AreNotEqual(expectedReplacement, x(actualY));
+                    Assert::AreEqual(expectedReplacement, y(actualY));
+                    Assert::AreNotEqual(expectedReplacement, z(actualY));
+                    Assert::AreNotEqual(expectedReplacement, w(actualY));
                 }
 
                 {
-                    auto testReplaced = replaceZ(testValue, testReplacement);
-                    Assert::AreNotEqual(testReplacement, x(testReplaced));
-                    Assert::AreNotEqual(testReplacement, y(testReplaced));
-                    Assert::AreEqual(testReplacement, z(testReplaced));
-                    Assert::AreNotEqual(testReplacement, w(testReplaced));
+                    auto actualZ = replaceZ(givenVector, expectedReplacement);
+                    Assert::AreNotEqual(expectedReplacement, x(actualZ));
+                    Assert::AreNotEqual(expectedReplacement, y(actualZ));
+                    Assert::AreEqual(expectedReplacement, z(actualZ));
+                    Assert::AreNotEqual(expectedReplacement, w(actualZ));
                 }
 
                 {
-                    auto testReplaced = replaceW(testValue, testReplacement);
-                    Assert::AreNotEqual(testReplacement, x(testReplaced));
-                    Assert::AreNotEqual(testReplacement, y(testReplaced));
-                    Assert::AreNotEqual(testReplacement, z(testReplaced));
-                    Assert::AreEqual(testReplacement, w(testReplaced));
+                    auto actualW = replaceW(givenVector, expectedReplacement);
+                    Assert::AreNotEqual(expectedReplacement, x(actualW));
+                    Assert::AreNotEqual(expectedReplacement, y(actualW));
+                    Assert::AreNotEqual(expectedReplacement, z(actualW));
+                    Assert::AreEqual(expectedReplacement, w(actualW));
                 }
             }
 
             TEST_METHOD(setsComponent)
             {
-                auto testReplacement = 5.0f;
+                auto expectedReplacement = 5.0f;
 
                 {
-                    auto testValue = sampleVector();
-                    setComponent<VectorIndices::X>(testValue, testReplacement);
-                    Assert::AreEqual(testReplacement, x(testValue));
-                    Assert::AreNotEqual(testReplacement, y(testValue));
-                    Assert::AreNotEqual(testReplacement, z(testValue));
-                    Assert::AreNotEqual(testReplacement, w(testValue));
+                    auto givenMutableX = sampleVector();
+                    setComponent<VectorIndices::X>(givenMutableX, expectedReplacement);
+                    Assert::AreEqual(expectedReplacement, x(givenMutableX));
+                    Assert::AreNotEqual(expectedReplacement, y(givenMutableX));
+                    Assert::AreNotEqual(expectedReplacement, z(givenMutableX));
+                    Assert::AreNotEqual(expectedReplacement, w(givenMutableX));
                 }
 
                 {
-                    auto testValue = sampleVector();
-                    setComponent<VectorIndices::Y>(testValue, testReplacement);
-                    Assert::AreNotEqual(testReplacement, x(testValue));
-                    Assert::AreEqual(testReplacement, y(testValue));
-                    Assert::AreNotEqual(testReplacement, z(testValue));
-                    Assert::AreNotEqual(testReplacement, w(testValue));
+                    auto givenMutableY = sampleVector();
+                    setComponent<VectorIndices::Y>(givenMutableY, expectedReplacement);
+                    Assert::AreNotEqual(expectedReplacement, x(givenMutableY));
+                    Assert::AreEqual(expectedReplacement, y(givenMutableY));
+                    Assert::AreNotEqual(expectedReplacement, z(givenMutableY));
+                    Assert::AreNotEqual(expectedReplacement, w(givenMutableY));
                 }
 
                 {
-                    auto testValue = sampleVector();
-                    setComponent<VectorIndices::Z>(testValue, testReplacement);
-                    Assert::AreNotEqual(testReplacement, x(testValue));
-                    Assert::AreNotEqual(testReplacement, y(testValue));
-                    Assert::AreEqual(testReplacement, z(testValue));
-                    Assert::AreNotEqual(testReplacement, w(testValue));
+                    auto givenMutableZ = sampleVector();
+                    setComponent<VectorIndices::Z>(givenMutableZ, expectedReplacement);
+                    Assert::AreNotEqual(expectedReplacement, x(givenMutableZ));
+                    Assert::AreNotEqual(expectedReplacement, y(givenMutableZ));
+                    Assert::AreEqual(expectedReplacement, z(givenMutableZ));
+                    Assert::AreNotEqual(expectedReplacement, w(givenMutableZ));
                 }
 
                 {
-                    auto testValue = sampleVector();
-                    setComponent<VectorIndices::W>(testValue, testReplacement);
-                    Assert::AreNotEqual(testReplacement, x(testValue));
-                    Assert::AreNotEqual(testReplacement, y(testValue));
-                    Assert::AreNotEqual(testReplacement, z(testValue));
-                    Assert::AreEqual(testReplacement, w(testValue));
+                    auto givenMutableW = sampleVector();
+                    setComponent<VectorIndices::W>(givenMutableW, expectedReplacement);
+                    Assert::AreNotEqual(expectedReplacement, x(givenMutableW));
+                    Assert::AreNotEqual(expectedReplacement, y(givenMutableW));
+                    Assert::AreNotEqual(expectedReplacement, z(givenMutableW));
+                    Assert::AreEqual(expectedReplacement, w(givenMutableW));
                 }
             }
 
