@@ -10,6 +10,6 @@ namespace raytracerui
 
         virtual ~MessageLoopBasedUI();
 
-        virtual LRESULT run() = 0;
+        virtual const WPARAM run() = 0;
     };
 }

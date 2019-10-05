@@ -22,14 +22,10 @@ namespace raytracerui
     }
 
     RaytracerUI::~RaytracerUI() {
-        if (outputHDR) {
-            delete outputHDR;
-            outputHDR = nullptr;
-        }
-        if (output) {
-            delete output;
-            output = nullptr;
-        }
+        delete outputHDR;
+        outputHDR = nullptr;
+        delete output;
+        output = nullptr;
     }
 
     void RaytracerUI::reshape(const Int2 & newSize) {
@@ -45,7 +41,7 @@ namespace raytracerui
 
     void RaytracerUI::triggerRaytracing(const bool fastPreview) {
         const Int2 clampedSize = max(screenSize, One<Int2>());
-        if (fastPreview & !disableFastPreview) {
+        if (fastPreview && !disableFastPreview) {
             parameters.resolution = Size2(fastPreviewSize, (fastPreviewSize * y(clampedSize)) / x(clampedSize));
         } else {
             parameters.resolution = convert<Size2>(clampedSize);
@@ -58,24 +54,23 @@ namespace raytracerui
         std::cout << "secondaryRays " << configuration.statistics.secondaryRays << "/" << configuration.statistics.missedSecondaryRays << std::endl;
         std::cout << "shadowRays " << configuration.statistics.shadowRays << "/" << configuration.statistics.missedShadowRays << std::endl;
 
-        if (outputHDR) delete outputHDR;
-        if (output) delete output;
+        delete outputHDR;
+        delete output;
 
         outputHDR = selectOutputImage(configuration);
         output = new Bitmap(*outputHDR);
+
         if (outputHDR != configuration.image) delete configuration.image;
-        if (outputHDR != configuration.depthMap && configuration.depthMap) delete configuration.depthMap;
-        if (outputHDR != configuration.timingMap && configuration.timingMap) delete configuration.timingMap;
+        if (outputHDR != configuration.depthMap) delete configuration.depthMap;
+        if (outputHDR != configuration.timingMap) delete configuration.timingMap;
     }
 
     const HDRImage * const RaytracerUI::selectOutputImage(const RaytraceConfiguration & configuration) const {
-        switch (showMapIndex) {
-            default: case static_cast<ASizeT>(0) :
-                return configuration.image;
-                case static_cast<ASizeT>(1) :
-                    return configuration.timingMap;
-                    case static_cast<ASizeT>(2) :
-                        return configuration.depthMap;
-        }
+        std::array outputs{
+            configuration.image,
+            configuration.timingMap,
+            configuration.depthMap
+        };
+        return outputs.at(this->showMapIndex);
     }
 }

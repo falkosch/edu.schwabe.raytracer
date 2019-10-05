@@ -28,13 +28,14 @@ namespace raytracerui
         hDC = GetDC(hWnd);
 
         // set the pixel format for the DC
-        PIXELFORMATDESCRIPTOR pfd;
-        ZeroMemory(&pfd, sizeof(PIXELFORMATDESCRIPTOR));
-        pfd.nSize = sizeof(pfd);
-        pfd.nVersion = One<WORD>();
-        pfd.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
-        pfd.iPixelType = PFD_TYPE_RGBA;
-        pfd.cColorBits = pfd.cDepthBits = static_cast<BYTE>(32);
+        PIXELFORMATDESCRIPTOR pfd{
+            sizeof(PIXELFORMATDESCRIPTOR), // nSize
+            1, // nVersion
+            PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER, // dwFlags
+            PFD_TYPE_RGBA, // iPixelType
+            32, // cColorBits
+        };
+        pfd.cDepthBits = 32;
         pfd.iLayerType = PFD_MAIN_PLANE;
         SetPixelFormat(hDC, ChoosePixelFormat(hDC, &pfd), &pfd);
 
@@ -42,13 +43,14 @@ namespace raytracerui
         hGLRC = wglCreateContext(hDC);
         wglMakeCurrent(hDC, hGLRC);
 
-        glClearColor(Zero<GLclampf>(), Zero<GLclampf>(), Zero<GLclampf>(), Zero<GLclampf>());
+        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+
+        const Float44 orthoProjection = ortho(1.0f, 0.0f, 0.0f, 1.0f);
         glMatrixMode(GL_PROJECTION);
-        const Float44 orthoProjection = ortho(One<Float>(), Zero<Float>(), Zero<Float>(), One<Float>());
         glLoadMatrixf(reinterpret_cast<const GLfloat * const>(&orthoProjection));
 
         glEnable(GL_TEXTURE_2D);
-        glGenTextures(One<GLsizei>(), &outputSurface);
+        glGenTextures(1, &outputSurface);
         glBindTexture(GL_TEXTURE_2D, outputSurface);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
@@ -64,12 +66,11 @@ namespace raytracerui
 
     void OpenGLWindowsRaytracerUI::reshape(const Int2 & newSize) {
         WindowsRaytracerUI::reshape(newSize);
-        glViewport(Zero<GLint>(), Zero<GLint>(), x(newSize), y(newSize));
+        glViewport(0, 0, x(newSize), y(newSize));
     }
 
     void OpenGLWindowsRaytracerUI::display() {
-        PAINTSTRUCT psPaint;
-        ZeroMemory(&psPaint, sizeof(PAINTSTRUCT));
+        PAINTSTRUCT psPaint{};
         BeginPaint(hWnd, &psPaint);
         EndPaint(hWnd, &psPaint);
 
@@ -78,12 +79,12 @@ namespace raytracerui
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         glEnableClientState(GL_VERTEX_ARRAY);
-        glVertexPointer(4, GL_FLOAT, Zero<GLsizei>(), QUAD_VERTICES);
+        glVertexPointer(4, GL_FLOAT, 0, QUAD_VERTICES);
 
         glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-        glTexCoordPointer(Two<GLint>(), GL_FLOAT, Zero<GLsizei>(), QUAD_TEXCOORDS);
+        glTexCoordPointer(2, GL_FLOAT, 0, QUAD_TEXCOORDS);
 
-        glDrawArrays(GL_TRIANGLE_FAN, Zero<GLsizei>(), 4);
+        glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 
         glDisableClientState(GL_TEXTURE_COORD_ARRAY);
         glDisableClientState(GL_VERTEX_ARRAY);
@@ -93,17 +94,18 @@ namespace raytracerui
 
     void OpenGLWindowsRaytracerUI::notifyUpdate(const RaytraceConfiguration & configuration) {
         RaytracerUI::notifyUpdate(configuration);
-        if (outputHDR) {
+        if (this->outputHDR) {
             glTexImage2D(
-                static_cast<GLenum>(GL_TEXTURE_2D),
-                Zero<GLint>(),
+                GL_TEXTURE_2D,
+                0,
                 GL_RGBA32F,
                 static_cast<GLsizei>(x(configuration.resolution)),
                 static_cast<GLsizei>(y(configuration.resolution)),
-                Zero<GLint>(),
-                static_cast<GLenum>(GL_RGBA),
-                static_cast<GLenum>(GL_FLOAT),
-                outputHDR->getData());
+                0,
+                GL_RGBA,
+                GL_FLOAT,
+                outputHDR->getData()
+            );
         }
     }
 }

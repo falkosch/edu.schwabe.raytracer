@@ -39,7 +39,7 @@ namespace raytracerui
 
         DragTypes activeDrag;
 
-        LRESULT WndProc(UINT message, WPARAM wParam, LPARAM lParam);
+        const LRESULT WndProc(const UINT message, const WPARAM wParam, const LPARAM lParam);
 
         void delegateReshape();
 
@@ -55,9 +55,9 @@ namespace raytracerui
 
         static void InitWindowClass();
 
-        static LRESULT CALLBACK DelegatingWndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
+        static LRESULT CALLBACK DelegatingWndProc(const HWND hwnd, const UINT msg, const WPARAM wparam, const LPARAM lparam);
 
-        static const Int2 getXY(LPARAM lParam);
+        static const Int2 getXY(const LPARAM lParam);
 
     protected:
 
@@ -73,6 +73,6 @@ namespace raytracerui
 
         virtual ~WindowsRaytracerUI();
 
-        LRESULT run();
+        const WPARAM run();
     };
 }

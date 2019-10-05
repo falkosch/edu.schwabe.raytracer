@@ -22,7 +22,7 @@ namespace raytracerui
         );
 
         auto out = Float4::VectorBoolType();
-        for (ASizeT i = VectorIndices::X; i < iterations; ++i) {
+        for (ASizeT i{ VectorIndices::X }; i < iterations; ++i) {
             a.minimum = replaceX(a.minimum, x(-a.minimum));
             out = out | overlaps(r[0], a, b);
             out = out | overlaps(r[1], a, b);
@@ -43,7 +43,7 @@ namespace raytracerui
         );
 
         auto out = Zero<Float>();
-        for (ASizeT i = VectorIndices::X; i < iterations; ++i) {
+        for (ASizeT i{ VectorIndices::X }; i < iterations; ++i) {
             a.minimum = replaceX(a.minimum, x(-a.minimum));
             out += nearestIntersection(r[0], a, MaskAll<Size2::ValueType>());
             out += nearestIntersection(r[1], a, MaskAll<Size2::ValueType>());
@@ -61,7 +61,7 @@ namespace raytracerui
         auto a = BoundingSphere(Float4(0.f, 0.f, 0.f, 1.f), 1.0f);
 
         auto out = Zero<Float>();
-        for (ASizeT i = VectorIndices::X; i < iterations; ++i) {
+        for (ASizeT i{ VectorIndices::X }; i < iterations; ++i) {
             a.centerRadius = replaceX(a.centerRadius, x(-a.centerRadius));
             out += nearestIntersection(r[0], a, MaskAll<Size2::ValueType>());
             out += nearestIntersection(r[1], a, MaskAll<Size2::ValueType>());
@@ -76,10 +76,13 @@ namespace raytracerui
         const std::array<Raycast, 4> & r,
         const ASizeT iterations
     ) {
-        auto a = SplittingPlane(Float4(0.f, 0.f, 0.f, 0.f), Float4(0.f, 0.f, -1.f, 0.f));
+        auto a = SplittingPlane(
+            Float4(0.f, 0.f, 0.f, 0.f),
+            Float4(0.f, 0.f, -1.f, 0.f)
+        );
 
         auto out = Zero<Float>();
-        for (ASizeT i = VectorIndices::X; i < iterations; ++i) {
+        for (ASizeT i{ VectorIndices::X }; i < iterations; ++i) {
             a.normalDistance = replaceW(a.normalDistance, w(-a.normalDistance));
             out += nearestIntersection(r[0], a, MaskAll<Size2::ValueType>());
             out += nearestIntersection(r[1], a, MaskAll<Size2::ValueType>());
@@ -140,8 +143,8 @@ namespace raytracerui
                     Float4(0.f, 0.f, -4.f, 1.f),
                     Float4(0.f, 0.f, 1.f, 0.f)
                 ),
-                cullingOrientationToMask(NegativeOne<Int>()),
-                Size2(),
+                cullingOrientationToMask(-1),
+                Zero<Size2>(),
                 100.f
             ),
             Raycast(
@@ -149,8 +152,8 @@ namespace raytracerui
                     Float4(0.f, 0.f, 4.f, 1.f),
                     Float4(0.f, 0.f, -1.f, 0.f)
                 ),
-                cullingOrientationToMask(NegativeOne<Int>()),
-                Size2(),
+                cullingOrientationToMask(-1),
+                Zero<Size2>(),
                 100.f
             ),
             Raycast(
@@ -158,8 +161,8 @@ namespace raytracerui
                     Float4(4.f, 0.f, 0.f, 1.f),
                     Float4(-1.f, 0.f, 0.f, 0.f)
                 ),
-                cullingOrientationToMask(NegativeOne<Int>()),
-                Size2(),
+                cullingOrientationToMask(-1),
+                Zero<Size2>(),
                 100.f
             ),
             Raycast(
@@ -167,8 +170,8 @@ namespace raytracerui
                     Float4(0.f, 4.f, 0.f, 1.f),
                     Float4(0.f, -1.f, 0.f, 0.f)
                 ),
-                cullingOrientationToMask(NegativeOne<Int>()),
-                Size2(),
+                cullingOrientationToMask(-1),
+                Zero<Size2>(),
                 100.f
             )
         };

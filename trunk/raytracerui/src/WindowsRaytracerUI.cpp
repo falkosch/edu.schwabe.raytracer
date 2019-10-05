@@ -7,9 +7,22 @@
 
 namespace raytracerui
 {
-    const Float WindowsRaytracerUI::MOUSE_SENSITIVITY = .02f;
+    const Float WindowsRaytracerUI::MOUSE_SENSITIVITY = 0.02f;
 
-    WNDCLASSEX WindowsRaytracerUI::windowClass;
+    WNDCLASSEX WindowsRaytracerUI::windowClass{
+        sizeof(WNDCLASSEX), // cbSize
+        CS_OWNDC | CS_HREDRAW | CS_VREDRAW, // style
+        WindowsRaytracerUI::DelegatingWndProc, // lpfnWndProc
+        0, // csClsExtra
+        0, // cbWndExtra
+        nullptr, // hInstance
+        nullptr, // hIcon
+        nullptr, // hCursor
+        reinterpret_cast<HBRUSH>(COLOR_BTNFACE + 1), // hbrBackground
+        nullptr, // lpszMenuName
+        TEXT("WindowsRaytracerUIWndClass"), // lpszClassName
+        nullptr // hIconSm
+    };
 
     WindowsRaytracerUI::WindowsRaytracerUI(
         Raytracer & raytracerIn,
@@ -28,16 +41,9 @@ namespace raytracerui
     }
 
     void WindowsRaytracerUI::InitWindowClass() {
-        ZeroMemory(&windowClass, sizeof(WNDCLASSEX));
-        windowClass.cbSize = sizeof(WNDCLASSEX);
-        windowClass.style = static_cast<UINT>(CS_OWNDC | CS_HREDRAW | CS_VREDRAW);
-        windowClass.lpfnWndProc = DelegatingWndProc;
         windowClass.hInstance = GetModuleHandle(nullptr);
         windowClass.hIcon = LoadIcon(nullptr, IDI_APPLICATION);
         windowClass.hCursor = LoadCursor(nullptr, IDC_ARROW);
-        windowClass.hbrBackground = reinterpret_cast<HBRUSH>(COLOR_BTNFACE + 1);
-        windowClass.lpszClassName = TEXT("WindowsRaytracerUIWndClass");
-        windowClass.hIconSm = windowClass.hIcon;
         RegisterClassEx(&windowClass);
     }
 
@@ -60,24 +66,24 @@ namespace raytracerui
         ShowWindow(hWnd, SW_SHOWDEFAULT);
     }
 
-    LRESULT WindowsRaytracerUI::run() {
+    const WPARAM WindowsRaytracerUI::run() {
+        MSG msg{};
         BOOL bRet;
-        MSG msg;
-        LRESULT returnCode = Zero<LRESULT>();
-        while (Zero<BOOL>() != (bRet = GetMessage(&msg, hWnd, Zero<UINT>(), Zero<UINT>()))) {
-            if (bRet == NegativeOne<BOOL>()) {
-                std::cerr << "GetMessage failure " << bRet << std::endl;
+        while (0 != (bRet = GetMessage(&msg, hWnd, 0, 0))) {
+            // catch GetMessage returns due to an error
+            if (bRet == -1) {
+                // no error handling here
                 break;
-            } else {
-                TranslateMessage(&msg);
-                returnCode = DispatchMessage(&msg);
             }
+
+            TranslateMessage(&msg);
+            DispatchMessage(&msg);
         }
-        return returnCode;
+        return msg.wParam;
     }
 
     void WindowsRaytracerUI::delegateReshape() {
-        RECT rect;
+        RECT rect{};
         GetClientRect(hWnd, &rect);
         reshape(Int2(rect.right, rect.bottom) - Int2(rect.left, rect.top));
     }
@@ -119,7 +125,7 @@ namespace raytracerui
     void WindowsRaytracerUI::keyPressed(const WPARAM wParam) {
         switch (wParam) {
             case 'Q':
-                parameters.cullingOrientation = ((parameters.cullingOrientation + Two<Int>()) % 3) - One<Int>();
+                parameters.cullingOrientation = ((parameters.cullingOrientation + 2) % 3) - 1;
                 std::cout << "Culling orientation: " << parameters.cullingOrientation << std::endl;
                 break;
 
@@ -130,7 +136,7 @@ namespace raytracerui
                 break;
 
             case 'E':
-                showMapIndex = (showMapIndex + One<ASizeT>()) % static_cast<ASizeT>(3);
+                showMapIndex = (showMapIndex + 1) % 3;
                 break;
 
             case 'R':
@@ -143,42 +149,42 @@ namespace raytracerui
                 break;
 
             case 'A':
-                parameters.samplingFactor *= Half<Float>();
+                parameters.samplingFactor *= 0.5f;
                 std::cout << "Sampling-factor: " << parameters.samplingFactor << std::endl;
                 break;
 
             case 'S':
-                parameters.samplingFactor += One<Float>();
+                parameters.samplingFactor += 1.0f;
                 std::cout << "Sampling-factor: " << parameters.samplingFactor << std::endl;
                 break;
 
             case 'D':
-                parameters.maxTraceDepth -= select(parameters.maxTraceDepth > Zero<ASizeT>(), One<ASizeT>(), Zero<ASizeT>());
+                parameters.maxTraceDepth -= select(parameters.maxTraceDepth > ASizeT{ 0 }, ASizeT{ 1 }, ASizeT{ 0 });
                 std::cout << "Max trace-depth: " << parameters.maxTraceDepth << std::endl;
                 break;
 
             case 'F':
-                parameters.maxTraceDepth += One<ASizeT>();
+                parameters.maxTraceDepth += ASizeT{ 1 };
                 std::cout << "Max trace-depth: " << parameters.maxTraceDepth << std::endl;
                 break;
 
             case 'G':
-                parameters.rayPacketSize -= select(parameters.rayPacketSize > Zero<ASizeT>(), One<ASizeT>(), Zero<ASizeT>());
+                parameters.rayPacketSize -= select(parameters.rayPacketSize > ASizeT{ 0 }, ASizeT{ 1 }, ASizeT{ 0 });
                 std::cout << "Ray packet size: " << parameters.rayPacketSize << std::endl;
                 break;
 
             case 'H':
-                parameters.rayPacketSize += One<ASizeT>();
+                parameters.rayPacketSize += ASizeT{ 1 };
                 std::cout << "Ray packet size: " << parameters.rayPacketSize << std::endl;
                 break;
 
             case 'J':
-                parameters.supersamplingFactor -= select(parameters.supersamplingFactor > Zero<ASizeT>(), One<ASizeT>(), Zero<ASizeT>());
+                parameters.supersamplingFactor -= select(parameters.supersamplingFactor > ASizeT{ 0 }, ASizeT{ 1 }, ASizeT{ 0 });
                 std::cout << "Supersampling factor: " << parameters.supersamplingFactor << std::endl;
                 break;
 
             case 'K':
-                parameters.supersamplingFactor += One<ASizeT>();
+                parameters.supersamplingFactor += ASizeT{ 1 };
                 std::cout << "Supersampling factor: " << parameters.supersamplingFactor << std::endl;
                 break;
 
@@ -247,32 +253,33 @@ namespace raytracerui
                 break;
 
             case DragTypes::ShiftZ:
-                parameters.camera->translate(Float3(Zero<Float>(), Zero<Float>(), x(delta) - y(delta)) * MOUSE_SENSITIVITY);
+                parameters.camera->translate(Float3(0.0f, 0.0f, x(delta) - y(delta)) * MOUSE_SENSITIVITY);
                 triggerRaytracing(true);
                 break;
 
             case DragTypes::Scale:
-                parameters.camera->scale(Float3((x(delta) + y(delta)) * MOUSE_SENSITIVITY) + Float3(One<Float3::ValueType>()));
+                parameters.camera->scale(Float3((x(delta) + y(delta)) * MOUSE_SENSITIVITY) + One<Float3>());
                 triggerRaytracing(true);
                 break;
 
             case DragTypes::Light:
             {
-                Scene::LightsCollection & lights = parameters.sceneShader->getLights();
-                lights[lights.size() - One<ASizeT>()]->position += Float4(Zero<Float>(), Zero<Float>(), x(delta) - y(delta)) * MOUSE_SENSITIVITY;
+                auto lights = parameters.sceneShader->getLights();
+                auto lastLight = lights.back();
+                lastLight->position += Float4(0.0f, 0.0f, x(delta) - y(delta)) * MOUSE_SENSITIVITY;
+                triggerRaytracing(true);
+                break;
             }
-            triggerRaytracing(true);
-            break;
 
             case DragTypes::Object:
             {
-                Scene * const scene = static_cast<Scene * const>(parameters.sceneShader);
-                Scene::SceneList & sceneObjects = scene->getSceneObjects();
-                SceneObject & lastSceneObject = *sceneObjects[sceneObjects.size() - One<ASizeT>()];
-                lastSceneObject.translate(Float3(Zero<Float>(), Zero<Float>(), x(delta) - y(delta)) * MOUSE_SENSITIVITY);
+                auto scene = static_cast<Scene * const>(parameters.sceneShader);
+                auto sceneObjects = scene->getSceneObjects();
+                auto lastSceneObject = sceneObjects.back();
+                lastSceneObject->translate(Float3(0.0f, 0.0f, x(delta) - y(delta)) * MOUSE_SENSITIVITY);
+                triggerRaytracing(true);
+                break;
             }
-            triggerRaytracing(true);
-            break;
 
             case DragTypes::None:
             default:
@@ -280,55 +287,55 @@ namespace raytracerui
         }
     }
 
-    LRESULT WindowsRaytracerUI::WndProc(UINT message, WPARAM wParam, LPARAM lParam) {
+    const LRESULT WindowsRaytracerUI::WndProc(const UINT message, const WPARAM wParam, const LPARAM lParam) {
         switch (message) {
             case WM_CLOSE:
-                PostQuitMessage(Zero<int>());
-                break;
+                PostQuitMessage(0);
+                return DefWindowProc(hWnd, message, wParam, lParam);
 
             case WM_ERASEBKGND:
-                return Zero<LRESULT>();
+                break;
 
             case WM_PAINT:
                 display();
-                return Zero<LRESULT>();
+                break;
 
             case WM_SIZE:
                 delegateReshape();
-                return Zero<LRESULT>();
+                break;
 
             case WM_LBUTTONDOWN:
                 mousePressed(MouseButtons::Left, ButtonStates::Down, getXY(lParam));
-                return Zero<LRESULT>();
+                break;
 
             case WM_LBUTTONUP:
                 mousePressed(MouseButtons::Left, ButtonStates::Up, getXY(lParam));
-                return Zero<LRESULT>();
+                break;
 
             case WM_RBUTTONDOWN:
                 mousePressed(MouseButtons::Right, ButtonStates::Down, getXY(lParam));
-                return Zero<LRESULT>();
+                break;
 
             case WM_RBUTTONUP:
                 mousePressed(MouseButtons::Right, ButtonStates::Up, getXY(lParam));
-                return Zero<LRESULT>();
+                break;
 
             case WM_MOUSEMOVE:
                 mouseDragged(getXY(lParam));
-                return Zero<LRESULT>();
+                break;
 
             case WM_KEYUP:
                 keyPressed(wParam);
-                return Zero<LRESULT>();
+                break;
 
             default:
-                break;
+                return DefWindowProc(hWnd, message, wParam, lParam);
         }
 
-        return DefWindowProc(hWnd, message, wParam, lParam);
+        return LRESULT{ 0 };
     }
 
-    LRESULT CALLBACK WindowsRaytracerUI::DelegatingWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+    LRESULT CALLBACK WindowsRaytracerUI::DelegatingWndProc(const HWND hWnd, const UINT msg, const WPARAM wParam, const LPARAM lParam) {
         WindowsRaytracerUI * targetWindow;
 
         if (msg == WM_CREATE) {
@@ -346,7 +353,7 @@ namespace raytracerui
         return DefWindowProc(hWnd, msg, wParam, lParam);
     }
 
-    const Int2 WindowsRaytracerUI::getXY(LPARAM lParam) {
+    const Int2 WindowsRaytracerUI::getXY(const LPARAM lParam) {
         return Int2(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
     }
 }
