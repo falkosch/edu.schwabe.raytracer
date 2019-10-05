@@ -4,11 +4,10 @@
 
 namespace raytracerui
 {
-	using namespace raytracer;
+    using namespace raytracer;
 
     struct TestLightScene
     {
         static void setup(Scene & scene, Resources & resources);
     };
-
 }

@@ -2,7 +2,6 @@
 
 namespace raytracer
 {
-
     // forward decleration of RaytraceParameters for RaytraceObserver
     struct RaytraceConfiguration;
 
@@ -14,5 +13,4 @@ namespace raytracer
 
         virtual void notifyUpdate(const RaytraceConfiguration & raytraceConfiguration) = 0;
     };
-
 }

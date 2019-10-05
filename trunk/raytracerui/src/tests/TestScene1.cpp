@@ -6,15 +6,13 @@
 
 namespace raytracerui
 {
-
-    void TestScene1::setup(Scene & scene, Resources & resources)
-    {
+    void TestScene1::setup(Scene & scene, Resources & resources) {
         TestResources::setup(resources);
         TestLightScene::setup(scene, resources);
 
         const Float4 vacuum2vacuum = RefractionIndices::refractionEta(RefractionIndices::Vacuum, RefractionIndices::Vacuum);
 
-        SceneObject* sceneObject;
+        SceneObject * sceneObject;
 
         // floor
         sceneObject = new SceneObject("floor");
@@ -127,5 +125,4 @@ namespace raytracerui
         sceneObject->setRefractionEtaShader(new Resources::ConstMaterialShader(vacuum2vacuum));
         scene.getSceneObjects().push_back(sceneObject);
     }
-
 }

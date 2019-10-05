@@ -3,13 +3,10 @@
 
 namespace raytracer
 {
+    KDTreeRoot::KDTreeRoot()
+        :
+        rootBounding(),
+        rootNode() { }
 
-	KDTreeRoot::KDTreeRoot()
-		:
-		rootBounding(),
-		rootNode()
-	{ }
-
-	KDTreeRoot::~KDTreeRoot() { }
-
+    KDTreeRoot::~KDTreeRoot() { }
 }

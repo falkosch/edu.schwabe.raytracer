@@ -4,7 +4,7 @@
 
 namespace primitives
 {
-	using namespace vectorization;
+    using namespace vectorization;
 
     struct SplittingPlane
     {
@@ -27,5 +27,4 @@ namespace primitives
     const bool overlaps(const Raycast & r, const SplittingPlane & by) noexcept;
 
     const Float nearestIntersection(const Raycast & r, const SplittingPlane & p, const Size2::ValueType originId) noexcept;
-
 }

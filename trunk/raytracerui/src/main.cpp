@@ -15,7 +15,6 @@
 
 #include <Windows.h>
 
-
 // MAX_TRACE_DEPTH = 969 already causes stackoverflows
 // MAX_TRACE_DEPTH > 31 for most scenes no significant visual change
 #ifdef NDEBUG
@@ -49,74 +48,69 @@ const Float VISIBILITY_CUTOFF = reciprocal(512.f);
 // n => (n+1)x(n+1) image-pixels/packet
 const ASizeT RAY_PACKET_SIZE = 15;
 
+namespace raytracerui
+{
+    const LRESULT runRaytracerUI() {
+        Resources * resources = new Resources();
+        Scene * scene = new Scene(
+            new NaiveKDTreeTraverser<SceneIntersection>(),
+            new FixedIterationsSAHKDTreeBalancer()
+        );
 
-namespace raytracerui {
+        CornellBoxScene::setup(*scene, *resources);
+        //TestScene1::setup(*scene, *resources);
+        //TestScene2::setup(*scene, *resources);
+        //DragonScene::setup(*scene, *resources);
+        //ProceduralScene<3, 10>::setup(*scene, *resources);
 
-	const LRESULT runRaytracerUI() {
-		Resources * resources = new Resources();
-		Scene * scene = new Scene(
-			new NaiveKDTreeTraverser<SceneIntersection>(),
-			new FixedIterationsSAHKDTreeBalancer()
-		);
+        scene->buildSceneGraph();
 
-		CornellBoxScene::setup(*scene, *resources);
-		//TestScene1::setup(*scene, *resources);
-		//TestScene2::setup(*scene, *resources);
-		//DragonScene::setup(*scene, *resources);
-		//ProceduralScene<3, 10>::setup(*scene, *resources);
+        Camera * camera = new Camera();
+        camera->setProjection(PERSPECTIVE_FOV, PERSPECTIVE_Z_PLANE_EXTENDS, PERSPECTIVE_Z_PLANES);
+        camera->translate(CAMERA_INIT_TRANSLATION);
 
-		scene->buildSceneGraph();
+        RaytraceParameters * parameters = new RaytraceParameters();
+        parameters->visibilityCutoff = VISIBILITY_CUTOFF;
+        parameters->maxDistance = MAX_DISTANCE;
+        parameters->maxTraceDepth = MAX_TRACE_DEPTH;
+        parameters->sceneShader = scene;
+        parameters->cullingOrientation = CULLING_ORIENTATION;
+        parameters->perspectiveZPlanes = PERSPECTIVE_Z_PLANES;
+        parameters->perspectiveFOV = PERSPECTIVE_FOV;
+        parameters->samplingFactor = SAMPLING_FACTOR;
+        parameters->supersamplingFactor = SUPER_SAMPLING_FACTOR;
+        parameters->rayPacketSize = RAY_PACKET_SIZE;
+        parameters->camera = camera;
 
-		Camera * camera = new Camera();
-		camera->setProjection(PERSPECTIVE_FOV, PERSPECTIVE_Z_PLANE_EXTENDS, PERSPECTIVE_Z_PLANES);
-		camera->translate(CAMERA_INIT_TRANSLATION);
+        Raytracer * raytracer = new Raytracer();
 
-		RaytraceParameters * parameters = new RaytraceParameters();
-		parameters->visibilityCutoff = VISIBILITY_CUTOFF;
-		parameters->maxDistance = MAX_DISTANCE;
-		parameters->maxTraceDepth = MAX_TRACE_DEPTH;
-		parameters->sceneShader = scene;
-		parameters->cullingOrientation = CULLING_ORIENTATION;
-		parameters->perspectiveZPlanes = PERSPECTIVE_Z_PLANES;
-		parameters->perspectiveFOV = PERSPECTIVE_FOV;
-		parameters->samplingFactor = SAMPLING_FACTOR;
-		parameters->supersamplingFactor = SUPER_SAMPLING_FACTOR;
-		parameters->rayPacketSize = RAY_PACKET_SIZE;
-		parameters->camera = camera;
+        MessageLoopBasedUI * ui = new WindowsRaytracerUI(*raytracer, *parameters, FAST_PREVIEW_SIZE);
+        LRESULT returnCode = static_cast<LRESULT>(-1);
+        try {
+            returnCode = ui->run();
+        } catch (const std::exception & exception) {
+            std::cout << exception.what() << std::endl;
+        }
 
-		Raytracer * raytracer = new Raytracer();
+        delete ui;
+        delete raytracer;
+        delete parameters;
+        delete camera;
+        delete scene;
+        delete resources;
 
-		MessageLoopBasedUI * ui = new WindowsRaytracerUI(*raytracer, *parameters, FAST_PREVIEW_SIZE);
-		LRESULT returnCode = static_cast<LRESULT>(-1);
-		try {
-			returnCode = ui->run();
-		}
-		catch (const std::exception & exception) {
-			std::cout << exception.what() << std::endl;
-		}
-
-		delete ui;
-		delete raytracer;
-		delete parameters;
-		delete camera;
-		delete scene;
-		delete resources;
-
-		return returnCode;
-	}
-
+        return returnCode;
+    }
 }
 
+int __cdecl main() {
+    TCHAR currentPath[MAX_PATH + 1] = { 0 };
+    GetCurrentDirectory(MAX_PATH, currentPath);
 
-int __cdecl main()
-{
-	TCHAR currentPath[MAX_PATH + 1] = { 0 };
-	GetCurrentDirectory(MAX_PATH, currentPath);
+    std::wcout << "Working directory: " << std::wstring(currentPath) << std::endl;
 
-	std::wcout << "Working directory: " << std::wstring(currentPath) << std::endl;
+    raytracerui::ManualTests()();
+    //raytracerui::Benchmarks()();
 
-	raytracerui::ManualTests()();
-	//raytracerui::Benchmarks()();
-
-	return static_cast<int>(raytracerui::runRaytracerUI());
+    return static_cast<int>(raytracerui::runRaytracerUI());
 }

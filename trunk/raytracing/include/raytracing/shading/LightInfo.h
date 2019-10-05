@@ -4,7 +4,7 @@
 
 namespace raytracer
 {
-	using namespace vectorization;
+    using namespace vectorization;
 
     // Lighting info for emission.
     struct LightInfo
@@ -26,5 +26,4 @@ namespace raytracer
 
         LightInfo();
     };
-
 }

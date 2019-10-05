@@ -4,11 +4,11 @@
 
 namespace raytracer
 {
-	using namespace vectorization;
-	using namespace primitives;
+    using namespace vectorization;
+    using namespace primitives;
 
     class BruteForceSAHKDTreeBalancer
-		: public SAHKDTreeBalancer
+        : public SAHKDTreeBalancer
     {
     public:
 
@@ -20,7 +20,6 @@ namespace raytracer
             const AxisAlignedBoundingBox & bounding,
             const PGeometryNodeList & geometry,
             const KDTreePlane * parentSplitter
-		) const;
+        ) const;
     };
-
 }

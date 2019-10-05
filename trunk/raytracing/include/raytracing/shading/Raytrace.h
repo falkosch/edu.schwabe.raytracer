@@ -6,8 +6,8 @@
 
 namespace raytracer
 {
-	using namespace vectorization;
-	using namespace primitives;
+    using namespace vectorization;
+    using namespace primitives;
 
     /*
     * Specializes RayCast by visibility properties
@@ -31,7 +31,5 @@ namespace raytracer
             const SceneIntersection * const originIntersection,
             const ASizeT traceDepth,
             const Float visibilityIndex);
-
     };
-
 }

@@ -6,14 +6,12 @@
 
 namespace raytracerui
 {
-
-    void TestScene2::setup(Scene & scene, Resources & resources)
-    {
+    void TestScene2::setup(Scene & scene, Resources & resources) {
         TestResources::setup(resources);
         TestLightScene::setup(scene, resources);
 
         const Float4 vacuum2vacuum = RefractionIndices::refractionEta(RefractionIndices::Vacuum, RefractionIndices::Vacuum);
-        SceneObject* sceneObject;
+        SceneObject * sceneObject;
 
         // plane
         sceneObject = new SceneObject("plane");
@@ -52,5 +50,4 @@ namespace raytracerui
             RefractionIndices::refractionEta(RefractionIndices::Vacuum, RefractionIndices::Water)));
         scene.getSceneObjects().push_back(sceneObject);
     }
-
 }

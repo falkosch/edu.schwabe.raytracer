@@ -3,7 +3,6 @@
 
 namespace raytracer
 {
-
     SurfaceShading::SurfaceShading()
         :
         diffusion(),
@@ -12,8 +11,7 @@ namespace raytracer
         shininess(),
         absorbtionCoefficient(),
         refractionEta(),
-        emittivity()
-    { }
+        emittivity() { }
 
     SurfaceShading::SurfaceShading(
         const Float4 & diffusionIn,
@@ -30,7 +28,5 @@ namespace raytracer
         shininess(shininessIn),
         absorbtionCoefficient(absorbtionCoefficientIn),
         refractionEta(refractionEtaIn),
-        emittivity(emittivityIn)
-    { }
-
+        emittivity(emittivityIn) { }
 }

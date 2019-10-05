@@ -3,14 +3,11 @@
 
 namespace raytracer
 {
-
     RaytraceBaseParameters::RaytraceBaseParameters()
         :
         visibilityCutoff(),
         maxDistance(),
         maxTraceDepth(),
         sceneShader(),
-        cullingOrientation()
-    { }
-
+        cullingOrientation() { }
 }

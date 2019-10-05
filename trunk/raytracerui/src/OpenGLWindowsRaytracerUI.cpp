@@ -3,7 +3,6 @@
 
 namespace raytracerui
 {
-
     const Float4_32 QUAD_VERTICES[] = {
         Float4_32(0.f, 0.f, 0.f, 1.f),
         Float4_32(0.f, 1.f, 0.f, 1.f),
@@ -24,8 +23,7 @@ namespace raytracerui
         WindowsRaytracerUI(raytracerIn, parametersIn, fastPreviewSizeIn),
         hDC(),
         hGLRC(),
-        outputSurface()
-    {
+        outputSurface() {
         // get the device context (DC)
         hDC = GetDC(hWnd);
 
@@ -58,21 +56,18 @@ namespace raytracerui
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     }
 
-    OpenGLWindowsRaytracerUI::~OpenGLWindowsRaytracerUI()
-    {
+    OpenGLWindowsRaytracerUI::~OpenGLWindowsRaytracerUI() {
         wglMakeCurrent(hDC, nullptr);
         wglDeleteContext(hGLRC);
         ReleaseDC(hWnd, hDC);
     }
 
-    void OpenGLWindowsRaytracerUI::reshape(const Int2 & newSize)
-    {
+    void OpenGLWindowsRaytracerUI::reshape(const Int2 & newSize) {
         WindowsRaytracerUI::reshape(newSize);
         glViewport(Zero<GLint>(), Zero<GLint>(), x(newSize), y(newSize));
     }
 
-    void OpenGLWindowsRaytracerUI::display()
-    {
+    void OpenGLWindowsRaytracerUI::display() {
         PAINTSTRUCT psPaint;
         ZeroMemory(&psPaint, sizeof(PAINTSTRUCT));
         BeginPaint(hWnd, &psPaint);
@@ -96,11 +91,9 @@ namespace raytracerui
         wglSwapLayerBuffers(hDC, WGL_SWAP_MAIN_PLANE);
     }
 
-    void OpenGLWindowsRaytracerUI::notifyUpdate(const RaytraceConfiguration &configuration)
-    {
+    void OpenGLWindowsRaytracerUI::notifyUpdate(const RaytraceConfiguration & configuration) {
         RaytracerUI::notifyUpdate(configuration);
-        if (outputHDR)
-        {
+        if (outputHDR) {
             glTexImage2D(
                 static_cast<GLenum>(GL_TEXTURE_2D),
                 Zero<GLint>(),
@@ -113,5 +106,4 @@ namespace raytracerui
                 outputHDR->getData());
         }
     }
-
 }

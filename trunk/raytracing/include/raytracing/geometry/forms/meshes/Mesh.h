@@ -9,12 +9,11 @@
 
 namespace raytracer
 {
-	using namespace vectorization;
-	using namespace primitives;
+    using namespace vectorization;
+    using namespace primitives;
 
     struct Mesh : public Form, GeometryNodesTraverser<FacetIntersection>
     {
-
         Mesh();
 
         explicit Mesh(const KDTreeTraverser<FacetIntersection> * const traverser, const KDTreeBalancer * const balancer);
@@ -29,8 +28,7 @@ namespace raytracer
 
         const Float findAnyIntersection(const Raycast & raycast, const FacetIntersection * const originIntersection, FacetIntersection & intersectionOut) const;
 
-        const Float getIndividualIntersectionCosts() const
-        {
+        const Float getIndividualIntersectionCosts() const {
             // benchmarked intersection costs in cycles
             return 19.027224f;
         }
@@ -75,7 +73,5 @@ namespace raytracer
         void clear();
 
         void setupMesh();
-
     };
-
 }

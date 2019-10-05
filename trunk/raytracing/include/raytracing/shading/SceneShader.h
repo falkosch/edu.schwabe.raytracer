@@ -11,8 +11,8 @@
 
 namespace raytracer
 {
-	using namespace vectorization;
-	using namespace primitives;
+    using namespace vectorization;
+    using namespace primitives;
 
     class SceneShader : public SceneGeometry, public Shader < SceneShaderContainment, SceneIntersection, LightShading >
     {
@@ -20,7 +20,7 @@ namespace raytracer
 
         typedef Shader<SceneShader, Float4, Float4> BackgroundShader;
 
-        typedef std::vector<LightInfo*, AlignedAllocator<LightInfo*>> LightsCollection;
+        typedef std::vector<LightInfo *, AlignedAllocator<LightInfo *>> LightsCollection;
 
         SceneShader();
 
@@ -63,7 +63,7 @@ namespace raytracer
 
     private:
 
-        const BackgroundShader* backgroundShader;
+        const BackgroundShader * backgroundShader;
 
         Float4 ambientLight;
 
@@ -99,7 +99,5 @@ namespace raytracer
             const Float4 & reflectedIncidentDirection,
             const Float4 & lightDirection,
             const Float4 & shininess);
-
     };
-
 }

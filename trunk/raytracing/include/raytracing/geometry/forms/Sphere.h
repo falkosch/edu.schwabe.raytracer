@@ -4,8 +4,8 @@
 
 namespace raytracer
 {
-	using namespace vectorization;
-	using namespace primitives;
+    using namespace vectorization;
+    using namespace primitives;
 
     struct Sphere : public Form
     {
@@ -27,11 +27,9 @@ namespace raytracer
 
         const Float findAnyIntersection(const Raycast & r, const FacetIntersection * const originIntersection, FacetIntersection & intersectionOut) const;
 
-        const Float getIndividualIntersectionCosts() const
-        {
+        const Float getIndividualIntersectionCosts() const {
             // benchmarked intersection costs in cycles
             return 37.8098f;
         }
     };
-
 }

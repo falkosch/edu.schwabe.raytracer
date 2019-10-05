@@ -5,12 +5,9 @@
 
 namespace raytracer
 {
-
     RaytracerCache::RaytracerCache(const RaytraceConfiguration & configurationIn)
         :
         configuration(configurationIn),
         statistics(),
-        shadowCache(configurationIn.sceneShader->getLights().size())
-    { }
-
+        shadowCache(configurationIn.sceneShader->getLights().size()) { }
 }

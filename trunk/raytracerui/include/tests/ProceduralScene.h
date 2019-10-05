@@ -6,25 +6,21 @@
 
 namespace raytracerui
 {
-	using namespace vectorization;
-	using namespace raytracer;
+    using namespace vectorization;
+    using namespace raytracer;
 
     template <int LightsPerAxis = 3, int ObjectsPerAxis = 10>
     struct ProceduralScene
     {
-        static void setupLightScene(Scene & scene, Resources & /*resources*/)
-        {
+        static void setupLightScene(Scene & scene, Resources & /*resources*/) {
             scene.setBackgroundShader(new ConstShader<SceneShader, Float4, Float4>(Float4(1.f, 1.f, 1.f, 0.f)));
             scene.setAmbientLight(Float4(0.f, 0.f, 0.f, 0.f));
 
             const Float4 EmissivityScale = reciprocal(Float4(LightsPerAxis * LightsPerAxis * LightsPerAxis + 1.f));
-            for (int z = -LightsPerAxis; z <= LightsPerAxis; ++z)
-            {
-                for (int y = -LightsPerAxis; y <= LightsPerAxis; ++y)
-                {
-                    for (int x = -LightsPerAxis; x <= LightsPerAxis; ++x)
-                    {
-                        LightInfo* light = new LightInfo();
+            for (int z = -LightsPerAxis; z <= LightsPerAxis; ++z) {
+                for (int y = -LightsPerAxis; y <= LightsPerAxis; ++y) {
+                    for (int x = -LightsPerAxis; x <= LightsPerAxis; ++x) {
+                        LightInfo * light = new LightInfo();
                         const Float4 p = convert<Float4>(Int4(x, y, z));
                         light->position = oneW(p * Float4(4.f));
                         light->emissivity = oneW(abs(p * EmissivityScale) + EmissivityScale);
@@ -35,16 +31,12 @@ namespace raytracerui
             }
         }
 
-        static void setup(Scene &scene, Resources &resources)
-        {
+        static void setup(Scene & scene, Resources & resources) {
             setupLightScene(scene, resources);
 
-            for (int z = -ObjectsPerAxis; z < ObjectsPerAxis; ++z)
-            {
-                for (int y = -ObjectsPerAxis; y < ObjectsPerAxis; ++y)
-                {
-                    for (int x = -ObjectsPerAxis; x < ObjectsPerAxis; ++x)
-                    {
+            for (int z = -ObjectsPerAxis; z < ObjectsPerAxis; ++z) {
+                for (int y = -ObjectsPerAxis; y < ObjectsPerAxis; ++y) {
+                    for (int x = -ObjectsPerAxis; x < ObjectsPerAxis; ++x) {
                         std::stringstream fmt;
                         fmt << z << " " << y << " " << x;
 
@@ -73,5 +65,4 @@ namespace raytracerui
             }
         }
     };
-
 }

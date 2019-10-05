@@ -4,7 +4,7 @@
 
 namespace raytracer
 {
-	using namespace vectorization;
+    using namespace vectorization;
 
     struct RefractionIndices
     {
@@ -19,5 +19,4 @@ namespace raytracer
 
         static const Float4 refractionEta(const Float indexA, const Float indexB);
     };
-
 }

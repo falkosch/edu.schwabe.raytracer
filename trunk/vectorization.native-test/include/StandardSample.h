@@ -9,8 +9,8 @@ namespace vectorization
 {
     namespace test
     {
-        struct StandardSample {
-
+        struct StandardSample
+        {
             static const ASizeT ImportantFloatConstantsSize = 39;
 
             static const std::array<v_f32_4::ValueType, ImportantFloatConstantsSize> importantFloatConstants() {
@@ -61,7 +61,6 @@ namespace vectorization
                 };
             }
 
-
             template <typename T, ASizeT Size>
             static const std::array<T, Size> ofArrayType();
 
@@ -74,7 +73,6 @@ namespace vectorization
                     Infinity<v_f32_4::ValueType>()
                 };
             }
-
 
             template <typename T>
             static const T ofVectorType();
@@ -89,7 +87,6 @@ namespace vectorization
                     sampleComponents.at(VectorIndices::W)
                 );
             }
-
         };
     }
 }

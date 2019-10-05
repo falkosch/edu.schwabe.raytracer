@@ -8,7 +8,7 @@
 
 namespace raytracer
 {
-	using namespace vectorization;
+    using namespace vectorization;
 
     class ObjectShader : public ObjectGeometry, public Shader < SceneShader, SceneIntersection, SurfaceShading >
     {
@@ -20,33 +20,33 @@ namespace raytracer
 
         virtual ~ObjectShader();
 
-        const MaterialShader*const getDiffusionShader() const;
+        const MaterialShader * const getDiffusionShader() const;
 
-        void setDiffusionShader(const MaterialShader*const value);
+        void setDiffusionShader(const MaterialShader * const value);
 
-        const MaterialShader*const getReflectanceShader() const;
+        const MaterialShader * const getReflectanceShader() const;
 
-        void setReflectanceShader(const MaterialShader*const value);
+        void setReflectanceShader(const MaterialShader * const value);
 
-        const MaterialShader*const getSpecularityShader() const;
+        const MaterialShader * const getSpecularityShader() const;
 
-        void setSpecularityShader(const MaterialShader*const value);
+        void setSpecularityShader(const MaterialShader * const value);
 
-        const MaterialShader*const getShininessShader() const;
+        const MaterialShader * const getShininessShader() const;
 
-        void setShininessShader(const MaterialShader*const value);
+        void setShininessShader(const MaterialShader * const value);
 
-        const MaterialShader*const getTransmittanceShader() const;
+        const MaterialShader * const getTransmittanceShader() const;
 
-        void setTransmittanceShader(const MaterialShader*const value);
+        void setTransmittanceShader(const MaterialShader * const value);
 
-        const MaterialShader*const getRefractionEtaShader() const;
+        const MaterialShader * const getRefractionEtaShader() const;
 
-        void setRefractionEtaShader(const MaterialShader*const value);
+        void setRefractionEtaShader(const MaterialShader * const value);
 
-        const MaterialShader*const getEmissivityShader() const;
+        const MaterialShader * const getEmissivityShader() const;
 
-        void setEmissivityShader(const MaterialShader*const value);
+        void setEmissivityShader(const MaterialShader * const value);
 
         void resetTextureMatrix();
 
@@ -64,22 +64,20 @@ namespace raytracer
 
         TextureTransformInfo textureTransformInfo;
 
-        const MaterialShader* diffusionShader;
+        const MaterialShader * diffusionShader;
 
-        const MaterialShader* reflectanceShader;
+        const MaterialShader * reflectanceShader;
 
-        const MaterialShader* specularityShader;
+        const MaterialShader * specularityShader;
 
-        const MaterialShader* shininessShader;
+        const MaterialShader * shininessShader;
 
-        const MaterialShader* transmittanceShader;
+        const MaterialShader * transmittanceShader;
 
-        const MaterialShader* refractionEtaShader;
+        const MaterialShader * refractionEtaShader;
 
-        const MaterialShader* emissivityShader;
+        const MaterialShader * emissivityShader;
 
         void updateTextureMatrix();
-
     };
-
 }

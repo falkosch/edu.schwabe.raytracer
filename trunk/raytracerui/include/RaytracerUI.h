@@ -4,8 +4,8 @@
 
 namespace raytracerui
 {
-	using namespace vectorization;
-	using namespace raytracer;
+    using namespace vectorization;
+    using namespace raytracer;
 
     class RaytracerUI : public RaytraceObserver
     {
@@ -43,5 +43,4 @@ namespace raytracerui
 
         const HDRImage * const selectOutputImage(const RaytraceConfiguration & configuration) const;
     };
-
 }

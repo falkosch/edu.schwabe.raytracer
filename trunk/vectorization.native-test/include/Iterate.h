@@ -12,8 +12,8 @@ namespace vectorization
 {
     namespace test
     {
-        struct Iterate {
-
+        struct Iterate
+        {
             template <ASizeT exclusiveEnd>
             static void toExclusiveEnd(
                 std::function<void(const ASizeT index, std::wstring)> test,
@@ -42,7 +42,6 @@ namespace vectorization
                     return stream << " --- " << message;
                 });
             }
-
         };
     }
 }

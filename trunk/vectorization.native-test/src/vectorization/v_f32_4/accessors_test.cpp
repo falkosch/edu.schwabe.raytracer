@@ -11,7 +11,6 @@ namespace vectorization
 {
     namespace test
     {
-
         TEST_CLASS(v_f32_4_AccessorsTest)
         {
         public:
@@ -24,8 +23,7 @@ namespace vectorization
                 return StandardSample::ofVectorType<v_f32_4>();
             }
 
-            TEST_METHOD(readsComponent)
-            {
+            TEST_METHOD(readsComponent) {
                 auto expectedComponents = sampleArray();
                 auto givenVector = sampleVector();
 
@@ -35,8 +33,7 @@ namespace vectorization
                 Assert::AreEqual(expectedComponents.at(VectorIndices::W), component<VectorIndices::W>(givenVector));
             }
 
-            TEST_METHOD(readsXYZW)
-            {
+            TEST_METHOD(readsXYZW) {
                 auto expectedComponents = sampleArray();
                 auto givenVector = sampleVector();
 
@@ -46,8 +43,7 @@ namespace vectorization
                 Assert::AreEqual(expectedComponents.at(VectorIndices::W), w(givenVector));
             }
 
-            TEST_METHOD(replacesComponent)
-            {
+            TEST_METHOD(replacesComponent) {
                 auto givenVector = sampleVector();
                 auto expectedReplacement = 5.0f;
 
@@ -84,8 +80,7 @@ namespace vectorization
                 }
             }
 
-            TEST_METHOD(replacesXYZW)
-            {
+            TEST_METHOD(replacesXYZW) {
                 auto givenVector = sampleVector();
                 auto expectedReplacement = 5.0f;
 
@@ -122,8 +117,7 @@ namespace vectorization
                 }
             }
 
-            TEST_METHOD(setsComponent)
-            {
+            TEST_METHOD(setsComponent) {
                 auto expectedReplacement = 5.0f;
 
                 {
@@ -162,8 +156,6 @@ namespace vectorization
                     Assert::AreEqual(expectedReplacement, w(givenMutableW));
                 }
             }
-
         };
-
     }
 }

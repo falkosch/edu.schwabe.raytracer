@@ -4,11 +4,10 @@
 
 namespace raytracer
 {
-	using namespace vectorization;
+    using namespace vectorization;
 
     class Camera
     {
-
         Float44 projectionMatrix, viewMatrix;
 
         Float4 worldPosition;
@@ -52,7 +51,5 @@ namespace raytracer
         const Float4 getVFFarRightDirection() const;
 
         const Float4 getVFFarBottomDirection() const;
-
     };
-
 }

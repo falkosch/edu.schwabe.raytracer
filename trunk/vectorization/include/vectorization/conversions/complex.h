@@ -28,60 +28,48 @@
 
 namespace vectorization
 {
+    template <>
+    const v_i32_4 convert<v_i32_4>(const bool) noexcept;
 
-	template <>
-	const v_i32_4 convert<v_i32_4>(const bool) noexcept;
+    template <>
+    const v_ui32_4 convert<v_ui32_4>(const bool) noexcept;
 
-	template <>
-	const v_ui32_4 convert<v_ui32_4>(const bool) noexcept;
+    template <>
+    const v_i32_4 convert<v_i32_4>(const bool, const bool) noexcept;
 
+    template <>
+    const v_ui32_4 convert<v_ui32_4>(const bool, const bool) noexcept;
 
+    template <typename U>
+    const U convert(const v_ui32_4 & v) noexcept;
 
-	template <>
-	const v_i32_4 convert<v_i32_4>(const bool, const bool) noexcept;
+    template <>
+    const v_f32_4 convert<v_f32_4>(const v_ui32_4 & v) noexcept;
 
-	template <>
-	const v_ui32_4 convert<v_ui32_4>(const bool, const bool) noexcept;
+    template <typename U>
+    const U convert(const v_i32_4 & v) noexcept;
 
+    template <>
+    const v_f32_4 convert<v_f32_4>(const v_i32_4 & v) noexcept;
 
+    template <>
+    const v_ui64_2 convert<v_ui64_2>(const v_i32_4 & v) noexcept;
 
-	template <typename U>
-	const U convert(const v_ui32_4 & v) noexcept;
+    template <typename U>
+    const U convert(const v_f32_4 & v) noexcept;
 
-	template <>
-	const v_f32_4 convert<v_f32_4>(const v_ui32_4 & v) noexcept;
+    template <>
+    const v_i32_4 convert<v_i32_4>(const v_f32_4 & v) noexcept;
 
+    template <>
+    const v_f32_4 convert<v_f32_4>(const v_f32_4 & v) noexcept;
 
+    template <>
+    const v_ui64_2 convert<v_ui64_2>(const v_f32_4 & v) noexcept;
 
-	template <typename U>
-	const U convert(const v_i32_4 & v) noexcept;
+    template <typename U>
+    const U convert(const v_ui64_2 & v) noexcept;
 
-	template <>
-	const v_f32_4 convert<v_f32_4>(const v_i32_4 & v) noexcept;
-
-	template <>
-	const v_ui64_2 convert<v_ui64_2>(const v_i32_4 & v) noexcept;
-
-
-
-	template <typename U>
-	const U convert(const v_f32_4 & v) noexcept;
-
-	template <>
-	const v_i32_4 convert<v_i32_4>(const v_f32_4 & v) noexcept;
-
-	template <>
-	const v_f32_4 convert<v_f32_4>(const v_f32_4 & v) noexcept;
-
-	template <>
-	const v_ui64_2 convert<v_ui64_2>(const v_f32_4 & v) noexcept;
-
-
-
-	template <typename U>
-	const U convert(const v_ui64_2 & v) noexcept;
-
-	template <>
-	const v_f32_4 convert<v_f32_4>(const v_ui64_2 & v) noexcept;
-
+    template <>
+    const v_f32_4 convert<v_f32_4>(const v_ui64_2 & v) noexcept;
 }

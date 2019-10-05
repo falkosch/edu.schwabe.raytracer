@@ -5,13 +5,12 @@
 
 namespace raytracer
 {
-
     /*
     * Struct for the raytrace output
     */
     struct RaytraceOutput
     {
-        HDRImage *image, *timingMap, *depthMap;
+        HDRImage * image, * timingMap, * depthMap;
 
         bool state;
 
@@ -21,5 +20,4 @@ namespace raytracer
 
         RaytraceOutput();
     };
-
 }

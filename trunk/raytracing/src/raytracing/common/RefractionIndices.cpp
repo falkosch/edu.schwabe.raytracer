@@ -3,7 +3,6 @@
 
 namespace raytracer
 {
-
     const Float RefractionIndices::Caesium = .345f;
     const Float RefractionIndices::Vacuum = 1.f;
     const Float RefractionIndices::AirSTP = 1.000292f;
@@ -13,9 +12,7 @@ namespace raytracer
     const Float RefractionIndices::Glass = 1.5f;
     const Float RefractionIndices::Diamond = 2.42f;
 
-    const Float4 RefractionIndices::refractionEta(const Float indexA, const Float indexB)
-    {
+    const Float4 RefractionIndices::refractionEta(const Float indexA, const Float indexB) {
         return Float4(indexA / indexB, indexB / indexA, indexA, indexB);
     }
-
 }

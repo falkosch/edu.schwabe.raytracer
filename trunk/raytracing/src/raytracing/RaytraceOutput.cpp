@@ -3,14 +3,11 @@
 
 namespace raytracer
 {
-
     RaytraceOutput::RaytraceOutput()
         :
         image(),
         timingMap(),
         depthMap(),
         state(),
-        statistics()
-    { }
-
+        statistics() { }
 }

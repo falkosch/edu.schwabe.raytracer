@@ -5,13 +5,12 @@
 
 namespace raytracer
 {
-	using namespace primitives;
+    using namespace primitives;
 
-	struct KDTreeBounding
-	{
-		static void split(const KDTreePlane & splitter, const AxisAlignedBoundingBox & toSplit, AxisAlignedBoundingBox & leftBounding, AxisAlignedBoundingBox & rightBounding);
+    struct KDTreeBounding
+    {
+        static void split(const KDTreePlane & splitter, const AxisAlignedBoundingBox & toSplit, AxisAlignedBoundingBox & leftBounding, AxisAlignedBoundingBox & rightBounding);
 
-		static const AxisAlignedBoundingBox findMinimumBoundingOfGeometry(const PGeometryNodeList & geometry);
-	};
-
+        static const AxisAlignedBoundingBox findMinimumBoundingOfGeometry(const PGeometryNodeList & geometry);
+    };
 }

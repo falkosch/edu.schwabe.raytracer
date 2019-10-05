@@ -16,14 +16,12 @@
 
 namespace raytracer
 {
-
     Resources::Resources()
         :
         meshes(),
         textures(),
-        revertedNormalsCheckList()
-    {
-        Mesh* basicMesh = new Mesh();
+        revertedNormalsCheckList() {
+        Mesh * basicMesh = new Mesh();
         basicMesh->buildTriangleMesh();
         meshes["triangle"] = basicMesh;
 
@@ -41,34 +39,31 @@ namespace raytracer
 
     Resources::~Resources() { }
 
-    const bool Resources::hasRevertedNormals(const std::string &identifier) const
-    {
+    const bool Resources::hasRevertedNormals(const std::string & identifier) const {
         return std::binary_search(
             revertedNormalsCheckList.cbegin(),
             revertedNormalsCheckList.cend(),
             identifier);
     }
 
-    Mesh * const Resources::getMesh(const std::string & identifier)
-    {
-        std::map<std::string, Mesh*>::const_iterator found = meshes.find(identifier);
+    Mesh * const Resources::getMesh(const std::string & identifier) {
+        std::map<std::string, Mesh *>::const_iterator found = meshes.find(identifier);
         if (found == meshes.cend()) {
             const std::string file = "meshes/" + identifier + ".off";
             found = meshes.find(file);
 
-            if (found == meshes.cend())
-            {
-                const KDTreeTraverser<FacetIntersection>*const traverser = new NaiveKDTreeTraverser<FacetIntersection>();
+            if (found == meshes.cend()) {
+                const KDTreeTraverser<FacetIntersection> * const traverser = new NaiveKDTreeTraverser<FacetIntersection>();
                 //const KDTreeTraverser<FacetIntersection>*const traverser = new VoxelizationKDTreeTraverser<FacetIntersection>();
 
                 //const KDTreeBalancer*const balancer = new RotatingAxisKDTreeBalancer();
                 //const KDTreeBalancer*const balancer = new MaxAxisKDTreeBalancer();
                 //const KDTreeBalancer*const balancer = new MedianKDTreeBalancer();
                 //const KDTreeBalancer*const balancer = new ArithmeticMeanKDTreeBalancer();
-                const KDTreeBalancer*const balancer = new FixedIterationsSAHKDTreeBalancer(5);
+                const KDTreeBalancer * const balancer = new FixedIterationsSAHKDTreeBalancer(5);
                 //const KDTreeBalancer*const balancer = new BruteForceSAHKDTreeBalancer();
 
-                Mesh*const newMesh = Mesh::loadFromOffFile(file, hasRevertedNormals(file), traverser, balancer);
+                Mesh * const newMesh = Mesh::loadFromOffFile(file, hasRevertedNormals(file), traverser, balancer);
                 meshes[file] = newMesh;
                 return newMesh;
             }
@@ -76,16 +71,13 @@ namespace raytracer
         return found->second;
     }
 
-    HDRImage * const Resources::getPPM(const std::string & identifier)
-    {
-        std::map<std::string, HDRImage*>::const_iterator found = textures.find(identifier);
-        if (found == textures.cend())
-        {
+    HDRImage * const Resources::getPPM(const std::string & identifier) {
+        std::map<std::string, HDRImage *>::const_iterator found = textures.find(identifier);
+        if (found == textures.cend()) {
             const std::string file = "textures/" + identifier + ".ppm";
             found = textures.find(file);
 
-            if (found == textures.cend())
-            {
+            if (found == textures.cend()) {
                 const Bitmap * const loadedBitmap = Bitmap::loadPPM(file);
                 assert(loadedBitmap);
 
@@ -98,5 +90,4 @@ namespace raytracer
         }
         return found->second;
     }
-
 }

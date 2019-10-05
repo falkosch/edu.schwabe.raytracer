@@ -4,19 +4,18 @@
 
 namespace raytracer
 {
-	using namespace primitives;
+    using namespace primitives;
 
-	struct KDTreeRoot
-	{
-		AxisAlignedBoundingBox rootBounding;
+    struct KDTreeRoot
+    {
+        AxisAlignedBoundingBox rootBounding;
 
-		KDTreeNode rootNode;
+        KDTreeNode rootNode;
 
-		ALIGNED_ALLOCATORS(__alignof(KDTreeRoot));
+        ALIGNED_ALLOCATORS(__alignof(KDTreeRoot));
 
-		KDTreeRoot();
+        KDTreeRoot();
 
-		~KDTreeRoot();
-	};
-
+        ~KDTreeRoot();
+    };
 }

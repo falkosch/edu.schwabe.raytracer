@@ -3,11 +3,8 @@
 
 namespace raytracer
 {
-
     RaytraceConfiguration::RaytraceConfiguration() :
         RaytraceParameters(),
         RaytraceOutput(),
-        runId()
-    { }
-
+        runId() { }
 }

@@ -4,7 +4,7 @@
 
 namespace raytracer
 {
-	using namespace vectorization;
+    using namespace vectorization;
 
     struct SurfaceShading
     {
@@ -35,5 +35,4 @@ namespace raytracer
             const Float4 & refractionEta,
             const Float4 & emittivity);
     };
-
 }

@@ -3,7 +3,6 @@
 
 namespace raytracer
 {
-
     BruteForceSAHKDTreeBalancer::~BruteForceSAHKDTreeBalancer() { }
 
     const KDTreePlane BruteForceSAHKDTreeBalancer::findSplitter(
@@ -12,8 +11,7 @@ namespace raytracer
         const AxisAlignedBoundingBox & bounding,
         const PGeometryNodeList & geometry,
         const KDTreePlane *
-	) const
-    {
+    ) const {
         // get the geometry stuff
         const Float4 parentExtents = extents(bounding);
         const ASizeT maxAxis = argmax3(parentExtents);
@@ -33,5 +31,4 @@ namespace raytracer
         // finally, use the saved best splitting
         return bestPlane;
     }
-
 }

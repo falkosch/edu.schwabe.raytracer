@@ -4,7 +4,7 @@
 
 namespace raytracer
 {
-	using namespace vectorization;
+    using namespace vectorization;
 
     struct LightShading
     {
@@ -24,5 +24,4 @@ namespace raytracer
 
         LightShading(const Float4 & ambient);
     };
-
 }

@@ -4,7 +4,7 @@
 
 namespace raytracer
 {
-	using namespace vectorization;
+    using namespace vectorization;
 
     class NoiseGenerator
     {
@@ -22,5 +22,4 @@ namespace raytracer
 
         virtual const Float noise4(const Float4 & v) const = 0;
     };
-
 }

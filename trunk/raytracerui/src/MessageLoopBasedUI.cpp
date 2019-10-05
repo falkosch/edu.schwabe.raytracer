@@ -3,7 +3,5 @@
 
 namespace raytracerui
 {
-
     MessageLoopBasedUI::~MessageLoopBasedUI() { }
-
 }

@@ -4,11 +4,8 @@
 
 namespace vectorization
 {
-
-	template <>
-	const PackedFloat4_128 MaskXYZW<PackedFloat4_128>() noexcept
-	{
-		return MaskAll<PackedFloat4_128>();
-	}
-
+    template <>
+    const PackedFloat4_128 MaskXYZW<PackedFloat4_128>() noexcept {
+        return MaskAll<PackedFloat4_128>();
+    }
 }

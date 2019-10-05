@@ -3,7 +3,5 @@
 
 namespace raytracer
 {
-
     RaytraceObserver::~RaytraceObserver() { }
-
 }

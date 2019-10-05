@@ -4,36 +4,32 @@
 
 namespace vectorization
 {
+    // compile time static for loop for range [First, Last)
+    template < ASizeT First, ASizeT Last >
+    struct StaticFor
+    {
+        template <typename Lambda>
+        static inline constexpr void apply(const Lambda & iteratee) {
+            if constexpr (First < Last) {
+                iteratee(First);
+                if constexpr (First + 1 < Last) {
+                    StaticFor<First + 1, Last>::apply(iteratee);
+                }
+            }
+        }
+    };
 
-	// compile time static for loop for range [First, Last)
-	template < ASizeT First, ASizeT Last >
-	struct StaticFor
-	{
-		template <typename Lambda>
-		static inline constexpr void apply(const Lambda & iteratee) {
-			if constexpr (First < Last) {
-				iteratee(First);
-				if constexpr (First + 1 < Last) {
-					StaticFor<First + 1, Last>::apply(iteratee);
-				}
-			}
-		}
-	};
+    // Can take care for C4100 when First equals Last index
+    template < ASizeT N >
+    struct StaticFor<N, N>
+    {
+        template <typename Lambda>
+        static inline constexpr void apply(const Lambda & /* iteratee */) { }
+    };
 
-	// Can take care for C4100 when First equals Last index
-	template < ASizeT N >
-	struct StaticFor<N, N>
-	{
-		template <typename Lambda>
-		static inline constexpr void apply(const Lambda & /* iteratee */) {
-		}
-	};
-
-	// compile time static for loop for range [First, Last)
-	template < ASizeT First, ASizeT Last, typename Lambda >
-	inline constexpr void staticFor(const Lambda & iteratee) noexcept
-	{
-		StaticFor<First, Last>::apply(iteratee);
-	}
-
+    // compile time static for loop for range [First, Last)
+    template < ASizeT First, ASizeT Last, typename Lambda >
+    inline constexpr void staticFor(const Lambda & iteratee) noexcept {
+        StaticFor<First, Last>::apply(iteratee);
+    }
 }

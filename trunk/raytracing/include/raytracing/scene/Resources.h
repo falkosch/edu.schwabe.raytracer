@@ -10,7 +10,7 @@
 
 namespace raytracer
 {
-	using namespace vectorization;
+    using namespace vectorization;
 
     class Resources
     {
@@ -19,11 +19,11 @@ namespace raytracer
         typedef ConstShader<ObjectShader, FacetIntersection, Float4> ConstMaterialShader;
 
         typedef MultiplyByConstShader <
-			ObjectShader,
-			FacetIntersection,
-			Float4,
-			ObjectShader::MaterialShader
-		> MultiplyByConstMaterialShader;
+            ObjectShader,
+            FacetIntersection,
+            Float4,
+            ObjectShader::MaterialShader
+        > MultiplyByConstMaterialShader;
 
         ALIGNED_ALLOCATORS(__alignof(Resources));
 
@@ -45,5 +45,4 @@ namespace raytracer
 
         const bool hasRevertedNormals(const std::string & identifier) const;
     };
-
 }

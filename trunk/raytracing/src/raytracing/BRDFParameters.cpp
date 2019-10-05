@@ -3,7 +3,6 @@
 
 namespace raytracer
 {
-
     BRDFParameters::BRDFParameters()
         :
         intersection(),
@@ -12,7 +11,5 @@ namespace raytracer
         transmissionDirection(),
         reflectanceCoefficient(One<Float4>()),
         absorbtionCoefficient(),
-        viewDistance()
-    { }
-
+        viewDistance() { }
 }

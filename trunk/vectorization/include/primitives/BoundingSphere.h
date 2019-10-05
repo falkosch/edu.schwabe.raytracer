@@ -4,7 +4,7 @@
 
 namespace primitives
 {
-	using namespace vectorization;
+    using namespace vectorization;
 
     struct BoundingSphere
     {
@@ -23,5 +23,4 @@ namespace primitives
     const bool overlaps(const Raycast & raycast, const BoundingSphere & by) noexcept;
 
     const Float nearestIntersection(const Raycast & r, const BoundingSphere & b, const Size2::ValueType originId) noexcept;
-
 }

@@ -3,7 +3,6 @@
 
 namespace raytracer
 {
-
     SceneShaderContainment::SceneShaderContainment(
         PerLightShadowCache::ShadowCacheType & shadowCacheIn,
         StatisticsCookie & statisticsIn)
@@ -12,7 +11,5 @@ namespace raytracer
         shininess(),
         visibilityCutoff(),
         shadowCache(&shadowCacheIn),
-        statistics(&statisticsIn)
-    { }
-
+        statistics(&statisticsIn) { }
 }

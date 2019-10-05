@@ -7,14 +7,11 @@ using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
 namespace vectorization
 {
-	namespace test
-	{
-
-		TEST_CLASS(v_f32_4_FunctionsTest)
-		{
-		public:
-
-		};
-
-	}
+    namespace test
+    {
+        TEST_CLASS(v_f32_4_FunctionsTest)
+        {
+        public:
+        };
+    }
 }

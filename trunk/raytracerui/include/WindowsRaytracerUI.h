@@ -5,8 +5,8 @@
 
 namespace raytracerui
 {
-	using namespace vectorization;
-	using namespace raytracer;
+    using namespace vectorization;
+    using namespace raytracer;
 
     enum class MouseButtons : ASizeT
     {
@@ -75,5 +75,4 @@ namespace raytracerui
 
         LRESULT run();
     };
-
 }

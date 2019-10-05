@@ -2,12 +2,8 @@
 
 namespace raytracerui
 {
-
-	struct ManualTests
-	{
-
-		void operator()() const;
-
-	};
-
+    struct ManualTests
+    {
+        void operator()() const;
+    };
 }

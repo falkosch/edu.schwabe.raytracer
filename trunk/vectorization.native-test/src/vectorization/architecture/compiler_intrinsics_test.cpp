@@ -9,13 +9,11 @@ namespace vectorization
 {
     namespace test
     {
-
         TEST_CLASS(CompilerIntrinsicsTest)
         {
         public:
 
-            TEST_METHOD(generatesMasksForFloat4_32)
-            {
+            TEST_METHOD(generatesMasksForFloat4_32) {
                 Assert::AreEqual(
                     0 + 0 + 0 + 0,
                     BLEND_MASK_FLOAT4_32(0, 0, 0, 0),
@@ -45,8 +43,7 @@ namespace vectorization
                 );
             }
 
-            TEST_METHOD(generatesMasksForInt4_32)
-            {
+            TEST_METHOD(generatesMasksForInt4_32) {
                 Assert::AreEqual(
                     0 + 0 + 0 + 0 + 0 + 0 + 0 + 0,
                     BLEND_MASK_INT4_32(0, 0, 0, 0),
@@ -76,8 +73,7 @@ namespace vectorization
                 );
             }
 
-            TEST_METHOD(convertsUnsignedIntegersToFloats)
-            {
+            TEST_METHOD(convertsUnsignedIntegersToFloats) {
                 auto givenValues = std::array<vectorization::UInt_32, 5>({ 0, 1, 2, 3, 4 });
 
                 for (auto givenValue : givenValues) {
@@ -93,8 +89,6 @@ namespace vectorization
                     );
                 }
             }
-
         };
-
     }
 }

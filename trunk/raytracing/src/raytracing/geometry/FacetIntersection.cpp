@@ -3,7 +3,6 @@
 
 namespace raytracer
 {
-
     FacetIntersection::FacetIntersection()
         :
         msVertex(),
@@ -12,7 +11,5 @@ namespace raytracer
         surfaceNormal(),
         smoothedNormal(),
         texCoords(),
-        node()
-    { }
-
+        node() { }
 }

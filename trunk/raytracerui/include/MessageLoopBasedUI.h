@@ -4,7 +4,6 @@
 
 namespace raytracerui
 {
-
     class MessageLoopBasedUI
     {
     public:
@@ -13,5 +12,4 @@ namespace raytracerui
 
         virtual LRESULT run() = 0;
     };
-
 }

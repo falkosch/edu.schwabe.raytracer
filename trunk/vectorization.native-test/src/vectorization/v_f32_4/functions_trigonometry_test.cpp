@@ -15,13 +15,11 @@ namespace vectorization
 {
     namespace test
     {
-
         TEST_CLASS(v_f32_4_FunctionsTrigonometryTest)
         {
         public:
 
-            TEST_METHOD(computesLog)
-            {
+            TEST_METHOD(computesLog) {
                 auto test = StandardSample::importantFloatConstants();
 
                 auto matchers = {
@@ -71,8 +69,7 @@ namespace vectorization
                 };
 
                 auto matcher = matchers.begin();
-                for (auto i = Zero<ASizeT>(); i < test.size(); ++i, ++matcher)
-                {
+                for (auto i = Zero<ASizeT>(); i < test.size(); ++i, ++matcher) {
                     auto testValue = test.at(i);
                     auto testVector = v_f32_4(testValue);
                     auto actual = vectorization::log(testVector);
@@ -84,8 +81,7 @@ namespace vectorization
                 }
             }
 
-            TEST_METHOD(computesExp)
-            {
+            TEST_METHOD(computesExp) {
                 auto test = StandardSample::importantFloatConstants();
 
                 auto matchers = {
@@ -135,8 +131,7 @@ namespace vectorization
                 };
 
                 auto matcher = matchers.begin();
-                for (auto i = Zero<ASizeT>(); i < test.size(); ++i, ++matcher)
-                {
+                for (auto i = Zero<ASizeT>(); i < test.size(); ++i, ++matcher) {
                     auto testValue = test.at(i);
                     auto actual = vectorization::exp(v_f32_4(testValue));
                     auto expected = v_f32_4(std::exp(testValue));
@@ -146,9 +141,6 @@ namespace vectorization
                     Assert::IsTrue(allTrue(match), wmessage.c_str(), LINE_INFO());
                 }
             }
-
-
         };
-
     }
 }

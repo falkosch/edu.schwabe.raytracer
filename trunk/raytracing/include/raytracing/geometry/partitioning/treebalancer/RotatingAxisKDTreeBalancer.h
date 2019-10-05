@@ -4,11 +4,11 @@
 
 namespace raytracer
 {
-	using namespace vectorization;
-	using namespace primitives;
+    using namespace vectorization;
+    using namespace primitives;
 
     class RotatingAxisKDTreeBalancer
-		: public KDTreeBalancer
+        : public KDTreeBalancer
     {
     public:
 
@@ -24,7 +24,6 @@ namespace raytracer
             const AxisAlignedBoundingBox & bounding,
             const PGeometryNodeList & geometry,
             const KDTreePlane * parentSplitter
-		) const;
+        ) const;
     };
-
 }

@@ -4,8 +4,6 @@
 
 namespace vectorization
 {
-
-	template <typename T>
-	const T Two() noexcept;
-
+    template <typename T>
+    const T Two() noexcept;
 }

@@ -5,7 +5,6 @@
 
 namespace raytracer
 {
-
     PerlinNoiseGenerator::PerlinNoiseGenerator(const UInt_64 seed)
         :
         gradients1(),
@@ -16,8 +15,7 @@ namespace raytracer
         permutationsCount(DefaultPermutationsCount),
         iPermutationsCount(static_cast<Int>(DefaultPermutationsCount)),
         iPermutationsCountS1(static_cast<Int>(DefaultPermutationsCount - One<ASizeT>())),
-        fPermutationsCount(static_cast<Float>(DefaultPermutationsCount))
-    {
+        fPermutationsCount(static_cast<Float>(DefaultPermutationsCount)) {
         srand(static_cast<UInt_32>(seed));
         const Int4 permutationsOffset = Int4(iPermutationsCount);
         const Int4 permutationsScale = permutationsOffset + permutationsOffset;
@@ -32,8 +30,7 @@ namespace raytracer
         gradients4 = new Float4[permutationsCountExtended];
 
         // Initialize permutation and gradients tables
-        for (ASizeT i = Zero<ASizeT>(); i < permutationsCount; ++i)
-        {
+        for (ASizeT i = Zero<ASizeT>(); i < permutationsCount; ++i) {
             const Float4 randomPick = randomGradient(permutationsScale, permutationsOffset, permutationsNormalization);
             permutations[i] = static_cast<Int>(i);
             gradients1[i] = randomPick;
@@ -48,8 +45,7 @@ namespace raytracer
             std::swap(permutations[i], permutations[rand() % iPermutationsCount]);
 
         // replicate values for upper table-part
-        for (ASizeT i = Zero<ASizeT>(); i < permutationsCountExtended - permutationsCount; ++i)
-        {
+        for (ASizeT i = Zero<ASizeT>(); i < permutationsCountExtended - permutationsCount; ++i) {
             const ASizeT j = permutationsCount + i;
             permutations[j] = permutations[i];
             gradients1[j] = gradients1[i];
@@ -59,27 +55,23 @@ namespace raytracer
         }
     }
 
-    const Float4 PerlinNoiseGenerator::randomGradient(const Int4 & scale, const Int4 & offset, const Float4 & normalization)
-    {
+    const Float4 PerlinNoiseGenerator::randomGradient(const Int4 & scale, const Int4 & offset, const Float4 & normalization) {
         const Int4 t = Int4(rand(), rand(), rand(), rand());
         return convert<Float4>(t % scale - offset) * normalization;
     }
 
-    void PerlinNoiseGenerator::setup(const Float & v, Int4 & b, Float4 & r) const
-    {
+    void PerlinNoiseGenerator::setup(const Float & v, Int4 & b, Float4 & r) const {
         const Int bOffset = static_cast<Int>(v);
         const Float t = fract(v);
         b = Int4(bOffset, bOffset + One<Int>()) & Int4(iPermutationsCount - One<Int>());
         r = Float4(t, t - One<Float>());
     }
 
-    const Float4 PerlinNoiseGenerator::splineCurve(const Float4 &t)
-    {
+    const Float4 PerlinNoiseGenerator::splineCurve(const Float4 & t) {
         return t * t * (Float4(3) - t - t);
     }
 
-    const Float PerlinNoiseGenerator::noise(const Float v) const
-    {
+    const Float PerlinNoiseGenerator::noise(const Float v) const {
         Int4 bx;
         Float4 rx;
         setup(v, bx, rx);
@@ -89,8 +81,7 @@ namespace raytracer
         return mix(x(uv), y(uv), x(splineCurve(rx)));
     }
 
-    const Float PerlinNoiseGenerator::noise2(const Float4 & v) const
-    {
+    const Float PerlinNoiseGenerator::noise2(const Float4 & v) const {
         Int4 bx, by;
         Float4 rx, ry;
         setup(x(v), bx, rx);
@@ -110,8 +101,7 @@ namespace raytracer
         return mix(a, b, y(s));
     }
 
-    const Float PerlinNoiseGenerator::noise3(const Float4 & v) const
-    {
+    const Float PerlinNoiseGenerator::noise3(const Float4 & v) const {
         Int4 bx, by, bz;
         Float4 rx, ry, rz;
         setup(x(v), bx, rx);
@@ -140,8 +130,7 @@ namespace raytracer
         return mix(mix(a, b, y(s)), mix(c, d, y(s)), z(s));
     }
 
-    const Float PerlinNoiseGenerator::noise4(const Float4 &v) const
-    {
+    const Float PerlinNoiseGenerator::noise4(const Float4 & v) const {
         Int4 bx, by, bz, bw;
         Float4 rx, ry, rz, rw;
         setup(x(v), bx, rx);
@@ -170,5 +159,4 @@ namespace raytracer
             x(s));
         return mix(mix(a, b, y(s)), mix(c, d, y(s)), z(s));
     }
-
 }

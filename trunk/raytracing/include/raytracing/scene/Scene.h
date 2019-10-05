@@ -7,8 +7,8 @@
 
 namespace raytracer
 {
-	using namespace vectorization;
-	using namespace primitives;
+    using namespace vectorization;
+    using namespace primitives;
 
     class Scene : public SceneShader
     {
@@ -36,5 +36,4 @@ namespace raytracer
 
         const KDTreeBalancer * treeBalancer;
     };
-
 }

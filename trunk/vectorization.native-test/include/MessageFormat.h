@@ -10,8 +10,8 @@ namespace vectorization
 {
     namespace test
     {
-        struct MessageFormat {
-
+        struct MessageFormat
+        {
             static const std::wstring forFunction(
                 const ASizeT index,
                 const v_f32_4::ValueType value,
@@ -45,7 +45,6 @@ namespace vectorization
                     return writeMessageToStream(stream << " is " << testValue);
                 });
             }
-
         };
     }
 }

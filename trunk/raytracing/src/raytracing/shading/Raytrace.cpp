@@ -3,14 +3,12 @@
 
 namespace raytracer
 {
-
     Raytrace::Raytrace()
         :
         raycast(),
         originIntersection(),
         traceDepth(),
-        visibilityIndex()
-    {}
+        visibilityIndex() { }
 
     Raytrace::Raytrace(
         const Raycast & raycastIn,
@@ -21,7 +19,5 @@ namespace raytracer
         raycast(raycastIn),
         originIntersection(originIntersectionIn),
         traceDepth(traceDepthIn),
-        visibilityIndex(visibilityIndexIn)
-    {}
-
+        visibilityIndex(visibilityIndexIn) { }
 }

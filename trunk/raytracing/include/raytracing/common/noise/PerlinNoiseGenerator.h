@@ -4,21 +4,21 @@
 
 namespace raytracer
 {
-	using namespace vectorization;
+    using namespace vectorization;
 
     class PerlinNoiseGenerator : public NoiseGenerator
     {
         static const ASizeT DefaultPermutationsCount = static_cast<ASizeT>(256);
 
-		Float4 * gradients1;
-		Float4 * gradients2;
-		Float4 * gradients3;
-		Float4 * gradients4;
-		Int * permutations;
+        Float4 * gradients1;
+        Float4 * gradients2;
+        Float4 * gradients3;
+        Float4 * gradients4;
+        Int * permutations;
 
-		ASizeT permutationsCount;
-		Int iPermutationsCount, iPermutationsCountS1;
-		Float fPermutationsCount;
+        ASizeT permutationsCount;
+        Int iPermutationsCount, iPermutationsCountS1;
+        Float fPermutationsCount;
 
         void setup(const Float & v, Int4 & b, Float4 & r) const;
 
@@ -43,7 +43,5 @@ namespace raytracer
         const Float noise3(const Float4 & v) const;
 
         const Float noise4(const Float4 & v) const;
-
     };
-
 }

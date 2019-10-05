@@ -5,7 +5,7 @@
 
 namespace raytracer
 {
-	using namespace vectorization;
+    using namespace vectorization;
 
     /*
     * Struct for the handling of scene intersections
@@ -22,5 +22,4 @@ namespace raytracer
 
         SceneIntersection();
     };
-
 }

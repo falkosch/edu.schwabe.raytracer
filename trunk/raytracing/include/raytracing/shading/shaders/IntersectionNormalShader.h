@@ -4,22 +4,20 @@
 
 namespace raytracer
 {
-	using namespace vectorization;
+    using namespace vectorization;
 
-	class IntersectionNormalShader : public Shader < ObjectShader, FacetIntersection, Float4 >
-	{
-	public:
+    class IntersectionNormalShader : public Shader < ObjectShader, FacetIntersection, Float4 >
+    {
+    public:
 
-		ALIGNED_ALLOCATORS(__alignof(IntersectionNormalShader));
+        ALIGNED_ALLOCATORS(__alignof(IntersectionNormalShader));
 
-		IntersectionNormalShader();
+        IntersectionNormalShader();
 
-		virtual ~IntersectionNormalShader();
+        virtual ~IntersectionNormalShader();
 
-		const Float4 sample(const ObjectShader & objectShader, const FacetIntersection & intersection) const;
+        const Float4 sample(const ObjectShader & objectShader, const FacetIntersection & intersection) const;
 
-		const Float4 operator()(const ObjectShader & objectShader, const FacetIntersection & intersection) const;
-
-	};
-
+        const Float4 operator()(const ObjectShader & objectShader, const FacetIntersection & intersection) const;
+    };
 }

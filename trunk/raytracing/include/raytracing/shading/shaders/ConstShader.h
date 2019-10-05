@@ -15,26 +15,20 @@ namespace raytracer
 
         ConstShader(const OutputType & constantIn)
             :
-            constant(constantIn)
-        { }
+            constant(constantIn) { }
 
         virtual ~ConstShader() { }
 
-        const OutputType sample(const ContainmentType &, const IntersectionType &) const
-        {
+        const OutputType sample(const ContainmentType &, const IntersectionType &) const {
             return constant;
         }
 
-        const OutputType operator()(const ContainmentType &, const IntersectionType &) const
-        {
+        const OutputType operator()(const ContainmentType &, const IntersectionType &) const {
             return constant;
         }
 
-        const OutputType & getConstant() const
-        {
+        const OutputType & getConstant() const {
             return constant;
         }
-
     };
-
 }

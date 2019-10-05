@@ -4,7 +4,7 @@
 
 namespace raytracer
 {
-	using namespace vectorization;
+    using namespace vectorization;
 
     struct IlluminatedIntersection
     {
@@ -18,5 +18,4 @@ namespace raytracer
 
         IlluminatedIntersection(const Float4 & depth, const Float4 & color);
     };
-
 }

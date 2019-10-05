@@ -5,7 +5,7 @@
 
 namespace raytracer
 {
-	using namespace vectorization;
+    using namespace vectorization;
 
     /*
     * Struct for the bundled raytrace configuration.
@@ -18,8 +18,7 @@ namespace raytracer
 
         RaytraceConfiguration();
 
-        RaytraceConfiguration & operator=(const RaytraceParameters & parameters)
-        {
+        RaytraceConfiguration & operator=(const RaytraceParameters & parameters) {
             this->visibilityCutoff = parameters.visibilityCutoff;
             this->maxDistance = parameters.maxDistance;
             this->maxTraceDepth = parameters.maxTraceDepth;
@@ -38,5 +37,4 @@ namespace raytracer
             return *this;
         }
     };
-
 }

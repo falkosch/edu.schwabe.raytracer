@@ -8,8 +8,8 @@
 
 namespace raytracer
 {
-	using namespace vectorization;
-	using namespace primitives;
+    using namespace vectorization;
+    using namespace primitives;
 
     // per light shadowing information
     struct PerLightShadowCache
@@ -30,5 +30,4 @@ namespace raytracer
             const Intersectable<Raycast, FacetIntersection> & lastShadowedByFacet,
             const ObjectGeometry & lastShadowedByObject);
     };
-
 }

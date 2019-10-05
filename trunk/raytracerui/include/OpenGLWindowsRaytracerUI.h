@@ -7,8 +7,8 @@
 
 namespace raytracerui
 {
-	using namespace vectorization;
-	using namespace raytracer;
+    using namespace vectorization;
+    using namespace raytracer;
 
     class OpenGLWindowsRaytracerUI : public WindowsRaytracerUI
     {
@@ -33,7 +33,5 @@ namespace raytracerui
         virtual ~OpenGLWindowsRaytracerUI();
 
         void notifyUpdate(const RaytraceConfiguration & configuration);
-
     };
-
 }

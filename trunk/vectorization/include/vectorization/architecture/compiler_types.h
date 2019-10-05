@@ -6,7 +6,5 @@
 
 namespace vectorization
 {
-
-	typedef std::size_t ASizeT;
-
+    typedef std::size_t ASizeT;
 }

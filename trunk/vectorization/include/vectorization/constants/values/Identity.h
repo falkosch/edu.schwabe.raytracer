@@ -4,8 +4,6 @@
 
 namespace vectorization
 {
-
     template <typename M>
     const M Identity() noexcept;
-
 }

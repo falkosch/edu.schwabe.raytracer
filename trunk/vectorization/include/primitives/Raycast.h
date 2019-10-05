@@ -4,7 +4,7 @@
 
 namespace primitives
 {
-	using namespace vectorization;
+    using namespace vectorization;
 
     /*
     * Combines casting data about a ray
@@ -31,8 +31,7 @@ namespace primitives
             const Float4::VectorBoolType & cullingMask,
             const Size2 & originIds,
             const Float maxDistance
-		) noexcept;
-
+        ) noexcept;
     };
 
     // Note: changes the maxDistance to the max-value of its value-type,
@@ -41,7 +40,7 @@ namespace primitives
         const Raycast & r,
         const Float44 & transInvModelMatrix,
         const Float4 & osOrigin
-	) noexcept;
+    ) noexcept;
 
     const Raycast toObjectSpace(const Raycast & r, const Float44 & inverseModelMatrix) noexcept;
 
@@ -68,18 +67,17 @@ namespace primitives
         const Size2::ValueType toCheckId,
         const Float t,
         const Float epsilon
-	) noexcept;
+    ) noexcept;
 
     const bool selfOcclusion(
         const Raycast & r,
         const Size2::ValueType toCheckId,
         const Float t
-	) noexcept;
+    ) noexcept;
 
     const bool outOfReach(const Raycast & r, const Float t) noexcept;
 
     const Float4::VectorBoolType outOfReach(const Raycast & r, const Float4 & t) noexcept;
 
     const Float4 farPoint(const Raycast & r) noexcept;
-
 }

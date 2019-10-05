@@ -4,7 +4,7 @@
 
 namespace raytracer
 {
-	using namespace vectorization;
+    using namespace vectorization;
 
     template <typename RayType, typename IntersectionType>
     struct Intersectable
@@ -15,13 +15,12 @@ namespace raytracer
             const RayType & ray,
             const IntersectionType * const originIntersection,
             IntersectionType & intersectionOut
-		) const = 0;
+        ) const = 0;
 
         virtual const Float findAnyIntersection(
             const RayType & ray,
             const IntersectionType * const originIntersection,
             IntersectionType & intersectionOut
-		) const = 0;
+        ) const = 0;
     };
-
 }

@@ -4,7 +4,7 @@
 
 namespace raytracer
 {
-	using namespace vectorization;
+    using namespace vectorization;
 
     /*
     * Texture-coords transformations
@@ -19,5 +19,4 @@ namespace raytracer
 
         TextureTransformInfo();
     };
-
 }

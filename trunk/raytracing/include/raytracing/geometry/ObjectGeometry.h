@@ -6,7 +6,7 @@
 
 namespace raytracer
 {
-	using namespace vectorization;
+    using namespace vectorization;
 
     class ObjectGeometry : public GeometryNode
     {
@@ -34,5 +34,4 @@ namespace raytracer
 
         virtual void updateBounding() = 0;
     };
-
 }

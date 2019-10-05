@@ -4,7 +4,7 @@
 
 namespace raytracer
 {
-	using namespace vectorization;
+    using namespace vectorization;
 
     // forward decleration
     class SceneShader;
@@ -18,12 +18,11 @@ namespace raytracer
         Float visibilityCutoff;
         Float maxDistance;
         ASizeT maxTraceDepth;
-        SceneShader* sceneShader;
+        SceneShader * sceneShader;
         Int cullingOrientation;
 
         ALIGNED_ALLOCATORS(__alignof(RaytraceBaseParameters));
 
         RaytraceBaseParameters();
     };
-
 }

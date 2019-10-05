@@ -8,13 +8,11 @@
 
 namespace raytracer
 {
-
     Scene::Scene()
         :
         SceneShader(),
         sceneObjects(),
-        treeBalancer()
-    { }
+        treeBalancer() { }
 
     Scene::Scene(
         const KDTreeTraverser<SceneIntersection> * const treeTraverserIn,
@@ -22,53 +20,41 @@ namespace raytracer
         :
         SceneShader(treeTraverserIn),
         sceneObjects(),
-        treeBalancer(treeBalancerIn)
-    { }
+        treeBalancer(treeBalancerIn) { }
 
-    Scene::~Scene()
-    {
-        if (treeBalancer)
-        {
+    Scene::~Scene() {
+        if (treeBalancer) {
             delete treeBalancer;
         }
     }
 
-    Scene::SceneList & Scene::getSceneObjects()
-    {
+    Scene::SceneList & Scene::getSceneObjects() {
         return sceneObjects;
     }
 
-    const Scene::SceneList & Scene::getSceneObjects() const
-    {
+    const Scene::SceneList & Scene::getSceneObjects() const {
         return sceneObjects;
     }
 
-    void Scene::buildSceneGraph()
-    {
+    void Scene::buildSceneGraph() {
         clearSceneGraph();
         finiteSceneObjectsAsGeometryNodes.clear();
         infiniteSceneObjectsAsGeometryNodes.clear();
-        for (SceneList::iterator it = sceneObjects.begin(); it != sceneObjects.end(); ++it)
-        {
+        for (SceneList::iterator it = sceneObjects.begin(); it != sceneObjects.end(); ++it) {
             SceneObject * const sceneObject = *it;
-            if (sceneObject->getForm()->isInfinite())
-            {
+            if (sceneObject->getForm()->isInfinite()) {
                 infiniteSceneObjectsAsGeometryNodes.push_back(sceneObject);
-            }
-            else
-            {
+            } else {
                 finiteSceneObjectsAsGeometryNodes.push_back(sceneObject);
             }
         }
 
 #ifndef DISABLE_BVH
-        if (treeBalancer)
-        {
+        if (treeBalancer) {
             std::cout << "Building culling tree for scene ... ";
             sceneGraph = treeBalancer->build(finiteSceneObjectsAsGeometryNodes);
             std::cout << "done" << std::endl;
         }
 #endif
     }
-
 }

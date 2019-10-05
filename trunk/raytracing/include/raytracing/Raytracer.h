@@ -8,7 +8,7 @@
 
 namespace raytracer
 {
-	using namespace vectorization;
+    using namespace vectorization;
 
     class Raytracer
     {
@@ -24,7 +24,9 @@ namespace raytracer
 
         void trigger(const RaytraceParameters & parameters);
 
-        const RaytraceConfiguration getRunning() const { return running; }
+        const RaytraceConfiguration getRunning() const {
+            return running;
+        }
 
     private:
 
@@ -53,7 +55,5 @@ namespace raytracer
             const Float4 & transmittedDirection,
             RaytracerCache & cache,
             BRDFParameters & brdf);
-
     };
-
 }

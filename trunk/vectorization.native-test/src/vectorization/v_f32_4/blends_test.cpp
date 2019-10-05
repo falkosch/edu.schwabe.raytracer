@@ -11,13 +11,11 @@ namespace vectorization
 {
     namespace test
     {
-
         TEST_CLASS(v_f32_4_BlendsTest)
         {
         public:
 
-            TEST_METHOD(genericallyBlendsIdentities)
-            {
+            TEST_METHOD(genericallyBlendsIdentities) {
                 auto given = One<v_f32_4>();
                 auto expectedXYZW = Two<v_f32_4>();
 
@@ -32,8 +30,7 @@ namespace vectorization
                 }
             }
 
-            TEST_METHOD(genericallyBlendsIndividuals)
-            {
+            TEST_METHOD(genericallyBlendsIndividuals) {
                 auto given = One<v_f32_4>();
                 auto expectedXYZW = Two<v_f32_4>();
 
@@ -70,8 +67,7 @@ namespace vectorization
                 }
             }
 
-            TEST_METHOD(genericallyBlendsPairs)
-            {
+            TEST_METHOD(genericallyBlendsPairs) {
                 auto given = One<v_f32_4>();
                 auto expectedXYZW = Two<v_f32_4>();
 
@@ -108,8 +104,7 @@ namespace vectorization
                 }
             }
 
-            TEST_METHOD(genericallyBlendsTriplets)
-            {
+            TEST_METHOD(genericallyBlendsTriplets) {
                 auto given = One<v_f32_4>();
                 auto expectedXYZW = Two<v_f32_4>();
 
@@ -146,8 +141,7 @@ namespace vectorization
                 }
             }
 
-            TEST_METHOD(hasShortFormForBlends)
-            {
+            TEST_METHOD(hasShortFormForBlends) {
                 auto given = One<v_f32_4>();
                 auto expectedXYZW = Two<v_f32_4>();
 
@@ -160,8 +154,7 @@ namespace vectorization
                 }
             }
 
-            TEST_METHOD(dynamicallyBlendsWithMaskOfSameType)
-            {
+            TEST_METHOD(dynamicallyBlendsWithMaskOfSameType) {
                 auto given = One<v_f32_4>();
                 auto expectedXYZW = Two<v_f32_4>();
 
@@ -207,8 +200,6 @@ namespace vectorization
                     Assert::AreEqual(w(expectedXYZW), w(actualW), L"blend mismatch", LINE_INFO());
                 }
             }
-
         };
-
     }
 }

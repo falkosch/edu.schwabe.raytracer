@@ -4,7 +4,6 @@
 
 namespace vectorization
 {
-
     // Structure of arrays of four Vector4s like this:
     // this->soaX = x1, x2, x3, x4
     // this->soaY = y1, y2, y3, y4
@@ -33,14 +32,14 @@ namespace vectorization
             const SOAVectorType::PackedType & soaY,
             const SOAVectorType::PackedType & soaZ,
             const SOAVectorType::PackedType & soaW
-		) noexcept;
+        ) noexcept;
 
         explicit v_f32_4x4(
             const SOAVectorType & soaX,
             const SOAVectorType & soaY,
             const SOAVectorType & soaZ,
             const SOAVectorType & soaW
-		) noexcept;
+        ) noexcept;
 
         // broadcasting aos vector into its soa vectors
         explicit v_f32_4x4(const AOSVectorType & aos) noexcept;
@@ -48,7 +47,6 @@ namespace vectorization
         explicit v_f32_4x4(const ValueType * const m) noexcept;
 
         ALIGNED_ALLOCATORS(__alignof(PackedType));
-
     }; // v_f32_4x4
 
 #pragma region Accessors
@@ -61,20 +59,18 @@ namespace vectorization
     void soa(v_f32_4x4 & m, const v_f32_4x4::SOAVectorType & v) noexcept;
 
     template <ASizeT Index>
-    inline const v_f32_4x4::AOSVectorType aos(const v_f32_4x4 & m) noexcept
-    {
+    inline const v_f32_4x4::AOSVectorType aos(const v_f32_4x4 & m) noexcept {
         static_assert(Index < v_f32_4x4::SIZE_AOS, "AOS index is out of range");
         return v_f32_4x4::AOSVectorType(
             component<Index>(m.soaX),
             component<Index>(m.soaY),
             component<Index>(m.soaZ),
             component<Index>(m.soaW)
-		);
+        );
     }
 
     template <ASizeT Index>
-    inline void aos(v_f32_4x4 & m, const v_f32_4x4::AOSVectorType & v) noexcept
-    {
+    inline void aos(v_f32_4x4 & m, const v_f32_4x4::AOSVectorType & v) noexcept {
         static_assert(Index < v_f32_4x4::SIZE_AOS, "AOS index is out of range");
         component<Index>(m.soaX, component<VectorIndices::X>(v));
         component<Index>(m.soaY, component<VectorIndices::Y>(v));
@@ -154,5 +150,4 @@ namespace vectorization
 
     //}
 #pragma endregion
-
 }

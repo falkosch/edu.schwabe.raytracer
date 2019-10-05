@@ -3,63 +3,52 @@
 
 namespace raytracer
 {
-
     SceneObject::SceneObject(const std::string & idIn)
         :
         ObjectShader(),
         bounding(),
         form(),
-        id(idIn)
-    {
+        id(idIn) {
         resetModelMatrix();
     }
 
     SceneObject::~SceneObject() { }
 
-    const std::string & SceneObject::getId() const
-    {
+    const std::string & SceneObject::getId() const {
         return id;
     }
 
-    const Form * const SceneObject::getForm() const
-    {
+    const Form * const SceneObject::getForm() const {
         return form;
     }
 
-    void SceneObject::setForm(const Form * const value)
-    {
+    void SceneObject::setForm(const Form * const value) {
         this->form = value;
         updateBounding();
     }
 
-    void SceneObject::updateBounding()
-    {
-        if (form)
-        {
+    void SceneObject::updateBounding() {
+        if (form) {
             bounding = transform(form->getBounding(), modelMatrix);
         }
     }
 
-    void SceneObject::includeInBounding(AxisAlignedBoundingBox & aabb) const
-    {
+    void SceneObject::includeInBounding(AxisAlignedBoundingBox & aabb) const {
         aabb = extendBy(aabb, bounding);
     }
 
-    const bool SceneObject::overlaps(const AxisAlignedBoundingBox & aabb) const
-    {
+    const bool SceneObject::overlaps(const AxisAlignedBoundingBox & aabb) const {
         return primitives::overlaps(aabb, bounding);
     }
 
-    const Float SceneObject::transformIntersection(const Raycast & raycast, const FacetIntersection & facetIntersection, FacetIntersection & intersectionOut) const
-    {
+    const Float SceneObject::transformIntersection(const Raycast & raycast, const FacetIntersection & facetIntersection, FacetIntersection & intersectionOut) const {
         // transform intersection point in msVertex to world-space
         const Float4 msVertex = facetIntersection.msVertex;
         const Float4 wsVertex = modelMatrix * msVertex;
 
         // the returned distance is in model-space, but we need it in world-space
         const Float4 wsDistance = distance3v(raycast.ray.origin, wsVertex);
-        if (allTrue(outOfReach(raycast, wsDistance)))
-        {
+        if (allTrue(outOfReach(raycast, wsDistance))) {
             return raycast.maxDistance;
         }
 
@@ -72,14 +61,12 @@ namespace raytracer
         intersectionOut.smoothedNormal = normalize3(transposeInverseModelMatrix * facetIntersection.smoothedNormal);
         intersectionOut.texCoords = textureMatrix * facetIntersection.texCoords;
         intersectionOut.node = facetIntersection.node;
-		//std::cout << "hit on " << intersectionOut.msVertex << std::endl;
+        //std::cout << "hit on " << intersectionOut.msVertex << std::endl;
         return x(wsDistance);
     }
 
-    const Raycast transformRaycastToObjectSpace(const ASizeT objectOriginId, const Raycast & r, const FacetIntersection * const originIntersection, const Float44 & transposeInverseModelMatrix)
-    {
-        if (originIntersection && x(r.originIds) == objectOriginId)
-        {
+    const Raycast transformRaycastToObjectSpace(const ASizeT objectOriginId, const Raycast & r, const FacetIntersection * const originIntersection, const Float44 & transposeInverseModelMatrix) {
+        if (originIntersection && x(r.originIds) == objectOriginId) {
             Raycast originatedRaycast = toObjectSpace(r, transposeInverseModelMatrix, originIntersection->msVertex);
 
             // avoid self occlusion when intersection is to be tested originated at former intersection
@@ -89,8 +76,7 @@ namespace raytracer
                 originatedRaycast.ray.direction,
                 blendMasked(-surfaceNormal, surfaceNormal, backfaceCulledv(originatedRaycast)));
             // we must move the originated ray if it faces towards the intersection
-            if (isNegative(orientation))
-            {
+            if (isNegative(orientation)) {
                 // The more near the ray direction is parallel to the surface, the more add to the movement fraction.
                 const Float4 far = farPoint(originatedRaycast);
                 const Float4 movedOrigin = mix(
@@ -113,32 +99,27 @@ namespace raytracer
     // Note, the ray.direction is transformed from world-space to object-space.
     // Here it's important to preserve the "P + t*d" (more precisely the t)
     // relation, so we won't normalize the object-space direction.
-    const Float SceneObject::findNearestIntersection(const Raycast & r, const FacetIntersection * const originIntersection, FacetIntersection & intersectionOut) const
-    {
+    const Float SceneObject::findNearestIntersection(const Raycast & r, const FacetIntersection * const originIntersection, FacetIntersection & intersectionOut) const {
         // check for intersections with the Form
         const Raycast osr = transformRaycastToObjectSpace(reinterpret_cast<ASizeT>(this), r, originIntersection, transposeInverseModelMatrix);
         FacetIntersection osIntersectionOut = intersectionOut;
 
-        if (outOfReach(osr, form->findNearestIntersection(osr, originIntersection, osIntersectionOut)))
-        {
+        if (outOfReach(osr, form->findNearestIntersection(osr, originIntersection, osIntersectionOut))) {
             return r.maxDistance;
         }
 
         return transformIntersection(r, osIntersectionOut, intersectionOut);
     }
 
-    const Float SceneObject::findAnyIntersection(const Raycast & r, const FacetIntersection * const originIntersection, FacetIntersection & intersectionOut) const
-    {
+    const Float SceneObject::findAnyIntersection(const Raycast & r, const FacetIntersection * const originIntersection, FacetIntersection & intersectionOut) const {
         // check for intersections with the Form
         const Raycast osr = transformRaycastToObjectSpace(reinterpret_cast<ASizeT>(this), r, originIntersection, transposeInverseModelMatrix);
         FacetIntersection osIntersectionOut = intersectionOut;
 
-        if (outOfReach(osr, form->findAnyIntersection(osr, originIntersection, osIntersectionOut)))
-        {
+        if (outOfReach(osr, form->findAnyIntersection(osr, originIntersection, osIntersectionOut))) {
             return r.maxDistance;
         }
 
         return transformIntersection(r, osIntersectionOut, intersectionOut);
     }
-
 }

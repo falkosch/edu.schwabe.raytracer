@@ -4,7 +4,7 @@
 
 namespace primitives
 {
-	using namespace vectorization;
+    using namespace vectorization;
 
     struct FacetEdges
     {
@@ -16,5 +16,4 @@ namespace primitives
 
         explicit FacetEdges(const Float4 & v0, const Float4 & v1) noexcept;
     };
-
 }

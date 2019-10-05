@@ -4,7 +4,7 @@
 
 namespace raytracer
 {
-	using namespace vectorization;
+    using namespace vectorization;
 
     template <typename ImageElementType>
     class Image
@@ -19,5 +19,4 @@ namespace raytracer
 
         virtual const Size2 getResolution() const = 0;
     };
-
 }

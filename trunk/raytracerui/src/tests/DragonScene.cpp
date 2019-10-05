@@ -6,13 +6,11 @@
 
 namespace raytracerui
 {
-
-    void DragonScene::setup(Scene & scene, Resources & resources)
-    {
+    void DragonScene::setup(Scene & scene, Resources & resources) {
         TestResources::setup(resources);
         TestLightScene::setup(scene, resources);
 
-        SceneObject *sceneObject;
+        SceneObject * sceneObject;
 
         // background plane
         sceneObject = new SceneObject("background plane");
@@ -52,5 +50,4 @@ namespace raytracerui
             RefractionIndices::Vacuum, RefractionIndices::Diamond)));
         scene.getSceneObjects().push_back(sceneObject);
     }
-
 }

@@ -4,58 +4,57 @@
 
 namespace raytracer
 {
-	using namespace vectorization;
+    using namespace vectorization;
 
-	class HDRImage : public Image < Float4 >
-	{
-	public:
-		typedef Float4 VectorType;
-		typedef const VectorType(*const SelectorFunction)(const VectorType &, const VectorType &);
+    class HDRImage : public Image < Float4 >
+    {
+    public:
+        typedef Float4 VectorType;
+        typedef const VectorType(* const SelectorFunction)(const VectorType &, const VectorType &);
 
-	private:
+    private:
 
-		Size2 resolution;
+        Size2 resolution;
 
-		Float4 resolutionf;
+        Float4 resolutionf;
 
-		VectorType *data;
+        VectorType * data;
 
-		void init();
+        void init();
 
-	public:
+    public:
 
-		ALIGNED_ALLOCATORS(__alignof(HDRImage));
+        ALIGNED_ALLOCATORS(__alignof(HDRImage));
 
-		HDRImage();
+        HDRImage();
 
-		HDRImage(const Size2 & resolution);
+        HDRImage(const Size2 & resolution);
 
-		HDRImage(const Bitmap & bitmap);
+        HDRImage(const Bitmap & bitmap);
 
-		virtual ~HDRImage();
+        virtual ~HDRImage();
 
-		VectorType * const getData();
+        VectorType * const getData();
 
-		const VectorType * const getData() const;
+        const VectorType * const getData() const;
 
-		VectorType & operator[](const ASizeT index);
+        VectorType & operator[](const ASizeT index);
 
-		const VectorType & operator[](const ASizeT index) const;
+        const VectorType & operator[](const ASizeT index) const;
 
-		const Size2 getResolution() const;
+        const Size2 getResolution() const;
 
-		const void minMax(
-			VectorType & min,
-			VectorType & max,
-			SelectorFunction minSelector,
-			SelectorFunction maxSelector
-		) const;
+        const void minMax(
+            VectorType & min,
+            VectorType & max,
+            SelectorFunction minSelector,
+            SelectorFunction maxSelector
+        ) const;
 
-		void normalizeEachChannel();
+        void normalizeEachChannel();
 
-		void compressChannels();
+        void compressChannels();
 
-		const Float4 sampleBilinear(const Float4 & texCoords) const;
-	};
-
+        const Float4 sampleBilinear(const Float4 & texCoords) const;
+    };
 }

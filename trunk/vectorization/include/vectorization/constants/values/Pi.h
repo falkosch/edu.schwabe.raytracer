@@ -6,8 +6,6 @@
 
 namespace vectorization
 {
-
-	template <typename T>
-	const T Pi() noexcept;
-
+    template <typename T>
+    const T Pi() noexcept;
 }

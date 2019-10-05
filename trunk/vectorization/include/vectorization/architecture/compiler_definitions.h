@@ -8,8 +8,8 @@
 
 #pragma once
 
-//#define VECTORIZATION_APPROXIMATIONS 1
-//#define VECTORIZATION_FINE_APPROXIMATIONS 1
+ //#define VECTORIZATION_APPROXIMATIONS 1
+ //#define VECTORIZATION_FINE_APPROXIMATIONS 1
 
 #define VECTORIZATION_SSE 0 // up to SSE 3
 #define VECTORIZATION_SSE4 4 // up to SSE 4.2 including SSSE3
@@ -19,13 +19,11 @@
 
 #define VECTORIZATION_INTRINSICS_LEVEL VECTORIZATION_SSE4
 
-
 // Compiler specific id switches for easier handling with different compiler types
 
 #if defined(__MINGW32__) && !defined(__GNUC__)
 #define __GNUC__
 #endif
-
 
 // Generalize compiler dependent architecture switches into one switch
 
@@ -57,7 +55,6 @@
 
 #endif
 
-
 // Define architecture switches which are there for MSVC but left out in GNUC or others
 
 #if !defined(__SSE2__) && ((defined(_M_IX86_FP) && _M_IX86_FP > 1) || defined(ARCH_X64))
@@ -83,7 +80,6 @@
 #undef VECTORIZATION_INTRINSICS_LEVEL
 #define VECTORIZATION_INTRINSICS_LEVEL VECTORIZATION_AVX512
 #endif
-
 
 // Define alignment parameters
 
@@ -115,11 +111,10 @@
 #elif VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX512
 #define BEST_ALIGNMENT ZMM_ALIGNMENT
 
-#else 
+#else
 #define BEST_ALIGNMENT ARCH_ALIGNMENT
 
 #endif
-
 
 // Macro specs
 
@@ -143,7 +138,5 @@
 
 #endif
 
-
 #define ALIGNED_UNPACK(...) __VA_ARGS__
 #define ALIGNED(alignment, decleration) BEGIN_ALIGNED(BEST_ALIGNMENT) ALIGNED_UNPACK decleration END_ALIGNED(BEST_ALIGNMENT)
-

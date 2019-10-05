@@ -4,11 +4,11 @@
 
 namespace raytracer
 {
-	using namespace vectorization;
-	using namespace primitives;
+    using namespace vectorization;
+    using namespace primitives;
 
     class ArithmeticMeanKDTreeBalancer
-		: public SamplingKDTreeBalancer
+        : public SamplingKDTreeBalancer
     {
     public:
 
@@ -22,7 +22,6 @@ namespace raytracer
             const AxisAlignedBoundingBox & bounding,
             const PGeometryNodeList & geometry,
             const KDTreePlane * parentSplitter
-		) const;
+        ) const;
     };
-
 }

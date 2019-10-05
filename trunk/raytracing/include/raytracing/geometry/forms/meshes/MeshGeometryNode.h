@@ -6,12 +6,11 @@
 
 namespace raytracer
 {
-	using namespace vectorization;
-	using namespace primitives;
+    using namespace vectorization;
+    using namespace primitives;
 
     struct MeshGeometryNode : GeometryNode
     {
-
         ASizeT index;
 
         Facet trianglePlanes;
@@ -26,8 +25,7 @@ namespace raytracer
 
         const bool overlaps(const AxisAlignedBoundingBox & aabb) const;
 
-        const Float getIndividualIntersectionCosts() const
-        {
+        const Float getIndividualIntersectionCosts() const {
             return 79.1726f;
         }
 
@@ -36,7 +34,5 @@ namespace raytracer
         const Float findNearestIntersection(const Raycast & ray, const FacetIntersection * const originIntersection, FacetIntersection & intersectionOut) const;
 
         const Float findAnyIntersection(const Raycast & ray, const FacetIntersection * const originIntersection, FacetIntersection & intersectionOut) const;
-
     };
-
 }

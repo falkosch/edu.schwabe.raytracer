@@ -13,9 +13,9 @@ namespace raytracer
         typename ConcatenationFunctor,
         typename LeftShader,
         typename RightShader
-	>
-    class ConcatenatingShader
-		: public Shader < ContainmentType, IntersectionType, OutputType >
+    >
+        class ConcatenatingShader
+        : public Shader < ContainmentType, IntersectionType, OutputType >
     {
     public:
 
@@ -28,37 +28,31 @@ namespace raytracer
             :
             concat(concat),
             left(&left),
-            right(&right)
-        { }
+            right(&right) { }
 
         virtual ~ConcatenatingShader() { }
 
         const OutputType sample(
             const ContainmentType & containment,
-            const IntersectionType & intersection) const
-        {
+            const IntersectionType & intersection) const {
             return (*this)(containment, intersection);
         }
 
         const OutputType operator()(
             const ContainmentType & containment,
-            const IntersectionType & intersection) const
-        {
+            const IntersectionType & intersection) const {
             return concat((*left)(containment, intersection), (*right)(containment, intersection));
         }
 
-        const ConcatenationFunctor & getConcat() const
-        {
+        const ConcatenationFunctor & getConcat() const {
             return concat;
         }
 
-        const LeftShader & getLeft() const
-        {
+        const LeftShader & getLeft() const {
             return *left;
         }
 
-        const RightShader & getRight() const
-        {
+        const RightShader & getRight() const {
             return *right;
         }
 
@@ -66,9 +60,8 @@ namespace raytracer
 
         ConcatenationFunctor concat;
 
-        const LeftShader* left;
+        const LeftShader * left;
 
-        const RightShader* right;
+        const RightShader * right;
     };
-
 }

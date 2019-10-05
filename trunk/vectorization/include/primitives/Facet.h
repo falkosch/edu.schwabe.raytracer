@@ -4,7 +4,7 @@
 
 namespace primitives
 {
-	using namespace vectorization;
+    using namespace vectorization;
 
     struct Facet
     {
@@ -21,10 +21,9 @@ namespace primitives
 
     typedef Facet FacetTexCoords4, FacetNormals;
 
-	const AxisAlignedBoundingBox bounding(const Facet & facet) noexcept;
+    const AxisAlignedBoundingBox bounding(const Facet & facet) noexcept;
 
     const Facet operator+(const Facet & a, const Float4 & b) noexcept;
 
     const Facet operator-(const Facet & a, const Float4 & b) noexcept;
-
 }

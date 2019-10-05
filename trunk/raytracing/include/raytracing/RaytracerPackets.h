@@ -7,30 +7,30 @@
 
 namespace raytracer
 {
-	using namespace vectorization;
-	using namespace primitives;
+    using namespace vectorization;
+    using namespace primitives;
 
     // per worker thread cached raytracing information
     struct RaytracerPackets
     {
-		Size2 packetCount;
+        Size2 packetCount;
         // x: pixels per each line in packet
         // y: total count of pixels in packet
-		Size2 packetLength;
+        Size2 packetLength;
         // count of super samples in pixel
-		Size2 ssLength;
+        Size2 ssLength;
 
         // top left origin of camera planes
-		Float4 nearTopLeft, farTopLeft;
+        Float4 nearTopLeft, farTopLeft;
         // extends of the camera near plane
-		Float4 nearRightDir, farRightDir;
+        Float4 nearRightDir, farRightDir;
         // extends of the camera far plane
-		Float4 nearBottomDir, farBottomDir;
+        Float4 nearBottomDir, farBottomDir;
         // extends in super sampling spaces
-		Float4 ssNearRightDir, ssFarRightDir;
-		Float4 ssNearBottomDir, ssFarBottomDir;
+        Float4 ssNearRightDir, ssFarRightDir;
+        Float4 ssNearBottomDir, ssFarBottomDir;
         // super sample weight
-		Float4 ssAvg;
+        Float4 ssAvg;
 
         ALIGNED_ALLOCATORS(__alignof(RaytracerPackets));
 
@@ -64,5 +64,4 @@ namespace raytracer
 
         static const Float4 samplePixelDepth(const Float4 & sampledPixelDepth, const Float4 & depth);
     };
-
 }

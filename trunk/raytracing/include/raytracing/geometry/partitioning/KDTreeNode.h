@@ -4,34 +4,32 @@
 
 namespace raytracer
 {
-	using namespace primitives;
+    using namespace primitives;
 
-	struct KDTreeNodeChilds;
+    struct KDTreeNodeChilds;
 
-	struct KDTreeNode
-	{
-		PGeometryNodeList *geometryNodes;
+    struct KDTreeNode
+    {
+        PGeometryNodeList * geometryNodes;
 
-		KDTreeNodeChilds *childs;
+        KDTreeNodeChilds * childs;
 
-		ALIGNED_ALLOCATORS(__alignof(KDTreeNode));
+        ALIGNED_ALLOCATORS(__alignof(KDTreeNode));
 
-		KDTreeNode();
+        KDTreeNode();
 
-		~KDTreeNode();
+        ~KDTreeNode();
 
-		void clear();
+        void clear();
 
-		const bool isNonEmptyLeaf() const;
+        const bool isNonEmptyLeaf() const;
 
-		// Adds two new childs to this node and makes this node an empty node by deleting the geometryNodes.
-		void grow(
-			const AxisAlignedBoundingBox & leftBounding,
-			PGeometryNodeList & leftGeometryNodes,
-			const AxisAlignedBoundingBox & rightBounding,
-			PGeometryNodeList & rightGeometryNodes
-		);
-
-	};
-
+        // Adds two new childs to this node and makes this node an empty node by deleting the geometryNodes.
+        void grow(
+            const AxisAlignedBoundingBox & leftBounding,
+            PGeometryNodeList & leftGeometryNodes,
+            const AxisAlignedBoundingBox & rightBounding,
+            PGeometryNodeList & rightGeometryNodes
+        );
+    };
 }

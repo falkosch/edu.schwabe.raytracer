@@ -2,12 +2,8 @@
 
 namespace raytracerui
 {
-
-	struct Benchmarks
-	{
-
-		void operator()() const;
-
-	};
-
+    struct Benchmarks
+    {
+        void operator()() const;
+    };
 }

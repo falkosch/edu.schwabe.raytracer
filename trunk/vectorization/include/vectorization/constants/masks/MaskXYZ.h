@@ -4,8 +4,6 @@
 
 namespace vectorization
 {
-
-	template <typename V>
-	const V MaskXYZ() noexcept;
-
+    template <typename V>
+    const V MaskXYZ() noexcept;
 }

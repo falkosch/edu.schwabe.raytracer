@@ -4,8 +4,6 @@
 
 namespace vectorization
 {
-
-	template <typename T>
-	const T Sin45() noexcept;
-
+    template <typename T>
+    const T Sin45() noexcept;
 }

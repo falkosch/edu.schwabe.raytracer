@@ -8,7 +8,7 @@
 
 namespace raytracer
 {
-	using namespace vectorization;
+    using namespace vectorization;
 
     /*
     * Struct for the fixed raytrace parameters.
@@ -38,13 +38,12 @@ namespace raytracer
         // ...
         ASizeT rayPacketSize;
 
-        RaytraceObserver* observer;
+        RaytraceObserver * observer;
 
-        Camera* camera;
+        Camera * camera;
 
         ALIGNED_ALLOCATORS(__alignof(RaytraceParameters));
 
         RaytraceParameters();
     };
-
 }

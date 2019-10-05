@@ -6,8 +6,8 @@
 
 namespace raytracer
 {
-	using namespace vectorization;
-	using namespace primitives;
+    using namespace vectorization;
+    using namespace primitives;
 
     // coords at facet intersections
     struct FacetIntersection
@@ -31,11 +31,10 @@ namespace raytracer
         Float4 texCoords;
 
         // node of the facet
-        const Intersectable<Raycast, FacetIntersection>* node;
+        const Intersectable<Raycast, FacetIntersection> * node;
 
         ALIGNED_ALLOCATORS(__alignof(FacetIntersection));
 
         FacetIntersection();
     };
-
 }

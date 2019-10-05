@@ -3,7 +3,6 @@
 
 namespace raytracer
 {
-
     Camera::Camera()
         :
         projectionMatrix(Identity<Float44>()),
@@ -14,27 +13,23 @@ namespace raytracer
         vfNearBottomDirection(),
         vfFarTopLeft(),
         vfFarRightDirection(),
-        vfFarBottomDirection()
-    {
+        vfFarBottomDirection() {
         resetView();
     }
 
     Camera::~Camera() { }
 
-    void Camera::setProjection(const Float & fov, const Float2 & screenSize, const Float2 & projectionPlanes)
-    {
+    void Camera::setProjection(const Float & fov, const Float2 & screenSize, const Float2 & projectionPlanes) {
         projectionMatrix = perspectiveFov(fov, x(screenSize), y(screenSize), x(projectionPlanes), y(projectionPlanes));
         updateView();
     }
 
-    void Camera::resetView()
-    {
+    void Camera::resetView() {
         viewMatrix = Identity<Float44>();
         updateView();
     }
 
-    void Camera::translate(const Float3 & translationIn)
-    {
+    void Camera::translate(const Float3 & translationIn) {
         const Float44 transViewMatrix = transpose(this->viewMatrix);
         this->viewMatrix = transpose(replaceRow<VectorIndices::W>(
             transViewMatrix,
@@ -42,8 +37,7 @@ namespace raytracer
         updateView();
     }
 
-    void Camera::rotate(const Float3 & rotationIn)
-    {
+    void Camera::rotate(const Float3 & rotationIn) {
         const Float44 rotateMatrix = vectorization::rotate(vectorization::rotate(vectorization::rotate(
             Identity<Float44>(),
             z(rotationIn), OneZ<Float4>()),
@@ -53,50 +47,41 @@ namespace raytracer
         updateView();
     }
 
-    void Camera::scale(const Float3 & scaleIn)
-    {
+    void Camera::scale(const Float3 & scaleIn) {
         const Float44 scaleMatrix = vectorization::scale(Identity<Float44>(), convert<Float4>(scaleIn));
         this->viewMatrix = this->viewMatrix * scaleMatrix;
         updateView();
     }
 
-    const Float4 Camera::getWorldPosition() const
-    {
+    const Float4 Camera::getWorldPosition() const {
         return worldPosition;
     }
 
-    const Float4 Camera::getVFNearTopLeft() const
-    {
+    const Float4 Camera::getVFNearTopLeft() const {
         return vfNearTopLeft;
     }
 
-    const Float4 Camera::getVFNearRightDirection() const
-    {
+    const Float4 Camera::getVFNearRightDirection() const {
         return vfNearRightDirection;
     }
 
-    const Float4 Camera::getVFNearBottomDirection() const
-    {
+    const Float4 Camera::getVFNearBottomDirection() const {
         return vfNearBottomDirection;
     }
 
-    const Float4 Camera::getVFFarTopLeft() const
-    {
+    const Float4 Camera::getVFFarTopLeft() const {
         return vfFarTopLeft;
     }
 
-    const Float4 Camera::getVFFarRightDirection() const
-    {
+    const Float4 Camera::getVFFarRightDirection() const {
         return vfFarRightDirection;
     }
 
-    const Float4 Camera::getVFFarBottomDirection() const
-    {
+    const Float4 Camera::getVFFarBottomDirection() const {
         return vfFarBottomDirection;
     }
 
-    void Camera::updateView()
-    {
+    void Camera::updateView() {
         const Float44 tViewMatrix = this->viewMatrix;
         const Float44 tInverseViewProjectionMatrix = inverse(this->projectionMatrix * tViewMatrix);
 
@@ -125,5 +110,4 @@ namespace raytracer
         this->vfFarBottomDirection = unproject(
             blend<true, false, true, true>(viewportExtends, FarZ), tInverseViewProjectionMatrix, viewport) - farTopLeft;
     }
-
 }

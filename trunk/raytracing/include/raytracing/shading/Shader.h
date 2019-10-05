@@ -2,7 +2,6 @@
 
 namespace raytracer
 {
-
     template <typename ContainmentType, typename IntersectionType, typename OutputType>
     class Shader
     {
@@ -12,10 +11,8 @@ namespace raytracer
 
         virtual const OutputType sample(const ContainmentType & containment, const IntersectionType & intersection) const = 0;
 
-        const OutputType operator()(const ContainmentType & containment, const IntersectionType & intersection) const
-        {
+        const OutputType operator()(const ContainmentType & containment, const IntersectionType & intersection) const {
             return sample(containment, intersection);
         }
     };
-
 }

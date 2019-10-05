@@ -3,7 +3,6 @@
 
 namespace raytracer
 {
-
     RaytraceParameters::RaytraceParameters()
         :
         RaytraceBaseParameters(),
@@ -14,7 +13,5 @@ namespace raytracer
         supersamplingFactor(),
         rayPacketSize(),
         observer(),
-        camera()
-    { }
-
+        camera() { }
 }

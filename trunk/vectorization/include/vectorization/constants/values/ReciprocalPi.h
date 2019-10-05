@@ -4,8 +4,6 @@
 
 namespace vectorization
 {
-
-	template <typename T>
-	const T ReciprocalPi() noexcept;
-
+    template <typename T>
+    const T ReciprocalPi() noexcept;
 }

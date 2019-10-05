@@ -4,7 +4,7 @@
 
 namespace raytracer
 {
-	using namespace vectorization;
+    using namespace vectorization;
 
     class SimplexNoiseGenerator : public NoiseGenerator
     {
@@ -30,7 +30,7 @@ namespace raytracer
 
         static const ASizeT N = 8, B = 256;
 
-		Int simplexGrid[N];
+        Int simplexGrid[N];
 
         const Int simplex(const Int3 & ijk, const Int B) const;
 
@@ -38,5 +38,4 @@ namespace raytracer
 
         const Int shuffle(const Int3 & ijk) const;
     };
-
 }

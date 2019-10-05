@@ -6,15 +6,13 @@
 
 namespace raytracerui
 {
-
-    void CornellBoxScene::setup(Scene & scene, Resources & resources)
-    {
+    void CornellBoxScene::setup(Scene & scene, Resources & resources) {
         TestResources::setup(resources);
 
         scene.setBackgroundShader(new ConstShader<SceneShader, Float4, Float4>(Float4(1.f, 1.f, 1.f, 0.f)));
         scene.setAmbientLight(Float4(0.f, 0.f, 0.f, 0.f));
 
-        LightInfo* light = new LightInfo();
+        LightInfo * light = new LightInfo();
         light->position = Float4(0.f, .98f, 0.f, 1.f);
         light->emissivity = Float4(1.f, .9f, .8f, 1.f);
         light->glare = Float4(4.f, 4.f, 4.f, 1.f);
@@ -22,7 +20,7 @@ namespace raytracerui
         scene.getLights().push_back(light);
 
         const Float4 vacuum2vacuum = RefractionIndices::refractionEta(RefractionIndices::Vacuum, RefractionIndices::Vacuum);
-        SceneObject *so;
+        SceneObject * so;
 
         // ceiling
         so = new SceneObject("ceiling");
@@ -170,5 +168,4 @@ namespace raytracerui
             RefractionIndices::refractionEta(RefractionIndices::Vacuum, RefractionIndices::Glass)));
         scene.getSceneObjects().push_back(so);
     }
-
 }

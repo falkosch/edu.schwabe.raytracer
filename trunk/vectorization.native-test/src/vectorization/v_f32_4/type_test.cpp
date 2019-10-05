@@ -12,7 +12,6 @@ namespace vectorization
 {
     namespace test
     {
-
         TEST_CLASS(v_f32_4_TypeTest)
         {
         public:
@@ -25,8 +24,7 @@ namespace vectorization
                 return StandardSample::ofVectorType<v_f32_4>();
             }
 
-            TEST_METHOD(definesArchitecture)
-            {
+            TEST_METHOD(definesArchitecture) {
                 Assert::AreEqual(VectorSizes::W, v_f32_4::SIZE, L"Size mismatch", LINE_INFO());
                 Assert::IsTrue(std::is_same<Float_32, v_f32_4::ValueType>::value, L"Type mismatch", LINE_INFO());
                 Assert::IsTrue(std::is_same<Int_32, v_f32_4::BoolType>::value, L"Type mismatch", LINE_INFO());
@@ -35,8 +33,7 @@ namespace vectorization
                 Assert::IsTrue(std::is_same<PackedTypes<Float_32, VectorSizes::W>::Type, v_f32_4::PackedType>::value, L"Type mismatch", LINE_INFO());
             }
 
-            TEST_METHOD(constructsZero)
-            {
+            TEST_METHOD(constructsZero) {
                 Iterate::toExclusiveEnd<VectorIndices::AboveW>([](auto i, auto message) {
                     Assert::AreEqual(
                         Zero<v_f32_4::ValueType>(),
@@ -46,8 +43,7 @@ namespace vectorization
                 });
             }
 
-            TEST_METHOD(constructsCopy)
-            {
+            TEST_METHOD(constructsCopy) {
                 Iterate::toExclusiveEnd<VectorIndices::AboveW>([](auto i, auto message) {
                     Assert::AreEqual(
                         sampleVector()[i],
@@ -57,8 +53,7 @@ namespace vectorization
                 });
             }
 
-            TEST_METHOD(constructsFromPackedType)
-            {
+            TEST_METHOD(constructsFromPackedType) {
                 Iterate::toExclusiveEnd<VectorIndices::AboveW>([](auto i, auto message) {
                     Assert::AreEqual(
                         sampleVector()[i],
@@ -68,8 +63,7 @@ namespace vectorization
                 });
             }
 
-            TEST_METHOD(constructsFromValueType)
-            {
+            TEST_METHOD(constructsFromValueType) {
                 Iterate::toExclusiveEnd<VectorIndices::AboveW>([](auto i, auto message) {
                     staticFor<VectorIndices::X, VectorIndices::AboveW>([&](auto j) {
                         Assert::AreEqual(
@@ -81,8 +75,7 @@ namespace vectorization
                 });
             }
 
-            TEST_METHOD(constructsFromXY00)
-            {
+            TEST_METHOD(constructsFromXY00) {
                 auto expected = sampleVector();
                 auto actual = v_f32_4(x(expected), y(expected));
 
@@ -92,8 +85,7 @@ namespace vectorization
                 Assert::AreEqual(Zero<v_f32_4::ValueType>(), w(actual), L"Ctor value mismatch", LINE_INFO());
             }
 
-            TEST_METHOD(constructsFromXYZ0)
-            {
+            TEST_METHOD(constructsFromXYZ0) {
                 auto expected = sampleVector();
                 auto actual = v_f32_4(x(expected), y(expected), z(expected));
 
@@ -103,8 +95,7 @@ namespace vectorization
                 Assert::AreEqual(Zero<v_f32_4::ValueType>(), w(actual), L"Ctor value mismatch", LINE_INFO());
             }
 
-            TEST_METHOD(constructsFromXYZW)
-            {
+            TEST_METHOD(constructsFromXYZW) {
                 auto expected = sampleVector();
                 auto actual = v_f32_4(x(expected), y(expected), z(expected), w(expected));
 
@@ -114,8 +105,7 @@ namespace vectorization
                 Assert::AreEqual(w(expected), w(actual), L"Ctor value mismatch", LINE_INFO());
             }
 
-            TEST_METHOD(constructsFromVectorTypePtr)
-            {
+            TEST_METHOD(constructsFromVectorTypePtr) {
                 auto expected = sampleVector();
                 auto actual = v_f32_4(&expected);
 
@@ -125,8 +115,7 @@ namespace vectorization
                 Assert::AreEqual(w(expected), w(actual), L"Ctor value mismatch", LINE_INFO());
             }
 
-            TEST_METHOD(constructsFromValueTypePtr)
-            {
+            TEST_METHOD(constructsFromValueTypePtr) {
                 auto expected = sampleArray();
                 auto actual = v_f32_4(expected.data());
 
@@ -136,8 +125,7 @@ namespace vectorization
                 Assert::AreEqual(expected.at(VectorIndices::W), w(actual), L"Ctor value mismatch", LINE_INFO());
             }
 
-            TEST_METHOD(constructsFromPackedTypePtr)
-            {
+            TEST_METHOD(constructsFromPackedTypePtr) {
                 auto expected = sampleVector();
                 auto actual = v_f32_4(&expected.components);
 
@@ -147,8 +135,7 @@ namespace vectorization
                 Assert::AreEqual(w(expected), w(actual), L"Ctor value mismatch", LINE_INFO());
             }
 
-            TEST_METHOD(implcitlyConvertsFromComponentsPackedType)
-            {
+            TEST_METHOD(implcitlyConvertsFromComponentsPackedType) {
                 auto expected = sampleVector();
                 v_f32_4 actual = expected.components;
 
@@ -158,8 +145,7 @@ namespace vectorization
                 Assert::AreEqual(w(expected), w(actual), L"Ctor value mismatch", LINE_INFO());
             }
 
-            TEST_METHOD(implcitlyConvertsFromAnyPackedType)
-            {
+            TEST_METHOD(implcitlyConvertsFromAnyPackedType) {
                 auto expected = sampleVector();
                 v_f32_4::PackedType actual = expected;
                 v_f32_4 actual2 = actual;
@@ -170,8 +156,7 @@ namespace vectorization
                 Assert::AreEqual(w(expected), w(actual2), L"Ctor value mismatch", LINE_INFO());
             }
 
-            TEST_METHOD(implcitlyConvertsFromAnyConstPackedType)
-            {
+            TEST_METHOD(implcitlyConvertsFromAnyConstPackedType) {
                 auto expected = sampleVector();
                 const v_f32_4 actual = expected;
                 const v_f32_4::PackedType actual2 = actual;
@@ -183,8 +168,7 @@ namespace vectorization
                 Assert::AreEqual(w(expected), w(actual3), L"Ctor value mismatch", LINE_INFO());
             }
 
-            TEST_METHOD(readsAtIntIndex)
-            {
+            TEST_METHOD(readsAtIntIndex) {
                 auto expected = sampleVector();
                 v_f32_4 actual = v_f32_4();
                 actual[static_cast<int>(VectorIndices::X)] = x(expected);
@@ -203,8 +187,7 @@ namespace vectorization
                 Assert::AreEqual(w(expected), actual[static_cast<int>(VectorIndices::W)], L"Ctor value mismatch", LINE_INFO());
             }
 
-            TEST_METHOD(readsAtConstIntIndex)
-            {
+            TEST_METHOD(readsAtConstIntIndex) {
                 auto expected = sampleVector();
                 const v_f32_4 actual = expected;
 
@@ -214,8 +197,7 @@ namespace vectorization
                 Assert::AreEqual(w(expected), actual[static_cast<int>(VectorIndices::W)], L"Ctor value mismatch", LINE_INFO());
             }
 
-            TEST_METHOD(readsAtASizeIndex)
-            {
+            TEST_METHOD(readsAtASizeIndex) {
                 auto expected = sampleVector();
                 v_f32_4 actual = v_f32_4();
                 actual[VectorIndices::X] = x(expected);
@@ -234,8 +216,7 @@ namespace vectorization
                 Assert::AreEqual(w(expected), actual[VectorIndices::W], L"Ctor value mismatch", LINE_INFO());
             }
 
-            TEST_METHOD(readsAtConstASizeIndex)
-            {
+            TEST_METHOD(readsAtConstASizeIndex) {
                 auto expected = sampleVector();
                 const v_f32_4 actual = expected;
 
@@ -245,8 +226,7 @@ namespace vectorization
                 Assert::AreEqual(w(expected), actual[VectorIndices::W], L"Ctor value mismatch", LINE_INFO());
             }
 
-            TEST_METHOD(storesToVectorType)
-            {
+            TEST_METHOD(storesToVectorType) {
                 auto expected = sampleVector();
                 v_f32_4 actual;
                 store(expected, &actual);
@@ -257,8 +237,7 @@ namespace vectorization
                 Assert::AreEqual(w(expected), w(actual), L"Ctor value mismatch", LINE_INFO());
             }
 
-            TEST_METHOD(storesToPackedType)
-            {
+            TEST_METHOD(storesToPackedType) {
                 auto expected = sampleVector();
                 v_f32_4::PackedType actual;
                 store(expected, &actual);
@@ -270,8 +249,7 @@ namespace vectorization
                 Assert::AreEqual(w(expected), w(actual2), L"Ctor value mismatch", LINE_INFO());
             }
 
-            TEST_METHOD(storesToValueTypeArray)
-            {
+            TEST_METHOD(storesToValueTypeArray) {
                 auto expected = sampleVector();
                 std::array<v_f32_4::ValueType, VectorSizes::W> actual;
                 store(expected, actual.data());
@@ -281,8 +259,6 @@ namespace vectorization
                 Assert::AreEqual(z(expected), actual.at(VectorIndices::Z), L"Ctor value mismatch", LINE_INFO());
                 Assert::AreEqual(w(expected), actual.at(VectorIndices::W), L"Ctor value mismatch", LINE_INFO());
             }
-
         };
-
     }
 }

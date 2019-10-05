@@ -5,7 +5,7 @@
 
 namespace raytracer
 {
-	using namespace vectorization;
+    using namespace vectorization;
 
     class EnvironmentShader : public Shader < SceneShader, Float4, Float4 >
     {
@@ -13,7 +13,7 @@ namespace raytracer
 
         Float4 alignedSize;
 
-        const HDRImage* environmentImage;
+        const HDRImage * environmentImage;
 
     public:
 
@@ -26,7 +26,5 @@ namespace raytracer
         const Float4 sample(const SceneShader & sceneShader, const Float4 & rayDirection) const;
 
         const Float4 operator()(const SceneShader & sceneShader, const Float4 & rayDirection) const;
-
     };
-
 }

@@ -3,12 +3,9 @@
 
 namespace raytracer
 {
-
     TextureTransformInfo::TextureTransformInfo()
         :
         translation(),
         scale(One<Float>()),
-        rotation()
-    { }
-
+        rotation() { }
 }

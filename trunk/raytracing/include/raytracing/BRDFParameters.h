@@ -7,7 +7,7 @@
 
 namespace raytracer
 {
-	using namespace vectorization;
+    using namespace vectorization;
 
     struct BRDFParameters
     {
@@ -36,5 +36,4 @@ namespace raytracer
 
         BRDFParameters();
     };
-
 }

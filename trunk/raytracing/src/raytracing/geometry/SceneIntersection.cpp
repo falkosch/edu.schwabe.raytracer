@@ -3,13 +3,10 @@
 
 namespace raytracer
 {
-
     SceneIntersection::SceneIntersection()
         :
         FacetIntersection(),
         smoothedNdotI(),
         reflectedDirection(),
-        object()
-    { }
-
+        object() { }
 }

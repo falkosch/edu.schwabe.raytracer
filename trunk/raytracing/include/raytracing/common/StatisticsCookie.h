@@ -4,15 +4,15 @@
 
 namespace raytracer
 {
-	using namespace vectorization;
+    using namespace vectorization;
 
     struct StatisticsCookie
     {
-		ASizeT primaryRays, missedPrimaryRays;
+        ASizeT primaryRays, missedPrimaryRays;
 
-		ASizeT secondaryRays, missedSecondaryRays;
+        ASizeT secondaryRays, missedSecondaryRays;
 
-		ASizeT shadowRays, missedShadowRays;
+        ASizeT shadowRays, missedShadowRays;
 
         ALIGNED_ALLOCATORS(__alignof(StatisticsCookie));
 
@@ -20,5 +20,4 @@ namespace raytracer
 
         void merge(const StatisticsCookie & other);
     };
-
 }

@@ -6,7 +6,7 @@
 
 namespace raytracer
 {
-	using namespace primitives;
+    using namespace primitives;
 
     class Form : public GeometryNode
     {
@@ -22,5 +22,4 @@ namespace raytracer
 
         virtual const bool overlaps(const AxisAlignedBoundingBox & aabb) const;
     };
-
 }

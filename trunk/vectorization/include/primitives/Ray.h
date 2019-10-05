@@ -4,7 +4,7 @@
 
 namespace primitives
 {
-	using namespace vectorization;
+    using namespace vectorization;
 
     /*
     * A simple structure to contain a ray
@@ -22,7 +22,6 @@ namespace primitives
         explicit Ray(const Float4 & origin, const Float4 & direction) noexcept;
 
         void setDirection(const Float4 & direction) noexcept;
-
     };
 
     const Ray replaceDirection(const Ray & r, const Float4 & value) noexcept;
@@ -30,5 +29,4 @@ namespace primitives
     const Float4 point(const Ray & r, const Float t) noexcept;
 
     const Float4 point(const Ray & r, const Float4 & v) noexcept;
-
 }

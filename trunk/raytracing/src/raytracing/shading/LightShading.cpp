@@ -3,15 +3,13 @@
 
 namespace raytracer
 {
-
     LightShading::LightShading()
         :
         ambient(),
         diffuse(),
         specular(),
         reflected(),
-        transmitted()
-    { }
+        transmitted() { }
 
     LightShading::LightShading(const Float4 & ambientIn)
         :
@@ -19,7 +17,5 @@ namespace raytracer
         diffuse(),
         specular(),
         reflected(),
-        transmitted()
-    { }
-
+        transmitted() { }
 }
