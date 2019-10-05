@@ -113,7 +113,7 @@ int __cdecl main()
 	TCHAR currentPath[MAX_PATH + 1] = { 0 };
 	GetCurrentDirectory(MAX_PATH, currentPath);
 
-	std::cout << "Working directory: " << std::string(currentPath) << std::endl;
+	std::wcout << "Working directory: " << std::wstring(currentPath) << std::endl;
 
 	raytracerui::ManualTests()();
 	//raytracerui::Benchmarks()();
