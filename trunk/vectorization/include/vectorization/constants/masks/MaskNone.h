@@ -36,6 +36,12 @@ namespace vectorization
     const UInt_64 MaskNone<UInt_64>() noexcept;
 
     template <>
+    const Float_32 MaskNone<Float_32>() noexcept;
+
+    template <>
+    const Float_64 MaskNone<Float_64>() noexcept;
+
+    template <>
     const PackedInts_128 MaskNone<PackedInts_128>() noexcept;
 
     template <>
