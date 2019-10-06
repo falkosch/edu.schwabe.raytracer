@@ -180,51 +180,19 @@ namespace vectorization
     }
 
     const v_ui64_2 operator<(const v_ui64_2 & a, const v_ui64_2 & b) noexcept {
-#if VECTORIZATION_INTRINSICS_LEVEL < VECTORIZATION_SSE4
-        return v_ui64_2(
-            select(x(a) < x(b), MaskAll<v_ui64_2::ValueType>(), Zero<v_ui64_2::ValueType>()),
-            select(y(a) < y(b), MaskAll<v_ui64_2::ValueType>(), Zero<v_ui64_2::ValueType>())
-        );
-#else
-        // requires sse4.2
         return !(a >= b);
-#endif
     }
 
     const v_ui64_2 operator>(const v_ui64_2 & a, const v_ui64_2 & b) noexcept {
-#if VECTORIZATION_INTRINSICS_LEVEL < VECTORIZATION_SSE4
-        return v_ui64_2(
-            select(x(a) > x(b), MaskAll<v_ui64_2::ValueType>(), Zero<v_ui64_2::ValueType>()),
-            select(y(a) > y(b), MaskAll<v_ui64_2::ValueType>(), Zero<v_ui64_2::ValueType>())
-        );
-#else
-        // requires sse4.2
         return _mm_cmpgt_epi64(a.components, b.components);
-#endif
     }
 
     const v_ui64_2 operator<=(const v_ui64_2 & a, const v_ui64_2 & b) noexcept {
-#if VECTORIZATION_INTRINSICS_LEVEL < VECTORIZATION_SSE4
-        return v_ui64_2(
-            select(x(a) <= x(b), MaskAll<v_ui64_2::ValueType>(), Zero<v_ui64_2::ValueType>()),
-            select(y(a) <= y(b), MaskAll<v_ui64_2::ValueType>(), Zero<v_ui64_2::ValueType>())
-        );
-#else
-        // requires sse4.2
         return !(a > b);
-#endif
     }
 
     const v_ui64_2 operator>=(const v_ui64_2 & a, const v_ui64_2 & b) noexcept {
-#if VECTORIZATION_INTRINSICS_LEVEL < VECTORIZATION_SSE4
-        return v_ui64_2(
-            select(x(a) >= x(b), MaskAll<v_ui64_2::ValueType>(), Zero<v_ui64_2::ValueType>()),
-            select(y(a) >= y(b), MaskAll<v_ui64_2::ValueType>(), Zero<v_ui64_2::ValueType>())
-        );
-#else
-        // requires sse4.2
         return (a > b) | (a == b);
-#endif
     }
 
     const v_ui64_2 operator==(const v_ui64_2 & a, const v_ui64_2 & b) noexcept {

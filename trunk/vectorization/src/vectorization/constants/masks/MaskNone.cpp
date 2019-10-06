@@ -6,47 +6,47 @@ namespace vectorization
 {
     template <>
     const bool MaskNone<bool>() noexcept {
-        return Zero<bool>();
+        return false;
     }
 
     template <>
     const Int_8 MaskNone<Int_8>() noexcept {
-        return Zero<Int_8>();
+        return { 0 };
     }
 
     template <>
     const UInt_8 MaskNone<UInt_8>() noexcept {
-        return Zero<UInt_8>();
+        return { 0 };
     }
 
     template <>
     const Int_16 MaskNone<Int_16>() noexcept {
-        return Zero<Int_16>();
+        return { 0 };
     }
 
     template <>
     const UInt_16 MaskNone<UInt_16>() noexcept {
-        return Zero<UInt_16>();
+        return { 0 };
     }
 
     template <>
     const Int_32 MaskNone<Int_32>() noexcept {
-        return Zero<Int_32>();
+        return { 0 };
     }
 
     template <>
     const UInt_32 MaskNone<UInt_32>() noexcept {
-        return Zero<UInt_32>();
+        return { 0 };
     }
 
     template <>
     const Int_64 MaskNone<Int_64>() noexcept {
-        return Zero<Int_64>();
+        return { 0 };
     }
 
     template <>
     const UInt_64 MaskNone<UInt_64>() noexcept {
-        return Zero<UInt_64>();
+        return { 0 };
     }
 
     template <>
@@ -61,31 +61,31 @@ namespace vectorization
 
     template <>
     const PackedInts_128 MaskNone<PackedInts_128>() noexcept {
-        return Zero<PackedInts_128>();
+        return _mm_setzero_si128();
     }
 
     template <>
     const PackedFloat4_128 MaskNone<PackedFloat4_128>() noexcept {
-        return _mm_castsi128_ps(MaskNone<PackedInts_128>());
+        return _mm_setzero_ps();
     }
 
     template <>
     const PackedFloat2_128 MaskNone<PackedFloat2_128>() noexcept {
-        return _mm_castsi128_pd(MaskNone<PackedInts_128>());
+        return _mm_setzero_pd();
     }
 
     template <>
     const PackedInts_256 MaskNone<PackedInts_256>() noexcept {
-        return Zero<PackedInts_256>();
+        return _mm256_setzero_si256();
     }
 
     template <>
     const PackedFloat8_256 MaskNone<PackedFloat8_256>() noexcept {
-        return _mm256_castsi256_ps(MaskNone<PackedInts_256>());
+        return _mm256_setzero_ps();
     }
 
     template <>
     const PackedFloat4_256 MaskNone<PackedFloat4_256>() noexcept {
-        return _mm256_castsi256_pd(MaskNone<PackedInts_256>());
+        return _mm256_setzero_pd();
     }
 }

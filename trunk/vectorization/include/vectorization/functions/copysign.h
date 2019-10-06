@@ -12,9 +12,7 @@ namespace vectorization
 
     const PackedFloat2_128 copysign(const PackedFloat2_128 & v) noexcept;
 
-#if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
     const PackedFloat8_256 copysign(const PackedFloat8_256 & v) noexcept;
 
     const PackedFloat4_256 copysign(const PackedFloat4_256 & v) noexcept;
-#endif
 }

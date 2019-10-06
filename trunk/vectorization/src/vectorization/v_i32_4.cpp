@@ -219,11 +219,7 @@ namespace vectorization
     }
 
     const v_i32_4 operator*(const v_i32_4 & a, const v_i32_4 & b) noexcept {
-#if VECTORIZATION_INTRINSICS_LEVEL < VECTORIZATION_SSE4
-        return v_i32_4(x(a) * x(b), y(a) * y(b), z(a) * z(b), w(a) * w(b));
-#else
         return _mm_mullo_epi32(a.components, b.components);
-#endif
     }
 
     const v_i32_4 operator/(const v_i32_4 & a, const v_i32_4 & b) noexcept {
@@ -604,11 +600,7 @@ namespace vectorization
     //{ min()
 
     const v_i32_4 min(const v_i32_4 & a, const v_i32_4 & b) noexcept {
-#if VECTORIZATION_INTRINSICS_LEVEL < VECTORIZATION_SSE4
-        return v_i32_4(min(x(a), x(b)), min(y(a), y(b)), min(z(a), z(b)), min(w(a), w(b)));
-#else
         return _mm_min_epi32(a.components, b.components);
-#endif
     }
 
     const v_i32_4::ValueType min(const v_i32_4 & v) noexcept {
@@ -630,11 +622,7 @@ namespace vectorization
     //{ max()
 
     const v_i32_4 max(const v_i32_4 & a, const v_i32_4 & b) noexcept {
-#if VECTORIZATION_INTRINSICS_LEVEL < VECTORIZATION_SSE4
-        return v_i32_4(max(x(a), x(b)), max(y(a), y(b)), max(z(a), z(b)), max(w(a), w(b)));
-#else
         return _mm_max_epi32(a.components, b.components);
-#endif
     }
 
     const v_i32_4::ValueType max(const v_i32_4 & v) noexcept {
@@ -674,39 +662,19 @@ namespace vectorization
     }
 
     inline const bool testAllZero(const v_i32_4 & v) noexcept {
-#if VECTORIZATION_INTRINSICS_LEVEL < VECTORIZATION_SSE4
-        const v_i32_4 t = v | zwzw(v);
-        return !x(yyyy(t) | t);
-#else
         return !!_mm_testz_si128(v.components, MaskAll<v_i32_4::PackedType>());
-#endif
     }
 
     inline const bool testAllZero3(const v_i32_4 & v) noexcept {
-#if VECTORIZATION_INTRINSICS_LEVEL < VECTORIZATION_SSE4
-        const v_i32_4 t = v | zzww(v);
-        return !x(yyyy(t) | t);
-#else
         return !!_mm_testz_si128(v.components, MaskXYZ<v_i32_4>().components);
-#endif
     }
 
     inline const bool testAllOnes(const v_i32_4 & v) noexcept {
-#if VECTORIZATION_INTRINSICS_LEVEL < VECTORIZATION_SSE4
-        const v_i32_4 t = v & zwzw(v);
-        return !!x(yyyy(t) & t);
-#else
         return !!_mm_testc_si128(v.components, MaskAll<v_i32_4::PackedType>());
-#endif
     }
 
     inline const bool testAllOnes3(const v_i32_4 & v) noexcept {
-#if VECTORIZATION_INTRINSICS_LEVEL < VECTORIZATION_SSE4
-        const v_i32_4 t = v & zzww(v);
-        return !!x(yyyy(t) & t);
-#else
         return !!_mm_testc_si128(v.components, MaskXYZ<v_i32_4>().components);
-#endif
     }
 
     const bool anyTrue(const v_i32_4 & v) noexcept {
@@ -743,4 +711,4 @@ namespace vectorization
 
     //}
 #pragma endregion
-}
+    }

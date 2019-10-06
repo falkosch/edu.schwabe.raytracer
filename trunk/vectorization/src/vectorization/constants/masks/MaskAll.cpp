@@ -1,7 +1,5 @@
 #include "vectorization/constants/masks/MaskAll.h"
 
-#include "vectorization/constants/values/Zero.h"
-
 namespace vectorization
 {
     template <>
@@ -16,7 +14,7 @@ namespace vectorization
 
     template <>
     const UInt_8 MaskAll<UInt_8>() noexcept {
-        return static_cast<UInt_8>(-1);
+        return static_cast<UInt_8>(MaskAll<Int_8>());
     }
 
     template <>
@@ -26,7 +24,7 @@ namespace vectorization
 
     template <>
     const UInt_16 MaskAll<UInt_16>() noexcept {
-        return static_cast<UInt_16>(-1);
+        return static_cast<UInt_16>(MaskAll<Int_16>());
     }
 
     template <>
@@ -36,17 +34,17 @@ namespace vectorization
 
     template <>
     const UInt_32 MaskAll<UInt_32>() noexcept {
-        return static_cast<UInt_32>(-1);
+        return static_cast<UInt_32>(MaskAll<Int_32>());
     }
 
     template <>
     const Int_64 MaskAll<Int_64>() noexcept {
-        return Int_64{ -1 };
+        return { -1 };
     }
 
     template <>
     const UInt_64 MaskAll<UInt_64>() noexcept {
-        return static_cast<UInt_64>(-1);
+        return static_cast<UInt_64>(MaskAll<Int_64>());
     }
 
     template <>
@@ -61,7 +59,7 @@ namespace vectorization
 
     template <>
     const PackedInts_128 MaskAll<PackedInts_128>() noexcept {
-        return _mm_cmpeq_epi32(Zero<PackedInts_128>(), Zero<PackedInts_128>());
+        return _mm_cmpeq_epi32(_mm_setzero_si128(), _mm_setzero_si128());
     }
 
     template <>
@@ -76,7 +74,7 @@ namespace vectorization
 
     template <>
     const PackedInts_256 MaskAll<PackedInts_256>() noexcept {
-        return _mm256_set1_epi64x(long long{ -1 });
+        return _mm256_set1_epi64x({ -1 });
     }
 
     template <>

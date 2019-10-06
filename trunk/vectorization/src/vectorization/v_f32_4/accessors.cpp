@@ -42,38 +42,22 @@ namespace vectorization
 
     template <>
     const v_f32_4 replaceComponent<VectorIndices::X>(const v_f32_4 & v, const v_f32_4::ValueType s) noexcept {
-#if VECTORIZATION_INTRINSICS_LEVEL < VECTORIZATION_SSE4
-        return _mm_move_ss(v.components, _mm_set_ss(s));
-#else
         return _mm_insert_ps(v.components, _mm_set_ss(s), _MM_MK_INSERTPS_NDX(VectorIndices::X, VectorIndices::X, VectorBits::None));
-#endif
     }
 
     template <>
     const v_f32_4 replaceComponent<VectorIndices::Y>(const v_f32_4 & v, const v_f32_4::ValueType s) noexcept {
-#if VECTORIZATION_INTRINSICS_LEVEL < VECTORIZATION_SSE4
-        return blendMasked(v.components, _mm_set_ps1(s), MaskY<v_f32_4::PackedType>());
-#else
         return _mm_insert_ps(v.components, _mm_set_ss(s), _MM_MK_INSERTPS_NDX(VectorIndices::X, VectorIndices::Y, VectorBits::None));
-#endif
     }
 
     template <>
     const v_f32_4 replaceComponent<VectorIndices::Z>(const v_f32_4 & v, const v_f32_4::ValueType s) noexcept {
-#if VECTORIZATION_INTRINSICS_LEVEL < VECTORIZATION_SSE4
-        return blendMasked(v.components, _mm_set_ps1(s), MaskZ<v_f32_4::PackedType>());
-#else
         return _mm_insert_ps(v.components, _mm_set_ss(s), _MM_MK_INSERTPS_NDX(VectorIndices::X, VectorIndices::Z, VectorBits::None));
-#endif
     }
 
     template <>
     const v_f32_4 replaceComponent<VectorIndices::W>(const v_f32_4 & v, const v_f32_4::ValueType s) noexcept {
-#if VECTORIZATION_INTRINSICS_LEVEL < VECTORIZATION_SSE4
-        return blendMasked(v.components, _mm_set_ps1(s), MaskW<v_f32_4::PackedType>());
-#else
         return _mm_insert_ps(v.components, _mm_set_ss(s), _MM_MK_INSERTPS_NDX(VectorIndices::X, VectorIndices::W, VectorBits::None));
-#endif
     }
 
     const v_f32_4 replaceX(const v_f32_4 & v, const v_f32_4::ValueType s) noexcept {

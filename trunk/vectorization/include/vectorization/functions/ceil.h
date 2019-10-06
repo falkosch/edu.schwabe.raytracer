@@ -12,9 +12,7 @@ namespace vectorization
 
     const PackedFloat2_128 ceil(const PackedFloat2_128 & v) noexcept;
 
-#if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
     const PackedFloat8_256 ceil(const PackedFloat8_256 & v) noexcept;
 
     const PackedFloat4_256 ceil(const PackedFloat4_256 & v) noexcept;
-#endif
 }

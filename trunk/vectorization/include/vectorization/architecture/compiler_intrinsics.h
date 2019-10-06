@@ -64,9 +64,17 @@ namespace vectorization
     typedef __m512d PackedFloat8_512;
     typedef __m512i PackedInts_512;
 
-    const PackedFloat4_128 _mm_cvtepu32_ps(const PackedInts_128 v);
+    const PackedFloat4_128 _mm_cvtepu32_ps(const PackedInts_128 v) noexcept;
 
-    const size_t popcnt128(const PackedInts_128 n);
+    const size_t __popcntx(const PackedInts_128 n) noexcept;
 
-    const size_t popcnt256(const PackedInts_256 n);
+    const size_t __popcntx(const PackedFloat4_128 n) noexcept;
+
+    const size_t __popcntx(const PackedFloat2_128 n) noexcept;
+
+    const size_t __popcntx(const PackedInts_256 n) noexcept;
+
+    const size_t __popcntx(const PackedFloat8_256 n) noexcept;
+
+    const size_t __popcntx(const PackedFloat4_256 n) noexcept;
 }

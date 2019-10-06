@@ -68,33 +68,27 @@ namespace vectorization
             }
 
             TEST_METHOD(returnsPackedInts_128Mask) {
-                auto actual = MaskAll<PackedInts_128>();
-                Assert::AreEqual(size_t{ 128 }, popcnt128(actual));
-            }
-
-            TEST_METHOD(returnsPackedFloat2_128Mask) {
-                auto actual = _mm_castpd_si128(MaskAll<PackedFloat2_128>());
-                Assert::AreEqual(size_t{ 128 }, popcnt128(actual));
+                Assert::AreEqual(size_t{ 128 }, __popcntx(MaskAll<PackedInts_128>()));
             }
 
             TEST_METHOD(returnsPackedFloat4_128Mask) {
-                auto actual = _mm_castps_si128(MaskAll<PackedFloat4_128>());
-                Assert::AreEqual(size_t{ 128 }, popcnt128(actual));
+                Assert::AreEqual(size_t{ 128 }, __popcntx(MaskAll<PackedFloat4_128>()));
+            }
+
+            TEST_METHOD(returnsPackedFloat2_128Mask) {
+                Assert::AreEqual(size_t{ 128 }, __popcntx(MaskAll<PackedFloat2_128>()));
             }
 
             TEST_METHOD(returnsPackedInts_256Mask) {
-                auto actual = MaskAll<PackedInts_256>();
-                Assert::AreEqual(size_t{ 256 }, popcnt256(actual));
-            }
-
-            TEST_METHOD(returnsPackedFloat4_256Mask) {
-                auto actual = _mm256_castpd_si256(MaskAll<PackedFloat4_256>());
-                Assert::AreEqual(size_t{ 256 }, popcnt256(actual));
+                Assert::AreEqual(size_t{ 256 }, __popcntx(MaskAll<PackedInts_256>()));
             }
 
             TEST_METHOD(returnsPackedFloat8_256Mask) {
-                auto actual = _mm256_castps_si256(MaskAll<PackedFloat8_256>());
-                Assert::AreEqual(size_t{ 256 }, popcnt256(actual));
+                Assert::AreEqual(size_t{ 256 }, __popcntx(MaskAll<PackedFloat8_256>()));
+            }
+
+            TEST_METHOD(returnsPackedFloat4_256Mask) {
+                Assert::AreEqual(size_t{ 256 }, __popcntx(MaskAll<PackedFloat4_256>()));
             }
         };
     }

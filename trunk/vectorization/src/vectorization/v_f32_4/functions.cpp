@@ -90,11 +90,7 @@ namespace vectorization
     //{ dot()
 
     const v_f32_4 dotv(const v_f32_4 & a, const v_f32_4 & b) noexcept {
-#if VECTORIZATION_INTRINSICS_LEVEL < VECTORIZATION_SSE4
-        return horizontalSumv(a * b);
-#else
         return _mm_dp_ps(a.components, b.components, 0xFF);
-#endif
     }
 
     const v_f32_4::ValueType dot(const v_f32_4 & a, const v_f32_4 & b) noexcept {
@@ -102,11 +98,7 @@ namespace vectorization
     }
 
     const v_f32_4 dot3v(const v_f32_4 & a, const v_f32_4 & b) noexcept {
-#if VECTORIZATION_INTRINSICS_LEVEL < VECTORIZATION_SSE4
-        return horizontalSumv(zeroW(a * b));
-#else
         return _mm_dp_ps(a.components, b.components, 0x7F);
-#endif
     }
 
     const v_f32_4::ValueType dot3(const v_f32_4 & a, const v_f32_4 & b) noexcept {
@@ -287,19 +279,11 @@ namespace vectorization
     //{ Special vector operations
 
     const v_f32_4 zeroW(const v_f32_4 & v) noexcept {
-#if VECTORIZATION_INTRINSICS_LEVEL < VECTORIZATION_SSE4
-        return _mm_and_ps(v.components, MaskXYZ<v_f32_4::PackedType>());
-#else
         return _mm_insert_ps(v.components, v.components, _MM_MK_INSERTPS_NDX(VectorIndices::X, VectorIndices::X, VectorBits::W));
-#endif
     }
 
     const v_f32_4 oneW(const v_f32_4 & v) noexcept {
-#if VECTORIZATION_INTRINSICS_LEVEL < VECTORIZATION_SSE4
-        return blendMasked(v.components, One<v_f32_4::PackedType>(), MaskW<v_f32_4::PackedType>());
-#else
         return _mm_insert_ps(v.components, One<v_f32_4::PackedType>(), _MM_MK_INSERTPS_NDX(VectorIndices::W, VectorIndices::W, VectorBits::None));
-#endif
     }
 
     const v_f32_4::BoolType isNegative(const v_f32_4 & v) noexcept {
@@ -409,4 +393,4 @@ namespace vectorization
 
     //}
 #pragma endregion
-}
+    }
