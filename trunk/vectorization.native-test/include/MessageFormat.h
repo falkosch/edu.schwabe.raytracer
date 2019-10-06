@@ -12,6 +12,11 @@ namespace vectorization
     {
         struct MessageFormat
         {
+            static const std::wstring toString(std::ostringstream & stringStream) {
+                auto nmessage = stringStream.str();
+                return std::wstring(nmessage.cbegin(), nmessage.cend());
+            }
+
             static const std::wstring forFunction(
                 const ASizeT index,
                 const v_f32_4::ValueType value,
@@ -20,9 +25,13 @@ namespace vectorization
                 const std::string & operatorText,
                 const v_f32_4::ValueType expected
             ) {
-                auto nmessage = (std::ostringstream() << "[" << index << "] " << value << " " << prefix << ": "
-                    << actual << " " << operatorText << " " << expected).str();
-                return std::wstring(nmessage.cbegin(), nmessage.cend());
+                return MessageFormat::toString(
+                    std::ostringstream()
+                    << "[" << index << "] "
+                    << value << " "
+                    << prefix << ": " <<
+                    actual << " " << operatorText << " " << expected
+                );
             }
 
             static const std::wstring forIndex(
@@ -31,8 +40,7 @@ namespace vectorization
             ) {
                 auto stream = std::ostringstream() << "[" << index << "]";
                 writeMessageToStream(stream);
-                auto nmessage = stream.str();
-                return std::wstring(nmessage.cbegin(), nmessage.cend());
+                return MessageFormat::toString(stream);
             }
 
             template <typename T>

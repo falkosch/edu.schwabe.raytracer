@@ -73,4 +73,19 @@ namespace vectorization
     const PackedFloat2_128 MaskNone<PackedFloat2_128>() noexcept {
         return _mm_castsi128_pd(MaskNone<PackedInts_128>());
     }
+
+    template <>
+    const PackedInts_256 MaskNone<PackedInts_256>() noexcept {
+        return Zero<PackedInts_256>();
+    }
+
+    template <>
+    const PackedFloat8_256 MaskNone<PackedFloat8_256>() noexcept {
+        return _mm256_castsi256_ps(MaskNone<PackedInts_256>());
+    }
+
+    template <>
+    const PackedFloat4_256 MaskNone<PackedFloat4_256>() noexcept {
+        return _mm256_castsi256_pd(MaskNone<PackedInts_256>());
+    }
 }

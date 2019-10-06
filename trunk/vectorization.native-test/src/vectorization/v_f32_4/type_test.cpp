@@ -34,7 +34,7 @@ namespace vectorization
             }
 
             TEST_METHOD(constructsZero) {
-                Iterate::toExclusiveEnd<VectorIndices::AboveW>([](auto i, auto message) {
+                Iterate::toExclusiveEnd<VectorSizes::W>([](auto i, auto message) {
                     Assert::AreEqual(
                         Zero<v_f32_4::ValueType>(),
                         v_f32_4()[i],
@@ -44,7 +44,7 @@ namespace vectorization
             }
 
             TEST_METHOD(constructsCopy) {
-                Iterate::toExclusiveEnd<VectorIndices::AboveW>([](auto i, auto message) {
+                Iterate::toExclusiveEnd<VectorSizes::W>([](auto i, auto message) {
                     Assert::AreEqual(
                         sampleVector()[i],
                         v_f32_4(sampleVector())[i],
@@ -54,7 +54,7 @@ namespace vectorization
             }
 
             TEST_METHOD(constructsFromPackedType) {
-                Iterate::toExclusiveEnd<VectorIndices::AboveW>([](auto i, auto message) {
+                Iterate::toExclusiveEnd<VectorSizes::W>([](auto i, auto message) {
                     Assert::AreEqual(
                         sampleVector()[i],
                         v_f32_4(sampleVector().components)[i],
@@ -64,8 +64,8 @@ namespace vectorization
             }
 
             TEST_METHOD(constructsFromValueType) {
-                Iterate::toExclusiveEnd<VectorIndices::AboveW>([](auto i, auto message) {
-                    staticFor<VectorIndices::X, VectorIndices::AboveW>([&](auto j) {
+                Iterate::toExclusiveEnd<VectorSizes::W>([](auto i, auto message) {
+                    staticFor<VectorIndices::X, VectorSizes::W>([&](auto j) {
                         Assert::AreEqual(
                             sampleVector()[i],
                             v_f32_4(sampleVector()[i])[j],

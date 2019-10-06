@@ -60,6 +60,12 @@
     <ClCompile Include="src\vectorization\v_f32_4\functions_trigonometry_test.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="src\vectorization\constants\masks\MaskAll_test.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vectorization\constants\masks\MaskNone_test.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Compare.h">
@@ -72,6 +78,9 @@
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="include\StandardSample.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ValueBits.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>

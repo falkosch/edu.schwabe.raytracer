@@ -6,7 +6,7 @@ namespace vectorization
 {
     template <>
     const bool MaskAll<bool>() noexcept {
-        return static_cast<bool>(-1);
+        return true;
     }
 
     template <>
@@ -41,7 +41,7 @@ namespace vectorization
 
     template <>
     const Int_64 MaskAll<Int_64>() noexcept {
-        return { -1 };
+        return Int_64{ -1 };
     }
 
     template <>
@@ -72,5 +72,20 @@ namespace vectorization
     template <>
     const PackedFloat2_128 MaskAll<PackedFloat2_128>() noexcept {
         return _mm_castsi128_pd(MaskAll<PackedInts_128>());
+    }
+
+    template <>
+    const PackedInts_256 MaskAll<PackedInts_256>() noexcept {
+        return _mm256_set1_epi64x(long long{ -1 });
+    }
+
+    template <>
+    const PackedFloat8_256 MaskAll<PackedFloat8_256>() noexcept {
+        return _mm256_castsi256_ps(MaskAll<PackedInts_256>());
+    }
+
+    template <>
+    const PackedFloat4_256 MaskAll<PackedFloat4_256>() noexcept {
+        return _mm256_castsi256_pd(MaskAll<PackedInts_256>());
     }
 }

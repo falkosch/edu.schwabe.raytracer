@@ -49,4 +49,13 @@ namespace vectorization
 
     template <>
     const PackedFloat2_128 MaskNone<PackedFloat2_128>() noexcept;
+
+    template <>
+    const PackedInts_256 MaskNone<PackedInts_256>() noexcept;
+
+    template <>
+    const PackedFloat8_256 MaskNone<PackedFloat8_256>() noexcept;
+
+    template <>
+    const PackedFloat4_256 MaskNone<PackedFloat4_256>() noexcept;
 }

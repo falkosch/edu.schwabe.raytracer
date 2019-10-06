@@ -23,49 +23,49 @@ namespace vectorization
                 auto test = StandardSample::importantFloatConstants();
 
                 auto matchers = {
-                    Compare::equalsOrdered, // Zero
-                    Compare::equalsOrdered,
-                    Compare::nearEqualsRelative,
-                    Compare::isBothNotANumber,
-                    Compare::equalsOrdered, // One
-                    Compare::isBothNotANumber,
-                    Compare::nearEqualsRelative,
-                    Compare::isBothNotANumber,
+                    Compare::equalsOrdered<v_f32_4>, // Zero
+                    Compare::equalsOrdered<v_f32_4>,
+                    Compare::nearEqualsRelative<v_f32_4>,
+                    Compare::isBothNotANumber<v_f32_4>,
+                    Compare::equalsOrdered<v_f32_4>, // One
+                    Compare::isBothNotANumber<v_f32_4>,
+                    Compare::nearEqualsRelative<v_f32_4>,
+                    Compare::isBothNotANumber<v_f32_4>,
 
-                    Compare::nearEqualsRelative, // Two
-                    Compare::isBothNotANumber,
-                    Compare::nearEqualsRelative,
-                    Compare::isBothNotANumber,
-                    Compare::nearEqualsRelative, // ReciprocalPi
-                    Compare::isBothNotANumber,
-                    Compare::nearEqualsRelative,
-                    Compare::isBothNotANumber,
+                    Compare::nearEqualsRelative<v_f32_4>, // Two
+                    Compare::isBothNotANumber<v_f32_4>,
+                    Compare::nearEqualsRelative<v_f32_4>,
+                    Compare::isBothNotANumber<v_f32_4>,
+                    Compare::nearEqualsRelative<v_f32_4>, // ReciprocalPi
+                    Compare::isBothNotANumber<v_f32_4>,
+                    Compare::nearEqualsRelative<v_f32_4>,
+                    Compare::isBothNotANumber<v_f32_4>,
 
-                    Compare::nearEqualsRelative, // RadianToDegree
-                    Compare::isBothNotANumber,
-                    Compare::nearEqualsRelative,
-                    Compare::isBothNotANumber,
-                    Compare::nearEqualsRelative, // Sin45
-                    Compare::isBothNotANumber,
-                    Compare::equalsOrdered,
-                    Compare::isBothNotANumber,
+                    Compare::nearEqualsRelative<v_f32_4>, // RadianToDegree
+                    Compare::isBothNotANumber<v_f32_4>,
+                    Compare::nearEqualsRelative<v_f32_4>,
+                    Compare::isBothNotANumber<v_f32_4>,
+                    Compare::nearEqualsRelative<v_f32_4>, // Sin45
+                    Compare::isBothNotANumber<v_f32_4>,
+                    Compare::equalsOrdered<v_f32_4>,
+                    Compare::isBothNotANumber<v_f32_4>,
 
-                    Compare::nearEqualsRelative, // Epsilon
-                    Compare::isBothNotANumber,
-                    Compare::nearEqualsRelative,
-                    Compare::isBothNotANumber,
-                    Compare::nearEqualsRelative, // max
-                    Compare::isBothNotANumber,
-                    Compare::nearEqualsRelative,
-                    Compare::isBothNotANumber,
+                    Compare::nearEqualsRelative<v_f32_4>, // Epsilon
+                    Compare::isBothNotANumber<v_f32_4>,
+                    Compare::nearEqualsRelative<v_f32_4>,
+                    Compare::isBothNotANumber<v_f32_4>,
+                    Compare::nearEqualsRelative<v_f32_4>, // max
+                    Compare::isBothNotANumber<v_f32_4>,
+                    Compare::nearEqualsRelative<v_f32_4>,
+                    Compare::isBothNotANumber<v_f32_4>,
 
-                    Compare::nearEqualsRelative, // denorm_min
-                    Compare::isBothNotANumber,
-                    Compare::nearEqualsRelative,
-                    Compare::isBothNotANumber,
-                    Compare::nearEqualsRelative, // round_error
-                    Compare::isBothNotANumber,
-                    Compare::isBothNotANumber
+                    Compare::nearEqualsRelative<v_f32_4>, // denorm_min
+                    Compare::isBothNotANumber<v_f32_4>,
+                    Compare::nearEqualsRelative<v_f32_4>,
+                    Compare::isBothNotANumber<v_f32_4>,
+                    Compare::nearEqualsRelative<v_f32_4>, // round_error
+                    Compare::isBothNotANumber<v_f32_4>,
+                    Compare::isBothNotANumber<v_f32_4>
                 };
 
                 auto matcher = matchers.begin();
@@ -85,49 +85,49 @@ namespace vectorization
                 auto test = StandardSample::importantFloatConstants();
 
                 auto matchers = {
-                    Compare::nearEqualsRelative, // Zero
-                    Compare::nearEqualsRelative,
-                    Compare::nearEqualsRelative,
-                    Compare::nearEqualsRelative,
-                    Compare::nearEqualsRelative, // One
-                    Compare::nearEqualsRelative,
-                    Compare::nearEqualsRelative,
-                    Compare::nearEqualsRelative,
+                    Compare::nearEqualsRelative<v_f32_4>, // Zero
+                    Compare::nearEqualsRelative<v_f32_4>,
+                    Compare::nearEqualsRelative<v_f32_4>,
+                    Compare::nearEqualsRelative<v_f32_4>,
+                    Compare::nearEqualsRelative<v_f32_4>, // One
+                    Compare::nearEqualsRelative<v_f32_4>,
+                    Compare::nearEqualsRelative<v_f32_4>,
+                    Compare::nearEqualsRelative<v_f32_4>,
 
-                    Compare::nearEqualsRelative, // Two
-                    Compare::nearEqualsRelative,
-                    Compare::nearEqualsRelative,
-                    Compare::nearEqualsRelative,
-                    Compare::nearEqualsRelative, // ReciprocalPi
-                    Compare::nearEqualsRelative,
-                    Compare::nearEqualsRelative,
-                    Compare::nearEqualsRelative,
+                    Compare::nearEqualsRelative<v_f32_4>, // Two
+                    Compare::nearEqualsRelative<v_f32_4>,
+                    Compare::nearEqualsRelative<v_f32_4>,
+                    Compare::nearEqualsRelative<v_f32_4>,
+                    Compare::nearEqualsRelative<v_f32_4>, // ReciprocalPi
+                    Compare::nearEqualsRelative<v_f32_4>,
+                    Compare::nearEqualsRelative<v_f32_4>,
+                    Compare::nearEqualsRelative<v_f32_4>,
 
-                    Compare::nearEqualsRelative, // RadianToDegree
-                    Compare::nearEqualsRelative,
-                    Compare::nearEqualsRelative,
-                    Compare::nearEqualsRelative,
-                    Compare::nearEqualsRelative, // Sin45
-                    Compare::nearEqualsRelative,
-                    Compare::equalsOrdered,
-                    Compare::equalsOrdered,
+                    Compare::nearEqualsRelative<v_f32_4>, // RadianToDegree
+                    Compare::nearEqualsRelative<v_f32_4>,
+                    Compare::nearEqualsRelative<v_f32_4>,
+                    Compare::nearEqualsRelative<v_f32_4>,
+                    Compare::nearEqualsRelative<v_f32_4>, // Sin45
+                    Compare::nearEqualsRelative<v_f32_4>,
+                    Compare::equalsOrdered<v_f32_4>,
+                    Compare::equalsOrdered<v_f32_4>,
 
-                    Compare::nearEqualsRelative, // Epsilon
-                    Compare::nearEqualsRelative,
-                    Compare::nearEqualsRelative,
-                    Compare::nearEqualsRelative,
-                    Compare::equalsOrdered, // max
-                    Compare::equalsOrdered,
-                    Compare::nearEqualsRelative,
-                    Compare::nearEqualsRelative,
+                    Compare::nearEqualsRelative<v_f32_4>, // Epsilon
+                    Compare::nearEqualsRelative<v_f32_4>,
+                    Compare::nearEqualsRelative<v_f32_4>,
+                    Compare::nearEqualsRelative<v_f32_4>,
+                    Compare::equalsOrdered<v_f32_4>, // max
+                    Compare::equalsOrdered<v_f32_4>,
+                    Compare::nearEqualsRelative<v_f32_4>,
+                    Compare::nearEqualsRelative<v_f32_4>,
 
-                    Compare::nearEqualsRelative, // denorm_min
-                    Compare::nearEqualsRelative,
-                    Compare::nearEqualsRelative,
-                    Compare::nearEqualsRelative,
-                    Compare::nearEqualsRelative, // round_error
-                    Compare::nearEqualsRelative,
-                    Compare::isBothNotANumber
+                    Compare::nearEqualsRelative<v_f32_4>, // denorm_min
+                    Compare::nearEqualsRelative<v_f32_4>,
+                    Compare::nearEqualsRelative<v_f32_4>,
+                    Compare::nearEqualsRelative<v_f32_4>,
+                    Compare::nearEqualsRelative<v_f32_4>, // round_error
+                    Compare::nearEqualsRelative<v_f32_4>,
+                    Compare::isBothNotANumber<v_f32_4>
                 };
 
                 auto matcher = matchers.begin();

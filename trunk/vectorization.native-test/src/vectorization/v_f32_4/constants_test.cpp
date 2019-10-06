@@ -1,4 +1,6 @@
+#include "Compare.h"
 #include "Iterate.h"
+#include "Bits.h"
 
 #include <CppUnitTest.h>
 #include <vectorization.h>
@@ -15,20 +17,46 @@ namespace vectorization
         {
         public:
 
-            TEST_METHOD(hasMaskNone) {
-                Iterate::toExclusiveEnd<v_f32_4::SIZE>([](auto i, auto message) {
-                    Assert::AreEqual(MaskNone<v_f32_4::ValueType>(), MaskNone<v_f32_4>()[i], message.c_str(), LINE_INFO());
-                });
+            TEST_METHOD(hasMaskAll) {
+                auto expected = MaskAll<v_f32_4::VectorBoolType>();
+                auto actual = _mm_castps_si128(MaskAll<v_f32_4>());
+
+                Assert::IsTrue(allTrue(expected == actual), L"constant mismatch", LINE_INFO());
             }
 
-            TEST_METHOD(hasMaskAll) {
-                Iterate::toExclusiveEnd<v_f32_4::SIZE>([](auto i, auto message) {
-                    Assert::AreEqual(MaskAll<v_f32_4::ValueType>(), MaskAll<v_f32_4>()[i], message.c_str(), LINE_INFO());
-                });
-            }
+            //TEST_METHOD(hasMaskNone) {
+            //    auto expected = MaskNone<v_f32_4::VectorBoolType>();
+            //    auto actual = _mm_castps_si128(MaskNone<v_f32_4>());
+
+            //    Assert::IsTrue(allTrue(expected == actual), L"constant mismatch", LINE_INFO());
+            //}
 
             TEST_METHOD(hasMaskX) {
-                Assert::AreEqual(MaskAll<v_f32_4::ValueType>(), x(MaskX<v_f32_4>()), L"", LINE_INFO());
+                auto expected = MaskX<v_f32_4::VectorBoolType>();
+                auto actual = _mm_castps_si128(MaskX<v_f32_4>());
+
+                Assert::IsTrue(allTrue(expected == actual), L"constant mismatch", LINE_INFO());
+            }
+
+            TEST_METHOD(hasMaskY) {
+                auto expected = MaskY<v_f32_4::VectorBoolType>();
+                auto actual = _mm_castps_si128(MaskY<v_f32_4>());
+
+                Assert::IsTrue(allTrue(expected == actual), L"constant mismatch", LINE_INFO());
+            }
+
+            TEST_METHOD(hasMaskZ) {
+                auto expected = MaskZ<v_f32_4::VectorBoolType>();
+                auto actual = _mm_castps_si128(MaskZ<v_f32_4>());
+
+                Assert::IsTrue(allTrue(expected == actual), L"constant mismatch", LINE_INFO());
+            }
+
+            TEST_METHOD(hasMaskW) {
+                auto expected = MaskW<v_f32_4::VectorBoolType>();
+                auto actual = _mm_castps_si128(MaskW<v_f32_4>());
+
+                Assert::IsTrue(allTrue(expected == actual), L"constant mismatch", LINE_INFO());
             }
         };
     }

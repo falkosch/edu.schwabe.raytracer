@@ -2,20 +2,60 @@
 
 namespace vectorization
 {
-    template <typename T>
-    const T Zero() noexcept {
-        return T();
+    template <>
+    const bool Zero() noexcept {
+        return bool{ 0 };
     }
 
-    template const bool Zero() noexcept;
-    template const Int_8 Zero<Int_8>() noexcept;
-    template const UInt_8 Zero<UInt_8>() noexcept;
-    template const Int_16 Zero<Int_16>() noexcept;
-    template const UInt_16 Zero<UInt_16>() noexcept;
-    template const Int_32 Zero<Int_32>() noexcept;
-    template const UInt_32 Zero<UInt_32>() noexcept;
-    template const Int_64 Zero<Int_64>() noexcept;
-    template const UInt_64 Zero<UInt_64>() noexcept;
+    template <>
+    const Int_8 Zero() noexcept {
+        return Int_8{ 0 };
+    }
+
+    template <>
+    const UInt_8 Zero() noexcept {
+        return UInt_8{ 0 };
+    }
+
+    template <>
+    const Int_16 Zero() noexcept {
+        return Int_16{ 0 };
+    }
+
+    template <>
+    const UInt_16 Zero() noexcept {
+        return UInt_16{ 0 };
+    }
+
+    template <>
+    const Int_32 Zero() noexcept {
+        return Int_32{ 0 };
+    }
+
+    template <>
+    const UInt_32 Zero() noexcept {
+        return UInt_32{ 0 };
+    }
+
+    template <>
+    const Int_64 Zero() noexcept {
+        return Int_64{ 0 };
+    }
+
+    template <>
+    const UInt_64 Zero() noexcept {
+        return UInt_64{ 0 };
+    }
+
+    template <>
+    const Float_32 Zero<Float_32>() noexcept {
+        return _mm_cvtss_f32(Zero<PackedFloat4_128>());
+    }
+
+    template <>
+    const Float_64 Zero<Float_64>() noexcept {
+        return _mm_cvtsd_f64(Zero<PackedFloat2_128>());
+    }
 
     template <>
     const PackedInts_128 Zero<PackedInts_128>() noexcept {
@@ -33,12 +73,17 @@ namespace vectorization
     }
 
     template <>
-    const Float_32 Zero<Float_32>() noexcept {
-        return _mm_cvtss_f32(Zero<PackedFloat4_128>());
+    const PackedInts_256 Zero<PackedInts_256>() noexcept {
+        return _mm256_setzero_si256();
     }
 
     template <>
-    const Float_64 Zero<Float_64>() noexcept {
-        return _mm_cvtsd_f64(Zero<PackedFloat2_128>());
+    const PackedFloat8_256 Zero<PackedFloat8_256>() noexcept {
+        return _mm256_setzero_ps();
+    }
+
+    template <>
+    const PackedFloat4_256 Zero<PackedFloat4_256>() noexcept {
+        return _mm256_setzero_pd();
     }
 }
