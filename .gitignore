@@ -1,3 +1,6 @@
+output.bmp
+raytraced.bmp
+
 trunk/build-*/
 trunk/*/build-*/
 
