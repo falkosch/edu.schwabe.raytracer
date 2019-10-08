@@ -53,6 +53,7 @@ namespace raytracerui
         std::cout << "primaryRays " << configuration.statistics.primaryRays << "/" << configuration.statistics.missedPrimaryRays << std::endl;
         std::cout << "secondaryRays " << configuration.statistics.secondaryRays << "/" << configuration.statistics.missedSecondaryRays << std::endl;
         std::cout << "shadowRays " << configuration.statistics.shadowRays << "/" << configuration.statistics.missedShadowRays << std::endl;
+        std::cout << "objectShadowRays " << configuration.statistics.objectShadowRays << "/" << configuration.statistics.objectMissedShadowRays << std::endl;
 
         delete outputHDR;
         delete output;

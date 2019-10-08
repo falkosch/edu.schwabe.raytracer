@@ -13,6 +13,7 @@ namespace raytracer
         ASizeT secondaryRays, missedSecondaryRays;
 
         ASizeT shadowRays, missedShadowRays;
+        ASizeT objectShadowRays, objectMissedShadowRays;
 
         ALIGNED_ALLOCATORS(__alignof(StatisticsCookie));
 

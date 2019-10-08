@@ -10,7 +10,9 @@ namespace raytracer
         secondaryRays(),
         missedSecondaryRays(),
         shadowRays(),
-        missedShadowRays() { }
+        missedShadowRays(),
+        objectShadowRays(),
+        objectMissedShadowRays() { }
 
     void StatisticsCookie::merge(const StatisticsCookie & other) {
         this->primaryRays += other.primaryRays;
@@ -19,5 +21,7 @@ namespace raytracer
         this->missedSecondaryRays += other.missedSecondaryRays;
         this->shadowRays += other.shadowRays;
         this->missedShadowRays += other.missedShadowRays;
+        this->objectShadowRays += other.objectShadowRays;
+        this->objectMissedShadowRays += other.objectMissedShadowRays;
     }
 }

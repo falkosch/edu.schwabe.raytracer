@@ -78,13 +78,13 @@ namespace raytracer
         // Shadow caching: test last known occluding object second
         const ObjectGeometry * const lastShadowedByObject = shadowCache[lightIndex].lastShadowedByObject;
         if (lastShadowedByObject) {
-            statistics.shadowRays += One<ASizeT>();
+            statistics.objectShadowRays += One<ASizeT>();
             if (!outOfReach(shadowRay, lastShadowedByObject->findAnyIntersection(shadowRay, &intersection, shadowNearest))) {
                 // Update shadow caching info, maybe intersection node changed
                 shadowCache[lightIndex] = PerLightShadowCache(*shadowNearest.node, *lastShadowedByObject);
                 return Zero<Float4>();
             }
-            statistics.missedShadowRays += One<ASizeT>();
+            statistics.objectMissedShadowRays += One<ASizeT>();
 
             // shadow test failed for cached hint for shadowing object, reset info of intersection
             shadowNearest.node = intersection.node;
