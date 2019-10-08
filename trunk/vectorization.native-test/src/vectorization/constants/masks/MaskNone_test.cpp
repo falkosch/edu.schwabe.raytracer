@@ -1,11 +1,4 @@
-#include "ValueBits.h"
-
-#include <CppUnitTest.h>
-#include <vectorization.h>
-
-#include <bitset>
-
-using namespace Microsoft::VisualStudio::CppUnitTestFramework;
+#include "vectorization_tests.h"
 
 namespace vectorization
 {

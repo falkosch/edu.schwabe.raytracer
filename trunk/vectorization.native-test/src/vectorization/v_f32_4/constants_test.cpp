@@ -1,13 +1,4 @@
-#include "Compare.h"
-#include "Iterate.h"
-#include "Bits.h"
-
-#include <CppUnitTest.h>
-#include <vectorization.h>
-
-#include <array>
-
-using namespace Microsoft::VisualStudio::CppUnitTestFramework;
+#include "vectorization_tests.h"
 
 namespace vectorization
 {

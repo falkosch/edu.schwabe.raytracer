@@ -13,51 +13,52 @@ namespace vectorization
         {
             static const ASizeT ImportantFloatConstantsSize = 39;
 
-            static const std::array<v_f32_4::ValueType, ImportantFloatConstantsSize> importantFloatConstants() {
+            template <typename T>
+            static const std::array<T, ImportantFloatConstantsSize> importantFloatConstants() {
                 return {
-                    Zero<v_f32_4::ValueType>(),
-                    NegativeZero<v_f32_4::ValueType>(),
-                    Half<v_f32_4::ValueType>(),
-                    -Half<v_f32_4::ValueType>(),
-                    One<v_f32_4::ValueType>(),
-                    NegativeOne<v_f32_4::ValueType>(),
-                    OneHalf<v_f32_4::ValueType>(),
-                    -OneHalf<v_f32_4::ValueType>(),
+                    Zero<T>(),
+                    NegativeZero<T>(),
+                    Half<T>(),
+                    -Half<T>(),
+                    One<T>(),
+                    NegativeOne<T>(),
+                    OneHalf<T>(),
+                    -OneHalf<T>(),
 
-                    Two<v_f32_4::ValueType>(),
-                    NegativeTwo<v_f32_4::ValueType>(),
-                    Pi<v_f32_4::ValueType>(),
-                    -Pi<v_f32_4::ValueType>(),
-                    ReciprocalPi<v_f32_4::ValueType>(),
-                    -ReciprocalPi<v_f32_4::ValueType>(),
-                    DegreeToRadian<v_f32_4::ValueType>(),
-                    -DegreeToRadian<v_f32_4::ValueType>(),
+                    Two<T>(),
+                    NegativeTwo<T>(),
+                    Pi<T>(),
+                    -Pi<T>(),
+                    ReciprocalPi<T>(),
+                    -ReciprocalPi<T>(),
+                    DegreeToRadian<T>(),
+                    -DegreeToRadian<T>(),
 
-                    RadianToDegree<v_f32_4::ValueType>(),
-                    -RadianToDegree<v_f32_4::ValueType>(),
-                    RadianToUniform<v_f32_4::ValueType>(),
-                    -RadianToUniform<v_f32_4::ValueType>(),
-                    Sin45<v_f32_4::ValueType>(),
-                    -Sin45<v_f32_4::ValueType>(),
-                    Infinity<v_f32_4::ValueType>(),
-                    NegativeInfinity<v_f32_4::ValueType>(),
+                    RadianToDegree<T>(),
+                    -RadianToDegree<T>(),
+                    RadianToUniform<T>(),
+                    -RadianToUniform<T>(),
+                    Sin45<T>(),
+                    -Sin45<T>(),
+                    Infinity<T>(),
+                    NegativeInfinity<T>(),
 
-                    Epsilon<v_f32_4::ValueType>(),
-                    -Epsilon<v_f32_4::ValueType>(),
-                    SelfOcclusionEpsilon<v_f32_4::ValueType>(),
-                    -SelfOcclusionEpsilon<v_f32_4::ValueType>(),
-                    std::numeric_limits<v_f32_4::ValueType>::max(),
-                    std::numeric_limits<v_f32_4::ValueType>::lowest(),
-                    std::numeric_limits<v_f32_4::ValueType>::min(),
-                    -std::numeric_limits<v_f32_4::ValueType>::min(),
+                    Epsilon<T>(),
+                    -Epsilon<T>(),
+                    SelfOcclusionEpsilon<T>(),
+                    -SelfOcclusionEpsilon<T>(),
+                    std::numeric_limits<T>::max(),
+                    std::numeric_limits<T>::lowest(),
+                    std::numeric_limits<T>::min(),
+                    -std::numeric_limits<T>::min(),
 
-                    std::numeric_limits<v_f32_4::ValueType>::denorm_min(),
-                    -std::numeric_limits<v_f32_4::ValueType>::denorm_min(),
-                    std::numeric_limits<v_f32_4::ValueType>::epsilon(),
-                    -std::numeric_limits<v_f32_4::ValueType>::epsilon(),
-                    std::numeric_limits<v_f32_4::ValueType>::round_error(),
-                    -std::numeric_limits<v_f32_4::ValueType>::round_error(),
-                    NotANumber<v_f32_4::ValueType>()
+                    std::numeric_limits<T>::denorm_min(),
+                    -std::numeric_limits<T>::denorm_min(),
+                    std::numeric_limits<T>::epsilon(),
+                    -std::numeric_limits<T>::epsilon(),
+                    std::numeric_limits<T>::round_error(),
+                    -std::numeric_limits<T>::round_error(),
+                    NotANumber<T>()
                 };
             }
 
@@ -65,13 +66,41 @@ namespace vectorization
             static const std::array<T, Size> ofArrayType();
 
             template <>
-            static const std::array<v_f32_4::ValueType, v_f32_4::SIZE> ofArrayType() {
+            static const std::array<Float_32, VectorSizes::W> ofArrayType() {
+                return { 0.0f, 1.0f, 2.0f, Infinity<Float_32>() };
+            }
+
+            template <>
+            static const std::array<Float_32, VectorSizes::X8> ofArrayType() {
                 return {
-                    One<v_f32_4::ValueType>(),
-                    Two<v_f32_4::ValueType>(),
-                    OneHalf<v_f32_4::ValueType>(),
-                    Infinity<v_f32_4::ValueType>()
+                    0.0f, 1.0f, 2.0f, Infinity<Float_32>(),
+                    -0.0f, -1.0f, -2.0f, NegativeInfinity<Float_32>(),
                 };
+            }
+
+            template <>
+            static const std::array<Float_64, VectorSizes::Y> ofArrayType() {
+                return { 2.0f, Infinity<Float_64>() };
+            }
+
+            template <>
+            static const std::array<Float_64, VectorSizes::W> ofArrayType() {
+                return {
+                    0.0, 1.0, 2.0, Infinity<Float_64>(),
+                };
+            }
+
+            template <typename T>
+            static const T ofVectorTypeFromArray(std::array<typename T::ValueType, T::SIZE> sampleComponents);
+
+            template <>
+            static const v_f32_4 ofVectorTypeFromArray(std::array<v_f32_4::ValueType, v_f32_4::SIZE> sampleComponents) {
+                return v_f32_4(
+                    sampleComponents.at(VectorIndices::X),
+                    sampleComponents.at(VectorIndices::Y),
+                    sampleComponents.at(VectorIndices::Z),
+                    sampleComponents.at(VectorIndices::W)
+                );
             }
 
             template <typename T>
@@ -80,12 +109,7 @@ namespace vectorization
             template <>
             static const v_f32_4 ofVectorType() {
                 auto sampleComponents = StandardSample::ofArrayType<v_f32_4::ValueType, v_f32_4::SIZE>();
-                return v_f32_4(
-                    sampleComponents.at(VectorIndices::X),
-                    sampleComponents.at(VectorIndices::Y),
-                    sampleComponents.at(VectorIndices::Z),
-                    sampleComponents.at(VectorIndices::W)
-                );
+                return StandardSample::ofVectorTypeFromArray<v_f32_4>(sampleComponents);
             }
         };
     }

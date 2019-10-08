@@ -1,15 +1,4 @@
-#include "Compare.h"
-#include "MessageFormat.h"
-#include "StandardSample.h"
-
-#include <CppUnitTest.h>
-#include <vectorization.h>
-
-#include <algorithm>
-#include <array>
-#include <cmath>
-
-using namespace Microsoft::VisualStudio::CppUnitTestFramework;
+#include "vectorization_tests.h"
 
 namespace vectorization
 {
@@ -20,7 +9,7 @@ namespace vectorization
         public:
 
             TEST_METHOD(computesLog) {
-                auto test = StandardSample::importantFloatConstants();
+                auto test = StandardSample::importantFloatConstants<v_f32_4::ValueType>();
 
                 auto matchers = {
                     Compare::equalsOrdered<v_f32_4>, // Zero
@@ -82,7 +71,7 @@ namespace vectorization
             }
 
             TEST_METHOD(computesExp) {
-                auto test = StandardSample::importantFloatConstants();
+                auto test = StandardSample::importantFloatConstants<v_f32_4::ValueType>();
 
                 auto matchers = {
                     Compare::nearEqualsRelative<v_f32_4>, // Zero

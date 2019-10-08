@@ -1,7 +1,4 @@
-#include <CppUnitTest.h>
-#include <vectorization.h>
-
-using namespace Microsoft::VisualStudio::CppUnitTestFramework;
+#include "vectorization_tests.h"
 
 namespace vectorization
 {

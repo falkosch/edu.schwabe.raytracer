@@ -202,11 +202,13 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\ToString_specializations.h" />
     <ClInclude Include="include\ValueBits.h" />
     <ClInclude Include="include\Compare.h" />
     <ClInclude Include="include\Iterate.h" />
     <ClInclude Include="include\MessageFormat.h" />
     <ClInclude Include="include\StandardSample.h" />
+    <ClInclude Include="include\vectorization_tests.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
