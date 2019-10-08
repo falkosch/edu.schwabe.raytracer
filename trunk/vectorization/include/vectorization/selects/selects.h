@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../architecture/meta_bool_types.h"
+#include "../architecture.h"
 
 namespace vectorization
 {
@@ -47,9 +47,6 @@ namespace vectorization
 
     const PackedFloat4_128 select(const PackedFloat4_128 & mask, const PackedFloat4_128 & onTrue, const PackedFloat4_128 & onFalse) noexcept;
     const PackedFloat2_128 select(const PackedFloat2_128 & mask, const PackedFloat2_128 & onTrue, const PackedFloat2_128 & onFalse) noexcept;
-
-    const long select(const bool mask, const long onTrue, const long onFalse) noexcept;
-    const unsigned long select(const bool mask, const unsigned long onTrue, const unsigned long onFalse) noexcept;
 
     const Int_8 select(const bool mask, const Int_8 onTrue, const Int_8 onFalse) noexcept;
     const UInt_8 select(const bool mask, const UInt_8 onTrue, const UInt_8 onFalse) noexcept;

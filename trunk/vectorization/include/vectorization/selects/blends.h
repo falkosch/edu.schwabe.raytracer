@@ -2,6 +2,8 @@
 
 #include "../constants.h"
 
+#include "../architecture.h"
+
 #include <type_traits>
 
 namespace vectorization

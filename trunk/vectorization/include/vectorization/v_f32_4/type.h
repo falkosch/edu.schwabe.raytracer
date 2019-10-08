@@ -2,8 +2,9 @@
 
 #include "api.h"
 
-#include "../architecture/meta_types.h"
 #include "../v_i32_4.h"
+
+#include "../architecture.h"
 
 namespace vectorization
 {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../architecture/compiler_intrinsics.h"
+#include "../architecture.h"
 
 namespace vectorization
 {

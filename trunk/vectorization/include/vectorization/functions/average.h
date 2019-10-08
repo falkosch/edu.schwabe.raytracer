@@ -4,7 +4,7 @@
 
 #include "../constants/values/Zero.h"
 
-#include "../architecture/meta_types.h"
+#include "../architecture.h"
 
 namespace vectorization
 {

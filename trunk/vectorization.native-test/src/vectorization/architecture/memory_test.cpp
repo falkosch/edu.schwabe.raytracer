@@ -13,11 +13,11 @@ namespace vectorization
 
             static void testAlignedAllocation(const std::size_t expectedAlignment, void *& actualPtr) {
                 auto actualAddress = reinterpret_cast<std::size_t>(actualPtr);
-                Assert::AreNotEqual(Zero<std::size_t>(), actualAddress, L"invalid allocation", LINE_INFO());
-                Assert::AreEqual(Zero<std::size_t>(), actualAddress % expectedAlignment, L"allocation is not aligned", LINE_INFO());
+                Assert::AreNotEqual(std::size_t{ 0 }, actualAddress, L"invalid allocation", LINE_INFO());
+                Assert::AreEqual(std::size_t{ 0 }, actualAddress % expectedAlignment, L"allocation is not aligned", LINE_INFO());
 
                 vectorization::free(actualPtr);
-                Assert::AreEqual(Zero<std::size_t>(), reinterpret_cast<std::size_t>(actualPtr), L"allocation pointer is not reset", LINE_INFO());
+                Assert::AreEqual(std::size_t{ 0 }, reinterpret_cast<std::size_t>(actualPtr), L"allocation pointer is not reset", LINE_INFO());
             }
 
             static void testAlignedAllocation(const std::size_t expectedAlignment) {
