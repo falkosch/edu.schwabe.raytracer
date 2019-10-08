@@ -173,6 +173,11 @@
     <ClInclude Include="include\primitives\FacetEdges.h" />
     <ClInclude Include="include\primitives.h" />
     <ClInclude Include="include\primitives\SplittingPlane.h" />
+    <ClInclude Include="include\vectorization\accessors.h" />
+    <ClInclude Include="include\vectorization\accessors\component_128s.h" />
+    <ClInclude Include="include\vectorization\accessors\component_256s.h" />
+    <ClInclude Include="include\vectorization\accessors\replaceComponent_128s.h" />
+    <ClInclude Include="include\vectorization\accessors\replaceComponent_256s.h" />
     <ClInclude Include="include\vectorization\architecture\memory.h" />
     <ClInclude Include="include\vectorization\constants\masks\MaskAll.h" />
     <ClInclude Include="include\vectorization\constants\masks\MaskNone.h" />
@@ -265,6 +270,8 @@
     <ClInclude Include="include\vectorization\api_type_definitions.h" />
     <ClInclude Include="include\vectorization\selects\blends.h" />
     <ClInclude Include="include\vectorization\selects\selects.h" />
+    <ClInclude Include="include\vectorization\swizzles.h" />
+    <ClInclude Include="include\vectorization\swizzles\swizzle_128s.h" />
     <ClInclude Include="include\vectorization\v_f32_4.h" />
     <ClInclude Include="include\vectorization\v_f32_4x4.h" />
     <ClInclude Include="include\vectorization\v_f32_4\accessors.h" />
@@ -280,10 +287,21 @@
     <ClInclude Include="include\vectorization\v_f32_4\swizzles.h" />
     <ClInclude Include="include\vectorization\v_f32_4\type.h" />
     <ClInclude Include="include\vectorization\v_i32_4.h" />
+    <ClInclude Include="include\vectorization\swizzles\swizzle_256d.h" />
+    <ClInclude Include="include\vectorization\accessors\component_128d.h" />
+    <ClInclude Include="include\vectorization\accessors\component_256d.h" />
+    <ClInclude Include="include\vectorization\accessors\replaceComponent_128d.h" />
+    <ClInclude Include="include\vectorization\accessors\replaceComponent_256d.h" />
     <ClInclude Include="include\vectorization\v_ui32_4.h" />
     <ClInclude Include="include\vectorization\v_ui64_2.h" />
+    <ClInclude Include="include\vectorization\swizzles\swizzle_128d.h" />
+    <ClInclude Include="include\vectorization\swizzles\swizzle_256s.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\vectorization\accessors\replaceComponent_256d.cpp" />
+    <ClCompile Include="src\vectorization\accessors\replaceComponent_128d.cpp" />
+    <ClCompile Include="src\vectorization\accessors\component_256d.cpp" />
+    <ClCompile Include="src\vectorization\accessors\component_128d.cpp" />
     <ClCompile Include="src\primitives\AxisAlignedBoundingBox.cpp" />
     <ClCompile Include="src\primitives\BoundingSphere.cpp" />
     <ClCompile Include="src\primitives\Facet.cpp" />
@@ -291,6 +309,10 @@
     <ClCompile Include="src\primitives\Ray.cpp" />
     <ClCompile Include="src\primitives\Raycast.cpp" />
     <ClCompile Include="src\primitives\SplittingPlane.cpp" />
+    <ClCompile Include="src\vectorization\accessors\component_128s.cpp" />
+    <ClCompile Include="src\vectorization\accessors\component_256s.cpp" />
+    <ClCompile Include="src\vectorization\accessors\replaceComponent_128s.cpp" />
+    <ClCompile Include="src\vectorization\accessors\replaceComponent_256s.cpp" />
     <ClCompile Include="src\vectorization\architecture\compiler_intrinsics.cpp" />
     <ClCompile Include="src\vectorization\architecture\memory.cpp" />
     <ClCompile Include="src\vectorization\constants\masks\MaskNone.cpp" />
@@ -365,6 +387,10 @@
     <ClCompile Include="src\vectorization\m_f32_4x4.cpp" />
     <ClCompile Include="src\vectorization\selects\blends.cpp" />
     <ClCompile Include="src\vectorization\selects\selects.cpp" />
+    <ClCompile Include="src\vectorization\swizzles\swizzle_128d.cpp" />
+    <ClCompile Include="src\vectorization\swizzles\swizzle_128s.cpp" />
+    <ClCompile Include="src\vectorization\swizzles\swizzle_256d.cpp" />
+    <ClCompile Include="src\vectorization\swizzles\swizzle_256s.cpp" />
     <ClCompile Include="src\vectorization\v_f32_4x4.cpp" />
     <ClCompile Include="src\vectorization\v_f32_4\functions.cpp" />
     <ClCompile Include="src\vectorization\v_f32_4\functions_trigonometry.cpp" />

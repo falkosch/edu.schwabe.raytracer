@@ -2,6 +2,10 @@
 
 #include "vectorization/architecture.h"
 
+#include "vectorization/swizzles.h"
+
+#include "vectorization/accessors.h"
+
 #include "vectorization/constants.h"
 
 #include "vectorization/selects.h"

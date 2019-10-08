@@ -366,6 +366,48 @@
     <ClInclude Include="include\vectorization\constants\masks\MaskNone.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
+    <ClInclude Include="include\vectorization\accessors.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vectorization\swizzles.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vectorization\swizzles\swizzle_128s.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vectorization\swizzles\swizzle_128d.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vectorization\swizzles\swizzle_256d.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vectorization\swizzles\swizzle_256s.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vectorization\accessors\component_128d.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vectorization\accessors\component_128s.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vectorization\accessors\component_256s.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vectorization\accessors\component_256d.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vectorization\accessors\replaceComponent_128s.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vectorization\accessors\replaceComponent_256s.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vectorization\accessors\replaceComponent_128d.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vectorization\accessors\replaceComponent_256d.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\vectorization\m_f32_4x4.cpp">
@@ -657,6 +699,42 @@
       <Filter>Quelldateien</Filter>
     </ClCompile>
     <ClCompile Include="src\vectorization\v_f32_4\functions.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vectorization\swizzles\swizzle_128s.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vectorization\swizzles\swizzle_128d.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vectorization\accessors\component_128s.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vectorization\accessors\component_128d.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vectorization\accessors\component_256s.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vectorization\accessors\component_256d.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vectorization\accessors\replaceComponent_128s.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vectorization\accessors\replaceComponent_256s.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vectorization\accessors\replaceComponent_128d.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vectorization\accessors\replaceComponent_256d.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vectorization\swizzles\swizzle_256d.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vectorization\swizzles\swizzle_256s.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
   </ItemGroup>
