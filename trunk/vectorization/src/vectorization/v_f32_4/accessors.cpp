@@ -76,23 +76,7 @@ namespace vectorization
         return replaceComponent<VectorIndices::W>(v, s);
     }
 
-    template <>
-    void setComponent<VectorIndices::X>(v_f32_4 & v, const v_f32_4::ValueType s) noexcept {
-        v.components = replaceComponent<VectorIndices::X>(v, s).components;
-    }
 
-    template <>
-    void setComponent<VectorIndices::Y>(v_f32_4 & v, const v_f32_4::ValueType s) noexcept {
-        v.components = replaceComponent<VectorIndices::Y>(v, s).components;
-    }
 
-    template <>
-    void setComponent<VectorIndices::Z>(v_f32_4 & v, const v_f32_4::ValueType s) noexcept {
-        v.components = replaceComponent<VectorIndices::Z>(v, s).components;
-    }
 
-    template <>
-    void setComponent<VectorIndices::W>(v_f32_4 & v, const v_f32_4::ValueType s) noexcept {
-        v.components = replaceComponent<VectorIndices::W>(v, s).components;
-    }
 }

@@ -83,48 +83,6 @@ namespace vectorization
     //}
 #pragma endregion
 
-#pragma region setRow()
-    //{ setRow()
-
-    template <ASizeT RowIndex>
-    void setRow(m_f32_4x4 & m, const m_f32_4x4::RowVectorType & v) noexcept;
-
-    template <>
-    void setRow<VectorIndices::X>(m_f32_4x4 & m, const m_f32_4x4::RowVectorType & v) noexcept;
-
-    template <>
-    void setRow<VectorIndices::Y>(m_f32_4x4 & m, const m_f32_4x4::RowVectorType & v) noexcept;
-
-    template <>
-    void setRow<VectorIndices::Z>(m_f32_4x4 & m, const m_f32_4x4::RowVectorType & v) noexcept;
-
-    template <>
-    void setRow<VectorIndices::W>(m_f32_4x4 & m, const m_f32_4x4::RowVectorType & v) noexcept;
-
-    //}
-#pragma endregion
-
-#pragma region setColumn()
-    //{ setColumn()
-
-    template <ASizeT ColumnIndex>
-    void setColumn(m_f32_4x4 & m, const m_f32_4x4::ColumnVectorType & v) noexcept;
-
-    template <>
-    void setColumn<VectorIndices::X>(m_f32_4x4 & m, const m_f32_4x4::ColumnVectorType & v) noexcept;
-
-    template <>
-    void setColumn<VectorIndices::Y>(m_f32_4x4 & m, const m_f32_4x4::ColumnVectorType & v) noexcept;
-
-    template <>
-    void setColumn<VectorIndices::Z>(m_f32_4x4 & m, const m_f32_4x4::ColumnVectorType & v) noexcept;
-
-    template <>
-    void setColumn<VectorIndices::W>(m_f32_4x4 & m, const m_f32_4x4::ColumnVectorType & v) noexcept;
-
-    //}
-#pragma endregion
-
 #pragma region row()
     //{ row()
 

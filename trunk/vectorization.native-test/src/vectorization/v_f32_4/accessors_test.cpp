@@ -116,46 +116,6 @@ namespace vectorization
                     Assert::AreEqual(expectedReplacement, w(actualW));
                 }
             }
-
-            TEST_METHOD(setsComponent) {
-                auto expectedReplacement = 5.0f;
-
-                {
-                    auto givenMutableX = sampleVector();
-                    setComponent<VectorIndices::X>(givenMutableX, expectedReplacement);
-                    Assert::AreEqual(expectedReplacement, x(givenMutableX));
-                    Assert::AreNotEqual(expectedReplacement, y(givenMutableX));
-                    Assert::AreNotEqual(expectedReplacement, z(givenMutableX));
-                    Assert::AreNotEqual(expectedReplacement, w(givenMutableX));
-                }
-
-                {
-                    auto givenMutableY = sampleVector();
-                    setComponent<VectorIndices::Y>(givenMutableY, expectedReplacement);
-                    Assert::AreNotEqual(expectedReplacement, x(givenMutableY));
-                    Assert::AreEqual(expectedReplacement, y(givenMutableY));
-                    Assert::AreNotEqual(expectedReplacement, z(givenMutableY));
-                    Assert::AreNotEqual(expectedReplacement, w(givenMutableY));
-                }
-
-                {
-                    auto givenMutableZ = sampleVector();
-                    setComponent<VectorIndices::Z>(givenMutableZ, expectedReplacement);
-                    Assert::AreNotEqual(expectedReplacement, x(givenMutableZ));
-                    Assert::AreNotEqual(expectedReplacement, y(givenMutableZ));
-                    Assert::AreEqual(expectedReplacement, z(givenMutableZ));
-                    Assert::AreNotEqual(expectedReplacement, w(givenMutableZ));
-                }
-
-                {
-                    auto givenMutableW = sampleVector();
-                    setComponent<VectorIndices::W>(givenMutableW, expectedReplacement);
-                    Assert::AreNotEqual(expectedReplacement, x(givenMutableW));
-                    Assert::AreNotEqual(expectedReplacement, y(givenMutableW));
-                    Assert::AreNotEqual(expectedReplacement, z(givenMutableW));
-                    Assert::AreEqual(expectedReplacement, w(givenMutableW));
-                }
-            }
         };
     }
 }

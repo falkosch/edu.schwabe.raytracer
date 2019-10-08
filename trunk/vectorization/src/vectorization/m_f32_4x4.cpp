@@ -141,70 +141,6 @@ namespace vectorization
     //}
 #pragma endregion
 
-#pragma region setRow()
-    //{ setRow()
-
-    template <>
-    void setRow<VectorIndices::X>(m_f32_4x4 & m, const m_f32_4x4::RowVectorType & v) noexcept {
-        m.row0 = v;
-    }
-
-    template <>
-    void setRow<VectorIndices::Y>(m_f32_4x4 & m, const m_f32_4x4::RowVectorType & v) noexcept {
-        m.row1 = v;
-    }
-
-    template <>
-    void setRow<VectorIndices::Z>(m_f32_4x4 & m, const m_f32_4x4::RowVectorType & v) noexcept {
-        m.row2 = v;
-    }
-
-    template <>
-    void setRow<VectorIndices::W>(m_f32_4x4 & m, const m_f32_4x4::RowVectorType & v) noexcept {
-        m.row3 = v;
-    }
-
-    //}
-#pragma endregion
-
-#pragma region setColumn()
-    //{ setColumn()
-
-    template <>
-    void setColumn<VectorIndices::X>(m_f32_4x4 & m, const m_f32_4x4::ColumnVectorType & v) noexcept {
-        setComponent<VectorIndices::X>(m.row0, x(v));
-        setComponent<VectorIndices::X>(m.row1, y(v));
-        setComponent<VectorIndices::X>(m.row2, z(v));
-        setComponent<VectorIndices::X>(m.row3, w(v));
-    }
-
-    template <>
-    void setColumn<VectorIndices::Y>(m_f32_4x4 & m, const m_f32_4x4::ColumnVectorType & v) noexcept {
-        setComponent<VectorIndices::Y>(m.row0, x(v));
-        setComponent<VectorIndices::Y>(m.row1, y(v));
-        setComponent<VectorIndices::Y>(m.row2, z(v));
-        setComponent<VectorIndices::Y>(m.row3, w(v));
-    }
-
-    template <>
-    void setColumn<VectorIndices::Z>(m_f32_4x4 & m, const m_f32_4x4::ColumnVectorType & v) noexcept {
-        setComponent<VectorIndices::Z>(m.row0, x(v));
-        setComponent<VectorIndices::Z>(m.row1, y(v));
-        setComponent<VectorIndices::Z>(m.row2, z(v));
-        setComponent<VectorIndices::Z>(m.row3, w(v));
-    }
-
-    template <>
-    void setColumn<VectorIndices::W>(m_f32_4x4 & m, const m_f32_4x4::ColumnVectorType & v) noexcept {
-        setComponent<VectorIndices::W>(m.row0, x(v));
-        setComponent<VectorIndices::W>(m.row1, y(v));
-        setComponent<VectorIndices::W>(m.row2, z(v));
-        setComponent<VectorIndices::W>(m.row3, w(v));
-    }
-
-    //}
-#pragma endregion
-
 #pragma region row()
     //{ row()
 
@@ -412,10 +348,13 @@ namespace vectorization
     //{ translate()
 
     const m_f32_4x4 translate(const m_f32_4x4 & m, const m_f32_4x4::RowVectorType & translation) noexcept {
-        // adapted from glm::detail::tmat4x4<T>.translate(...)
-        m_f32_4x4 t = m;
-        setColumn<VectorIndices::W>(t, transpose(m) * oneW(translation));
-        return t;
+        const auto transformedTranslation = transpose(m) * oneW(translation);
+        return m_f32_4x4(
+            replaceW(m.row0, x(transformedTranslation)),
+            replaceW(m.row1, y(transformedTranslation)),
+            replaceW(m.row2, z(transformedTranslation)),
+            replaceW(m.row3, w(transformedTranslation))
+        );
     }
 
     //}
@@ -425,12 +364,15 @@ namespace vectorization
     //{ scale()
 
     const m_f32_4x4 scale(const m_f32_4x4 & m, const m_f32_4x4::RowVectorType & scale) noexcept {
-        // adapted from glm::detail::tmat4x4<T>.scale(...)
-        m_f32_4x4 t = transpose(m);
-        setRow<VectorIndices::X>(t, row<VectorIndices::X>(t) * x(scale));
-        setRow<VectorIndices::Y>(t, row<VectorIndices::Y>(t) * y(scale));
-        setRow<VectorIndices::Z>(t, row<VectorIndices::Z>(t) * z(scale));
-        return transpose(t);
+        const auto transposedM = transpose(m);
+        return transpose(
+            m_f32_4x4(
+                row<VectorIndices::X>(transposedM) * xxxx(scale),
+                row<VectorIndices::Y>(transposedM) * yyyy(scale),
+                row<VectorIndices::Z>(transposedM) * zzzz(scale),
+                row<VectorIndices::W>(transposedM)
+            )
+        );
     }
 
     //}
@@ -455,11 +397,14 @@ namespace vectorization
         const RV Z = zzzz(temp) * axis + yzxw(rot) * yxwz(axis);
 
         const m_f32_4x4 mt = transpose(m);
-        m_f32_4x4 t = m_f32_4x4(row<VectorIndices::W>(mt));
-        setRow<VectorIndices::X>(t, row<VectorIndices::X>(mt) * xxxx(X) + row<VectorIndices::Y>(mt) * yyyy(X) + row<VectorIndices::Z>(mt) * zzzz(X));
-        setRow<VectorIndices::Y>(t, row<VectorIndices::X>(mt) * xxxx(Y) + row<VectorIndices::Y>(mt) * yyyy(Y) + row<VectorIndices::Z>(mt) * zzzz(Y));
-        setRow<VectorIndices::Z>(t, row<VectorIndices::X>(mt) * xxxx(Z) + row<VectorIndices::Y>(mt) * yyyy(Z) + row<VectorIndices::Z>(mt) * zzzz(Z));
-        return transpose(t);
+        return transpose(
+            m_f32_4x4(
+                row<VectorIndices::X>(mt) * xxxx(X) + row<VectorIndices::Y>(mt) * yyyy(X) + row<VectorIndices::Z>(mt) * zzzz(X),
+                row<VectorIndices::X>(mt) * xxxx(Y) + row<VectorIndices::Y>(mt) * yyyy(Y) + row<VectorIndices::Z>(mt) * zzzz(Y),
+                row<VectorIndices::X>(mt) * xxxx(Z) + row<VectorIndices::Y>(mt) * yyyy(Z) + row<VectorIndices::Z>(mt) * zzzz(Z),
+                row<VectorIndices::W>(mt)
+            )
+        );
     }
 
     //}
