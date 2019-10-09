@@ -182,6 +182,10 @@
     <ClCompile Include="src\vectorization\accessors\component_128s_test.cpp" />
     <ClCompile Include="src\vectorization\accessors\component_256d_test.cpp" />
     <ClCompile Include="src\vectorization\accessors\component_256s_test.cpp" />
+    <ClCompile Include="src\vectorization\accessors\replaceComponent_128d_test.cpp" />
+    <ClCompile Include="src\vectorization\accessors\replaceComponent_128s_test.cpp" />
+    <ClCompile Include="src\vectorization\accessors\replaceComponent_256d_test.cpp" />
+    <ClCompile Include="src\vectorization\accessors\replaceComponent_256s_test.cpp" />
     <ClCompile Include="src\vectorization\architecture\compiler_definitions_test.cpp" />
     <ClCompile Include="src\vectorization\architecture\compiler_intrinsics_test.cpp" />
     <ClCompile Include="src\vectorization\architecture\memory_test.cpp" />

@@ -78,6 +78,18 @@
     <ClCompile Include="src\vectorization\accessors\component_256s_test.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="src\vectorization\accessors\replaceComponent_128d_test.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vectorization\accessors\replaceComponent_128s_test.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vectorization\accessors\replaceComponent_256d_test.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vectorization\accessors\replaceComponent_256s_test.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Compare.h">
