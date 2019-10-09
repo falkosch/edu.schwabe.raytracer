@@ -28,14 +28,14 @@ namespace vectorization
 
                 {
                     std::array<Float_32, VectorSizes::X8> actual{
+                        component<VectorIndices::X8>(givenPack),
                         component<VectorIndices::X1>(givenPack),
                         component<VectorIndices::X2>(givenPack),
                         component<VectorIndices::X3>(givenPack),
                         component<VectorIndices::X4>(givenPack),
                         component<VectorIndices::X5>(givenPack),
                         component<VectorIndices::X6>(givenPack),
-                        component<VectorIndices::X7>(givenPack),
-                        component<VectorIndices::X8>(givenPack)
+                        component<VectorIndices::X7>(givenPack)
                     };
                     Assert::AreNotEqual(expectedComponents, actual, L"wrong component match", LINE_INFO());
                 }
