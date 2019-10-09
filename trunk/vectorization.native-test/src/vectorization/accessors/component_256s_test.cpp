@@ -44,11 +44,10 @@ namespace vectorization
             TEST_METHOD(readsXYZW) {
                 auto given = StandardSample::ofArrayType<Float_32, VectorSizes::X8>();
                 auto givenPack = _mm256_load_ps(given.data());
-                auto expectedComponents = std::array<Float_32, VectorSizes::W>();
-                std::copy(given.cbegin(), given.cbegin() + VectorSizes::W, expectedComponents.begin());
+                auto expectedComponents = std::vector<Float_32>(given.cbegin(), given.cbegin() + VectorSizes::W);
 
                 {
-                    std::array<Float_32, VectorSizes::W> actual{
+                    std::vector<Float_32> actual{
                         x(givenPack),
                         y(givenPack),
                         z(givenPack),
@@ -58,7 +57,7 @@ namespace vectorization
                 }
 
                 {
-                    std::array<Float_32, VectorSizes::W> actual{
+                    std::vector<Float_32> actual{
                         w(givenPack),
                         x(givenPack),
                         y(givenPack),

@@ -18,3 +18,4 @@ using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 #include <array>
 #include <bitset>
 #include <cmath>
+#include <vector>

@@ -3,6 +3,8 @@
 #include <CppUnitTest.h>
 #include <vectorization.h>
 
+#include <vector>
+
 namespace Microsoft
 {
     namespace VisualStudio
@@ -53,6 +55,36 @@ namespace Microsoft
                     << t.at(vectorization::VectorIndices::Z) << ","
                     << t.at(vectorization::VectorIndices::W) << "]"
                 );
+            }
+
+            template<> inline std::wstring ToString<
+                std::vector<vectorization::Float_32>
+            >(const std::vector<vectorization::Float_32> & t) {
+                auto _s = std::wstringstream{} << "[";
+                for (auto iter{ t.cbegin() }; iter < t.cend(); iter++) {
+                    if (iter == t.cbegin()) {
+                        _s << *iter;
+                    } else {
+                        _s << "," << *iter;
+                    }
+                }
+                _s << "]";
+                return _s.str();
+            }
+
+            template<> inline std::wstring ToString<
+                std::vector<vectorization::Float_64>
+            >(const std::vector<vectorization::Float_64> & t) {
+                auto _s = std::wstringstream{} << "[";
+                for (auto iter{ t.cbegin() }; iter < t.cend(); iter++) {
+                    if (iter == t.cbegin()) {
+                        _s << *iter;
+                    } else {
+                        _s << "," << *iter;
+                    }
+                }
+                _s << "]";
+                return _s.str();
             }
         }
     }
