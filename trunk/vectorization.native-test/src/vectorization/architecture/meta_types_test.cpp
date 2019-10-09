@@ -25,6 +25,11 @@ namespace vectorization
                 Assert::IsTrue(VectorSizes::X6 < VectorSizes::X7, L"Bad vector size", LINE_INFO());
                 Assert::IsTrue(VectorSizes::X7 < VectorSizes::X8, L"Bad vector size", LINE_INFO());
                 Assert::IsTrue(VectorSizes::X8 < VectorSizes::AboveX8, L"Bad vector size", LINE_INFO());
+
+                Assert::AreEqual(VectorSizes::X, VectorSizes::X1, L"Bad vector size", LINE_INFO());
+                Assert::AreEqual(VectorSizes::Y, VectorSizes::X2, L"Bad vector size", LINE_INFO());
+                Assert::AreEqual(VectorSizes::Z, VectorSizes::X3, L"Bad vector size", LINE_INFO());
+                Assert::AreEqual(VectorSizes::W, VectorSizes::X4, L"Bad vector size", LINE_INFO());
             }
 
             TEST_METHOD(hasVectorIndices) {
@@ -43,6 +48,11 @@ namespace vectorization
                 Assert::IsTrue(VectorIndices::X6 < VectorIndices::X7, L"Bad vector index", LINE_INFO());
                 Assert::IsTrue(VectorIndices::X7 < VectorIndices::X8, L"Bad vector index", LINE_INFO());
                 Assert::IsTrue(VectorIndices::X8 < VectorIndices::AboveX8, L"Bad vector index", LINE_INFO());
+
+                Assert::AreEqual(VectorIndices::X, VectorIndices::X1, L"Bad vector index", LINE_INFO());
+                Assert::AreEqual(VectorIndices::Y, VectorIndices::X2, L"Bad vector index", LINE_INFO());
+                Assert::AreEqual(VectorIndices::Z, VectorIndices::X3, L"Bad vector index", LINE_INFO());
+                Assert::AreEqual(VectorIndices::W, VectorIndices::X4, L"Bad vector index", LINE_INFO());
             }
 
             TEST_METHOD(hasVectorBits) {
@@ -62,6 +72,11 @@ namespace vectorization
                 Assert::IsTrue(VectorBits::X6 < VectorBits::X7, L"Bad vector bit mask", LINE_INFO());
                 Assert::IsTrue(VectorBits::X7 < VectorBits::X8, L"Bad vector bit mask", LINE_INFO());
                 Assert::IsTrue(VectorBits::X8 < VectorBits::AboveX8, L"Bad vector bit mask", LINE_INFO());
+
+                Assert::AreEqual(VectorBits::X, VectorBits::X1, L"Bad vector bit mask", LINE_INFO());
+                Assert::AreEqual(VectorBits::Y, VectorBits::X2, L"Bad vector bit mask", LINE_INFO());
+                Assert::AreEqual(VectorBits::Z, VectorBits::X3, L"Bad vector bit mask", LINE_INFO());
+                Assert::AreEqual(VectorBits::W, VectorBits::X4, L"Bad vector bit mask", LINE_INFO());
             }
 
             TEST_METHOD(definesPackedTypesForInt_8) {
