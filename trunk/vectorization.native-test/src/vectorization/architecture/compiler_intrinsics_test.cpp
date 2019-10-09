@@ -68,21 +68,15 @@ namespace vectorization
                 );
             }
 
-            TEST_METHOD(convertsUnsignedIntegersToFloats) {
-                auto givenValues = std::array<vectorization::UInt_32, 5>({ 0, 1, 2, 3, 4 });
+            TEST_METHOD(convertsPackedUInt_32ToFloat32) {
+                std::array<UInt_32, VectorSizes::W> given{ 0, 1, 2, 3 };
+                std::array<Float_32, VectorSizes::W> expected{ 0.0f, 1.0f, 2.0f, 3.0f };
+                std::array<Float_32, VectorSizes::W> actual{};
 
-                for (auto givenValue : givenValues) {
-                    auto expected = vectorization::convert<vectorization::Float_32>(givenValue);
-                    auto expectedVector = vectorization::v_f32_4(expected);
-                    auto givenVector = vectorization::v_ui32_4(givenValue);
-                    auto actualVector = vectorization::_mm_cvtepu32_ps(givenVector);
+                auto givenPacked = _mm_load_si128(reinterpret_cast<PackedInts_128 *>(given.data()));
+                _mm_store_ps(actual.data(), _mm_cvtepu32_ps(givenPacked));
 
-                    Assert::IsTrue(
-                        vectorization::allTrue(expectedVector == actualVector),
-                        L"Conversion error in _mm_cvtepu32_ps",
-                        LINE_INFO()
-                    );
-                }
+                Assert::AreEqual(expected, actual, L"conversion mismatch", LINE_INFO());
             }
         };
     }

@@ -16,16 +16,14 @@ namespace vectorization
                 std::array<Float_64, VectorSizes::Y> actual{};
 
                 {
-                    std::copy(given.cbegin(), given.cend(), expected.begin());
-                    expected.at(VectorIndices::X) = expectedReplacement;
+                    Mutate::copyAndReplaceAt<VectorIndices::X>(given.cbegin(), given.cend(), expected.begin(), expectedReplacement);
                     _mm_store_pd(actual.data(), replaceComponent<VectorIndices::X>(givenPack, expectedReplacement));
                     Assert::AreNotEqual(given, actual, L"wrong replace component match", LINE_INFO());
                     Assert::AreEqual(expected, actual, L"replace component mismatch", LINE_INFO());
                 }
 
                 {
-                    std::copy(given.cbegin(), given.cend(), expected.begin());
-                    expected.at(VectorIndices::Y) = expectedReplacement;
+                    Mutate::copyAndReplaceAt<VectorIndices::Y>(given.cbegin(), given.cend(), expected.begin(), expectedReplacement);
                     _mm_store_pd(actual.data(), replaceComponent<VectorIndices::Y>(givenPack, expectedReplacement));
                     Assert::AreNotEqual(given, actual, L"wrong replace component match", LINE_INFO());
                     Assert::AreEqual(expected, actual, L"replace component mismatch", LINE_INFO());
@@ -40,16 +38,14 @@ namespace vectorization
                 std::array<Float_64, VectorSizes::Y> actual{};
 
                 {
-                    std::copy(given.cbegin(), given.cend(), expected.begin());
-                    expected.at(VectorIndices::X) = expectedReplacement;
+                    Mutate::copyAndReplaceAt<VectorIndices::X>(given.cbegin(), given.cend(), expected.begin(), expectedReplacement);
                     _mm_store_pd(actual.data(), replaceX(givenPack, expectedReplacement));
                     Assert::AreNotEqual(given, actual, L"wrong replace component match", LINE_INFO());
                     Assert::AreEqual(expected, actual, L"replace component mismatch", LINE_INFO());
                 }
 
                 {
-                    std::copy(given.cbegin(), given.cend(), expected.begin());
-                    expected.at(VectorIndices::Y) = expectedReplacement;
+                    Mutate::copyAndReplaceAt<VectorIndices::Y>(given.cbegin(), given.cend(), expected.begin(), expectedReplacement);
                     _mm_store_pd(actual.data(), replaceY(givenPack, expectedReplacement));
                     Assert::AreNotEqual(given, actual, L"wrong replace component match", LINE_INFO());
                     Assert::AreEqual(expected, actual, L"replace component mismatch", LINE_INFO());
@@ -64,16 +60,14 @@ namespace vectorization
                 std::array<Float_64, VectorSizes::X2> actual{};
 
                 {
-                    std::copy(given.cbegin(), given.cend(), expected.begin());
-                    expected.at(VectorIndices::X1) = expectedReplacement;
+                    Mutate::copyAndReplaceAt<VectorIndices::X1>(given.cbegin(), given.cend(), expected.begin(), expectedReplacement);
                     _mm_store_pd(actual.data(), replaceX1(givenPack, expectedReplacement));
                     Assert::AreNotEqual(given, actual, L"wrong replace component match", LINE_INFO());
                     Assert::AreEqual(expected, actual, L"replace component mismatch", LINE_INFO());
                 }
 
                 {
-                    std::copy(given.cbegin(), given.cend(), expected.begin());
-                    expected.at(VectorIndices::X2) = expectedReplacement;
+                    Mutate::copyAndReplaceAt<VectorIndices::X2>(given.cbegin(), given.cend(), expected.begin(), expectedReplacement);
                     _mm_store_pd(actual.data(), replaceX2(givenPack, expectedReplacement));
                     Assert::AreNotEqual(given, actual, L"wrong replace component match", LINE_INFO());
                     Assert::AreEqual(expected, actual, L"replace component mismatch", LINE_INFO());

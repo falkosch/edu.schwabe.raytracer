@@ -210,6 +210,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\Mutate.h" />
     <ClInclude Include="include\ToString_specializations.h" />
     <ClInclude Include="include\ValueBits.h" />
     <ClInclude Include="include\Compare.h" />

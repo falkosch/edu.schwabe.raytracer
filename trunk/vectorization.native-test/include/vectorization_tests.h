@@ -3,6 +3,7 @@
 #include "ToString_specializations.h"
 
 #include "Compare.h"
+#include "Mutate.h"
 #include "MessageFormat.h"
 #include "StandardSample.h"
 #include "ValueBits.h"
@@ -18,4 +19,7 @@ using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 #include <array>
 #include <bitset>
 #include <cmath>
+#include <functional>
+#include <ostream>
+#include <string>
 #include <vector>
