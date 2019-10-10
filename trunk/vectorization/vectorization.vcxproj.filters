@@ -90,9 +90,6 @@
     <ClInclude Include="include\vectorization\architecture\memory.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="include\vectorization\architecture\compiler_types.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
     <ClInclude Include="include\vectorization\architecture.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>

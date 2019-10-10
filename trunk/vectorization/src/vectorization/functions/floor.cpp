@@ -1,6 +1,6 @@
 #include "vectorization/functions/floor.h"
 
-#include "vectorization/constants/values/Zero.h"
+#include "vectorization/constants.h"
 
 namespace vectorization
 {

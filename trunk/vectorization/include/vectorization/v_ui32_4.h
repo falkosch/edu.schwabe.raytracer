@@ -33,14 +33,6 @@ namespace vectorization
 
         ALIGNED_ALLOCATORS(__alignof(PackedType));
 
-        operator const PackedType() noexcept {
-            return components;
-        }
-
-        operator const PackedType() const noexcept {
-            return components;
-        }
-
         v_ui32_4 & operator=(const PackedType & v) noexcept;
 
         ValueType & operator[](const int index) noexcept;

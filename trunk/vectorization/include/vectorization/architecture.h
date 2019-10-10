@@ -3,8 +3,6 @@
 #include "architecture/compiler_definitions.h"
 
 #include "architecture/compiler_intrinsics.h"
-
-#include "architecture/compiler_types.h"
 #include "architecture/memory.h"
 
 #include "architecture/meta_types.h"

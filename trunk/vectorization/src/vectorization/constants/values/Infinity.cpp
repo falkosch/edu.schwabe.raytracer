@@ -1,6 +1,6 @@
 #include "vectorization/constants/values/Infinity.h"
 
-#include "vectorization/constants/masks/MaskAll.h"
+#include "vectorization/constants/masks.h"
 
 namespace vectorization
 {

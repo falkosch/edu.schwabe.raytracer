@@ -1,6 +1,6 @@
 #include "vectorization/constants/values/One.h"
 
-#include "vectorization/constants/masks/MaskAll.h"
+#include "vectorization/constants/masks.h"
 
 namespace vectorization
 {

@@ -1,6 +1,6 @@
 #include "vectorization/accessors/component_128d.h"
 
-#include "vectorization/swizzles/swizzle_128d.h"
+#include "vectorization/swizzles.h"
 
 namespace vectorization
 {

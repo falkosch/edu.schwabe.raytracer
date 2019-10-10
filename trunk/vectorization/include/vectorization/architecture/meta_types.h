@@ -1,6 +1,6 @@
 #pragma once
 
-#include "compiler_types.h"
+#include "compiler_intrinsics.h"
 
 namespace vectorization
 {

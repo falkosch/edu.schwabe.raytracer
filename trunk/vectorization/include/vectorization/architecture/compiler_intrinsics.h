@@ -13,6 +13,7 @@
 #endif
 
 #include <cstdint>
+#include <cstddef>
 
 #define BLEND_MASK_INT4_32(X, Y, Z, W) ( \
         ((X & 1) << 0) \
@@ -27,6 +28,8 @@
 
 namespace vectorization
 {
+    typedef std::size_t ASizeT;
+
     typedef int8_t Int_8;
     typedef int16_t Int_16;
     typedef int32_t Int_32;
@@ -59,15 +62,15 @@ namespace vectorization
 
     const PackedFloat4_128 _mm_cvtepu32_ps(const PackedInts_128 v) noexcept;
 
-    const size_t __popcntx(const PackedInts_128 n) noexcept;
+    const ASizeT __popcntx(const PackedInts_128 n) noexcept;
 
-    const size_t __popcntx(const PackedFloat4_128 n) noexcept;
+    const ASizeT __popcntx(const PackedFloat4_128 n) noexcept;
 
-    const size_t __popcntx(const PackedFloat2_128 n) noexcept;
+    const ASizeT __popcntx(const PackedFloat2_128 n) noexcept;
 
-    const size_t __popcntx(const PackedInts_256 n) noexcept;
+    const ASizeT __popcntx(const PackedInts_256 n) noexcept;
 
-    const size_t __popcntx(const PackedFloat8_256 n) noexcept;
+    const ASizeT __popcntx(const PackedFloat8_256 n) noexcept;
 
-    const size_t __popcntx(const PackedFloat4_256 n) noexcept;
+    const ASizeT __popcntx(const PackedFloat4_256 n) noexcept;
 }

@@ -1,7 +1,6 @@
 #include "vectorization/functions/copysign.h"
 
-#include "vectorization/constants/values/NegativeZero.h"
-#include "vectorization/constants/values/One.h"
+#include "vectorization/constants.h"
 
 namespace vectorization
 {

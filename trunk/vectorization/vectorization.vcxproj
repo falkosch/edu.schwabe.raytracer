@@ -234,7 +234,6 @@
     <ClInclude Include="include\vectorization\architecture.h" />
     <ClInclude Include="include\vectorization\architecture\meta_packed_types.h" />
     <ClInclude Include="include\vectorization\architecture\meta_types.h" />
-    <ClInclude Include="include\vectorization\architecture\compiler_types.h" />
     <ClInclude Include="include\vectorization\functions.h" />
     <ClInclude Include="include\vectorization\architecture\compiler_intrinsics.h" />
     <ClInclude Include="include\vectorization\architecture\meta_bool_types.h" />

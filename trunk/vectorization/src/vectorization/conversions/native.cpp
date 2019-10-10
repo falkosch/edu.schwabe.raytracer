@@ -1,6 +1,6 @@
 #include "vectorization/conversions/native.h"
 
-#include "vectorization/constants/values/Zero.h"
+#include "vectorization/constants.h"
 
 namespace vectorization
 {

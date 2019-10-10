@@ -1,21 +1,19 @@
 #include "vectorization/v_f32_4/operators.h"
 
 #include "vectorization/v_f32_4/accessors.h"
-#include "vectorization/constants/masks/MaskAll.h"
-#include "vectorization/constants/values/NegativeZero.h"
-#include "vectorization/constants/values/Zero.h"
-#include "vectorization/functions/divide.h"
-#include "vectorization/functions/modulo.h"
+
+#include "vectorization/constants.h"
+#include "vectorization/functions.h"
 
 namespace vectorization
 {
     // http://fastcpp.blogspot.de/2011/03/changing-sign-of-float-values-using-sse.html
     const v_f32_4 operator-(const v_f32_4 & v) noexcept {
-        return _mm_xor_ps(v.components, NegativeZero<v_f32_4::PackedType>());
+        return _mm_xor_ps(NegativeZero<v_f32_4::PackedType>(), v.components);
     }
 
     const v_f32_4 operator~(const v_f32_4 & v) noexcept {
-        return _mm_andnot_ps(v.components, MaskAll<v_f32_4::PackedType>());
+        return _mm_xor_ps(MaskAll<v_f32_4::PackedType>(), v.components);
     }
 
     const v_f32_4::VectorBoolType operator!(const v_f32_4 & v) noexcept {

@@ -1,7 +1,5 @@
 #include "vectorization/constants/masks/MaskNone.h"
 
-#include "vectorization/constants/values/Zero.h"
-
 namespace vectorization
 {
     template <>

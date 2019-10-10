@@ -22,7 +22,7 @@ namespace vectorization
     const v_f32_4 log(const v_f32_4 & v) noexcept {
 #ifdef USE_THIRD_PARTY
 
-        return log_ps(v);
+        return log_ps(v.components);
 
 #else
 
@@ -56,7 +56,7 @@ namespace vectorization
     const v_f32_4 exp(const v_f32_4 & v) noexcept {
 #ifdef USE_THIRD_PARTY
 
-        return exp_ps(v);
+        return exp_ps(v.components);
 
 #else
 

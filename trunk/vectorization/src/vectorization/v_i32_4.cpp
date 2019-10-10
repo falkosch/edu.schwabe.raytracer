@@ -645,7 +645,7 @@ namespace vectorization
     }
 
     const v_i32_4 andnot(const v_i32_4 & a, const v_i32_4 & b) noexcept {
-        return _mm_andnot_si128(a, b);
+        return _mm_andnot_si128(a.components, b.components);
     }
 
     const v_i32_4::BoolType isNegative(const v_i32_4 & v) noexcept {
@@ -711,4 +711,4 @@ namespace vectorization
 
     //}
 #pragma endregion
-    }
+}

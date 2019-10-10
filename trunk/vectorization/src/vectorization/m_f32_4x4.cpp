@@ -1,7 +1,6 @@
 #include "vectorization/m_f32_4x4.h"
 
-#include "vectorization/functions/sin.h"
-#include "vectorization/functions/cos.h"
+#include "vectorization/functions.h"
 
 #include <array>
 #include <cassert>
@@ -130,7 +129,10 @@ namespace vectorization
         //            r_0213_1302,
         //            _MM_SHUFFLE(VectorIndices::W, VectorIndices::Y, VectorIndices::Z, VectorIndices::X)));
         //#else
-        return _mm_hadd_ps(_mm_hadd_ps(v * m.row0, v * m.row1), _mm_hadd_ps(v * m.row2, v * m.row3));
+        return _mm_hadd_ps(
+            _mm_hadd_ps((v * m.row0).components, (v * m.row1).components),
+            _mm_hadd_ps((v * m.row2).components, (v * m.row3).components)
+        );
         //#endif
     }
 

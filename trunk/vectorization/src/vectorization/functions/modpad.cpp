@@ -1,7 +1,8 @@
 #include "vectorization/functions/modpad.h"
 
-#include "vectorization/constants/values/One.h"
 #include "vectorization/functions/modulo.h"
+
+#include "vectorization/constants.h"
 
 namespace vectorization
 {

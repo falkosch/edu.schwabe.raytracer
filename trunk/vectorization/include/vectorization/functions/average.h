@@ -2,7 +2,7 @@
 
 #include "staticFor.h"
 
-#include "../constants/values/Zero.h"
+#include "../constants.h"
 
 #include "../architecture.h"
 

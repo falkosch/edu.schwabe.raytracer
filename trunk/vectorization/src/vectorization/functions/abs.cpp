@@ -1,8 +1,7 @@
 #include "vectorization/functions/abs.h"
 
-#include "vectorization/constants/values/Zero.h"
-#include "vectorization/constants/values/NegativeZero.h"
-#include "vectorization/selects/selects.h"
+#include "vectorization/constants.h"
+#include "vectorization/selects.h"
 
 namespace vectorization
 {

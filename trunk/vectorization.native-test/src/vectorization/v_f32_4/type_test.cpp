@@ -139,7 +139,7 @@ namespace vectorization
 
             TEST_METHOD(implcitlyConvertsFromAnyPackedType) {
                 auto expected = sampleVector();
-                v_f32_4::PackedType actual = expected;
+                v_f32_4::PackedType actual = expected.components;
                 v_f32_4 actual2 = actual;
 
                 Assert::AreEqual(x(expected), x(actual2), L"Ctor value mismatch", LINE_INFO());
@@ -151,7 +151,7 @@ namespace vectorization
             TEST_METHOD(implcitlyConvertsFromAnyConstPackedType) {
                 auto expected = sampleVector();
                 const v_f32_4 actual = expected;
-                const v_f32_4::PackedType actual2 = actual;
+                const v_f32_4::PackedType actual2 = actual.components;
                 v_f32_4 actual3 = actual2;
 
                 Assert::AreEqual(x(expected), x(actual3), L"Ctor value mismatch", LINE_INFO());

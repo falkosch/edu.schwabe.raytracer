@@ -1,6 +1,6 @@
 #include "vectorization/functions/reciprocal.h"
 
-#include "vectorization/constants/values/One.h"
+#include "vectorization/constants.h"
 
 namespace vectorization
 {
