@@ -2,6 +2,7 @@
 
 #include "vectorization/architecture.h"
 
+#include "vectorization/blends.h"
 #include "vectorization/swizzles.h"
 
 #include "vectorization/accessors.h"

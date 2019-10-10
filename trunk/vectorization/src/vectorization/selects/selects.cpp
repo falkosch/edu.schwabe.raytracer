@@ -1,6 +1,7 @@
 #include "vectorization/selects/selects.h"
 
-#include "vectorization/selects/blends.h"
+#include "vectorization/blends.h"
+#include "vectorization/constants.h"
 
 namespace vectorization
 {

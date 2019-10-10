@@ -1,10 +1,10 @@
 #include "vectorization/functions/sign.h"
 
-#include "vectorization/selects/blends.h"
 #include "vectorization/constants/values/NegativeZero.h"
 #include "vectorization/constants/values/Zero.h"
 #include "vectorization/functions/copysign.h"
 
+#include "vectorization/blends.h"
 namespace vectorization
 {
     const Int_8 sign(const Int_8 v) noexcept {

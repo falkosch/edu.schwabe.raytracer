@@ -1,19 +1,11 @@
 #pragma once
 
-#include "../constants.h"
-
 #include "../architecture.h"
 
 #include <type_traits>
 
 namespace vectorization
 {
-    template <typename T>
-    inline constexpr T boolMask(const bool mask) noexcept {
-        static_assert(std::is_integral<T>::value, "boolMask<T> must be an integral type");
-        return static_cast<T>(-static_cast<typename std::make_signed<T>::type>(mask));
-    }
-
     const bool blendMasked(const bool onBitNotSet, const bool onBitSet, const bool mask) noexcept;
 
     const Int_8 blendMasked(const Int_8 onBitNotSet, const Int_8 onBitSet, const Int_8 mask) noexcept;
@@ -30,8 +22,4 @@ namespace vectorization
 
     const Float_32 blendMasked(const Float_32 onBitNotSet, const Float_32 onBitSet, const BoolTypes<Float_32>::Type mask) noexcept;
     const Float_64 blendMasked(const Float_64 onBitNotSet, const Float_64 onBitSet, const BoolTypes<Float_64>::Type mask) noexcept;
-
-    const PackedInts_128 blendMasked(const PackedInts_128 & onBitNotSet, const PackedInts_128 & onBitSet, const PackedInts_128 & mask) noexcept;
-    const PackedFloat4_128 blendMasked(const PackedFloat4_128 & onBitNotSet, const PackedFloat4_128 & onBitSet, const PackedFloat4_128 & mask) noexcept;
-    const PackedFloat2_128 blendMasked(const PackedFloat2_128 & onBitNotSet, const PackedFloat2_128 & onBitSet, const PackedFloat2_128 & mask) noexcept;
 }

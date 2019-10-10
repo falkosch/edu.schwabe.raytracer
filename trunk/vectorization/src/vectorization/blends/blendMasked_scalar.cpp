@@ -1,4 +1,7 @@
-#include "vectorization/selects/blends.h"
+#include "vectorization/blends/blendMasked_scalar.h"
+
+#include "vectorization/blends/blendMasked_128d.h"
+#include "vectorization/blends/blendMasked_128s.h"
 
 namespace vectorization
 {
@@ -40,11 +43,7 @@ namespace vectorization
 
     const Float_32 blendMasked(const Float_32 onBitNotSet, const Float_32 onBitSet, const BoolTypes<Float_32>::Type mask) noexcept {
         return _mm_cvtss_f32(
-            blendMasked(
-                _mm_set_ss(onBitNotSet),
-                _mm_set_ss(onBitSet),
-                _mm_castsi128_ps(_mm_set1_epi32(static_cast<int>(mask)))
-            )
+            blendMasked(_mm_set_ss(onBitNotSet), _mm_set_ss(onBitSet), _mm_set1_epi32(static_cast<int>(mask)))
         );
     }
 
@@ -56,23 +55,7 @@ namespace vectorization
         reinterpret_cast<BoolTypes<Float_64>::Type * const>(&m)[VectorIndices::X] = mask;
 #endif
         return _mm_cvtsd_f64(
-            blendMasked(
-                _mm_set_sd(onBitNotSet),
-                _mm_set_sd(onBitSet),
-                _mm_castsi128_pd(m)
-            )
+            blendMasked(_mm_set_sd(onBitNotSet), _mm_set_sd(onBitSet), m)
         );
-    }
-
-    const PackedInts_128 blendMasked(const PackedInts_128 & onBitNotSet, const PackedInts_128 & onBitSet, const PackedInts_128 & mask) noexcept {
-        return _mm_blendv_epi8(onBitNotSet, onBitSet, mask);
-    }
-
-    const PackedFloat4_128 blendMasked(const PackedFloat4_128 & onBitNotSet, const PackedFloat4_128 & onBitSet, const PackedFloat4_128 & mask) noexcept {
-        return _mm_blendv_ps(onBitNotSet, onBitSet, mask);
-    }
-
-    const PackedFloat2_128 blendMasked(const PackedFloat2_128 & onBitNotSet, const PackedFloat2_128 & onBitSet, const PackedFloat2_128 & mask) noexcept {
-        return _mm_blendv_pd(onBitNotSet, onBitSet, mask);
     }
 }

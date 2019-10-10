@@ -11,6 +11,10 @@ namespace Microsoft
     {
         namespace CppUnitTestFramework
         {
+            template<> inline std::wstring ToString<vectorization::UInt_16>(const vectorization::UInt_16 & t) {
+                RETURN_WIDE_STRING(t);
+            }
+
             template<> inline std::wstring ToString<
                 std::array<vectorization::Float_32, vectorization::VectorSizes::W>
             >(const std::array<vectorization::Float_32, vectorization::VectorSizes::W> & t) {

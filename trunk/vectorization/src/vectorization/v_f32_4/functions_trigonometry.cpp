@@ -39,7 +39,7 @@ namespace vectorization
     const v_f32_4 log3(const v_f32_4 & v) noexcept {
 #ifdef USE_THIRD_PARTY
 
-        return blend<false, false, false, true>(log_ps(v), v);
+        return blend<false, false, false, true>(log_ps(v.components), v.components);
 
 #else
 
@@ -73,7 +73,7 @@ namespace vectorization
     const v_f32_4 exp3(const v_f32_4 & v) noexcept {
 #ifdef USE_THIRD_PARTY
 
-        return blend<false, false, false, true>(exp_ps(v), v);
+        return blend<false, false, false, true>(exp_ps(v.components), v.components);
 
 #else
 
