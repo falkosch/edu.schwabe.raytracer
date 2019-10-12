@@ -19,15 +19,21 @@ namespace vectorization
 
     template <>
     // passthrough swizzle
-    const PackedFloat2_128 swizzle<VectorIndices::X, VectorIndices::Y>(const PackedFloat2_128 & v) noexcept;
+    const PackedFloat2_128 swizzle<
+        VectorIndices::X, VectorIndices::Y
+    >(const PackedFloat2_128 & v) noexcept;
 
     template <>
     // duplicate low swizzle
-    const PackedFloat2_128 swizzle<VectorIndices::X, VectorIndices::X>(const PackedFloat2_128 & v) noexcept;
+    const PackedFloat2_128 swizzle<
+        VectorIndices::X, VectorIndices::X
+    >(const PackedFloat2_128 & v) noexcept;
 
     template <>
     // unpack high swizzle
-    const PackedFloat2_128 swizzle<VectorIndices::Y, VectorIndices::Y>(const PackedFloat2_128 & v) noexcept;
+    const PackedFloat2_128 swizzle<
+        VectorIndices::Y, VectorIndices::Y
+    >(const PackedFloat2_128 & v) noexcept;
 
     const PackedFloat2_128 xx(const PackedFloat2_128 & v) noexcept;
 
