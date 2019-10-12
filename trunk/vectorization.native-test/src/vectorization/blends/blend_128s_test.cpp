@@ -18,7 +18,7 @@ namespace vectorization
                         givenOnBitNotSet.at(VectorIndices::X), givenOnBitNotSet.at(VectorIndices::Y), givenOnBitNotSet.at(VectorIndices::Z), givenOnBitNotSet.at(VectorIndices::W)
                     };
                     _mm_store_ps(actual.data(), blend<false, false, false, false>(_mm_load_ps(givenOnBitNotSet.data()), _mm_load_ps(givenOnBitSet.data())));
-                    Assert::AreEqual(expected, actual, L"blend masked value mismatch", LINE_INFO());
+                    Assert::AreEqual(expected, actual, L"blend value mismatch", LINE_INFO());
                 }
 
                 {
@@ -26,7 +26,7 @@ namespace vectorization
                         givenOnBitSet.at(VectorIndices::X), givenOnBitSet.at(VectorIndices::Y), givenOnBitSet.at(VectorIndices::Z), givenOnBitSet.at(VectorIndices::W)
                     };
                     _mm_store_ps(actual.data(), blend<true, true, true, true>(_mm_load_ps(givenOnBitNotSet.data()), _mm_load_ps(givenOnBitSet.data())));
-                    Assert::AreEqual(expected, actual, L"blend masked value mismatch", LINE_INFO());
+                    Assert::AreEqual(expected, actual, L"blend value mismatch", LINE_INFO());
                 }
             }
 
@@ -40,7 +40,7 @@ namespace vectorization
                         givenOnBitSet.at(VectorIndices::X), givenOnBitNotSet.at(VectorIndices::Y), givenOnBitNotSet.at(VectorIndices::Z), givenOnBitNotSet.at(VectorIndices::W)
                     };
                     _mm_store_ps(actual.data(), blend<true, false, false, false>(_mm_load_ps(givenOnBitNotSet.data()), _mm_load_ps(givenOnBitSet.data())));
-                    Assert::AreEqual(expected, actual, L"blend masked value mismatch", LINE_INFO());
+                    Assert::AreEqual(expected, actual, L"blend value mismatch", LINE_INFO());
                 }
 
                 {
@@ -48,7 +48,7 @@ namespace vectorization
                         givenOnBitNotSet.at(VectorIndices::X), givenOnBitSet.at(VectorIndices::Y), givenOnBitNotSet.at(VectorIndices::Z), givenOnBitNotSet.at(VectorIndices::W)
                     };
                     _mm_store_ps(actual.data(), blend<false, true, false, false>(_mm_load_ps(givenOnBitNotSet.data()), _mm_load_ps(givenOnBitSet.data())));
-                    Assert::AreEqual(expected, actual, L"blend masked value mismatch", LINE_INFO());
+                    Assert::AreEqual(expected, actual, L"blend value mismatch", LINE_INFO());
                 }
 
                 {
@@ -56,7 +56,7 @@ namespace vectorization
                         givenOnBitNotSet.at(VectorIndices::X), givenOnBitNotSet.at(VectorIndices::Y), givenOnBitSet.at(VectorIndices::Z), givenOnBitNotSet.at(VectorIndices::W)
                     };
                     _mm_store_ps(actual.data(), blend<false, false, true, false>(_mm_load_ps(givenOnBitNotSet.data()), _mm_load_ps(givenOnBitSet.data())));
-                    Assert::AreEqual(expected, actual, L"blend masked value mismatch", LINE_INFO());
+                    Assert::AreEqual(expected, actual, L"blend value mismatch", LINE_INFO());
                 }
 
                 {
@@ -64,7 +64,7 @@ namespace vectorization
                         givenOnBitNotSet.at(VectorIndices::X), givenOnBitNotSet.at(VectorIndices::Y), givenOnBitNotSet.at(VectorIndices::Z), givenOnBitSet.at(VectorIndices::W)
                     };
                     _mm_store_ps(actual.data(), blend<false, false, false, true>(_mm_load_ps(givenOnBitNotSet.data()), _mm_load_ps(givenOnBitSet.data())));
-                    Assert::AreEqual(expected, actual, L"blend masked value mismatch", LINE_INFO());
+                    Assert::AreEqual(expected, actual, L"blend value mismatch", LINE_INFO());
                 }
             }
 
@@ -78,7 +78,7 @@ namespace vectorization
                         givenOnBitSet.at(VectorIndices::X), givenOnBitSet.at(VectorIndices::Y), givenOnBitNotSet.at(VectorIndices::Z), givenOnBitNotSet.at(VectorIndices::W)
                     };
                     _mm_store_ps(actual.data(), blend<true, true, false, false>(_mm_load_ps(givenOnBitNotSet.data()), _mm_load_ps(givenOnBitSet.data())));
-                    Assert::AreEqual(expected, actual, L"blend masked value mismatch", LINE_INFO());
+                    Assert::AreEqual(expected, actual, L"blend value mismatch", LINE_INFO());
                 }
 
                 {
@@ -86,7 +86,7 @@ namespace vectorization
                         givenOnBitSet.at(VectorIndices::X), givenOnBitNotSet.at(VectorIndices::Y), givenOnBitSet.at(VectorIndices::Z), givenOnBitNotSet.at(VectorIndices::W)
                     };
                     _mm_store_ps(actual.data(), blend<true, false, true, false>(_mm_load_ps(givenOnBitNotSet.data()), _mm_load_ps(givenOnBitSet.data())));
-                    Assert::AreEqual(expected, actual, L"blend masked value mismatch", LINE_INFO());
+                    Assert::AreEqual(expected, actual, L"blend value mismatch", LINE_INFO());
                 }
 
                 {
@@ -94,7 +94,7 @@ namespace vectorization
                         givenOnBitNotSet.at(VectorIndices::X), givenOnBitSet.at(VectorIndices::Y), givenOnBitNotSet.at(VectorIndices::Z), givenOnBitSet.at(VectorIndices::W)
                     };
                     _mm_store_ps(actual.data(), blend<false, true, false, true>(_mm_load_ps(givenOnBitNotSet.data()), _mm_load_ps(givenOnBitSet.data())));
-                    Assert::AreEqual(expected, actual, L"blend masked value mismatch", LINE_INFO());
+                    Assert::AreEqual(expected, actual, L"blend value mismatch", LINE_INFO());
                 }
 
                 {
@@ -102,7 +102,7 @@ namespace vectorization
                         givenOnBitNotSet.at(VectorIndices::X), givenOnBitNotSet.at(VectorIndices::Y), givenOnBitSet.at(VectorIndices::Z), givenOnBitSet.at(VectorIndices::W)
                     };
                     _mm_store_ps(actual.data(), blend<false, false, true, true>(_mm_load_ps(givenOnBitNotSet.data()), _mm_load_ps(givenOnBitSet.data())));
-                    Assert::AreEqual(expected, actual, L"blend masked value mismatch", LINE_INFO());
+                    Assert::AreEqual(expected, actual, L"blend value mismatch", LINE_INFO());
                 }
             }
 
@@ -116,7 +116,7 @@ namespace vectorization
                         givenOnBitNotSet.at(VectorIndices::X), givenOnBitSet.at(VectorIndices::Y), givenOnBitSet.at(VectorIndices::Z), givenOnBitSet.at(VectorIndices::W)
                     };
                     _mm_store_ps(actual.data(), blend<false, true, true, true>(_mm_load_ps(givenOnBitNotSet.data()), _mm_load_ps(givenOnBitSet.data())));
-                    Assert::AreEqual(expected, actual, L"blend masked value mismatch", LINE_INFO());
+                    Assert::AreEqual(expected, actual, L"blend value mismatch", LINE_INFO());
                 }
 
                 {
@@ -124,7 +124,7 @@ namespace vectorization
                         givenOnBitSet.at(VectorIndices::X), givenOnBitNotSet.at(VectorIndices::Y), givenOnBitSet.at(VectorIndices::Z), givenOnBitSet.at(VectorIndices::W)
                     };
                     _mm_store_ps(actual.data(), blend<true, false, true, true>(_mm_load_ps(givenOnBitNotSet.data()), _mm_load_ps(givenOnBitSet.data())));
-                    Assert::AreEqual(expected, actual, L"blend masked value mismatch", LINE_INFO());
+                    Assert::AreEqual(expected, actual, L"blend value mismatch", LINE_INFO());
                 }
 
                 {
@@ -132,7 +132,7 @@ namespace vectorization
                         givenOnBitSet.at(VectorIndices::X), givenOnBitSet.at(VectorIndices::Y), givenOnBitNotSet.at(VectorIndices::Z), givenOnBitSet.at(VectorIndices::W)
                     };
                     _mm_store_ps(actual.data(), blend<true, true, false, true>(_mm_load_ps(givenOnBitNotSet.data()), _mm_load_ps(givenOnBitSet.data())));
-                    Assert::AreEqual(expected, actual, L"blend masked value mismatch", LINE_INFO());
+                    Assert::AreEqual(expected, actual, L"blend value mismatch", LINE_INFO());
                 }
 
                 {
@@ -140,7 +140,7 @@ namespace vectorization
                         givenOnBitSet.at(VectorIndices::X), givenOnBitSet.at(VectorIndices::Y), givenOnBitSet.at(VectorIndices::Z), givenOnBitNotSet.at(VectorIndices::W)
                     };
                     _mm_store_ps(actual.data(), blend<true, true, true, false>(_mm_load_ps(givenOnBitNotSet.data()), _mm_load_ps(givenOnBitSet.data())));
-                    Assert::AreEqual(expected, actual, L"blend masked value mismatch", LINE_INFO());
+                    Assert::AreEqual(expected, actual, L"blend value mismatch", LINE_INFO());
                 }
             }
         };

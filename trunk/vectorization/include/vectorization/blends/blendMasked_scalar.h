@@ -2,8 +2,6 @@
 
 #include "../architecture.h"
 
-#include <type_traits>
-
 namespace vectorization
 {
     const bool blendMasked(const bool onBitNotSet, const bool onBitSet, const bool mask) noexcept;

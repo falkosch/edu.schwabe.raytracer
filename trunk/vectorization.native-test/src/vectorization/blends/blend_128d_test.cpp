@@ -18,7 +18,7 @@ namespace vectorization
                         givenOnBitNotSet.at(VectorIndices::X), givenOnBitNotSet.at(VectorIndices::Y)
                     };
                     _mm_store_pd(actual.data(), blend<false, false>(_mm_load_pd(givenOnBitNotSet.data()), _mm_load_pd(givenOnBitSet.data())));
-                    Assert::AreEqual(expected, actual, L"blend masked value mismatch", LINE_INFO());
+                    Assert::AreEqual(expected, actual, L"blend value mismatch", LINE_INFO());
                 }
 
                 {
@@ -26,7 +26,7 @@ namespace vectorization
                         givenOnBitSet.at(VectorIndices::X), givenOnBitSet.at(VectorIndices::Y)
                     };
                     _mm_store_pd(actual.data(), blend<true, true>(_mm_load_pd(givenOnBitNotSet.data()), _mm_load_pd(givenOnBitSet.data())));
-                    Assert::AreEqual(expected, actual, L"blend masked value mismatch", LINE_INFO());
+                    Assert::AreEqual(expected, actual, L"blend value mismatch", LINE_INFO());
                 }
             }
 
@@ -40,7 +40,7 @@ namespace vectorization
                         givenOnBitNotSet.at(VectorIndices::X), givenOnBitSet.at(VectorIndices::Y)
                     };
                     _mm_store_pd(actual.data(), blend<false, true>(_mm_load_pd(givenOnBitNotSet.data()), _mm_load_pd(givenOnBitSet.data())));
-                    Assert::AreEqual(expected, actual, L"blend masked value mismatch", LINE_INFO());
+                    Assert::AreEqual(expected, actual, L"blend value mismatch", LINE_INFO());
                 }
 
                 {
@@ -48,7 +48,7 @@ namespace vectorization
                         givenOnBitSet.at(VectorIndices::X), givenOnBitNotSet.at(VectorIndices::Y)
                     };
                     _mm_store_pd(actual.data(), blend<true, false>(_mm_load_pd(givenOnBitNotSet.data()), _mm_load_pd(givenOnBitSet.data())));
-                    Assert::AreEqual(expected, actual, L"blend masked value mismatch", LINE_INFO());
+                    Assert::AreEqual(expected, actual, L"blend value mismatch", LINE_INFO());
                 }
             }
         };

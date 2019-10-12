@@ -1,5 +1,7 @@
 #include "vectorization/architecture/compiler_intrinsics.h"
 
+#include <array>
+
 namespace vectorization
 {
     const PackedFloat4_128 _mm_cvtepu32_ps(const PackedInts_128 v) noexcept {
@@ -12,17 +14,41 @@ namespace vectorization
     }
 
     const UInt_64 x_64(const PackedInts_128 v) noexcept {
+#ifdef ARCH_X64
         return static_cast<UInt_64>(_mm_cvtsi128_si64(v));
+
+#else
+        union PackBits
+        {
+            PackedInts_128 value;
+            struct
+            {
+                UInt_64 x, y;
+            } bits;
+
+            PackBits(const PackedInts_128 value) : value(value) { }
+        } pack{ v };
+        return pack.bits.x;
+
+#endif
     }
 
     const ASizeT __popcntx(const PackedInts_128 v) noexcept {
         // see https://stackoverflow.com/a/17355341
         auto v0 = x_64(v);
         auto v1 = x_64(_mm_unpackhi_epi64(v, v));
-#if defined(__GNUC__)
+
+#ifdef ARCH_X64
+#if     defined(__GNUC__)
         return static_cast<size_t>(__popcntq(v0) + __popcntq(v1));
 #else
         return static_cast<size_t>(__popcnt64(v0) + __popcnt64(v1));
+#endif
+
+#else
+        return __popcnt(v0 & 0xffffffff) + __popcnt(v0 >> 32)
+            + __popcnt(v1 & 0xffffffff) + __popcnt(v1 >> 32);
+
 #endif
     }
 

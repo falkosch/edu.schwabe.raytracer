@@ -41,10 +41,6 @@ namespace vectorization
         return blendMasked(onFalse, onTrue, mask ? MaskAll<UInt_64>() : Zero<UInt_64>());
     }
 
-    const long select(const bool mask, const long onTrue, const long onFalse) noexcept {
-        return blendMasked(onFalse, onTrue, boolMask<long>(mask));
-    }
-
     const Int_8 select(const bool mask, const Int_8 onTrue, const Int_8 onFalse) noexcept {
         return blendMasked(onFalse, onTrue, boolMask<Int_8>(mask));
     }

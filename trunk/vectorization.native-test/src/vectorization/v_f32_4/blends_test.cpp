@@ -134,7 +134,7 @@ namespace vectorization
                 }
             }
 
-            TEST_METHOD(hasShortFormForBlends) {
+            TEST_METHOD(hasShortFormsForBlends) {
                 auto given = One<v_f32_4>();
                 auto expectedXYZW = Two<v_f32_4>();
 
