@@ -203,6 +203,13 @@
     <ClCompile Include="src\vectorization\blends\blendMasked_256d_test.cpp" />
     <ClCompile Include="src\vectorization\blends\blendMasked_256i_test.cpp" />
     <ClCompile Include="src\vectorization\blends\blendMasked_256s_test.cpp" />
+    <ClCompile Include="src\vectorization\selects\select_128d_test.cpp" />
+    <ClCompile Include="src\vectorization\selects\select_128i_test.cpp" />
+    <ClCompile Include="src\vectorization\selects\select_128s_test.cpp" />
+    <ClCompile Include="src\vectorization\selects\select_256d_test.cpp" />
+    <ClCompile Include="src\vectorization\selects\select_256i_test.cpp" />
+    <ClCompile Include="src\vectorization\selects\select_256s_test.cpp" />
+    <ClCompile Include="src\vectorization\selects\select_scalar_test.cpp" />
     <ClCompile Include="src\vectorization\swizzles\swizzle_128d_test.cpp" />
     <ClCompile Include="src\vectorization\swizzles\swizzle_128s_test.cpp" />
     <ClCompile Include="src\vectorization\swizzles\swizzle_256d_test.cpp" />

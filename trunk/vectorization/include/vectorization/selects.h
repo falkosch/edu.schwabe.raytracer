@@ -6,4 +6,11 @@
 
 #pragma once
 
-#include "selects/selects.h"
+#include "selects/selects_128d.h"
+#include "selects/selects_128i.h"
+#include "selects/selects_128s.h"
+#include "selects/selects_256d.h"
+#include "selects/selects_256i.h"
+#include "selects/selects_256s.h"
+#include "selects/selects_scalar.h"
+#include "selects/static_select.h"

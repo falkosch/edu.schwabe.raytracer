@@ -3,7 +3,7 @@
 namespace vectorization
 {
     template <>
-    const PackedFloat4_256 blend<false, false, false, false>(const PackedFloat4_256 & a, const PackedFloat4_256 & b) noexcept {
+    const PackedFloat4_256 blend<false, false, false, false>(const PackedFloat4_256 & a, const PackedFloat4_256 &) noexcept {
         return a;
     }
 
