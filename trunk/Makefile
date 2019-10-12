@@ -7,16 +7,16 @@ WARNING_OPTS_DISABLED = -Wno-unknown-pragmas -Wno-ignored-qualifiers -Wno-narrow
 
 #WARNING_OPTS_EXT = -Wabi-tag -Wc++0x-compat -Wcast-align -Wcast-qual -Wconditionally-supported -Wconversion -Wctor-dtor-privacy -Wdate-time -Wdelete-non-virtual-dtor -Wdisabled-optimization -Wdouble-promotion -Winit-self -Winline -Wlogical-op -Wmissing-declarations -Wnoexcept -Wnon-virtual-dtor -Wold-style-cast -Woverloaded-virtual -Wpacked -Wredundant-decls -Wreorder -Wshadow -Wsign-promo -Wstack-protector -Wstrict-null-sentinel -Wswitch-default -Wswitch-enum -Wsynth -Wtrampolines -Wunsafe-loop-optimizations -Wunused-macros -Wuseless-cast -Wvector-operation-performance -Wwrite-strings -Wzero-as-null-pointer-constant
 
-COMMON_OPTS = -march=native -mwin32 -fopenmp -D_WIN32
+COMMON_OPTS = -march=native -mwin32 -fopenmp -D_WIN32 $(WARNING_OPTS) $(WARNING_OPTS_DISABLED) $(WARNING_OPTS_EXT)
 RELEASE_OPTS = $(COMMON_OPTS) -Ofast -flto -funroll-loops
 DEBUG_OPTS = $(COMMON_OPTS) -Og -g2
 
-CPP_OPTS_RELEASE = $(WARNING_OPTS) $(WARNING_OPTS_DISABLED) $(WARNING_OPTS_EXT) $(RELEASE_OPTS) -DNDEBUG
+CPP_OPTS_RELEASE =  $(RELEASE_OPTS) -DNDEBUG
 LD_OPTS_RELEASE = $(RELEASE_OPTS)
-CPP_OPTS_DEBUG = $(WARNING_OPTS) $(WARNING_OPTS_EXT) $(DEBUG_OPTS) -D_DEBUG
+CPP_OPTS_DEBUG = $(DEBUG_OPTS) -D_DEBUG
 LD_OPTS_DEBUG = $(DEBUG_OPTS)
 
-CPP_OPTS = $(CPP_OPTS_$(TARGET)) -std=gnu++17
+CPP_OPTS = $(CPP_OPTS_$(TARGET)) -std=c++17 -D_UNICODE -DUNICODE
 #LD_OPTS = $(LD_OPTS_$(TARGET)) -static-libgcc -static -lgdi32 -lopengl32
 LD_OPTS = $(LD_OPTS_$(TARGET)) -lgdi32 -lopengl32
 

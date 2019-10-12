@@ -99,7 +99,7 @@ namespace vectorization
 
     template <ASizeT X, ASizeT Y, ASizeT Z, ASizeT W>
     inline const v_f32_4 swizzledBlendMasked(const v_f32_4 & a, const v_f32_4 & b, const v_f32_4::VectorBoolType & mask) noexcept {
-        return swizzledBlendMasked<X, Y, Z, W>(a, b, _mm_castsi128_ps(mask));
+        return swizzledBlendMasked<X, Y, Z, W>(a, b, _mm_castsi128_ps(mask.components));
     }
 
     template <>

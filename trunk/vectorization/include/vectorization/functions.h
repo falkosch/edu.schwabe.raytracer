@@ -32,10 +32,11 @@
 #include "functions/roundDown.h"
 #include "functions/rsqrt.h"
 #include "functions/sign.h"
+#include "functions/sin.h"
 #include "functions/sqr.h"
 #include "functions/sqrt.h"
-#include "functions/staticFor.h"
 #include "functions/tan.h"
 
 #include "functions/average.h"
 #include "functions/normalize.h"
+#include "functions/staticFor.h"

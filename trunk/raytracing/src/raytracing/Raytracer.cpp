@@ -42,7 +42,9 @@ namespace raytracer
         trace();
         QueryPerformanceCounter(&stop);
 
-        std::cout << "Duration: " << convert<Float_64>(stop.QuadPart - start.QuadPart) / convert<Float_64>(frequency.QuadPart) << "s" << std::endl;
+        const auto timeDuration = static_cast<Int_64>(stop.QuadPart - start.QuadPart);
+        const auto timeFrequency = static_cast<Int_64>(frequency.QuadPart);
+        std::cout << "Duration: " << convert<Float_64>(timeDuration) / convert<Float_64>(timeFrequency) << "s" << std::endl;
     }
 
     void Raytracer::trigger(const RaytraceParameters & parameters) {
@@ -67,19 +69,20 @@ namespace raytracer
         current.runId = ++runId;
     }
 
-    const UInt_64 perPixelTiming() {
+    const Int_64 perPixelTiming() {
         LARGE_INTEGER start;
         QueryPerformanceCounter(&start);
-        return static_cast<UInt_64>(start.QuadPart);
+        return static_cast<Int_64>(start.QuadPart);
     }
 
     // Timing for each pixel: Read end-time from clock and calculate differences
-    const Float4 perPixelTiming(const UInt_64 start) {
+    const Float4 perPixelTiming(const Int_64 start) {
         LARGE_INTEGER stop;
         QueryPerformanceCounter(&stop);
+        const auto timeStop = static_cast<Int_64>(stop.QuadPart);
         return Float4(
             vectorization::log(
-                convert<Float4::ValueType>(stop.QuadPart - start + One<UInt_64>())
+                convert<Float4::ValueType>(timeStop - start + Int_64{ 1 })
             )
         );
         //Float4 t = Float4(vectorization::log(

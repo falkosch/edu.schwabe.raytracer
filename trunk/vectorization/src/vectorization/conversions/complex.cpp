@@ -52,10 +52,9 @@ namespace vectorization
     template <>
     const v_ui64_2 convert<v_ui64_2>(const v_f32_4 & v) noexcept {
 #ifdef ARCH_X64
-        return v_ui64_2(
-            convert<UInt_64>(_mm_cvtss_si64(v.components)),
-            convert<UInt_64>(_mm_cvtss_si64(yyww(v).components))
-        );
+        const auto x = static_cast<Int_64>(_mm_cvtss_si64(v.components));
+        const auto y = static_cast<Int_64>(_mm_cvtss_si64(yyww(v).components));
+        return v_ui64_2(convert<UInt_64>(x), convert<UInt_64>(y));
 #else
         return v_ui64_2(convert<UInt_64>(x(v)), convert<UInt_64>(y(v)));
 #endif
