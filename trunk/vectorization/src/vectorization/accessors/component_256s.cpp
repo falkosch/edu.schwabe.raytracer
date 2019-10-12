@@ -1,17 +1,14 @@
 #include "vectorization/accessors/component_256s.h"
 
+#include "vectorization/swizzles.h"
+
 namespace vectorization
 {
     inline const PackedFloat8_256 hi128_lo128(const PackedFloat8_256 v) {
-        return _mm256_permute2f128_ps(v, v, 0b00000001);
-    }
-
-    inline const PackedFloat8_256 zxzx_zxzx(const PackedFloat8_256 v) {
-        return _mm256_permute_ps(v, 0b00100010);
-    }
-
-    inline const PackedFloat8_256 wywy_wywy(const PackedFloat8_256 v) {
-        return _mm256_permute_ps(v, 0b01110111);
+        return swizzle<
+            VectorIndices::X5, VectorIndices::X6, VectorIndices::X7, VectorIndices::X8,
+            VectorIndices::X5, VectorIndices::X6, VectorIndices::X7, VectorIndices::X8
+        >(v);
     }
 
     template <>
@@ -21,37 +18,37 @@ namespace vectorization
 
     template <>
     const Float_32 component<VectorIndices::X2>(const PackedFloat8_256 & v) noexcept {
-        return _mm256_cvtss_f32(_mm256_movehdup_ps(v));
+        return component<VectorIndices::X1>(yyww(v));
     }
 
     template <>
     const Float_32 component<VectorIndices::X3>(const PackedFloat8_256 & v) noexcept {
-        return _mm256_cvtss_f32(zxzx_zxzx(v));
+        return component<VectorIndices::X1>(zzww(v));
     }
 
     template <>
     const Float_32 component<VectorIndices::X4>(const PackedFloat8_256 & v) noexcept {
-        return _mm256_cvtss_f32(wywy_wywy(v));
+        return component<VectorIndices::X1>(wwww(v));
     }
 
     template <>
     const Float_32 component<VectorIndices::X5>(const PackedFloat8_256 & v) noexcept {
-        return _mm256_cvtss_f32(hi128_lo128(v));
+        return component<VectorIndices::X1>(hi128_lo128(v));
     }
 
     template <>
     const Float_32 component<VectorIndices::X6>(const PackedFloat8_256 & v) noexcept {
-        return _mm256_cvtss_f32(_mm256_movehdup_ps(hi128_lo128(v)));
+        return component<VectorIndices::X2>(hi128_lo128(v));
     }
 
     template <>
     const Float_32 component<VectorIndices::X7>(const PackedFloat8_256 & v) noexcept {
-        return _mm256_cvtss_f32(zxzx_zxzx(hi128_lo128(v)));
+        return component<VectorIndices::X3>(hi128_lo128(v));
     }
 
     template <>
     const Float_32 component<VectorIndices::X8>(const PackedFloat8_256 & v) noexcept {
-        return _mm256_cvtss_f32(wywy_wywy(hi128_lo128(v)));
+        return component<VectorIndices::X4>(hi128_lo128(v));
     }
 
     const Float_32 x(const PackedFloat8_256 & v) noexcept {

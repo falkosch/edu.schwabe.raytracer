@@ -11,17 +11,17 @@ namespace vectorization
 
     template <>
     const Float_32 component<VectorIndices::Y>(const PackedFloat4_128 & v) noexcept {
-        return _mm_cvtss_f32(yyww(v));
+        return component<VectorIndices::X>(yyww(v));
     }
 
     template <>
     const Float_32 component<VectorIndices::Z>(const PackedFloat4_128 & v) noexcept {
-        return _mm_cvtss_f32(zwzw(v));
+        return component<VectorIndices::X>(zwzw(v));
     }
 
     template <>
     const Float_32 component<VectorIndices::W>(const PackedFloat4_128 & v) noexcept {
-        return _mm_cvtss_f32(wwww(v));
+        return component<VectorIndices::X>(wwww(v));
     }
 
     const Float_32 x(const PackedFloat4_128 & v) noexcept {

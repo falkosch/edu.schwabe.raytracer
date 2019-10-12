@@ -11,7 +11,7 @@ namespace vectorization
 
     template <>
     const Float_64 component<VectorIndices::Y>(const PackedFloat2_128 & v) noexcept {
-        return _mm_cvtsd_f64(yy(v));
+        return component<VectorIndices::X>(yy(v));
     }
 
     const Float_64 x(const PackedFloat2_128 & v) noexcept {

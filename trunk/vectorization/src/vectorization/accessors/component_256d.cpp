@@ -1,5 +1,7 @@
 #include "vectorization/accessors/component_256d.h"
 
+#include "vectorization/swizzles.h"
+
 namespace vectorization
 {
     template <>
@@ -9,19 +11,17 @@ namespace vectorization
 
     template <>
     const Float_64 component<VectorIndices::Y>(const PackedFloat4_256 & v) noexcept {
-        return _mm256_cvtsd_f64(_mm256_permute_pd(v, 0b0001));
+        return component<VectorIndices::X>(yyww(v));
     }
 
     template <>
     const Float_64 component<VectorIndices::Z>(const PackedFloat4_256 & v) noexcept {
-        auto zwzw = _mm256_permute2f128_pd(v, v, 0b00010001);
-        return _mm256_cvtsd_f64(zwzw);
+        return component<VectorIndices::X>(zwzw(v));
     }
 
     template <>
     const Float_64 component<VectorIndices::W>(const PackedFloat4_256 & v) noexcept {
-        auto zwzw = _mm256_permute2f128_pd(v, v, 0b00010001);
-        return _mm256_cvtsd_f64(_mm256_permute_pd(zwzw, 0b0001));
+        return component<VectorIndices::Y>(zwzw(v));
     }
 
     const Float_64 x(const PackedFloat4_256 & v) noexcept {
