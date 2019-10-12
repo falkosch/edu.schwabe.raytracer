@@ -34,4 +34,6 @@ namespace vectorization
     template <>
     // shuffle x(b), y(b), z(a), w(a)
     const PackedFloat4_128 blend<true, true, false, false>(const PackedFloat4_128 & a, const PackedFloat4_128 & b) noexcept;
+
+    const PackedFloat4_128 x_yzw(const PackedFloat4_128 & a, const PackedFloat4_128 & b) noexcept;
 }

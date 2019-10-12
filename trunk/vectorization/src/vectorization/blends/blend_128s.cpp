@@ -31,4 +31,8 @@ namespace vectorization
     const PackedFloat4_128 blend<true, true, false, false>(const PackedFloat4_128 & a, const PackedFloat4_128 & b) noexcept {
         return blend<false, false, true, true>(b, a);
     }
+
+    const PackedFloat4_128 x_yzw(const PackedFloat4_128 & a, const PackedFloat4_128 & b) noexcept {
+        return blend<false, true, true, true>(a, b);
+    }
 }
