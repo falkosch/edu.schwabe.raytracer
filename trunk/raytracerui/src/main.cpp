@@ -51,7 +51,7 @@ const ASizeT RAY_PACKET_SIZE = 15;
 namespace raytracerui
 {
     const LRESULT runRaytracerUI() {
-        Resources resources{};
+        Resources resources{ };
         Scene scene{
             new NaiveKDTreeTraverser<SceneIntersection>(),
             new FixedIterationsSAHKDTreeBalancer()
@@ -65,11 +65,11 @@ namespace raytracerui
 
         scene.buildSceneGraph();
 
-        Camera camera{};
+        Camera camera{ };
         camera.setProjection(PERSPECTIVE_FOV, PERSPECTIVE_Z_PLANE_EXTENDS, PERSPECTIVE_Z_PLANES);
         camera.translate(CAMERA_INIT_TRANSLATION);
 
-        RaytraceParameters parameters{};
+        RaytraceParameters parameters{ };
         parameters.visibilityCutoff = VISIBILITY_CUTOFF;
         parameters.maxDistance = MAX_DISTANCE;
         parameters.maxTraceDepth = MAX_TRACE_DEPTH;
@@ -82,10 +82,10 @@ namespace raytracerui
         parameters.rayPacketSize = RAY_PACKET_SIZE;
         parameters.camera = &camera;
 
-        Raytracer raytracer{};
+        Raytracer raytracer{ };
 
         auto ui = std::make_unique<WindowsRaytracerUI>(raytracer, parameters, FAST_PREVIEW_SIZE);
-        WPARAM returnCode{};
+        WPARAM returnCode{ };
         try {
             returnCode = ui->run();
         } catch (const std::exception & exception) {

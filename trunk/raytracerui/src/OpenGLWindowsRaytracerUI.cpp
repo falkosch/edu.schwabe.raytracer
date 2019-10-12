@@ -70,7 +70,7 @@ namespace raytracerui
     }
 
     void OpenGLWindowsRaytracerUI::display() {
-        PAINTSTRUCT psPaint{};
+        PAINTSTRUCT psPaint{ };
         BeginPaint(hWnd, &psPaint);
         EndPaint(hWnd, &psPaint);
 

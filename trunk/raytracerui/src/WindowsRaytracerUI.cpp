@@ -67,7 +67,7 @@ namespace raytracerui
     }
 
     const WPARAM WindowsRaytracerUI::run() {
-        MSG msg{};
+        MSG msg{ };
         BOOL bRet;
         while (0 != (bRet = GetMessage(&msg, hWnd, 0, 0))) {
             // catch GetMessage returns due to an error
@@ -83,7 +83,7 @@ namespace raytracerui
     }
 
     void WindowsRaytracerUI::delegateReshape() {
-        RECT rect{};
+        RECT rect{ };
         GetClientRect(hWnd, &rect);
         reshape(Int2(rect.right, rect.bottom) - Int2(rect.left, rect.top));
     }
@@ -101,16 +101,16 @@ namespace raytracerui
             const BITMAPINFO bitmapInfo = output->getBITMAPINFO();
             const BITMAP bitmap = output->getBITMAP();
 
-            PAINTSTRUCT psPaint{};
+            PAINTSTRUCT psPaint{ };
             const HDC hdc = BeginPaint(hWnd, &psPaint);
             StretchDIBits(
                 hdc,
-                int{},
-                int{},
+                int{ },
+                int{ },
                 x(screenSize),
                 y(screenSize),
-                int{},
-                int{},
+                int{ },
+                int{ },
                 bitmap.bmWidth,
                 bitmap.bmHeight,
                 bitmap.bmBits,

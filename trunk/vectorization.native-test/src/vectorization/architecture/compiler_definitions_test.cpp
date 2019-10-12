@@ -51,6 +51,6 @@ namespace vectorization
                 Assert::IsTrue(0 < BEST_ALIGNMENT, L"Bad best alignment parameters", LINE_INFO());
                 Assert::IsTrue(ZMM_ALIGNMENT >= BEST_ALIGNMENT, L"Bad best alignment parameters", LINE_INFO());
             }
-            };
-            }
-        }
+        };
+    }
+}

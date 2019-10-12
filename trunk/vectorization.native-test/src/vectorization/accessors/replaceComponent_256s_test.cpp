@@ -12,8 +12,8 @@ namespace vectorization
                 auto expectedReplacement = 5.0f;
                 auto given = StandardSample::ofArrayType<Float_32, VectorSizes::X8>();
                 auto givenPack = _mm256_load_ps(given.data());
-                std::array<Float_32, VectorSizes::X8> expected{};
-                std::array<Float_32, VectorSizes::X8> actual{};
+                std::array<Float_32, VectorSizes::X8> expected{ };
+                std::array<Float_32, VectorSizes::X8> actual{ };
 
                 {
                     Mutate::copyAndReplaceAt<VectorIndices::X1>(given.cbegin(), given.cend(), expected.begin(), expectedReplacement);
@@ -76,8 +76,8 @@ namespace vectorization
                 auto expectedReplacement = 5.0f;
                 auto given = StandardSample::ofArrayType<Float_32, VectorSizes::X8>();
                 auto givenPack = _mm256_load_ps(given.data());
-                std::array<Float_32, VectorSizes::X8> expected{};
-                std::array<Float_32, VectorSizes::X8> actual{};
+                std::array<Float_32, VectorSizes::X8> expected{ };
+                std::array<Float_32, VectorSizes::X8> actual{ };
 
                 {
                     Mutate::copyAndReplaceAt<VectorIndices::X>(given.cbegin(), given.cend(), expected.begin(), expectedReplacement);
@@ -112,8 +112,8 @@ namespace vectorization
                 auto expectedReplacement = 5.0f;
                 auto given = StandardSample::ofArrayType<Float_32, VectorSizes::X8>();
                 auto givenPack = _mm256_load_ps(given.data());
-                std::array<Float_32, VectorSizes::X8> expected{};
-                std::array<Float_32, VectorSizes::X8> actual{};
+                std::array<Float_32, VectorSizes::X8> expected{ };
+                std::array<Float_32, VectorSizes::X8> actual{ };
 
                 {
                     Mutate::copyAndReplaceAt<VectorIndices::X1>(given.cbegin(), given.cend(), expected.begin(), expectedReplacement);

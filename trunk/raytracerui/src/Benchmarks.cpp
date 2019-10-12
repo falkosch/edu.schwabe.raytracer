@@ -224,7 +224,7 @@ namespace raytracerui
 
     void Benchmarks::operator()() const {
         HANDLE thisProcess = GetCurrentProcess();
-        DWORD_PTR originalAffinityMask{}, t{};
+        DWORD_PTR originalAffinityMask{ }, t{ };
         GetProcessAffinityMask(thisProcess, &originalAffinityMask, &t);
         SetProcessAffinityMask(thisProcess, 0);
 

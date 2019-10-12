@@ -12,8 +12,8 @@ namespace vectorization
                 auto expectedReplacement = 5.0;
                 auto given = StandardSample::ofArrayType<Float_64, VectorSizes::Y>();
                 auto givenPack = _mm_load_pd(given.data());
-                std::array<Float_64, VectorSizes::Y> expected{};
-                std::array<Float_64, VectorSizes::Y> actual{};
+                std::array<Float_64, VectorSizes::Y> expected{ };
+                std::array<Float_64, VectorSizes::Y> actual{ };
 
                 {
                     Mutate::copyAndReplaceAt<VectorIndices::X>(given.cbegin(), given.cend(), expected.begin(), expectedReplacement);
@@ -34,8 +34,8 @@ namespace vectorization
                 auto expectedReplacement = 5.0;
                 auto given = StandardSample::ofArrayType<Float_64, VectorSizes::Y>();
                 auto givenPack = _mm_load_pd(given.data());
-                std::array<Float_64, VectorSizes::Y> expected{};
-                std::array<Float_64, VectorSizes::Y> actual{};
+                std::array<Float_64, VectorSizes::Y> expected{ };
+                std::array<Float_64, VectorSizes::Y> actual{ };
 
                 {
                     Mutate::copyAndReplaceAt<VectorIndices::X>(given.cbegin(), given.cend(), expected.begin(), expectedReplacement);
@@ -56,8 +56,8 @@ namespace vectorization
                 auto expectedReplacement = 5.0;
                 auto given = StandardSample::ofArrayType<Float_64, VectorSizes::X2>();
                 auto givenPack = _mm_load_pd(given.data());
-                std::array<Float_64, VectorSizes::X2> expected{};
-                std::array<Float_64, VectorSizes::X2> actual{};
+                std::array<Float_64, VectorSizes::X2> expected{ };
+                std::array<Float_64, VectorSizes::X2> actual{ };
 
                 {
                     Mutate::copyAndReplaceAt<VectorIndices::X1>(given.cbegin(), given.cend(), expected.begin(), expectedReplacement);
