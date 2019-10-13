@@ -18,8 +18,6 @@ namespace raytracer
 
         const ObjectGeometry * object;
 
-        ALIGNED_ALLOCATORS(__alignof(SceneIntersection));
-
         SceneIntersection();
     };
 }

@@ -12,8 +12,6 @@ namespace raytracer
     {
     public:
 
-        ALIGNED_ALLOCATORS(__alignof(SceneObject));
-
         SceneObject(const std::string & id);
 
         virtual ~SceneObject();

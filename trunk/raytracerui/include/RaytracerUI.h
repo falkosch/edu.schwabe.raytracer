@@ -31,8 +31,6 @@ namespace raytracerui
 
     public:
 
-        ALIGNED_ALLOCATORS(__alignof(RaytracerUI));
-
         RaytracerUI(Raytracer & raytracer, const RaytraceParameters & parameters, const ASizeT & fastPreviewSize);
 
         virtual ~RaytracerUI();

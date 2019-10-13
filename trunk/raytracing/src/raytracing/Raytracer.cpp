@@ -95,9 +95,10 @@ namespace raytracer
     struct PackedRaytrace
     {
         typedef std::vector<PackedRaytrace, AlignedAllocator<PackedRaytrace>> ListType;
+
         Raytrace raytrace;
         Float4 * outputPixel;
-        ALIGNED_ALLOCATORS(__alignof(PackedRaytrace));
+
         PackedRaytrace() : raytrace(), outputPixel() { }
         PackedRaytrace(const Raytrace & raytraceIn, Float4 * const outputPixelIn)
             :

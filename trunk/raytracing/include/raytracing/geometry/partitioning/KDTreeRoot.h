@@ -12,8 +12,6 @@ namespace raytracer
 
         KDTreeNode rootNode;
 
-        ALIGNED_ALLOCATORS(__alignof(KDTreeRoot));
-
         KDTreeRoot();
 
         ~KDTreeRoot();

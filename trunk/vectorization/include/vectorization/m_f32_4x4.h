@@ -40,8 +40,6 @@ namespace vectorization
 
         explicit m_f32_4x4(const ValueType * const m) noexcept;
 
-        ALIGNED_ALLOCATORS(__alignof(PackedType));
-
         MatrixType & operator=(const m_f32_4x4::RowVectorType::PackedType & row) noexcept;
 
         ValueType & operator[](const int index) noexcept;

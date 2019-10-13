@@ -18,8 +18,6 @@ namespace raytracer
 
         Float4 transmitted;
 
-        ALIGNED_ALLOCATORS(__alignof(LightShading));
-
         LightShading();
 
         LightShading(const Float4 & ambient);

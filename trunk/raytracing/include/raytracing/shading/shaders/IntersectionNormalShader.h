@@ -10,8 +10,6 @@ namespace raytracer
     {
     public:
 
-        ALIGNED_ALLOCATORS(__alignof(IntersectionNormalShader));
-
         IntersectionNormalShader();
 
         virtual ~IntersectionNormalShader();

@@ -17,8 +17,6 @@ namespace raytracer
 
     public:
 
-        ALIGNED_ALLOCATORS(__alignof(EnvironmentShader));
-
         EnvironmentShader(const HDRImage & image);
 
         virtual ~EnvironmentShader();

@@ -10,8 +10,6 @@ namespace primitives
     {
         Float4 minimum, maximum;
 
-        ALIGNED_ALLOCATORS(__alignof(AxisAlignedBoundingBox));
-
         AxisAlignedBoundingBox() noexcept;
 
         explicit AxisAlignedBoundingBox(const Float4 & a, const Float4 & b) noexcept;

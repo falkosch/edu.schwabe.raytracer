@@ -16,8 +16,6 @@ namespace raytracer
         // the two childs
         KDTreeNode childA, childB;
 
-        ALIGNED_ALLOCATORS(__alignof(KDTreeNodeChilds));
-
         KDTreeNodeChilds();
 
         ~KDTreeNodeChilds();

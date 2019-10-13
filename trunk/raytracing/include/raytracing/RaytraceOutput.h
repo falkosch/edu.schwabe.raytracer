@@ -16,8 +16,6 @@ namespace raytracer
 
         StatisticsCookie statistics;
 
-        ALIGNED_ALLOCATORS(__alignof(RaytraceOutput));
-
         RaytraceOutput();
     };
 }

@@ -11,8 +11,6 @@ namespace raytracer
     {
         AxisAlignedBoundingBox bounding;
 
-        ALIGNED_ALLOCATORS(__alignof(Box));
-
         Box();
 
         explicit Box(const AxisAlignedBoundingBox & bounding);

@@ -22,8 +22,6 @@ namespace raytracer
         // the object, that has shadowed this lightsource last time.
         const ObjectGeometry * lastShadowedByObject;
 
-        ALIGNED_ALLOCATORS(__alignof(PerLightShadowCache));
-
         PerLightShadowCache();
 
         PerLightShadowCache(

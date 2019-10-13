@@ -15,8 +15,6 @@ namespace raytracer
         Float3 rotation;
         Float3 scale;
 
-        ALIGNED_ALLOCATORS(__alignof(TransformInfo));
-
         TransformInfo();
     };
 }

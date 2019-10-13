@@ -17,8 +17,6 @@ namespace raytracer
         PerLightShadowCache::ShadowCacheType * shadowCache;
         StatisticsCookie * statistics;
 
-        ALIGNED_ALLOCATORS(__alignof(SceneShaderContainment));
-
         SceneShaderContainment(PerLightShadowCache::ShadowCacheType & shadowCache, StatisticsCookie & statistics);
     };
 }

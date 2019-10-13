@@ -22,8 +22,6 @@ namespace raytracer
 
         Float visibilityIndex;
 
-        ALIGNED_ALLOCATORS(__alignof(Raytrace));
-
         Raytrace();
 
         explicit Raytrace(

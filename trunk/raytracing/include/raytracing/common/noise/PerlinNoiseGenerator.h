@@ -28,8 +28,6 @@ namespace raytracer
 
     public:
 
-        ALIGNED_ALLOCATORS(__alignof(PerlinNoiseGenerator));
-
         PerlinNoiseGenerator(const UInt_64 seed);
 
         virtual ~PerlinNoiseGenerator() { }

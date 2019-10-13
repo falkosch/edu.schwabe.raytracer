@@ -24,8 +24,6 @@ namespace raytracer
 
     public:
 
-        ALIGNED_ALLOCATORS(__alignof(HDRImage));
-
         HDRImage();
 
         HDRImage(const Size2 & resolution);

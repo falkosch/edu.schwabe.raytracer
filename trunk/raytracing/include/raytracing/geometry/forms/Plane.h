@@ -17,8 +17,6 @@ namespace raytracer
 
         FacetEdges baseVectors;
 
-        ALIGNED_ALLOCATORS(__alignof(Plane));
-
         Plane();
 
         explicit Plane(const Float4 & planeEquation);

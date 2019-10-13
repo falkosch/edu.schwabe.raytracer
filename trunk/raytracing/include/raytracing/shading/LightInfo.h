@@ -22,8 +22,6 @@ namespace raytracer
         // intersection-point.
         Float4 attenuationFactors;
 
-        ALIGNED_ALLOCATORS(__alignof(LightInfo));
-
         LightInfo();
     };
 }

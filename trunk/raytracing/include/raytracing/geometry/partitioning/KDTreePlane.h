@@ -15,8 +15,6 @@ namespace raytracer
         // split-axis
         ASizeT splitAxis;
 
-        ALIGNED_ALLOCATORS(__alignof(KDTreePlane));
-
         KDTreePlane();
 
         KDTreePlane(const Float t, const ASizeT splitAxis);

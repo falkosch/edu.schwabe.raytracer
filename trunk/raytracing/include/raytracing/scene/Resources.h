@@ -25,8 +25,6 @@ namespace raytracer
             ObjectShader::MaterialShader
         > MultiplyByConstMaterialShader;
 
-        ALIGNED_ALLOCATORS(__alignof(Resources));
-
         Resources();
 
         virtual ~Resources();

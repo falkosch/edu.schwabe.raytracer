@@ -10,8 +10,6 @@ namespace primitives
     {
         Float4 normalDistance;
 
-        ALIGNED_ALLOCATORS(__alignof(SplittingPlane));
-
         SplittingPlane() noexcept;
 
         explicit SplittingPlane(const Float4 & normalDistance) noexcept;

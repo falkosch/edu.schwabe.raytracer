@@ -32,8 +32,6 @@ namespace raytracer
         // Distance from ray-origin to scene-intersection
         Float viewDistance;
 
-        ALIGNED_ALLOCATORS(__alignof(BRDFParameters));
-
         BRDFParameters();
     };
 }

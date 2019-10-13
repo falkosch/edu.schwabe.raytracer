@@ -14,8 +14,6 @@ namespace raytracer
     {
         ASizeT runId;
 
-        ALIGNED_ALLOCATORS(__alignof(RaytraceConfiguration));
-
         RaytraceConfiguration();
 
         RaytraceConfiguration & operator=(const RaytraceParameters & parameters) {

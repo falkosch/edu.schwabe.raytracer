@@ -13,8 +13,6 @@ namespace raytracer
 
     public:
 
-        ALIGNED_ALLOCATORS(__alignof(MultiplyByConstShader));
-
         MultiplyByConstShader(
             const OutputType & constantIn,
             const OtherShader & otherShaderIn)

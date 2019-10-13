@@ -45,8 +45,6 @@ namespace vectorization
         explicit v_f32_4x4(const AOSVectorType & aos) noexcept;
 
         explicit v_f32_4x4(const ValueType * const m) noexcept;
-
-        ALIGNED_ALLOCATORS(__alignof(PackedType));
     }; // v_f32_4x4
 
 #pragma region Accessors

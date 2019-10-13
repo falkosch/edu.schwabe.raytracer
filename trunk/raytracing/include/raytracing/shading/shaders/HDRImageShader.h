@@ -13,8 +13,6 @@ namespace raytracer
 
     public:
 
-        ALIGNED_ALLOCATORS(__alignof(HDRImageShader));
-
         HDRImageShader(const HDRImage & image);
 
         virtual ~HDRImageShader();

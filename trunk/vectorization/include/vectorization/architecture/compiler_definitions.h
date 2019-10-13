@@ -123,19 +123,10 @@
 
 #define DEBUG_BREAK raise(SIGTRAP)
 
-#define BEGIN_ALIGNED(alignment)
-#define END_ALIGNED(alignment) __attribute__((aligned(alignment)))
-
 #else
 
 #define ARCH_NOINLINE __declspec(noinline)
 
 #define DEBUG_BREAK __debugbreak()
 
-#define BEGIN_ALIGNED(alignment) __declspec(align(alignment))
-#define END_ALIGNED(alignment)
-
 #endif
-
-#define ALIGNED_UNPACK(...) __VA_ARGS__
-#define ALIGNED(alignment, decleration) BEGIN_ALIGNED(BEST_ALIGNMENT) ALIGNED_UNPACK decleration END_ALIGNED(BEST_ALIGNMENT)

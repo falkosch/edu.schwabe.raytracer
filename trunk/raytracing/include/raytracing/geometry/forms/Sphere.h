@@ -11,8 +11,6 @@ namespace raytracer
     {
         BoundingSphere bounding;
 
-        ALIGNED_ALLOCATORS(__alignof(Sphere));
-
         Sphere();
 
         explicit Sphere(const BoundingSphere & bounding);

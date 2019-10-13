@@ -67,8 +67,6 @@ namespace raytracerui
 
     public:
 
-        ALIGNED_ALLOCATORS(__alignof(WindowsRaytracerUI));
-
         WindowsRaytracerUI(Raytracer & raytracer, const RaytraceParameters & parameters, const ASizeT & fastPreviewSize);
 
         virtual ~WindowsRaytracerUI();

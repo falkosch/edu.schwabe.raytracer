@@ -14,8 +14,6 @@ namespace raytracer
     {
     public:
 
-        ALIGNED_ALLOCATORS(__alignof(Raytracer));
-
         Raytracer();
 
         virtual ~Raytracer();

@@ -13,8 +13,6 @@ namespace primitives
     {
         Float4 origin, direction, reciprocalDirection;
 
-        ALIGNED_ALLOCATORS(__alignof(Ray));
-
         Ray() noexcept;
 
         explicit Ray(const Float4 & origin) noexcept;

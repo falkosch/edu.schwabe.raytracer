@@ -21,8 +21,6 @@ namespace raytracer
         SceneShader * sceneShader;
         Int cullingOrientation;
 
-        ALIGNED_ALLOCATORS(__alignof(RaytraceBaseParameters));
-
         RaytraceBaseParameters();
     };
 }

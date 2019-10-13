@@ -27,8 +27,6 @@ namespace vectorization
 
         explicit v_ui64_2(const ValueType x, const ValueType y) noexcept;
 
-        ALIGNED_ALLOCATORS(__alignof(PackedType));
-
         v_ui64_2 & operator=(const PackedType & v) noexcept;
 
         ValueType & operator[](const int index) noexcept;

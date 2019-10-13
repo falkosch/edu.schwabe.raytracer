@@ -15,8 +15,6 @@ namespace raytracer
         Float2 scale;
         Float rotation;
 
-        ALIGNED_ALLOCATORS(__alignof(TextureTransformInfo));
-
         TextureTransformInfo();
     };
 }

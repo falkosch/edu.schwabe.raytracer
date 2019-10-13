@@ -22,8 +22,6 @@ namespace raytracer
 
         Float4 emittivity;
 
-        ALIGNED_ALLOCATORS(__alignof(SurfaceShading));
-
         SurfaceShading();
 
         SurfaceShading(

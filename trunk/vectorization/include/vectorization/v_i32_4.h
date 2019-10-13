@@ -31,8 +31,6 @@ namespace vectorization
 
         explicit v_i32_4(const ValueType x, const ValueType y, const ValueType z, const ValueType w) noexcept;
 
-        ALIGNED_ALLOCATORS(__alignof(PackedType));
-
         v_i32_4 & operator=(const PackedType & v) noexcept;
 
         ValueType & operator[](const int index) noexcept;

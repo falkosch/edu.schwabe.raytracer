@@ -16,8 +16,6 @@ namespace raytracer
 
         PerLightShadowCache::ShadowCacheType shadowCache;
 
-        ALIGNED_ALLOCATORS(__alignof(RaytracerCache));
-
         RaytracerCache(const RaytraceConfiguration & configuration);
     };
 }

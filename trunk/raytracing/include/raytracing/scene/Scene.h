@@ -16,8 +16,6 @@ namespace raytracer
 
         typedef std::vector<SceneObject *, AlignedAllocator<SceneObject *>> SceneList;
 
-        ALIGNED_ALLOCATORS(__alignof(Scene));
-
         Scene();
 
         Scene(const KDTreeTraverser<SceneIntersection> * const treeTraverser, const KDTreeBalancer * const treeBalancer);

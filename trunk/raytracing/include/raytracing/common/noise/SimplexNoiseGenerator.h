@@ -10,8 +10,6 @@ namespace raytracer
     {
     public:
 
-        ALIGNED_ALLOCATORS(__alignof(SimplexNoiseGenerator));
-
         SimplexNoiseGenerator(const unsigned int seed);
 
         virtual ~SimplexNoiseGenerator() { }

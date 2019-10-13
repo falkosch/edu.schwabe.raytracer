@@ -22,8 +22,6 @@ namespace raytracer
 
     public:
 
-        ALIGNED_ALLOCATORS(__alignof(Camera));
-
         Camera();
 
         virtual ~Camera();

@@ -11,8 +11,6 @@ namespace raytracer
 
     public:
 
-        ALIGNED_ALLOCATORS(__alignof(ConstShader));
-
         ConstShader(const OutputType & constantIn)
             :
             constant(constantIn) { }

@@ -10,8 +10,6 @@ namespace primitives
     {
         Float4 v0, v1, v2;
 
-        ALIGNED_ALLOCATORS(__alignof(Facet));
-
         Facet() noexcept;
 
         explicit Facet(const Float4 & v) noexcept;

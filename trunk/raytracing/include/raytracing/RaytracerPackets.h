@@ -32,8 +32,6 @@ namespace raytracer
         // super sample weight
         Float4 ssAvg;
 
-        ALIGNED_ALLOCATORS(__alignof(RaytracerPackets));
-
         RaytracerPackets(const RaytraceConfiguration & configuration);
 
         const int getPacketCount() const;

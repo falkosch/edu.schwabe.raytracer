@@ -19,8 +19,6 @@ namespace raytracer
         // How many levels deep is the recursion allowed to be.
         ASizeT maxTreeDepth;
 
-        ALIGNED_ALLOCATORS(__alignof(KDTreeBuildParameters));
-
         KDTreeBuildParameters();
     };
 }

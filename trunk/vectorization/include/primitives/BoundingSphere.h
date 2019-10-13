@@ -11,8 +11,6 @@ namespace primitives
         // contains the XYZ-coords of the sphere's center and the radius as the w-component
         Float4 centerRadius;
 
-        ALIGNED_ALLOCATORS(__alignof(BoundingSphere));
-
         BoundingSphere() noexcept;
 
         explicit BoundingSphere(const Float4 & center, const Float radius) noexcept;

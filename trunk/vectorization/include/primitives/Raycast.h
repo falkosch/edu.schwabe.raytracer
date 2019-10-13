@@ -22,8 +22,6 @@ namespace primitives
 
         Float maxDistance;
 
-        ALIGNED_ALLOCATORS(__alignof(Raycast));
-
         Raycast() noexcept;
 
         explicit Raycast(

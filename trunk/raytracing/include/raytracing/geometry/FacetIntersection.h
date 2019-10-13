@@ -33,8 +33,6 @@ namespace raytracer
         // node of the facet
         const Intersectable<Raycast, FacetIntersection> * node;
 
-        ALIGNED_ALLOCATORS(__alignof(FacetIntersection));
-
         FacetIntersection();
     };
 }

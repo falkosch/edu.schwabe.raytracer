@@ -42,8 +42,6 @@ namespace raytracer
 
         Camera * camera;
 
-        ALIGNED_ALLOCATORS(__alignof(RaytraceParameters));
-
         RaytraceParameters();
     };
 }

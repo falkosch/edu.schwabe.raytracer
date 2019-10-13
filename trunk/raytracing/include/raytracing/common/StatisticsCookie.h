@@ -15,8 +15,6 @@ namespace raytracer
         ASizeT shadowRays, missedShadowRays;
         ASizeT objectShadowRays, objectMissedShadowRays;
 
-        ALIGNED_ALLOCATORS(__alignof(StatisticsCookie));
-
         StatisticsCookie();
 
         void merge(const StatisticsCookie & other);

@@ -32,8 +32,6 @@ namespace raytracer
 
     public:
 
-        ALIGNED_ALLOCATORS(__alignof(Bitmap));
-
         Bitmap();
 
         Bitmap(const Size2 & resolution);
