@@ -199,6 +199,16 @@
     <ClCompile Include="src\vectorization\blends\blend_256s_test.cpp" />
     <ClCompile Include="src\vectorization\constants\masks\MaskAll_test.cpp" />
     <ClCompile Include="src\vectorization\constants\masks\MaskNone_test.cpp" />
+    <ClCompile Include="src\vectorization\constants\masks\MaskW_test.cpp" />
+    <ClCompile Include="src\vectorization\constants\masks\MaskX_test.cpp" />
+    <ClCompile Include="src\vectorization\constants\masks\MaskXY_test.cpp" />
+    <ClCompile Include="src\vectorization\constants\masks\MaskXYZ_test.cpp" />
+    <ClCompile Include="src\vectorization\constants\masks\MaskXYZW_test.cpp" />
+    <ClCompile Include="src\vectorization\constants\masks\MaskY_test.cpp" />
+    <ClCompile Include="src\vectorization\constants\masks\MaskYZ_test.cpp" />
+    <ClCompile Include="src\vectorization\constants\masks\MaskYZW_test.cpp" />
+    <ClCompile Include="src\vectorization\constants\masks\MaskZ_test.cpp" />
+    <ClCompile Include="src\vectorization\constants\masks\MaskZW_test.cpp" />
     <ClCompile Include="src\vectorization\blends\blendMasked_128s_test.cpp" />
     <ClCompile Include="src\vectorization\blends\blendMasked_256d_test.cpp" />
     <ClCompile Include="src\vectorization\blends\blendMasked_256i_test.cpp" />

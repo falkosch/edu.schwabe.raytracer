@@ -66,6 +66,36 @@
     <ClCompile Include="src\vectorization\constants\masks\MaskNone_test.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="src\vectorization\constants\masks\MaskW_test.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vectorization\constants\masks\MaskX_test.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vectorization\constants\masks\MaskXY_test.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vectorization\constants\masks\MaskXYZ_test.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vectorization\constants\masks\MaskXYZW_test.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vectorization\constants\masks\MaskY_test.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vectorization\constants\masks\MaskYZ_test.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vectorization\constants\masks\MaskYZW_test.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vectorization\constants\masks\MaskZ_test.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vectorization\constants\masks\MaskZW_test.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
     <ClCompile Include="src\vectorization\swizzles\swizzle_128d_test.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>

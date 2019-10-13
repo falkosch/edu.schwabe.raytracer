@@ -74,7 +74,7 @@ namespace vectorization
 
     template <>
     const PackedInts_256 MaskAll<PackedInts_256>() noexcept {
-        return _mm256_set1_epi64x({ -1 });
+        return _mm256_set1_epi64x(long long{ -1 });
     }
 
     template <>

@@ -14,6 +14,7 @@
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
 #include <vectorization.h>
+using namespace vectorization;
 
 #include <algorithm>
 #include <array>
