@@ -1,53 +1,55 @@
 #include "vectorization/accessors/replaceComponent_256s.h"
 
+#include "vectorization/blends.h"
+
 namespace vectorization
 {
     template <>
     const PackedFloat8_256 replaceComponent<VectorIndices::X1>(const PackedFloat8_256 & v, const Float_32 s) noexcept {
-        // TODO
-        return _mm256_setzero_ps();
+        auto packs = _mm256_set1_ps(s);
+        return blend<true, false, false, false, false, false, false, false>(v, packs);
     }
 
     template <>
     const PackedFloat8_256 replaceComponent<VectorIndices::X2>(const PackedFloat8_256 & v, const Float_32 s) noexcept {
-        // TODO
-        return _mm256_setzero_ps();
+        auto packs = _mm256_set1_ps(s);
+        return blend<false, true, false, false, false, false, false, false>(v, packs);
     }
 
     template <>
     const PackedFloat8_256 replaceComponent<VectorIndices::X3>(const PackedFloat8_256 & v, const Float_32 s) noexcept {
-        // TODO
-        return _mm256_setzero_ps();
+        auto packs = _mm256_set1_ps(s);
+        return blend<false, false, true, false, false, false, false, false>(v, packs);
     }
 
     template <>
     const PackedFloat8_256 replaceComponent<VectorIndices::X4>(const PackedFloat8_256 & v, const Float_32 s) noexcept {
-        // TODO
-        return _mm256_setzero_ps();
+        auto packs = _mm256_set1_ps(s);
+        return blend<false, false, false, true, false, false, false, false>(v, packs);
     }
 
     template <>
     const PackedFloat8_256 replaceComponent<VectorIndices::X5>(const PackedFloat8_256 & v, const Float_32 s) noexcept {
-        // TODO
-        return _mm256_setzero_ps();
+        auto packs = _mm256_set1_ps(s);
+        return blend<false, false, false, false, true, false, false, false>(v, packs);
     }
 
     template <>
     const PackedFloat8_256 replaceComponent<VectorIndices::X6>(const PackedFloat8_256 & v, const Float_32 s) noexcept {
-        // TODO
-        return _mm256_setzero_ps();
+        auto packs = _mm256_set1_ps(s);
+        return blend<false, false, false, false, false, true, false, false>(v, packs);
     }
 
     template <>
     const PackedFloat8_256 replaceComponent<VectorIndices::X7>(const PackedFloat8_256 & v, const Float_32 s) noexcept {
-        // TODO
-        return _mm256_setzero_ps();
+        auto packs = _mm256_set1_ps(s);
+        return blend<false, false, false, false, false, false, true, false>(v, packs);
     }
 
     template <>
     const PackedFloat8_256 replaceComponent<VectorIndices::X8>(const PackedFloat8_256 & v, const Float_32 s) noexcept {
-        // TODO
-        return _mm256_setzero_ps();
+        auto packs = _mm256_set1_ps(s);
+        return blend<false, false, false, false, false, false, false, true>(v, packs);
     }
 
     const PackedFloat8_256 replaceX(const PackedFloat8_256 & v, const Float_32 s) noexcept {

@@ -1,29 +1,31 @@
 #include "vectorization/accessors/replaceComponent_256d.h"
 
+#include "vectorization/blends.h"
+
 namespace vectorization
 {
     template <>
     const PackedFloat4_256 replaceComponent<VectorIndices::X>(const PackedFloat4_256 & v, const Float_64 s) noexcept {
-        // TODO
-        return _mm256_setzero_pd();
+        auto packs = _mm256_set1_pd(s);
+        return blend<true, false, false, false>(v, packs);
     }
 
     template <>
     const PackedFloat4_256 replaceComponent<VectorIndices::Y>(const PackedFloat4_256 & v, const Float_64 s) noexcept {
-        // TODO
-        return _mm256_setzero_pd();
+        auto packs = _mm256_set1_pd(s);
+        return blend<false, true, false, false>(v, packs);
     }
 
     template <>
     const PackedFloat4_256 replaceComponent<VectorIndices::Z>(const PackedFloat4_256 & v, const Float_64 s) noexcept {
-        // TODO
-        return _mm256_setzero_pd();
+        auto packs = _mm256_set1_pd(s);
+        return blend<false, false, true, false>(v, packs);
     }
 
     template <>
     const PackedFloat4_256 replaceComponent<VectorIndices::W>(const PackedFloat4_256 & v, const Float_64 s) noexcept {
-        // TODO
-        return _mm256_setzero_pd();
+        auto packs = _mm256_set1_pd(s);
+        return blend<false, false, false, true>(v, packs);
     }
 
     const PackedFloat4_256 replaceX(const PackedFloat4_256 & v, const Float_64 s) noexcept {
