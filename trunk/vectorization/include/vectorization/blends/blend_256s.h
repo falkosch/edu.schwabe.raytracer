@@ -6,6 +6,16 @@ namespace vectorization
 {
     // generic blend of two vectors
     template <
+        bool SelectX, bool SelectY, bool SelectZ, bool SelectW
+    > inline const PackedFloat8_256 blend(const PackedFloat8_256 & a, const PackedFloat8_256 & b) noexcept {
+        constexpr auto blendMask = 0
+            | ((SelectX & 1) << 0) | ((SelectY & 1) << 1) | ((SelectZ & 1) << 2) | ((SelectW & 1) << 3)
+            | ((SelectX & 1) << 4) | ((SelectY & 1) << 5) | ((SelectZ & 1) << 6) | ((SelectW & 1) << 7);
+        return _mm256_blend_ps(a, b, blendMask);
+    }
+
+    // generic blend of two vectors
+    template <
         bool SelectX1, bool SelectX2, bool SelectX3, bool SelectX4,
         bool SelectX5, bool SelectX6, bool SelectX7, bool SelectX8
     > inline const PackedFloat8_256 blend(const PackedFloat8_256 & a, const PackedFloat8_256 & b) noexcept {
@@ -14,15 +24,15 @@ namespace vectorization
         return _mm256_blend_ps(a, b, blendMask);
     }
 
-    template <>
     // passtrough a
+    template <>
     const PackedFloat8_256 blend<
         false, false, false, false,
         false, false, false, false
     >(const PackedFloat8_256 & a, const PackedFloat8_256 & b) noexcept;
 
-    template <>
     // passthrough b
+    template <>
     const PackedFloat8_256 blend<
         true, true, true, true,
         true, true, true, true

@@ -21,6 +21,7 @@ using namespace vectorization;
 #include <bitset>
 #include <cmath>
 #include <functional>
+#include <limits>
 #include <ostream>
 #include <string>
 #include <vector>

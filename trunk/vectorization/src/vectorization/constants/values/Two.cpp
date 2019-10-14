@@ -2,23 +2,61 @@
 
 #include "vectorization/constants/masks.h"
 
+#include "vectorization/accessors.h"
+
 #include <limits>
 
 namespace vectorization
 {
-    template <typename T>
-    const T Two() noexcept {
-        return { 2 };
+    template <>
+    const Int_8 Two() noexcept {
+        return Int_8{ 2 };
     }
 
-    template const Int_8 Two<Int_8>() noexcept;
-    template const UInt_8 Two<UInt_8>() noexcept;
-    template const Int_16 Two<Int_16>() noexcept;
-    template const UInt_16 Two<UInt_16>() noexcept;
-    template const Int_32 Two<Int_32>() noexcept;
-    template const UInt_32 Two<UInt_32>() noexcept;
-    template const Int_64 Two<Int_64>() noexcept;
-    template const UInt_64 Two<UInt_64>() noexcept;
+    template <>
+    const UInt_8 Two() noexcept {
+        return UInt_8{ 2 };
+    }
+
+    template <>
+    const Int_16 Two() noexcept {
+        return Int_16{ 2 };
+    }
+
+    template <>
+    const UInt_16 Two() noexcept {
+        return UInt_16{ 2 };
+    }
+
+    template <>
+    const Int_32 Two() noexcept {
+        return Int_32{ 2 };
+    }
+
+    template <>
+    const UInt_32 Two() noexcept {
+        return UInt_32{ 2 };
+    }
+
+    template <>
+    const Int_64 Two() noexcept {
+        return Int_64{ 2 };
+    }
+
+    template <>
+    const UInt_64 Two() noexcept {
+        return UInt_64{ 2 };
+    }
+
+    template <>
+    const Float_32 Two<Float_32>() noexcept {
+        return x(Two<PackedFloat4_128>());
+    }
+
+    template <>
+    const Float_64 Two<Float_64>() noexcept {
+        return x(Two<PackedFloat2_128>());
+    }
 
     template <>
     const PackedFloat4_128 Two<PackedFloat4_128>() noexcept {
@@ -26,7 +64,7 @@ namespace vectorization
             _mm_srli_epi32(
                 _mm_slli_epi32(
                     MaskAll<PackedInts_128>(),
-                    sizeof(Int_32) * std::numeric_limits<unsigned char>::digits - 1
+                    sizeof(Int_32) * std::numeric_limits<UInt_8>::digits - 1
                 ),
                 1
             )
@@ -39,7 +77,7 @@ namespace vectorization
             _mm_srli_epi64(
                 _mm_slli_epi64(
                     MaskAll<PackedInts_128>(),
-                    sizeof(Int_64) * std::numeric_limits<unsigned char>::digits - 1
+                    sizeof(Int_64) * std::numeric_limits<UInt_8>::digits - 1
                 ),
                 1
             )
@@ -47,12 +85,14 @@ namespace vectorization
     }
 
     template <>
-    const Float_32 Two<Float_32>() noexcept {
-        return _mm_cvtss_f32(Two<PackedFloat4_128>());
+    const PackedFloat4_256 Two<PackedFloat4_256>() noexcept {
+        const auto v = Two<PackedFloat2_128>();
+        return _mm256_set_m128d(v, v);
     }
 
     template <>
-    const Float_64 Two<Float_64>() noexcept {
-        return _mm_cvtsd_f64(Two<PackedFloat2_128>());
+    const PackedFloat8_256 Two<PackedFloat8_256>() noexcept {
+        const auto v = Two<PackedFloat4_128>();
+        return _mm256_set_m128(v, v);
     }
 }

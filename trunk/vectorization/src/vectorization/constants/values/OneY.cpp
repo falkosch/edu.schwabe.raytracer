@@ -1,6 +1,9 @@
 #include "vectorization/constants/values/OneY.h"
 
 #include "vectorization/constants/values/One.h"
+#include "vectorization/constants/values/Zero.h"
+
+#include "vectorization/blends.h"
 
 namespace vectorization
 {
@@ -25,5 +28,15 @@ namespace vectorization
                 VectorSizes::X * sizeof(Float_64)
             )
         );
+    }
+
+    template <>
+    const PackedFloat4_256 OneY<PackedFloat4_256>() noexcept {
+        return blend<false, true, false, false>(Zero<PackedFloat4_256>(), One<PackedFloat4_256>());
+    }
+
+    template <>
+    const PackedFloat8_256 OneY<PackedFloat8_256>() noexcept {
+        return blend<false, true, false, false>(Zero<PackedFloat8_256>(), One<PackedFloat8_256>());
     }
 }

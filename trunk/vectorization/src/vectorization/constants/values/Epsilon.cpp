@@ -19,27 +19,36 @@ namespace vectorization
         return e;
     }
 
-    const PackedFloat4_128 Epsilon_PackedFloat4_128 = _mm_set_ps1(benchmarkMachineEpsilon<Float_32>());
-
-    const PackedFloat2_128 Epsilon_PackedFloat2_128 = _mm_set1_pd(benchmarkMachineEpsilon<Float_64>());
-
-    template <>
-    const PackedFloat4_128 Epsilon<PackedFloat4_128>() noexcept {
-        return Epsilon_PackedFloat4_128;
-    }
-
-    template <>
-    const PackedFloat2_128 Epsilon<PackedFloat2_128>() noexcept {
-        return Epsilon_PackedFloat2_128;
-    }
+    const Float_32 Epsilon_Float_32 = benchmarkMachineEpsilon<Float_32>();
+    const Float_64 Epsilon_Float_64 = benchmarkMachineEpsilon<Float_64>();
 
     template <>
     const Float_32 Epsilon<Float_32>() noexcept {
-        return _mm_cvtss_f32(Epsilon<PackedFloat4_128>());
+        return Epsilon_Float_32;
     }
 
     template <>
     const Float_64 Epsilon<Float_64>() noexcept {
-        return _mm_cvtsd_f64(Epsilon<PackedFloat2_128>());
+        return Epsilon_Float_64;
+    }
+
+    template <>
+    const PackedFloat2_128 Epsilon<PackedFloat2_128>() noexcept {
+        return _mm_set1_pd(Epsilon_Float_64);
+    }
+
+    template <>
+    const PackedFloat4_128 Epsilon<PackedFloat4_128>() noexcept {
+        return _mm_set1_ps(Epsilon_Float_32);
+    }
+
+    template <>
+    const PackedFloat4_256 Epsilon<PackedFloat4_256>() noexcept {
+        return _mm256_set1_pd(Epsilon_Float_64);
+    }
+
+    template <>
+    const PackedFloat8_256 Epsilon<PackedFloat8_256>() noexcept {
+        return _mm256_set1_ps(Epsilon_Float_32);
     }
 }

@@ -9,29 +9,29 @@ namespace vectorization
         public:
 
             TEST_METHOD(hasFixedSizeTypes) {
-                Assert::AreEqual(ASizeT{ 8 }, sizeof(Int_8) * ASizeT{ CHAR_BIT }, L"wrong fixed size", LINE_INFO());
-                Assert::AreEqual(ASizeT{ 8 }, sizeof(UInt_8) * ASizeT{ CHAR_BIT }, L"wrong fixed size", LINE_INFO());
-                Assert::AreEqual(ASizeT{ 16 }, sizeof(Int_16) * ASizeT{ CHAR_BIT }, L"wrong fixed size", LINE_INFO());
-                Assert::AreEqual(ASizeT{ 16 }, sizeof(UInt_16) * ASizeT{ CHAR_BIT }, L"wrong fixed size", LINE_INFO());
-                Assert::AreEqual(ASizeT{ 32 }, sizeof(Int_32) * ASizeT{ CHAR_BIT }, L"wrong fixed size", LINE_INFO());
-                Assert::AreEqual(ASizeT{ 32 }, sizeof(UInt_32) * ASizeT{ CHAR_BIT }, L"wrong fixed size", LINE_INFO());
-                Assert::AreEqual(ASizeT{ 64 }, sizeof(Int_64) * ASizeT{ CHAR_BIT }, L"wrong fixed size", LINE_INFO());
-                Assert::AreEqual(ASizeT{ 64 }, sizeof(UInt_64) * ASizeT{ CHAR_BIT }, L"wrong fixed size", LINE_INFO());
+                Assert::AreEqual(ASizeT{ 8 }, sizeof(Int_8) * ASizeT{ std::numeric_limits<UInt_8>::digits }, L"wrong fixed size", LINE_INFO());
+                Assert::AreEqual(ASizeT{ 8 }, sizeof(UInt_8) * ASizeT{ std::numeric_limits<UInt_8>::digits }, L"wrong fixed size", LINE_INFO());
+                Assert::AreEqual(ASizeT{ 16 }, sizeof(Int_16) * ASizeT{ std::numeric_limits<UInt_8>::digits }, L"wrong fixed size", LINE_INFO());
+                Assert::AreEqual(ASizeT{ 16 }, sizeof(UInt_16) * ASizeT{ std::numeric_limits<UInt_8>::digits }, L"wrong fixed size", LINE_INFO());
+                Assert::AreEqual(ASizeT{ 32 }, sizeof(Int_32) * ASizeT{ std::numeric_limits<UInt_8>::digits }, L"wrong fixed size", LINE_INFO());
+                Assert::AreEqual(ASizeT{ 32 }, sizeof(UInt_32) * ASizeT{ std::numeric_limits<UInt_8>::digits }, L"wrong fixed size", LINE_INFO());
+                Assert::AreEqual(ASizeT{ 64 }, sizeof(Int_64) * ASizeT{ std::numeric_limits<UInt_8>::digits }, L"wrong fixed size", LINE_INFO());
+                Assert::AreEqual(ASizeT{ 64 }, sizeof(UInt_64) * ASizeT{ std::numeric_limits<UInt_8>::digits }, L"wrong fixed size", LINE_INFO());
 
-                Assert::AreEqual(ASizeT{ 32 }, sizeof(Float_32) * ASizeT{ CHAR_BIT }, L"wrong fixed size", LINE_INFO());
-                Assert::AreEqual(ASizeT{ 64 }, sizeof(Float_64) * ASizeT{ CHAR_BIT }, L"wrong fixed size", LINE_INFO());
+                Assert::AreEqual(ASizeT{ 32 }, sizeof(Float_32) * ASizeT{ std::numeric_limits<UInt_8>::digits }, L"wrong fixed size", LINE_INFO());
+                Assert::AreEqual(ASizeT{ 64 }, sizeof(Float_64) * ASizeT{ std::numeric_limits<UInt_8>::digits }, L"wrong fixed size", LINE_INFO());
 
-                Assert::AreEqual(ASizeT{ 128 }, sizeof(PackedInts_128) * ASizeT{ CHAR_BIT }, L"wrong fixed size", LINE_INFO());
-                Assert::AreEqual(ASizeT{ 128 }, sizeof(PackedFloat4_128) * ASizeT{ CHAR_BIT }, L"wrong fixed size", LINE_INFO());
-                Assert::AreEqual(ASizeT{ 128 }, sizeof(PackedFloat2_128) * ASizeT{ CHAR_BIT }, L"wrong fixed size", LINE_INFO());
+                Assert::AreEqual(ASizeT{ 128 }, sizeof(PackedInts_128) * ASizeT{ std::numeric_limits<UInt_8>::digits }, L"wrong fixed size", LINE_INFO());
+                Assert::AreEqual(ASizeT{ 128 }, sizeof(PackedFloat4_128) * ASizeT{ std::numeric_limits<UInt_8>::digits }, L"wrong fixed size", LINE_INFO());
+                Assert::AreEqual(ASizeT{ 128 }, sizeof(PackedFloat2_128) * ASizeT{ std::numeric_limits<UInt_8>::digits }, L"wrong fixed size", LINE_INFO());
 
-                Assert::AreEqual(ASizeT{ 256 }, sizeof(PackedInts_256) * ASizeT{ CHAR_BIT }, L"wrong fixed size", LINE_INFO());
-                Assert::AreEqual(ASizeT{ 256 }, sizeof(PackedFloat8_256) * ASizeT{ CHAR_BIT }, L"wrong fixed size", LINE_INFO());
-                Assert::AreEqual(ASizeT{ 256 }, sizeof(PackedFloat4_256) * ASizeT{ CHAR_BIT }, L"wrong fixed size", LINE_INFO());
+                Assert::AreEqual(ASizeT{ 256 }, sizeof(PackedInts_256) * ASizeT{ std::numeric_limits<UInt_8>::digits }, L"wrong fixed size", LINE_INFO());
+                Assert::AreEqual(ASizeT{ 256 }, sizeof(PackedFloat8_256) * ASizeT{ std::numeric_limits<UInt_8>::digits }, L"wrong fixed size", LINE_INFO());
+                Assert::AreEqual(ASizeT{ 256 }, sizeof(PackedFloat4_256) * ASizeT{ std::numeric_limits<UInt_8>::digits }, L"wrong fixed size", LINE_INFO());
 
-                Assert::AreEqual(ASizeT{ 512 }, sizeof(PackedInts_512) * ASizeT{ CHAR_BIT }, L"wrong fixed size", LINE_INFO());
-                Assert::AreEqual(ASizeT{ 512 }, sizeof(PackedFloat16_512) * ASizeT{ CHAR_BIT }, L"wrong fixed size", LINE_INFO());
-                Assert::AreEqual(ASizeT{ 512 }, sizeof(PackedFloat8_512) * ASizeT{ CHAR_BIT }, L"wrong fixed size", LINE_INFO());
+                Assert::AreEqual(ASizeT{ 512 }, sizeof(PackedInts_512) * ASizeT{ std::numeric_limits<UInt_8>::digits }, L"wrong fixed size", LINE_INFO());
+                Assert::AreEqual(ASizeT{ 512 }, sizeof(PackedFloat16_512) * ASizeT{ std::numeric_limits<UInt_8>::digits }, L"wrong fixed size", LINE_INFO());
+                Assert::AreEqual(ASizeT{ 512 }, sizeof(PackedFloat8_512) * ASizeT{ std::numeric_limits<UInt_8>::digits }, L"wrong fixed size", LINE_INFO());
             }
 
             TEST_METHOD(hasSignedTypes) {

@@ -2,6 +2,8 @@
 
 #include "vectorization/constants/masks.h"
 
+#include "vectorization/accessors.h"
+
 #include <limits>
 
 namespace vectorization
@@ -13,13 +15,20 @@ namespace vectorization
     // bits with x are undetermined
 
     template <>
+    const Float_32 NotANumber<Float_32>() noexcept {
+        return x(NotANumber<PackedFloat4_128>());
+    }
+
+    template <>
+    const Float_64 NotANumber<Float_64>() noexcept {
+        return x(NotANumber<PackedFloat2_128>());
+    }
+
+    template <>
     const PackedFloat4_128 NotANumber<PackedFloat4_128>() noexcept {
         return _mm_castsi128_ps(
             _mm_slli_epi32(
-                _mm_srli_epi32(
-                    MaskAll<PackedInts_128>(),
-                    22
-                ),
+                _mm_srli_epi32(MaskAll<PackedInts_128>(), 22),
                 22
             )
         );
@@ -29,22 +38,21 @@ namespace vectorization
     const PackedFloat2_128 NotANumber<PackedFloat2_128>() noexcept {
         return _mm_castsi128_pd(
             _mm_slli_epi64(
-                _mm_srli_epi64(
-                    MaskAll<PackedInts_128>(),
-                    51
-                ),
+                _mm_srli_epi64(MaskAll<PackedInts_128>(), 51),
                 51
             )
         );
     }
 
     template <>
-    const Float_32 NotANumber<Float_32>() noexcept {
-        return _mm_cvtss_f32(NotANumber<PackedFloat4_128>());
+    const PackedFloat4_256 NotANumber<PackedFloat4_256>() noexcept {
+        const auto v = NotANumber<PackedFloat2_128>();
+        return _mm256_set_m128d(v, v);
     }
 
     template <>
-    const Float_64 NotANumber<Float_64>() noexcept {
-        return _mm_cvtsd_f64(NotANumber<PackedFloat2_128>());
+    const PackedFloat8_256 NotANumber<PackedFloat8_256>() noexcept {
+        const auto v = NotANumber<PackedFloat4_128>();
+        return _mm256_set_m128(v, v);
     }
 }

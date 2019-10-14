@@ -11,12 +11,16 @@ namespace vectorization
             template<typename T>
             static void testBitsCount() {
                 ValueBits<T> actualValue{ MaskNone<T>() };
-                auto actualBits = std::bitset<sizeof(T) * CHAR_BIT>(actualValue.bits);
+                auto actualBits = std::bitset<
+                    sizeof(T) * std::numeric_limits<UInt_8>::digits
+                >(actualValue.bits);
                 Assert::AreEqual(size_t{ 0 }, actualBits.count());
             }
 
             TEST_METHOD(returnsBoolMask) {
-                auto actualBits = std::bitset<sizeof(bool) * CHAR_BIT>(MaskNone<bool>());
+                auto actualBits = std::bitset<
+                    sizeof(bool) * std::numeric_limits<UInt_8>::digits
+                >(MaskNone<bool>());
                 Assert::AreEqual(size_t{ 0 }, actualBits.count());
             }
 

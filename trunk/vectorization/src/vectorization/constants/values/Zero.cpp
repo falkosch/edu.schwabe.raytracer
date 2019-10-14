@@ -1,10 +1,12 @@
 #include "vectorization/constants/values/Zero.h"
 
+#include "vectorization/accessors.h"
+
 namespace vectorization
 {
     template <>
     const bool Zero() noexcept {
-        return bool{ 0 };
+        return false;
     }
 
     template <>
@@ -49,12 +51,12 @@ namespace vectorization
 
     template <>
     const Float_32 Zero<Float_32>() noexcept {
-        return _mm_cvtss_f32(Zero<PackedFloat4_128>());
+        return x(Zero<PackedFloat4_128>());
     }
 
     template <>
     const Float_64 Zero<Float_64>() noexcept {
-        return _mm_cvtsd_f64(Zero<PackedFloat2_128>());
+        return x(Zero<PackedFloat2_128>());
     }
 
     template <>
@@ -63,13 +65,13 @@ namespace vectorization
     }
 
     template <>
-    const PackedFloat4_128 Zero<PackedFloat4_128>() noexcept {
-        return _mm_setzero_ps();
+    const PackedFloat2_128 Zero<PackedFloat2_128>() noexcept {
+        return _mm_setzero_pd();
     }
 
     template <>
-    const PackedFloat2_128 Zero<PackedFloat2_128>() noexcept {
-        return _mm_setzero_pd();
+    const PackedFloat4_128 Zero<PackedFloat4_128>() noexcept {
+        return _mm_setzero_ps();
     }
 
     template <>
@@ -78,12 +80,12 @@ namespace vectorization
     }
 
     template <>
-    const PackedFloat8_256 Zero<PackedFloat8_256>() noexcept {
-        return _mm256_setzero_ps();
+    const PackedFloat4_256 Zero<PackedFloat4_256>() noexcept {
+        return _mm256_setzero_pd();
     }
 
     template <>
-    const PackedFloat4_256 Zero<PackedFloat4_256>() noexcept {
-        return _mm256_setzero_pd();
+    const PackedFloat8_256 Zero<PackedFloat8_256>() noexcept {
+        return _mm256_setzero_ps();
     }
 }
