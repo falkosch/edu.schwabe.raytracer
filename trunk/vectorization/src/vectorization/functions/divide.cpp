@@ -1,5 +1,7 @@
 #include "vectorization/functions/divide.h"
 
+#include "vectorization/accessors.h"
+
 namespace vectorization
 {
     const Int_8 divide(const Int_8 a, const Int_8 b) noexcept {
@@ -41,14 +43,14 @@ namespace vectorization
         const PackedFloat4_128 bs = _mm_set_ss(b);
         const PackedFloat4_128 x0 = _mm_rcp_ss(bs);
         const PackedFloat4_128 x1 = _mm_mul_ss(_mm_sub_ss(two, _mm_mul_ss(bs, x0)), x0);
-        return _mm_cvtss_f32(_mm_mul_ss(_mm_set_ss(a), _mm_mul_ss(_mm_sub_ss(two, _mm_mul_ss(bs, x1)), x1)));
+        return x(_mm_mul_ss(_mm_set_ss(a), _mm_mul_ss(_mm_sub_ss(two, _mm_mul_ss(bs, x1)), x1)));
 #else
-        return _mm_cvtss_f32(_mm_mul_ss(_mm_set_ss(a), _mm_rcp_ss(_mm_set_ss(b))));
+        return x(_mm_mul_ss(_mm_set_ss(a), _mm_rcp_ss(_mm_set_ss(b))));
 #endif
 #else
-        return _mm_cvtss_f32(_mm_div_ss(_mm_set_ss(a), _mm_set_ss(b)));
+        return x(_mm_div_ss(_mm_set_ss(a), _mm_set_ss(b)));
 #endif
-    }
+}
 
     const Float_64 divide(const Float_64 a, const Float_64 b) noexcept {
         return a / b;

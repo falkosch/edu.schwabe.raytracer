@@ -1,5 +1,6 @@
 #include "vectorization/functions/reciprocal.h"
 
+#include "vectorization/accessors.h"
 #include "vectorization/constants.h"
 
 namespace vectorization
@@ -16,18 +17,18 @@ namespace vectorization
         const PackedFloat4_128 N = _mm_set_ss(v);
         const PackedFloat4_128 x0 = _mm_rcp_ss(N);
         const PackedFloat4_128 x1 = _mm_mul_ss(_mm_sub_ss(two, _mm_mul_ss(N, x0)), x0);
-        return _mm_cvtss_f32(_mm_mul_ss(_mm_sub_ss(two, _mm_mul_ss(N, x1)), x1));
+        return x(_mm_mul_ss(_mm_sub_ss(two, _mm_mul_ss(N, x1)), x1));
 #else
-        return _mm_cvtss_f32(_mm_rcp_ss(_mm_set_ss(v)));
+        return x(_mm_rcp_ss(_mm_set_ss(v)));
 #endif
 #else
-        return _mm_cvtss_f32(_mm_div_ss(One<PackedFloat4_128>(), _mm_set_ss(v)));
+        return x(_mm_div_ss(One<PackedFloat4_128>(), _mm_set_ss(v)));
 #endif
     }
 
     const Float_64 reciprocal(const Float_64 v) noexcept {
         // no approximative variants available in SSE or AVX
-        return _mm_cvtsd_f64(_mm_div_sd(One<PackedFloat2_128>(), _mm_set_sd(v)));
+        return x(_mm_div_sd(One<PackedFloat2_128>(), _mm_set_sd(v)));
     }
 
     const PackedFloat4_128 reciprocal(const PackedFloat4_128 & v) noexcept {

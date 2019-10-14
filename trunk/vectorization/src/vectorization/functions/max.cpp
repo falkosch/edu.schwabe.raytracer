@@ -1,5 +1,6 @@
 #include "vectorization/functions/max.h"
 
+#include "vectorization/accessors.h"
 #include "vectorization/selects.h"
 
 namespace vectorization
@@ -41,13 +42,13 @@ namespace vectorization
     }
 
     const Float_32 max(const Float_32 a, const Float_32 b) noexcept {
-        return _mm_cvtss_f32(
+        return x(
             _mm_max_ss(_mm_set_ss(a), _mm_set_ss(b))
         );
     }
 
     const Float_64 max(const Float_64 a, const Float_64 b) noexcept {
-        return _mm_cvtsd_f64(
+        return x(
             _mm_max_sd(_mm_set_sd(a), _mm_set_sd(b))
         );
     }

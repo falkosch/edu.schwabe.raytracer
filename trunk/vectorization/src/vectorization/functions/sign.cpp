@@ -2,6 +2,7 @@
 
 #include "vectorization/functions/copysign.h"
 
+#include "vectorization/accessors.h"
 #include "vectorization/blends.h"
 #include "vectorization/constants.h"
 
@@ -47,7 +48,7 @@ namespace vectorization
 
     const Float_32 sign(const Float_32 v) noexcept {
         const PackedFloat4_128 vv = _mm_set_ss(v);
-        return _mm_cvtss_f32(
+        return x(
             blendMasked(
                 copysign(vv),
                 Zero<PackedFloat4_128>(),
@@ -60,7 +61,7 @@ namespace vectorization
 
     const Float_64 sign(const Float_64 v) noexcept {
         const PackedFloat2_128 vv = _mm_set_sd(v);
-        return _mm_cvtsd_f64(
+        return x(
             blendMasked(
                 copysign(vv),
                 Zero<PackedFloat2_128>(),

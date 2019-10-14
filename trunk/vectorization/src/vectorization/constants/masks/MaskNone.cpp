@@ -1,5 +1,7 @@
 #include "vectorization/constants/masks/MaskNone.h"
 
+#include "vectorization/accessors.h"
+
 namespace vectorization
 {
     template <>
@@ -49,12 +51,12 @@ namespace vectorization
 
     template <>
     const Float_32 MaskNone<Float_32>() noexcept {
-        return _mm_cvtss_f32(MaskNone<PackedFloat4_128>());
+        return x(MaskNone<PackedFloat4_128>());
     }
 
     template <>
     const Float_64 MaskNone<Float_64>() noexcept {
-        return _mm_cvtsd_f64(MaskNone<PackedFloat2_128>());
+        return x(MaskNone<PackedFloat2_128>());
     }
 
     template <>

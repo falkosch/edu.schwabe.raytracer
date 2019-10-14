@@ -3,6 +3,8 @@
 #include "vectorization/functions/reciprocal.h"
 #include "vectorization/functions/sqrt.h"
 
+#include "vectorization/accessors.h"
+
 namespace vectorization
 {
     const Float_32 rsqrt(const Float_32 v) noexcept {
@@ -18,9 +20,9 @@ namespace vectorization
         const PackedFloat4_128 N = _mm_set_ss(v);
         const PackedFloat4_128 x0 = _mm_rsqrt_ss(N);
         const PackedFloat4_128 x1 = _mm_mul_ss(_mm_sub_ss(oneHalf, _mm_mul_ss(half, _mm_mul_ss(N, _mm_mul_ss(x0, x0)))), x0);
-        return _mm_cvtss_f32(_mm_mul_ss(_mm_sub_ss(oneHalf, _mm_mul_ss(half, _mm_mul_ss(N, _mm_mul_ss(x1, x1)))), x1));
+        return x(_mm_mul_ss(_mm_sub_ss(oneHalf, _mm_mul_ss(half, _mm_mul_ss(N, _mm_mul_ss(x1, x1)))), x1));
 #else
-        return _mm_cvtss_f32(_mm_rsqrt_ss(_mm_set_ss(v)));
+        return x(_mm_rsqrt_ss(_mm_set_ss(v)));
 #endif
 #else
         return reciprocal(sqrt(v));

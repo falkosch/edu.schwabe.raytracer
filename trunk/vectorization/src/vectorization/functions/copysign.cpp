@@ -1,5 +1,6 @@
 #include "vectorization/functions/copysign.h"
 
+#include "vectorization/accessors.h"
 #include "vectorization/constants.h"
 
 namespace vectorization
@@ -13,10 +14,10 @@ namespace vectorization
     }
 
     const Float_32 copysign(const Float_32 v) noexcept {
-        return _mm_cvtss_f32(copysign(_mm_set_ss(v)));
+        return x(copysign(_mm_set_ss(v)));
     }
 
     const Float_64 copysign(const Float_64 v) noexcept {
-        return _mm_cvtsd_f64(copysign(_mm_set_sd(v)));
+        return x(copysign(_mm_set_sd(v)));
     }
 }

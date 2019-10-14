@@ -3,6 +3,8 @@
 #include "vectorization/functions/max.h"
 #include "vectorization/functions/min.h"
 
+#include "vectorization/accessors.h"
+
 namespace vectorization
 {
     const bool clamp(const bool v, const bool lower, const bool upper) noexcept {
@@ -42,13 +44,13 @@ namespace vectorization
     }
 
     const Float_32 clamp(const Float_32 v, const Float_32 lower, const Float_32 upper) noexcept {
-        return _mm_cvtss_f32(
+        return x(
             _mm_max_ss(_mm_set_ss(lower), _mm_min_ss(_mm_set_ss(v), _mm_set_ss(upper)))
         );
     }
 
     const Float_64 clamp(const Float_64 v, const Float_64 lower, const Float_64 upper) noexcept {
-        return _mm_cvtsd_f64(
+        return x(
             _mm_max_sd(_mm_set_sd(lower), _mm_min_sd(_mm_set_sd(v), _mm_set_sd(upper)))
         );
     }

@@ -3,6 +3,8 @@
 #include "vectorization/blends/blendMasked_128d.h"
 #include "vectorization/blends/blendMasked_128s.h"
 
+#include "vectorization/accessors.h"
+
 namespace vectorization
 {
     const bool blendMasked(const bool onBitNotSet, const bool onBitSet, const bool mask) noexcept {
@@ -42,7 +44,7 @@ namespace vectorization
     }
 
     const Float_32 blendMasked(const Float_32 onBitNotSet, const Float_32 onBitSet, const BoolTypes<Float_32>::Type mask) noexcept {
-        return _mm_cvtss_f32(
+        return x(
             blendMasked(_mm_set_ss(onBitNotSet), _mm_set_ss(onBitSet), _mm_set1_epi32(static_cast<int>(mask)))
         );
     }
@@ -54,7 +56,7 @@ namespace vectorization
         PackedInts_128 m;
         reinterpret_cast<BoolTypes<Float_64>::Type * const>(&m)[VectorIndices::X] = mask;
 #endif
-        return _mm_cvtsd_f64(
+        return x(
             blendMasked(_mm_set_sd(onBitNotSet), _mm_set_sd(onBitSet), m)
         );
     }

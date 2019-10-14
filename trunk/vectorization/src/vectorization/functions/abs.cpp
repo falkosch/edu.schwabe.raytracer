@@ -1,5 +1,6 @@
 #include "vectorization/functions/abs.h"
 
+#include "vectorization/accessors.h"
 #include "vectorization/constants.h"
 #include "vectorization/selects.h"
 
@@ -22,11 +23,11 @@ namespace vectorization
     }
 
     const Float_32 abs(const Float_32 v) noexcept {
-        return _mm_cvtss_f32(abs(_mm_set_ss(v)));
+        return x(abs(_mm_set_ss(v)));
     }
 
     const Float_64 abs(const Float_64 v) noexcept {
-        return _mm_cvtsd_f64(abs(_mm_set_sd(v)));
+        return x(abs(_mm_set_sd(v)));
     }
 
     const PackedFloat4_128 abs(const PackedFloat4_128 & v) noexcept {
