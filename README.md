@@ -7,10 +7,18 @@ SSE/AVX accelerated implementation of recursive raytracing (a.k.a. Whitted Raytr
 This is my private raytracing project for hobby and learning purposes only.
 
 
+## System Overview
+
+The application is curently parted into three sub projects representing, each representing one of the three core layers:
+
+* _vectorization_ is a static library for the fundamental support for SSE/AVX accelerated FP computations.
+
+* _raytracing_ is a static library of the core of the raytracer backend. Here you will find the scene management, partitioning of the scene and its objects and the actual raytracer kernel, which is currently implementd as a Whitted-raytracer.
+
+* _raytracerui_ contains the simple frontend and a basic setup of different scenes.
+
 
 ## How to use
-
-
 
 ### Mouse control
 
@@ -29,8 +37,6 @@ Holding right button:
 * moving the mouse translates the last-added light object on the world's Z-axis
 
 * holding SHIFT and moving translates the last-added object on the world's Z-axis
-
-
 
 ### Key controls
 
@@ -54,7 +60,6 @@ Holding right button:
 
 *ENTER* - Manually trigger trace with disabled fast preview
 
-
 _For debugging purposes:_
 
 *W* - Write last raytracing output to file "raytraced.bmp" in current working directory
@@ -73,15 +78,13 @@ _For debugging purposes:_
 
 *H* - Increase ray packet size again
 
-
-
 ## Technology stack
 
-The raytracer (raytracing VC++-project as static library) features:
+The raytracer features:
 
 * A simple scene management (currently compile-time static)
 
-* KD-Tree partitioning API for generating and traversing acceleration structures
+* KD-Tree-based partitioning API for generating and traversing acceleration structures
 
 * Traced reflections and transmissions
 
@@ -95,25 +98,21 @@ The raytracer (raytracing VC++-project as static library) features:
 
     * Beer-Lambert-Law-based diffused and transmitted lightning
 
-
 All or almost all math is implemented with intrinsic instructions (vectorization VC++-project as static library)
-
-* SSE3 is used by default.
 
 * Use of SSE4, AVX and FMA instructions can be enabled at compile-time.
 
-* Third party implementations are used for vectorized exp and log functions
+  * SSE4 is used by default.
+
+* Third party implementations [sse_mathfun.h](http://gruntthepeon.free.fr/ssemath/) and [avx_mathfun.h](http://software-lisc.fbk.eu/avx_mathfun/) are used for vectorized exp and log functions
 
 * Unit tests are provided with Visual C++ component tests
-
 
 The UI is implemented with the standard Windows API (raytracerui VC++-project as Windows executable)
 
 * Output of the raytracing can be blitted either with a GDI StretchDIBits or an OpenGL implementation (latter has no effect on the performance of the raytracing!)
 
 * QT UI is planned
-
-
 
 ## TODO
 
@@ -135,4 +134,4 @@ Implement packeted raytracing to group similar rays for more efficient packeted 
 Provide structure of arrays for more efficient intersection tests for the triangle meshes.
 
 
-Refactor Raytracer.cpp so that different tracing strategies can be used, f.e. to implement a path tracer.
+Refactor Raytracer.cpp so that different tracing strategies can be used, f.e. a path tracer.
