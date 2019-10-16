@@ -18,7 +18,6 @@ using namespace vectorization;
 
 #include <algorithm>
 #include <array>
-#include <bitset>
 #include <cmath>
 #include <functional>
 #include <limits>

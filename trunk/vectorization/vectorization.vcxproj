@@ -237,6 +237,7 @@
     <ClInclude Include="include\vectorization\functions.h" />
     <ClInclude Include="include\vectorization\architecture\compiler_intrinsics.h" />
     <ClInclude Include="include\vectorization\architecture\meta_bool_types.h" />
+    <ClInclude Include="include\vectorization\functions\bitcount.h" />
     <ClInclude Include="include\vectorization\functions\clamp.h" />
     <ClInclude Include="include\vectorization\functions\copysign.h" />
     <ClInclude Include="include\vectorization\functions\abs.h" />
@@ -380,6 +381,7 @@
     <ClCompile Include="src\vectorization\functions\abs.cpp" />
     <ClCompile Include="src\vectorization\functions\acos.cpp" />
     <ClCompile Include="src\vectorization\functions\atan2.cpp" />
+    <ClCompile Include="src\vectorization\functions\bitcount.cpp" />
     <ClCompile Include="src\vectorization\functions\bitpad.cpp" />
     <ClCompile Include="src\vectorization\functions\ceil.cpp" />
     <ClCompile Include="src\vectorization\functions\clamp.cpp" />

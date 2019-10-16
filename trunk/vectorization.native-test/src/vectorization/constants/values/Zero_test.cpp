@@ -53,7 +53,7 @@ namespace vectorization
             }
 
             TEST_METHOD(returnsPackedInts_128) {
-                Assert::AreEqual(size_t{ 0 }, __popcntx(Zero<PackedInts_128>()));
+                Assert::AreEqual(size_t{ 0 }, bitcount(Zero<PackedInts_128>()));
             }
 
             TEST_METHOD(returnsPackedFloat2_128) {
@@ -75,7 +75,7 @@ namespace vectorization
             }
 
             TEST_METHOD(returnsPackedInts_256) {
-                Assert::AreEqual(size_t{ 0 }, __popcntx(Zero<PackedInts_256>()));
+                Assert::AreEqual(size_t{ 0 }, bitcount(Zero<PackedInts_256>()));
             }
 
             TEST_METHOD(returnsPackedFloat4_256) {
