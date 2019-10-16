@@ -163,6 +163,192 @@ namespace vectorization
                     )
                 );
             }
+
+            TEST_METHOD(hasDegreeToRadian) {
+                Assert::IsTrue(
+                    allTrue(
+                        v_f32_4(DegreeToRadian<v_f32_4::ValueType>()) == DegreeToRadian<v_f32_4>()
+                    )
+                );
+            }
+
+            TEST_METHOD(hasEpsilon) {
+                Assert::IsTrue(
+                    allTrue(
+                        v_f32_4(Epsilon<v_f32_4::ValueType>()) == Epsilon<v_f32_4>()
+                    )
+                );
+            }
+
+            TEST_METHOD(hasHalf) {
+                Assert::IsTrue(
+                    allTrue(
+                        v_f32_4(Half<v_f32_4::ValueType>()) == Half<v_f32_4>()
+                    )
+                );
+            }
+
+            TEST_METHOD(hasInfinity) {
+                Assert::IsTrue(allTrue(Zero<v_f32_4>() != Infinity<v_f32_4>()));
+            }
+
+            TEST_METHOD(hasNegativeInfinity) {
+                Assert::IsTrue(allTrue(Zero<v_f32_4>() != NegativeInfinity<v_f32_4>()));
+            }
+
+            TEST_METHOD(hasNegativeOne) {
+                Assert::IsTrue(
+                    allTrue(
+                        v_f32_4(NegativeOne<v_f32_4::ValueType>()) == NegativeOne<v_f32_4>()
+                    )
+                );
+            }
+
+            TEST_METHOD(hasNegativeTwo) {
+                Assert::IsTrue(
+                    allTrue(
+                        v_f32_4(NegativeTwo<v_f32_4::ValueType>()) == NegativeTwo<v_f32_4>()
+                    )
+                );
+            }
+
+            TEST_METHOD(hasNegativeZero) {
+                Assert::IsTrue(allTrue(Zero<v_f32_4>() == NegativeZero<v_f32_4>()));
+
+                std::array<v_f32_4::ValueType, v_f32_4::SIZE> actual{ };
+                _mm_store_ps(actual.data(), NegativeZero<v_f32_4>().components);
+                for (auto && v : actual) {
+                    Assert::IsTrue(std::signbit(v));
+                }
+            }
+
+            TEST_METHOD(hasNotANumber) {
+                Assert::IsTrue(allTrue(Zero<v_f32_4>() != NotANumber<v_f32_4>()));
+            }
+
+            TEST_METHOD(hasOne) {
+                Assert::IsTrue(
+                    allTrue(
+                        v_f32_4(One<v_f32_4::ValueType>()) == One<v_f32_4>()
+                    )
+                );
+            }
+
+            TEST_METHOD(hasOneHalf) {
+                Assert::IsTrue(
+                    allTrue(
+                        v_f32_4(OneHalf<v_f32_4::ValueType>()) == OneHalf<v_f32_4>()
+                    )
+                );
+            }
+
+            TEST_METHOD(hasOneX) {
+                v_f32_4 expected{
+                    One<v_f32_4::ValueType>(),
+                    Zero<v_f32_4::ValueType>(),
+                    Zero<v_f32_4::ValueType>(),
+                    Zero<v_f32_4::ValueType>()
+                };
+                Assert::IsTrue(
+                    allTrue(expected == OneX<v_f32_4>())
+                );
+            }
+
+            TEST_METHOD(hasOneY) {
+                v_f32_4 expected{
+                    Zero<v_f32_4::ValueType>(),
+                    One<v_f32_4::ValueType>(),
+                    Zero<v_f32_4::ValueType>(),
+                    Zero<v_f32_4::ValueType>()
+                };
+                Assert::IsTrue(
+                    allTrue(expected == OneY<v_f32_4>())
+                );
+            }
+
+            TEST_METHOD(hasOneZ) {
+                v_f32_4 expected{
+                    Zero<v_f32_4::ValueType>(),
+                    Zero<v_f32_4::ValueType>(),
+                    One<v_f32_4::ValueType>(),
+                    Zero<v_f32_4::ValueType>()
+                };
+                Assert::IsTrue(
+                    allTrue(expected == OneZ<v_f32_4>())
+                );
+            }
+
+            TEST_METHOD(hasOneW) {
+                v_f32_4 expected{
+                    Zero<v_f32_4::ValueType>(),
+                    Zero<v_f32_4::ValueType>(),
+                    Zero<v_f32_4::ValueType>(),
+                    One<v_f32_4::ValueType>()
+                };
+                Assert::IsTrue(
+                    allTrue(expected == OneW<v_f32_4>())
+                );
+            }
+
+            TEST_METHOD(hasPi) {
+                Assert::IsTrue(
+                    allTrue(
+                        v_f32_4(Pi<v_f32_4::ValueType>()) == Pi<v_f32_4>()
+                    )
+                );
+            }
+
+            TEST_METHOD(hasRadianToDegree) {
+                Assert::IsTrue(
+                    allTrue(
+                        v_f32_4(RadianToDegree<v_f32_4::ValueType>()) == RadianToDegree<v_f32_4>()
+                    )
+                );
+            }
+
+            TEST_METHOD(hasRadianToUniform) {
+                Assert::IsTrue(
+                    allTrue(
+                        v_f32_4(RadianToUniform<v_f32_4::ValueType>()) == RadianToUniform<v_f32_4>()
+                    )
+                );
+            }
+
+            TEST_METHOD(hasReciprocalPi) {
+                Assert::IsTrue(
+                    allTrue(
+                        v_f32_4(ReciprocalPi<v_f32_4::ValueType>()) == ReciprocalPi<v_f32_4>()
+                    )
+                );
+            }
+
+            TEST_METHOD(hasSelfOcclusionEpsilon) {
+                Assert::IsTrue(
+                    allTrue(
+                        v_f32_4(SelfOcclusionEpsilon<v_f32_4::ValueType>()) == SelfOcclusionEpsilon<v_f32_4>()
+                    )
+                );
+            }
+
+            TEST_METHOD(hasSin45) {
+                Assert::IsTrue(
+                    allTrue(
+                        v_f32_4(Sin45<v_f32_4::ValueType>()) == Sin45<v_f32_4>()
+                    )
+                );
+            }
+
+            TEST_METHOD(hasTwo) {
+                Assert::IsTrue(
+                    allTrue(
+                        v_f32_4(Two<v_f32_4::ValueType>()) == Two<v_f32_4>()
+                    )
+                );
+            }
+
+            TEST_METHOD(hasZero) {
+                Assert::AreEqual(ASizeT{ 0 }, bitcount(Zero<v_f32_4>().components));
+            }
         };
     }
 }
