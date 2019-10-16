@@ -2,41 +2,6 @@
 
 namespace vectorization
 {
-    template <>
-    const v_f32_4 swizzle<VectorIndices::X, VectorIndices::Y, VectorIndices::Z, VectorIndices::W>(const v_f32_4 & v) noexcept {
-        return v;
-    }
-
-    template <>
-    const v_f32_4 swizzle<VectorIndices::X, VectorIndices::X, VectorIndices::Y, VectorIndices::Y>(const v_f32_4 & v) noexcept {
-        return _mm_unpacklo_ps(v.components, v.components);
-    }
-
-    template <>
-    const v_f32_4 swizzle<VectorIndices::X, VectorIndices::X, VectorIndices::Z, VectorIndices::Z>(const v_f32_4 & v) noexcept {
-        return _mm_moveldup_ps(v.components);
-    }
-
-    template <>
-    const v_f32_4 swizzle<VectorIndices::X, VectorIndices::Y, VectorIndices::X, VectorIndices::Y>(const v_f32_4 & v) noexcept {
-        return _mm_movelh_ps(v.components, v.components);
-    }
-
-    template <>
-    const v_f32_4 swizzle<VectorIndices::Y, VectorIndices::Y, VectorIndices::W, VectorIndices::W>(const v_f32_4 & v) noexcept {
-        return _mm_movehdup_ps(v.components);
-    }
-
-    template <>
-    const v_f32_4 swizzle<VectorIndices::Z, VectorIndices::Z, VectorIndices::W, VectorIndices::W>(const v_f32_4 & v) noexcept {
-        return _mm_unpackhi_ps(v.components, v.components);
-    }
-
-    template <>
-    const v_f32_4 swizzle<VectorIndices::Z, VectorIndices::W, VectorIndices::Z, VectorIndices::W>(const v_f32_4 & v) noexcept {
-        return _mm_movehl_ps(v.components, v.components);
-    }
-
     const v_f32_4 xxxx(const v_f32_4 & v) noexcept {
         return swizzle<VectorIndices::X, VectorIndices::X, VectorIndices::X, VectorIndices::X>(v);
     }

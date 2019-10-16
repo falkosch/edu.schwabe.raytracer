@@ -1,51 +1,15 @@
 #pragma once
 
 #include "type.h"
+#include "../swizzles.h"
 
 namespace vectorization
 {
     template <ASizeT X, ASizeT Y, ASizeT Z, ASizeT W>
     // generic swizzle
     inline const v_f32_4 swizzle(const v_f32_4 & v) noexcept {
-        static_assert(X < v_f32_4::SIZE, "Index is out of range");
-        static_assert(Y < v_f32_4::SIZE, "Index is out of range");
-        static_assert(Z < v_f32_4::SIZE, "Index is out of range");
-        static_assert(W < v_f32_4::SIZE, "Index is out of range");
-#if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
-        // seems to create a vex instructions in SSE gen mode
-        return _mm_permute_ps(v.components, _MM_SHUFFLE(W, Z, Y, X));
-#else
-        return _mm_shuffle_ps(v.components, v.components, _MM_SHUFFLE(W, Z, Y, X));
-#endif
+        return swizzle<X, Y, Z, W>(v.components);
     }
-
-    template <>
-    // passthrough swizzle
-    const v_f32_4 swizzle<VectorIndices::X, VectorIndices::Y, VectorIndices::Z, VectorIndices::W>(const v_f32_4 & v) noexcept;
-
-    template <>
-    // special unpack low-values swizzle
-    const v_f32_4 swizzle<VectorIndices::X, VectorIndices::X, VectorIndices::Y, VectorIndices::Y>(const v_f32_4 & v) noexcept;
-
-    template <>
-    // special unpack XZ-values swizzle
-    const v_f32_4 swizzle<VectorIndices::X, VectorIndices::X, VectorIndices::Z, VectorIndices::Z>(const v_f32_4 & v) noexcept;
-
-    template <>
-    // special move low-values swizzle
-    const v_f32_4 swizzle<VectorIndices::X, VectorIndices::Y, VectorIndices::X, VectorIndices::Y>(const v_f32_4 & v) noexcept;
-
-    template <>
-    // special unpack YW-values swizzle
-    const v_f32_4 swizzle<VectorIndices::Y, VectorIndices::Y, VectorIndices::W, VectorIndices::W>(const v_f32_4 & v) noexcept;
-
-    template <>
-    // special unpack high-values swizzle
-    const v_f32_4 swizzle<VectorIndices::Z, VectorIndices::Z, VectorIndices::W, VectorIndices::W>(const v_f32_4 & v) noexcept;
-
-    template <>
-    // special move high-values swizzle
-    const v_f32_4 swizzle<VectorIndices::Z, VectorIndices::W, VectorIndices::Z, VectorIndices::W>(const v_f32_4 & v) noexcept;
 
     const v_f32_4 xxxx(const v_f32_4 & v) noexcept;
 
