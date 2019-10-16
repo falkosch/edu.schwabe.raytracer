@@ -6,7 +6,6 @@
 #include "Mutate.h"
 #include "MessageFormat.h"
 #include "StandardSample.h"
-#include "ValueBits.h"
 
 #include "Iterate.h"
 

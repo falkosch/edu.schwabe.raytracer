@@ -272,9 +272,6 @@
     <ClInclude Include="include\StandardSample.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="include\ValueBits.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
     <ClInclude Include="include\vectorization_tests.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
