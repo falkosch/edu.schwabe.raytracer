@@ -22,13 +22,17 @@ namespace vectorization
                     ASizeT{ 128 },
                     bitcount(
                         swizzle<VectorIndices::X, VectorIndices::X, VectorIndices::X, VectorIndices::X>(actual)
-                    )
+                    ),
+                    L"wrong mask constant value",
+                    LINE_INFO()
                 );
                 Assert::AreEqual(
                     ASizeT{ 0 },
                     bitcount(
                         swizzle<VectorIndices::Y, VectorIndices::Z, VectorIndices::W, VectorIndices::W>(actual)
-                    )
+                    ),
+                    L"wrong mask constant value",
+                    LINE_INFO()
                 );
             }
 
@@ -38,13 +42,17 @@ namespace vectorization
                     ASizeT{ 128 },
                     bitcount(
                         swizzle<VectorIndices::X, VectorIndices::Y, VectorIndices::X, VectorIndices::Y>(actual)
-                    )
+                    ),
+                    L"wrong mask constant value",
+                    LINE_INFO()
                 );
                 Assert::AreEqual(
                     ASizeT{ 0 },
                     bitcount(
                         swizzle<VectorIndices::Z, VectorIndices::W, VectorIndices::Z, VectorIndices::W>(actual)
-                    )
+                    ),
+                    L"wrong mask constant value",
+                    LINE_INFO()
                 );
             }
 
@@ -54,13 +62,17 @@ namespace vectorization
                     ASizeT{ 128 },
                     bitcount(
                         swizzle<VectorIndices::X, VectorIndices::Y, VectorIndices::Z, VectorIndices::Z>(actual)
-                    )
+                    ),
+                    L"wrong mask constant value",
+                    LINE_INFO()
                 );
                 Assert::AreEqual(
                     ASizeT{ 0 },
                     bitcount(
                         swizzle<VectorIndices::W, VectorIndices::W, VectorIndices::W, VectorIndices::W>(actual)
-                    )
+                    ),
+                    L"wrong mask constant value",
+                    LINE_INFO()
                 );
             }
 
@@ -74,13 +86,17 @@ namespace vectorization
                     ASizeT{ 128 },
                     bitcount(
                         swizzle<VectorIndices::Y, VectorIndices::Y, VectorIndices::Y, VectorIndices::Y>(actual)
-                    )
+                    ),
+                    L"wrong mask constant value",
+                    LINE_INFO()
                 );
                 Assert::AreEqual(
                     ASizeT{ 0 },
                     bitcount(
                         swizzle<VectorIndices::X, VectorIndices::Z, VectorIndices::W, VectorIndices::W>(actual)
-                    )
+                    ),
+                    L"wrong mask constant value",
+                    LINE_INFO()
                 );
             }
 
@@ -90,13 +106,17 @@ namespace vectorization
                     ASizeT{ 128 },
                     bitcount(
                         swizzle<VectorIndices::Y, VectorIndices::Z, VectorIndices::Y, VectorIndices::Z>(actual)
-                    )
+                    ),
+                    L"wrong mask constant value",
+                    LINE_INFO()
                 );
                 Assert::AreEqual(
                     ASizeT{ 0 },
                     bitcount(
                         swizzle<VectorIndices::X, VectorIndices::X, VectorIndices::W, VectorIndices::W>(actual)
-                    )
+                    ),
+                    L"wrong mask constant value",
+                    LINE_INFO()
                 );
             }
 
@@ -106,13 +126,17 @@ namespace vectorization
                     ASizeT{ 128 },
                     bitcount(
                         swizzle<VectorIndices::Y, VectorIndices::Z, VectorIndices::W, VectorIndices::W>(actual)
-                    )
+                    ),
+                    L"wrong mask constant value",
+                    LINE_INFO()
                 );
                 Assert::AreEqual(
                     ASizeT{ 0 },
                     bitcount(
                         swizzle<VectorIndices::X, VectorIndices::X, VectorIndices::X, VectorIndices::X>(actual)
-                    )
+                    ),
+                    L"wrong mask constant value",
+                    LINE_INFO()
                 );
             }
 
@@ -122,13 +146,17 @@ namespace vectorization
                     ASizeT{ 128 },
                     bitcount(
                         swizzle<VectorIndices::Z, VectorIndices::Z, VectorIndices::Z, VectorIndices::Z>(actual)
-                    )
+                    ),
+                    L"wrong mask constant value",
+                    LINE_INFO()
                 );
                 Assert::AreEqual(
                     ASizeT{ 0 },
                     bitcount(
                         swizzle<VectorIndices::X, VectorIndices::Y, VectorIndices::W, VectorIndices::W>(actual)
-                    )
+                    ),
+                    L"wrong mask constant value",
+                    LINE_INFO()
                 );
             }
 
@@ -138,13 +166,17 @@ namespace vectorization
                     ASizeT{ 128 },
                     bitcount(
                         swizzle<VectorIndices::Z, VectorIndices::W, VectorIndices::Z, VectorIndices::W>(actual)
-                    )
+                    ),
+                    L"wrong mask constant value",
+                    LINE_INFO()
                 );
                 Assert::AreEqual(
                     ASizeT{ 0 },
                     bitcount(
                         swizzle<VectorIndices::X, VectorIndices::Y, VectorIndices::X, VectorIndices::Y>(actual)
-                    )
+                    ),
+                    L"wrong mask constant value",
+                    LINE_INFO()
                 );
             }
 
@@ -154,13 +186,17 @@ namespace vectorization
                     ASizeT{ 128 },
                     bitcount(
                         swizzle<VectorIndices::W, VectorIndices::W, VectorIndices::W, VectorIndices::W>(actual)
-                    )
+                    ),
+                    L"wrong mask constant value",
+                    LINE_INFO()
                 );
                 Assert::AreEqual(
                     ASizeT{ 0 },
                     bitcount(
                         swizzle<VectorIndices::X, VectorIndices::Y, VectorIndices::Z, VectorIndices::Z>(actual)
-                    )
+                    ),
+                    L"wrong mask constant value",
+                    LINE_INFO()
                 );
             }
 
@@ -213,12 +249,20 @@ namespace vectorization
             }
 
             TEST_METHOD(hasNegativeZero) {
-                Assert::IsTrue(allTrue(Zero<v_f32_4>() == NegativeZero<v_f32_4>()));
+                Assert::IsTrue(
+                    allTrue(Zero<v_f32_4>() == NegativeZero<v_f32_4>()),
+                    L"wrong constant value",
+                    LINE_INFO()
+                );
 
                 std::array<v_f32_4::ValueType, v_f32_4::SIZE> actual{ };
                 _mm_store_ps(actual.data(), NegativeZero<v_f32_4>().components);
                 for (auto && v : actual) {
-                    Assert::IsTrue(std::signbit(v));
+                    Assert::IsTrue(
+                        std::signbit(v),
+                        L"wrong constant value",
+                        LINE_INFO()
+                    );
                 }
             }
 

@@ -162,7 +162,7 @@ namespace vectorization
                         x(givenOnBitNotSet), y(givenOnBitNotSet), z(givenOnBitNotSet), w(givenOnBitNotSet)
                     };
                     auto actual = blendMasked(givenOnBitNotSet, givenOnBitSet, MaskNone<v_f32_4>());
-                    Assert::IsTrue(allTrue(expected == actual), L"blend value mismatch", LINE_INFO());
+                    Assert::IsTrue(allTrue(expected == actual), L"blend masked value mismatch", LINE_INFO());
                 }
 
                 {
@@ -170,7 +170,7 @@ namespace vectorization
                         x(givenOnBitSet), y(givenOnBitNotSet), z(givenOnBitNotSet), w(givenOnBitNotSet)
                     };
                     auto actual = blendMasked(givenOnBitNotSet, givenOnBitSet, MaskX<v_f32_4>());
-                    Assert::IsTrue(allTrue(expected == actual), L"blend value mismatch", LINE_INFO());
+                    Assert::IsTrue(allTrue(expected == actual), L"blend masked  value mismatch", LINE_INFO());
                 }
 
                 {
@@ -178,7 +178,7 @@ namespace vectorization
                         x(givenOnBitSet), y(givenOnBitSet), z(givenOnBitNotSet), w(givenOnBitNotSet)
                     };
                     auto actual = blendMasked(givenOnBitNotSet, givenOnBitSet, MaskXY<v_f32_4>());
-                    Assert::IsTrue(allTrue(expected == actual), L"blend value mismatch", LINE_INFO());
+                    Assert::IsTrue(allTrue(expected == actual), L"blend masked  value mismatch", LINE_INFO());
                 }
 
                 {
@@ -186,7 +186,7 @@ namespace vectorization
                         x(givenOnBitSet), y(givenOnBitSet), z(givenOnBitSet), w(givenOnBitNotSet)
                     };
                     auto actual = blendMasked(givenOnBitNotSet, givenOnBitSet, MaskXYZ<v_f32_4>());
-                    Assert::IsTrue(allTrue(expected == actual), L"blend value mismatch", LINE_INFO());
+                    Assert::IsTrue(allTrue(expected == actual), L"blend masked  value mismatch", LINE_INFO());
                 }
 
                 {
@@ -194,7 +194,7 @@ namespace vectorization
                         x(givenOnBitSet), y(givenOnBitSet), z(givenOnBitSet), w(givenOnBitSet)
                     };
                     auto actual = blendMasked(givenOnBitNotSet, givenOnBitSet, MaskXYZW<v_f32_4>());
-                    Assert::IsTrue(allTrue(expected == actual), L"blend value mismatch", LINE_INFO());
+                    Assert::IsTrue(allTrue(expected == actual), L"blend masked  value mismatch", LINE_INFO());
                 }
             }
 
@@ -207,7 +207,7 @@ namespace vectorization
                         x(givenOnBitNotSet), y(givenOnBitNotSet), z(givenOnBitNotSet), w(givenOnBitNotSet)
                     };
                     auto actual = blendMasked(givenOnBitNotSet, givenOnBitSet, MaskNone<v_f32_4>());
-                    Assert::IsTrue(allTrue(expected == actual), L"blend value mismatch", LINE_INFO());
+                    Assert::IsTrue(allTrue(expected == actual), L"blend masked  value mismatch", LINE_INFO());
                 }
 
                 {
@@ -215,7 +215,7 @@ namespace vectorization
                         x(givenOnBitSet), y(givenOnBitNotSet), z(givenOnBitNotSet), w(givenOnBitNotSet)
                     };
                     auto actual = blendMasked(givenOnBitNotSet, givenOnBitSet, MaskX<v_f32_4>());
-                    Assert::IsTrue(allTrue(expected == actual), L"blend value mismatch", LINE_INFO());
+                    Assert::IsTrue(allTrue(expected == actual), L"blend masked  value mismatch", LINE_INFO());
                 }
 
                 {
@@ -223,7 +223,7 @@ namespace vectorization
                         x(givenOnBitSet), y(givenOnBitSet), z(givenOnBitNotSet), w(givenOnBitNotSet)
                     };
                     auto actual = blendMasked(givenOnBitNotSet, givenOnBitSet, MaskXY<v_f32_4>());
-                    Assert::IsTrue(allTrue(expected == actual), L"blend value mismatch", LINE_INFO());
+                    Assert::IsTrue(allTrue(expected == actual), L"blend masked  value mismatch", LINE_INFO());
                 }
 
                 {
@@ -231,7 +231,7 @@ namespace vectorization
                         x(givenOnBitSet), y(givenOnBitSet), z(givenOnBitSet), w(givenOnBitNotSet)
                     };
                     auto actual = blendMasked(givenOnBitNotSet, givenOnBitSet, MaskXYZ<v_f32_4>());
-                    Assert::IsTrue(allTrue(expected == actual), L"blend value mismatch", LINE_INFO());
+                    Assert::IsTrue(allTrue(expected == actual), L"blend masked  value mismatch", LINE_INFO());
                 }
 
                 {
@@ -239,7 +239,7 @@ namespace vectorization
                         x(givenOnBitSet), y(givenOnBitSet), z(givenOnBitSet), w(givenOnBitSet)
                     };
                     auto actual = blendMasked(givenOnBitNotSet, givenOnBitSet, MaskXYZW<v_f32_4>());
-                    Assert::IsTrue(allTrue(expected == actual), L"blend value mismatch", LINE_INFO());
+                    Assert::IsTrue(allTrue(expected == actual), L"blend masked  value mismatch", LINE_INFO());
                 }
             }
         };
