@@ -7,10 +7,10 @@
 namespace vectorization
 {
     template <>
-    const v_f32_4 MaskNone<v_f32_4>() noexcept;
+    const v_f32_4 MaskAll<v_f32_4>() noexcept;
 
     template <>
-    const v_f32_4 MaskAll<v_f32_4>() noexcept;
+    const v_f32_4 MaskNone<v_f32_4>() noexcept;
 
     template <>
     const v_f32_4 MaskX<v_f32_4>() noexcept;
@@ -43,6 +43,39 @@ namespace vectorization
     const v_f32_4 MaskW<v_f32_4>() noexcept;
 
     template <>
+    const v_f32_4 DegreeToRadian<v_f32_4>() noexcept;
+
+    template <>
+    const v_f32_4 Epsilon<v_f32_4>() noexcept;
+
+    template <>
+    const v_f32_4 Half<v_f32_4>() noexcept;
+
+    template <>
+    const v_f32_4 Infinity<v_f32_4>() noexcept;
+
+    template <>
+    const v_f32_4 NegativeInfinity<v_f32_4>() noexcept;
+
+    template <>
+    const v_f32_4 NegativeOne<v_f32_4>() noexcept;
+
+    template <>
+    const v_f32_4 NegativeTwo<v_f32_4>() noexcept;
+
+    template <>
+    const v_f32_4 NegativeZero<v_f32_4>() noexcept;
+
+    template <>
+    const v_f32_4 NotANumber<v_f32_4>() noexcept;
+
+    template <>
+    const v_f32_4 One<v_f32_4>() noexcept;
+
+    template <>
+    const v_f32_4 OneHalf<v_f32_4>() noexcept;
+
+    template <>
     const v_f32_4 OneX<v_f32_4>() noexcept;
 
     template <>
@@ -55,35 +88,26 @@ namespace vectorization
     const v_f32_4 OneW<v_f32_4>() noexcept;
 
     template <>
-    const v_f32_4 Zero<v_f32_4>() noexcept;
+    const v_f32_4 Pi<v_f32_4>() noexcept;
 
     template <>
-    const v_f32_4 One<v_f32_4>() noexcept;
+    const v_f32_4 RadianToDegree<v_f32_4>() noexcept;
 
     template <>
-    const v_f32_4 OneHalf<v_f32_4>() noexcept;
+    const v_f32_4 RadianToUniform<v_f32_4>() noexcept;
+
+    template <>
+    const v_f32_4 ReciprocalPi<v_f32_4>() noexcept;
+
+    template <>
+    const v_f32_4 SelfOcclusionEpsilon<v_f32_4>() noexcept;
+
+    template <>
+    const v_f32_4 Sin45<v_f32_4>() noexcept;
 
     template <>
     const v_f32_4 Two<v_f32_4>() noexcept;
 
     template <>
-    const v_f32_4 NegativeZero<v_f32_4>() noexcept;
-
-    template <>
-    const v_f32_4 NegativeOne<v_f32_4>() noexcept;
-
-    template <>
-    const v_f32_4 NegativeTwo<v_f32_4>() noexcept;
-
-    template <>
-    const v_f32_4 NotANumber<v_f32_4>() noexcept;
-
-    template <>
-    const v_f32_4 Half<v_f32_4>() noexcept;
-
-    template <>
-    const v_f32_4 Epsilon<v_f32_4>() noexcept;
-
-    template <>
-    const v_f32_4 SelfOcclusionEpsilon<v_f32_4>() noexcept;
+    const v_f32_4 Zero<v_f32_4>() noexcept;
 }
