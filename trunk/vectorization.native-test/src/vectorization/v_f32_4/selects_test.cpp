@@ -8,23 +8,64 @@ namespace vectorization
         {
         public:
 
-            TEST_METHOD(testExample1) {
-                auto expected = 0;
-                auto actual = 0;
-                Assert::AreEqual(expected, actual, L"", LINE_INFO());
+            TEST_METHOD(selectsOneOfTwov_f32_4WithBoolConditionMask) {
+                v_f32_4 givenTruthy{ 1.0f, 2.0f, 3.0f, 4.0f };
+                v_f32_4 givenFalsy{ 5.0f, 6.0f, 7.0f, 8.0f };
+
+                {
+                    auto actual = select(true, givenTruthy, givenFalsy);
+                    Assert::IsTrue(allTrue(givenTruthy == actual), L"select value mismatch", LINE_INFO());
+                }
+
+                {
+                    auto actual = select(false, givenTruthy, givenFalsy);
+                    Assert::IsTrue(allTrue(givenFalsy == actual), L"select value mismatch", LINE_INFO());
+                }
             }
 
-            TEST_METHOD(testExample2) {
-                auto expected = 0;
-                auto actual = 1;
-                Assert::AreEqual(expected, actual, L"", LINE_INFO());
+            TEST_METHOD(selectsComponentsOfTwov_f32_4Withv_f32_4VectorBoolTypeConditionMask) {
+                v_f32_4 givenTruthy{ 1.0f, 2.0f, 3.0f, 4.0f };
+                v_f32_4 givenFalsy{ 5.0f, 6.0f, 7.0f, 8.0f };
+
+                {
+                    auto actual = select(
+                        v_f32_4::VectorBoolType(v_f32_4::BoolType{ 42 }),
+                        givenTruthy,
+                        givenFalsy
+                    );
+                    Assert::IsTrue(allTrue(givenTruthy == actual), L"select value mismatch", LINE_INFO());
+                }
+
+                {
+                    auto actual = select(
+                        v_f32_4::VectorBoolType(v_f32_4::BoolType{ 0 }),
+                        givenTruthy,
+                        givenFalsy
+                    );
+                    Assert::IsTrue(allTrue(givenFalsy == actual), L"select value mismatch", LINE_INFO());
+                }
             }
 
-            TEST_METHOD(testExample3) {
-                std::array<vectorization::UInt_32, 5> specimen = { 0, 1, 2, 3, 4 };
+            TEST_METHOD(selectsComponentsOfTwov_f32_4Withv_f32_4ConditionMask) {
+                v_f32_4 givenTruthy{ 1.0f, 2.0f, 3.0f, 4.0f };
+                v_f32_4 givenFalsy{ 5.0f, 6.0f, 7.0f, 8.0f };
 
-                for (const auto & v : specimen) {
-                    Assert::IsTrue(v > -1, L"", LINE_INFO());
+                {
+                    auto actual = select(
+                        v_f32_4(v_f32_4::ValueType{ 42.0f }),
+                        givenTruthy,
+                        givenFalsy
+                    );
+                    Assert::IsTrue(allTrue(givenTruthy == actual), L"select value mismatch", LINE_INFO());
+                }
+
+                {
+                    auto actual = select(
+                        v_f32_4(v_f32_4::ValueType{ 0.0f }),
+                        givenTruthy,
+                        givenFalsy
+                    );
+                    Assert::IsTrue(allTrue(givenFalsy == actual), L"select value mismatch", LINE_INFO());
                 }
             }
         };
