@@ -26,6 +26,20 @@
 		| ((W & 1) << 7) \
 		)
 
+// GCC doesn't know avxintrin.h macros for some reason
+#ifndef _mm256_set_m128
+#define _mm256_set_m128(/* __m128 */ hi, /* __m128 */ lo) \
+    _mm256_insertf128_ps(_mm256_castps128_ps256(lo), (hi), 0x1)
+#endif
+#ifndef _mm256_set_m128d
+#define _mm256_set_m128d(/* __m128d */ hi, /* __m128d */ lo) \
+    _mm256_insertf128_pd(_mm256_castpd128_pd256(lo), (hi), 0x1)
+#endif
+#ifndef _mm256_set_m128i
+#define _mm256_set_m128i(/* __m128i */ hi, /* __m128i */ lo) \
+    _mm256_insertf128_si256(_mm256_castsi128_si256(lo), (hi), 0x1)
+#endif
+
 namespace vectorization
 {
     typedef std::size_t ASizeT;
