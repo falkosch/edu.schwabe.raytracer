@@ -47,7 +47,7 @@ namespace raytracerui
             0, // cAccumGreenBits
             0, // cAccumBlueBits
             0, // cAccumAlphaBits
-            32, // cDepthBits
+            0, // cDepthBits
             0, // cStencilBits
             0, // cAuxBuffers
             PFD_MAIN_PLANE, // iLayerType
