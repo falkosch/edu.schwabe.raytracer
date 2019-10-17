@@ -64,7 +64,7 @@ namespace raytracer
 
     const Float SimplexNoiseGenerator::K(const Int a, const Float4 & ijk, const Float4 & uvw, Float4 & A) const {
         const Float3 xyz = uvw - A + Half<Float>() * average<3, Float4::ValueType>(&A[0]);
-        ++(A[a]);
+        A = replaceComponent(A, A + One<Float4>(), a);
 
         Float t = Half<Float>() - dot(xyz, xyz);
         if (t < Zero<Float>()) {

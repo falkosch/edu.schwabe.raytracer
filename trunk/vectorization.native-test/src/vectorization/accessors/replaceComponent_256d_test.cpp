@@ -80,7 +80,7 @@ namespace vectorization
                 }
             }
 
-            TEST_METHOD(readsXi) {
+            TEST_METHOD(replacesXi) {
                 auto expectedReplacement = 5.0;
                 auto given = StandardSample::ofArrayType<Float_64, VectorSizes::X4>();
                 auto givenPack = _mm256_load_pd(given.data());
@@ -113,6 +113,89 @@ namespace vectorization
                     _mm256_store_pd(actual.data(), replaceX4(givenPack, expectedReplacement));
                     Assert::AreNotEqual(given, actual, L"wrong replace component match", LINE_INFO());
                     Assert::AreEqual(expected, actual, L"replace component mismatch", LINE_INFO());
+                }
+            }
+
+            TEST_METHOD(replacesComponentPackedFloat4_256AtIndex) {
+                auto givenReplacement = 5.0;
+                auto givenReplacementPack = _mm256_set1_pd(givenReplacement);
+                auto given = StandardSample::ofArrayType<Float_64, VectorSizes::W>();
+                auto givenPack = _mm256_load_pd(given.data());
+                std::array<Float_64, VectorSizes::W> expected{ };
+                std::array<Float_64, VectorSizes::W> actual{ };
+
+                {
+                    Mutate::copyAndReplaceAt<VectorIndices::X1>(given.cbegin(), given.cend(), expected.begin(), givenReplacement);
+                    _mm256_store_pd(actual.data(), replaceComponent(givenPack, givenReplacementPack, VectorIndices::X1));
+                    Assert::AreNotEqual(given, actual, L"wrong replace component match", LINE_INFO());
+                    Assert::AreEqual(expected, actual, L"replace component mismatch", LINE_INFO());
+                }
+
+                {
+                    Mutate::copyAndReplaceAt<VectorIndices::X2>(given.cbegin(), given.cend(), expected.begin(), givenReplacement);
+                    _mm256_store_pd(actual.data(), replaceComponent(givenPack, givenReplacementPack, VectorIndices::X2));
+                    Assert::AreNotEqual(given, actual, L"wrong replace component match", LINE_INFO());
+                    Assert::AreEqual(expected, actual, L"replace component mismatch", LINE_INFO());
+                }
+
+                {
+                    Mutate::copyAndReplaceAt<VectorIndices::X3>(given.cbegin(), given.cend(), expected.begin(), givenReplacement);
+                    _mm256_store_pd(actual.data(), replaceComponent(givenPack, givenReplacementPack, VectorIndices::X3));
+                    Assert::AreNotEqual(given, actual, L"wrong replace component match", LINE_INFO());
+                    Assert::AreEqual(expected, actual, L"replace component mismatch", LINE_INFO());
+                }
+
+                {
+                    Mutate::copyAndReplaceAt<VectorIndices::X4>(given.cbegin(), given.cend(), expected.begin(), givenReplacement);
+                    _mm256_store_pd(actual.data(), replaceComponent(givenPack, givenReplacementPack, VectorIndices::X4));
+                    Assert::AreNotEqual(given, actual, L"wrong replace component match", LINE_INFO());
+                    Assert::AreEqual(expected, actual, L"replace component mismatch", LINE_INFO());
+                }
+
+                {
+                    _mm256_store_pd(actual.data(), replaceComponent(givenPack, givenReplacementPack, VectorIndices::X5));
+                    Assert::AreEqual(given, actual, L"wrong replace component mismatch", LINE_INFO());
+                }
+            }
+
+            TEST_METHOD(replacesComponentFloat_64AtIndex) {
+                auto givenReplacement = 5.0;
+                auto given = StandardSample::ofArrayType<Float_64, VectorSizes::W>();
+                auto givenPack = _mm256_load_pd(given.data());
+                std::array<Float_64, VectorSizes::W> expected{ };
+                std::array<Float_64, VectorSizes::W> actual{ };
+
+                {
+                    Mutate::copyAndReplaceAt<VectorIndices::X1>(given.cbegin(), given.cend(), expected.begin(), givenReplacement);
+                    _mm256_store_pd(actual.data(), replaceComponent(givenPack, givenReplacement, VectorIndices::X1));
+                    Assert::AreNotEqual(given, actual, L"wrong replace component match", LINE_INFO());
+                    Assert::AreEqual(expected, actual, L"replace component mismatch", LINE_INFO());
+                }
+
+                {
+                    Mutate::copyAndReplaceAt<VectorIndices::X2>(given.cbegin(), given.cend(), expected.begin(), givenReplacement);
+                    _mm256_store_pd(actual.data(), replaceComponent(givenPack, givenReplacement, VectorIndices::X2));
+                    Assert::AreNotEqual(given, actual, L"wrong replace component match", LINE_INFO());
+                    Assert::AreEqual(expected, actual, L"replace component mismatch", LINE_INFO());
+                }
+
+                {
+                    Mutate::copyAndReplaceAt<VectorIndices::X3>(given.cbegin(), given.cend(), expected.begin(), givenReplacement);
+                    _mm256_store_pd(actual.data(), replaceComponent(givenPack, givenReplacement, VectorIndices::X3));
+                    Assert::AreNotEqual(given, actual, L"wrong replace component match", LINE_INFO());
+                    Assert::AreEqual(expected, actual, L"replace component mismatch", LINE_INFO());
+                }
+
+                {
+                    Mutate::copyAndReplaceAt<VectorIndices::X4>(given.cbegin(), given.cend(), expected.begin(), givenReplacement);
+                    _mm256_store_pd(actual.data(), replaceComponent(givenPack, givenReplacement, VectorIndices::X4));
+                    Assert::AreNotEqual(given, actual, L"wrong replace component match", LINE_INFO());
+                    Assert::AreEqual(expected, actual, L"replace component mismatch", LINE_INFO());
+                }
+
+                {
+                    _mm256_store_pd(actual.data(), replaceComponent(givenPack, givenReplacement, VectorIndices::X5));
+                    Assert::AreEqual(given, actual, L"wrong replace component mismatch", LINE_INFO());
                 }
             }
         };

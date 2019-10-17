@@ -53,4 +53,7 @@ namespace vectorization
     const v_f32_4 replaceX2(const v_f32_4 & v, const v_f32_4::ValueType s) noexcept;
     const v_f32_4 replaceX3(const v_f32_4 & v, const v_f32_4::ValueType s) noexcept;
     const v_f32_4 replaceX4(const v_f32_4 & v, const v_f32_4::ValueType s) noexcept;
+
+    const v_f32_4 replaceComponent(const v_f32_4 & v, const v_f32_4 & replacement, const ASizeT index) noexcept;
+    const v_f32_4 replaceComponent(const v_f32_4 & v, const v_f32_4::ValueType replacement, const ASizeT index) noexcept;
 }

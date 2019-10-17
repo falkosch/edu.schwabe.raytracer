@@ -18,4 +18,7 @@ namespace vectorization
 
     const PackedFloat2_128 replaceX1(const PackedFloat2_128 & v, const Float_64 s) noexcept;
     const PackedFloat2_128 replaceX2(const PackedFloat2_128 & v, const Float_64 s) noexcept;
+
+    const PackedFloat2_128 replaceComponent(const PackedFloat2_128 & v, const PackedFloat2_128 & replacement, const ASizeT index) noexcept;
+    const PackedFloat2_128 replaceComponent(const PackedFloat2_128 & v, const Float_64 replacement, const ASizeT index) noexcept;
 }

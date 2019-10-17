@@ -384,11 +384,9 @@ namespace vectorization
     }
 
     const v_f32_4 axisAlignedNormal3(const v_f32_4 & normal) noexcept {
-        const ASizeT maxAxis = argmax3(abs(normal));
         const v_f32_4 normalSigns = copysign(normal.components);
-        v_f32_4 alignedNormal = Zero<v_f32_4>();
-        alignedNormal[maxAxis] = normalSigns[maxAxis];
-        return alignedNormal;
+        const ASizeT maxAxis = argmax3(abs(normal));
+        return replaceComponent(Zero<v_f32_4>(), normalSigns, maxAxis);
     }
 
     //}

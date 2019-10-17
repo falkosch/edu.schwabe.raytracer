@@ -38,24 +38,9 @@ namespace vectorization
         return *this;
     }
 
-    v_f32_4::ValueType & v_f32_4::operator[](const int index) noexcept {
-        assert(static_cast<int>(VectorIndices::X) <= index && static_cast<ASizeT>(index) < SIZE);
-        return reinterpret_cast<v_f32_4::ValueType * const>(this)[index];
-    }
-
-    const v_f32_4::ValueType & v_f32_4::operator[](const int index) const noexcept {
-        assert(static_cast<int>(VectorIndices::X) <= index && static_cast<ASizeT>(index) < SIZE);
-        return reinterpret_cast<const v_f32_4::ValueType * const>(this)[index];
-    }
-
-    v_f32_4::ValueType & v_f32_4::operator[](const ASizeT index) noexcept {
-        assert(index < SIZE);
-        return reinterpret_cast<v_f32_4::ValueType * const>(this)[index];
-    }
-
     const v_f32_4::ValueType & v_f32_4::operator[](const ASizeT index) const noexcept {
         assert(index < SIZE);
-        return reinterpret_cast<const v_f32_4::ValueType * const>(this)[index];
+        return reinterpret_cast<const v_f32_4::ValueType * const>(&(this->components))[index];
     }
 
     void store(const v_f32_4 & v, v_f32_4 * const targetMemory) noexcept {

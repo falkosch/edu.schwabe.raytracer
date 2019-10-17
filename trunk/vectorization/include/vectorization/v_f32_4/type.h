@@ -41,12 +41,6 @@ namespace vectorization
 
         VectorType & operator=(const PackedType & v) noexcept;
 
-        ValueType & operator[](const int index) noexcept;
-
-        const ValueType & operator[](const int index) const noexcept;
-
-        ValueType & operator[](const ASizeT index) noexcept;
-
         const ValueType & operator[](const ASizeT index) const noexcept;
     };
 

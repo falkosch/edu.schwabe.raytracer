@@ -149,73 +149,21 @@ namespace vectorization
             }
 
             TEST_METHOD(implcitlyConvertsFromAnyConstPackedType) {
-                auto expected = sampleVector();
-                const v_f32_4 actual = expected;
-                const v_f32_4::PackedType actual2 = actual.components;
-                v_f32_4 actual3 = actual2;
-
-                Assert::AreEqual(x(expected), x(actual3), L"Ctor value mismatch", LINE_INFO());
-                Assert::AreEqual(y(expected), y(actual3), L"Ctor value mismatch", LINE_INFO());
-                Assert::AreEqual(z(expected), z(actual3), L"Ctor value mismatch", LINE_INFO());
-                Assert::AreEqual(w(expected), w(actual3), L"Ctor value mismatch", LINE_INFO());
+                v_f32_4 given{ 1.0f, 2.0f, 3.0f, 4.0f };
+                const v_f32_4::PackedType actual = given.components;
+                v_f32_4 actual2 = actual;
+                Assert::IsTrue(allTrue(given == actual2));
             }
 
-            TEST_METHOD(readsAtIntIndex) {
-                auto expected = sampleVector();
-                v_f32_4 actual = v_f32_4();
-                actual[static_cast<int>(VectorIndices::X)] = x(expected);
-                actual[static_cast<int>(VectorIndices::Y)] = y(expected);
-                actual[static_cast<int>(VectorIndices::Z)] = z(expected);
-                actual[static_cast<int>(VectorIndices::W)] = w(expected);
-
-                Assert::AreEqual(x(expected), x(actual), L"Ctor value mismatch", LINE_INFO());
-                Assert::AreEqual(y(expected), y(actual), L"Ctor value mismatch", LINE_INFO());
-                Assert::AreEqual(z(expected), z(actual), L"Ctor value mismatch", LINE_INFO());
-                Assert::AreEqual(w(expected), w(actual), L"Ctor value mismatch", LINE_INFO());
-
-                Assert::AreEqual(x(expected), actual[static_cast<int>(VectorIndices::X)], L"Ctor value mismatch", LINE_INFO());
-                Assert::AreEqual(y(expected), actual[static_cast<int>(VectorIndices::Y)], L"Ctor value mismatch", LINE_INFO());
-                Assert::AreEqual(z(expected), actual[static_cast<int>(VectorIndices::Z)], L"Ctor value mismatch", LINE_INFO());
-                Assert::AreEqual(w(expected), actual[static_cast<int>(VectorIndices::W)], L"Ctor value mismatch", LINE_INFO());
-            }
-
-            TEST_METHOD(readsAtConstIntIndex) {
-                auto expected = sampleVector();
-                const v_f32_4 actual = expected;
-
-                Assert::AreEqual(x(expected), actual[static_cast<int>(VectorIndices::X)], L"Ctor value mismatch", LINE_INFO());
-                Assert::AreEqual(y(expected), actual[static_cast<int>(VectorIndices::Y)], L"Ctor value mismatch", LINE_INFO());
-                Assert::AreEqual(z(expected), actual[static_cast<int>(VectorIndices::Z)], L"Ctor value mismatch", LINE_INFO());
-                Assert::AreEqual(w(expected), actual[static_cast<int>(VectorIndices::W)], L"Ctor value mismatch", LINE_INFO());
-            }
-
-            TEST_METHOD(readsAtASizeIndex) {
-                auto expected = sampleVector();
-                v_f32_4 actual = v_f32_4();
-                actual[VectorIndices::X] = x(expected);
-                actual[VectorIndices::Y] = y(expected);
-                actual[VectorIndices::Z] = z(expected);
-                actual[VectorIndices::W] = w(expected);
-
-                Assert::AreEqual(x(expected), x(actual), L"Ctor value mismatch", LINE_INFO());
-                Assert::AreEqual(y(expected), y(actual), L"Ctor value mismatch", LINE_INFO());
-                Assert::AreEqual(z(expected), z(actual), L"Ctor value mismatch", LINE_INFO());
-                Assert::AreEqual(w(expected), w(actual), L"Ctor value mismatch", LINE_INFO());
-
-                Assert::AreEqual(x(expected), actual[VectorIndices::X], L"Ctor value mismatch", LINE_INFO());
-                Assert::AreEqual(y(expected), actual[VectorIndices::Y], L"Ctor value mismatch", LINE_INFO());
-                Assert::AreEqual(z(expected), actual[VectorIndices::Z], L"Ctor value mismatch", LINE_INFO());
-                Assert::AreEqual(w(expected), actual[VectorIndices::W], L"Ctor value mismatch", LINE_INFO());
-            }
-
-            TEST_METHOD(readsAtConstASizeIndex) {
-                auto expected = sampleVector();
-                const v_f32_4 actual = expected;
-
-                Assert::AreEqual(x(expected), actual[VectorIndices::X], L"Ctor value mismatch", LINE_INFO());
-                Assert::AreEqual(y(expected), actual[VectorIndices::Y], L"Ctor value mismatch", LINE_INFO());
-                Assert::AreEqual(z(expected), actual[VectorIndices::Z], L"Ctor value mismatch", LINE_INFO());
-                Assert::AreEqual(w(expected), actual[VectorIndices::W], L"Ctor value mismatch", LINE_INFO());
+            TEST_METHOD(readsAtIndex) {
+                v_f32_4 given{ 1.0f, 2.0f, 3.0f, 4.0f };
+                v_f32_4 actual{
+                    given[VectorIndices::X],
+                    given[VectorIndices::Y],
+                    given[VectorIndices::Z],
+                    given[VectorIndices::W]
+                };
+                Assert::IsTrue(allTrue(given == actual));
             }
 
             TEST_METHOD(storesToVectorType) {
