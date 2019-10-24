@@ -110,19 +110,19 @@ namespace vectorization
     }
 
     const v_ui64_2 x_x(const v_ui64_2 & a, const v_ui64_2 & b) noexcept {
-        return swizzledBlend_1x1<VectorIndices::X, VectorIndices::X>(a, b);
+        return swizzledBlend1x1<VectorIndices::X, VectorIndices::X>(a, b);
     }
 
     const v_ui64_2 x_y(const v_ui64_2 & a, const v_ui64_2 & b) noexcept {
-        return swizzledBlend_1x1<VectorIndices::X, VectorIndices::Y>(a, b);
+        return swizzledBlend1x1<VectorIndices::X, VectorIndices::Y>(a, b);
     }
 
     const v_ui64_2 y_x(const v_ui64_2 & a, const v_ui64_2 & b) noexcept {
-        return swizzledBlend_1x1<VectorIndices::Y, VectorIndices::X>(a, b);
+        return swizzledBlend1x1<VectorIndices::Y, VectorIndices::X>(a, b);
     }
 
     const v_ui64_2 y_y(const v_ui64_2 & a, const v_ui64_2 & b) noexcept {
-        return swizzledBlend_1x1<VectorIndices::Y, VectorIndices::Y>(a, b);
+        return swizzledBlend1x1<VectorIndices::Y, VectorIndices::Y>(a, b);
     }
 
     //}
@@ -324,22 +324,22 @@ namespace vectorization
     }
 
     template <>
-    const v_ui64_2 swizzledBlend_1x1<VectorIndices::X, VectorIndices::X>(const v_ui64_2 & a, const v_ui64_2 & b) noexcept {
+    const v_ui64_2 swizzledBlend1x1<VectorIndices::X, VectorIndices::X>(const v_ui64_2 & a, const v_ui64_2 & b) noexcept {
         return _mm_unpacklo_epi64(a.components, b.components);
     }
 
     template <>
-    const v_ui64_2 swizzledBlend_1x1<VectorIndices::X, VectorIndices::Y>(const v_ui64_2 & a, const v_ui64_2 & b) noexcept {
+    const v_ui64_2 swizzledBlend1x1<VectorIndices::X, VectorIndices::Y>(const v_ui64_2 & a, const v_ui64_2 & b) noexcept {
         return _mm_unpacklo_epi64(a.components, _mm_unpackhi_epi64(b.components, b.components));
     }
 
     template <>
-    const v_ui64_2 swizzledBlend_1x1<VectorIndices::Y, VectorIndices::X>(const v_ui64_2 & a, const v_ui64_2 & b) noexcept {
+    const v_ui64_2 swizzledBlend1x1<VectorIndices::Y, VectorIndices::X>(const v_ui64_2 & a, const v_ui64_2 & b) noexcept {
         return _mm_unpackhi_epi64(a.components, _mm_unpacklo_epi64(b.components, b.components));
     }
 
     template <>
-    const v_ui64_2 swizzledBlend_1x1<VectorIndices::Y, VectorIndices::Y>(const v_ui64_2 & a, const v_ui64_2 & b) noexcept {
+    const v_ui64_2 swizzledBlend1x1<VectorIndices::Y, VectorIndices::Y>(const v_ui64_2 & a, const v_ui64_2 & b) noexcept {
         return _mm_unpackhi_epi64(a.components, b.components);
     }
 

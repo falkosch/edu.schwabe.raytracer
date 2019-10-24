@@ -237,6 +237,10 @@
     <ClCompile Include="src\vectorization\blends\blendMasked_256d_test.cpp" />
     <ClCompile Include="src\vectorization\blends\blendMasked_256i_test.cpp" />
     <ClCompile Include="src\vectorization\blends\blendMasked_256s_test.cpp" />
+    <ClCompile Include="src\vectorization\swizzledBlends\swizzledBlendMasked_128d_test.cpp" />
+    <ClCompile Include="src\vectorization\swizzledBlends\swizzledBlend2x2_256d_test.cpp" />
+    <ClCompile Include="src\vectorization\swizzledBlends\swizzledBlend2x2_128s_test.cpp" />
+    <ClCompile Include="src\vectorization\swizzledBlends\swizzledBlend1x1_128d_test.cpp" />
     <ClCompile Include="src\vectorization\selects\select_128d_test.cpp" />
     <ClCompile Include="src\vectorization\selects\select_128i_test.cpp" />
     <ClCompile Include="src\vectorization\selects\select_128s_test.cpp" />
@@ -248,6 +252,10 @@
     <ClCompile Include="src\vectorization\swizzles\swizzle_128s_test.cpp" />
     <ClCompile Include="src\vectorization\swizzles\swizzle_256d_test.cpp" />
     <ClCompile Include="src\vectorization\swizzles\swizzle_256s_test.cpp" />
+    <ClCompile Include="src\vectorization\swizzledBlends\swizzledBlend_128d_test.cpp" />
+    <ClCompile Include="src\vectorization\swizzledBlends\swizzledBlend_128s_test.cpp" />
+    <ClCompile Include="src\vectorization\swizzledBlends\swizzledBlend_256d_test.cpp" />
+    <ClCompile Include="src\vectorization\swizzledBlends\swizzledBlend_256s_test.cpp" />
     <ClCompile Include="src\vectorization\v_f32_4\accessors_test.cpp" />
     <ClCompile Include="src\vectorization\v_f32_4\blends_test.cpp" />
     <ClCompile Include="src\vectorization\v_f32_4\constants_test.cpp" />
@@ -257,7 +265,7 @@
     <ClCompile Include="src\vectorization\v_f32_4\operators_test.cpp" />
     <ClCompile Include="src\vectorization\v_f32_4\selects_test.cpp" />
     <ClCompile Include="src\vectorization\v_f32_4\swizzles_test.cpp" />
-    <ClCompile Include="src\vectorization\v_f32_4\swizzle_blends_test.cpp" />
+    <ClCompile Include="src\vectorization\v_f32_4\swizzledBlends_test.cpp" />
     <ClCompile Include="src\vectorization\v_f32_4\type_test.cpp" />
   </ItemGroup>
   <ItemGroup>

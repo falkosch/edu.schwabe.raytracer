@@ -6,6 +6,7 @@
 #include "vectorization/swizzles.h"
 
 #include "vectorization/accessors.h"
+#include "vectorization/swizzledBlends.h"
 
 #include "vectorization/constants.h"
 

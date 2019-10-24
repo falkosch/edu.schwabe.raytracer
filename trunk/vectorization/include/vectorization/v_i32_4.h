@@ -288,18 +288,18 @@ namespace vectorization
     // Special case swizzled blend of two vectors, in which only the first
     // two components of this vector and the last two components of the
     // other vector are taken for blending after swizzling.
-    inline const v_i32_4 swizzledBlend_2x2(const v_i32_4 & a, const v_i32_4 & b) noexcept {
-        return swizzledBlend_2x2<X, Y, Z, W, false, false, true, true>(a, b);
+    inline const v_i32_4 swizzledBlend2x2(const v_i32_4 & a, const v_i32_4 & b) noexcept {
+        return swizzledBlend2x2<X, Y, Z, W, false, false, true, true>(a, b);
     }
 
     template <>
-    const v_i32_4 swizzledBlend_2x2<VectorIndices::X, VectorIndices::Y, VectorIndices::Z, VectorIndices::W>(const v_i32_4 & a, const v_i32_4 & b) noexcept;
+    const v_i32_4 swizzledBlend2x2<VectorIndices::X, VectorIndices::Y, VectorIndices::Z, VectorIndices::W>(const v_i32_4 & a, const v_i32_4 & b) noexcept;
 
     template <>
-    const v_i32_4 swizzledBlend_2x2<VectorIndices::X, VectorIndices::Y, VectorIndices::X, VectorIndices::Y>(const v_i32_4 & a, const v_i32_4 & b) noexcept;
+    const v_i32_4 swizzledBlend2x2<VectorIndices::X, VectorIndices::Y, VectorIndices::X, VectorIndices::Y>(const v_i32_4 & a, const v_i32_4 & b) noexcept;
 
     template <>
-    const v_i32_4 swizzledBlend_2x2<VectorIndices::Z, VectorIndices::W, VectorIndices::Z, VectorIndices::W>(const v_i32_4 & a, const v_i32_4 & b) noexcept;
+    const v_i32_4 swizzledBlend2x2<VectorIndices::Z, VectorIndices::W, VectorIndices::Z, VectorIndices::W>(const v_i32_4 & a, const v_i32_4 & b) noexcept;
 
     //}
 #pragma endregion

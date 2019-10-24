@@ -14,4 +14,4 @@
 #include "v_f32_4/selects.h"
 #include "v_f32_4/swizzles.h"
 
-#include "v_f32_4/swizzled_blends.h"
+#include "v_f32_4/swizzledBlends.h"

@@ -220,19 +220,19 @@ namespace vectorization
     // Special case swizzled blend of two vectors, in which only the first
     // two components of this vector and the last two components of the
     // other vector are taken for blending after swizzling.
-    const v_ui64_2 swizzledBlend_1x1(const v_ui64_2 & a, const v_ui64_2 & b) noexcept;
+    const v_ui64_2 swizzledBlend1x1(const v_ui64_2 & a, const v_ui64_2 & b) noexcept;
 
     template <>
-    const v_ui64_2 swizzledBlend_1x1<VectorIndices::X, VectorIndices::X>(const v_ui64_2 & a, const v_ui64_2 & b) noexcept;
+    const v_ui64_2 swizzledBlend1x1<VectorIndices::X, VectorIndices::X>(const v_ui64_2 & a, const v_ui64_2 & b) noexcept;
 
     template <>
-    const v_ui64_2 swizzledBlend_1x1<VectorIndices::X, VectorIndices::Y>(const v_ui64_2 & a, const v_ui64_2 & b) noexcept;
+    const v_ui64_2 swizzledBlend1x1<VectorIndices::X, VectorIndices::Y>(const v_ui64_2 & a, const v_ui64_2 & b) noexcept;
 
     template <>
-    const v_ui64_2 swizzledBlend_1x1<VectorIndices::Y, VectorIndices::X>(const v_ui64_2 & a, const v_ui64_2 & b) noexcept;
+    const v_ui64_2 swizzledBlend1x1<VectorIndices::Y, VectorIndices::X>(const v_ui64_2 & a, const v_ui64_2 & b) noexcept;
 
     template <>
-    const v_ui64_2 swizzledBlend_1x1<VectorIndices::Y, VectorIndices::Y>(const v_ui64_2 & a, const v_ui64_2 & b) noexcept;
+    const v_ui64_2 swizzledBlend1x1<VectorIndices::Y, VectorIndices::Y>(const v_ui64_2 & a, const v_ui64_2 & b) noexcept;
 
     //}
 #pragma endregion
