@@ -56,9 +56,11 @@ namespace raytracer
         }
 
         KDTreeBuildParameters parameters = KDTreeBuildParameters();
-        parameters.costParameters = Float4(4.68375f, 1.f);
-        parameters.maxNodesSize = static_cast<ASizeT>(4);
-        parameters.maxTreeDepth = One<ASizeT>() + static_cast<ASizeT>(1.1f * logN(static_cast<Float>(rootGeometry.size() + One<ASizeT>()), Two<Float>()));
+        parameters.costParameters = Float4(4.68375f, 1.0f);
+        parameters.maxNodesSize = ASizeT{ 4 };
+        parameters.maxTreeDepth = ASizeT{ 1 } +static_cast<ASizeT>(
+            1.1f * logN(static_cast<Float>(rootGeometry.size() + ASizeT{ 1 }), 2.0f)
+            );
 
         KDTreeRoot * const root = new KDTreeRoot();
         root->rootBounding = KDTreeBounding::findMinimumBoundingOfGeometry(rootGeometry);

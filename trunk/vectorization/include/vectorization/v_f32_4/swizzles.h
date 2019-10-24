@@ -1,7 +1,7 @@
 #pragma once
 
 #include "type.h"
-#include "../swizzles.h"
+#include "vectorization/swizzles.h"
 
 namespace vectorization
 {

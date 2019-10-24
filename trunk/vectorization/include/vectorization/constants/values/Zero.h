@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../architecture.h"
+#include "vectorization/architecture.h"
 
 namespace vectorization
 {

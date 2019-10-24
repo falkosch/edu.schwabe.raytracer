@@ -2,9 +2,9 @@
 
 #include "api.h"
 
-#include "../v_i32_4.h"
+#include "vectorization/v_i32_4.h"
 
-#include "../architecture.h"
+#include "vectorization/architecture.h"
 
 namespace vectorization
 {

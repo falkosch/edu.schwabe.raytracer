@@ -76,15 +76,15 @@ namespace vectorization
 
     const PackedFloat4_128 _mm_cvtepu32_ps(const PackedInts_128 v) noexcept;
 
-    const ASizeT _mm_popcnt_si128(const PackedInts_128 n) noexcept;
+    const Int_64 _mm_popcnt_si128(const PackedInts_128 n) noexcept;
 
-    const ASizeT _mm_popcnt_ps(const PackedFloat4_128 n) noexcept;
+    const Int_64 _mm_popcnt_ps(const PackedFloat4_128 n) noexcept;
 
-    const ASizeT _mm_popcnt_pd(const PackedFloat2_128 n) noexcept;
+    const Int_64 _mm_popcnt_pd(const PackedFloat2_128 n) noexcept;
 
-    const ASizeT _mm256_popcnt_si256(const PackedInts_256 n) noexcept;
+    const Int_64 _mm256_popcnt_si256(const PackedInts_256 n) noexcept;
 
-    const ASizeT _mm256_popcnt_ps(const PackedFloat8_256 n) noexcept;
+    const Int_64 _mm256_popcnt_ps(const PackedFloat8_256 n) noexcept;
 
-    const ASizeT _mm256_popcnt_pd(const PackedFloat4_256 n) noexcept;
+    const Int_64 _mm256_popcnt_pd(const PackedFloat4_256 n) noexcept;
 }

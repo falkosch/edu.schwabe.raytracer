@@ -2,9 +2,9 @@
 
 #include "staticFor.h"
 
-#include "../constants.h"
+#include "vectorization/constants.h"
 
-#include "../architecture.h"
+#include "vectorization/architecture.h"
 
 namespace vectorization
 {

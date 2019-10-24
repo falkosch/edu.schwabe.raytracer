@@ -22,8 +22,8 @@ namespace raytracer
         typedef VectorType::ValueType ImageValueType;
 
         init();
-        const BitmapValueType MIN = BitmapValueLimits::lowest();
-        const BitmapValueType MAX = BitmapValueLimits::max();
+        constexpr BitmapValueType MIN = BitmapValueLimits::lowest();
+        constexpr BitmapValueType MAX = BitmapValueLimits::max();
         const ImageValueType W = convert<ImageValueType>(MAX);
         const ImageValueType OFFSET = -convert<ImageValueType>(MIN);
         const ImageValueType RSCALE = reciprocal(W + OFFSET);
