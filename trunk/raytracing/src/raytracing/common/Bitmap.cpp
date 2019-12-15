@@ -197,7 +197,7 @@ namespace raytracer
         bmfh.bfOffBits = static_cast<DWORD>(sizeof(BITMAPFILEHEADER)) + bitmapInfo.bmiHeader.biSize;
         bmfh.bfSize = bmfh.bfOffBits + bitmapInfo.bmiHeader.biSizeImage;
 
-        writeObject<BITMAPFILEHEADER, sizeof BITMAPFILEHEADER>(file, bmfh);
+        writeObject<BITMAPFILEHEADER, sizeof(BITMAPFILEHEADER)>(file, bmfh);
         writeVariadicObject<BITMAPINFOHEADER>(file, bitmapInfo.bmiHeader, bitmapInfo.bmiHeader.biSize);
         writeVariadicData<UInt_8>(file, this->data, bitmapInfo.bmiHeader.biSizeImage);
 

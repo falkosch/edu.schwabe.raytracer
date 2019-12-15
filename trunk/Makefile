@@ -1,8 +1,9 @@
 TARGET ?= RELEASE
 
 # -Wno-ignored-qualifiers: do not warn about const in return type, because style guide rule wants it their
+# -Wno-unknown-pragmas: do not warn about unknown pragmas, some code uses "#pragma region" to enable cold folding for very old IDEs
 
-COMMON_OPTS = -march=native -mwin32 -fopenmp -D_WIN32 -Wall -Wextra -pedantic -Wno-ignored-qualifiers
+COMMON_OPTS = -march=native -mwin32 -fopenmp -D_WIN32 -Wall -Wextra -pedantic -Wno-ignored-qualifiers -Wno-unknown-pragmas
 RELEASE_OPTS = $(COMMON_OPTS) -Ofast -flto -funroll-loops
 DEBUG_OPTS = $(COMMON_OPTS) -Og -g2
 
