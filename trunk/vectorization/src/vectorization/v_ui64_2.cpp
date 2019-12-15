@@ -1,7 +1,9 @@
 #include "vectorization/v_ui64_2.h"
 
+#include <array>
 #include <limits>
 #include <cassert>
+#include <cstring>
 
 namespace vectorization
 {
@@ -20,8 +22,8 @@ namespace vectorization
         components(_mm_set1_epi64x(static_cast<long long>(s))) { }
 #else
         components() {
-        setComponent<VectorIndices::X>(*this, s);
-        setComponent<VectorIndices::Y>(*this, s);
+        std::array<v_ui64_2::ValueType, v_ui64_2::SIZE> broadcast = { s, s };
+        std::memcpy(&(this->components), broadcast.data(), sizeof(v_ui64_2::PackedType));
     }
 #endif
 
@@ -31,8 +33,8 @@ namespace vectorization
         components(_mm_set_epi64x(static_cast<long long>(y), static_cast<long long>(x))) { }
 #else
         components() {
-        setComponent<VectorIndices::X>(*this, x);
-        setComponent<VectorIndices::Y>(*this, y);
+        std::array<v_ui64_2::ValueType, v_ui64_2::SIZE> broadcast = { x, y };
+        std::memcpy(&(this->components), broadcast.data(), sizeof(v_ui64_2::PackedType));
     }
 #endif
 
@@ -367,30 +369,6 @@ namespace vectorization
     //}
 #pragma endregion
 
-#pragma region setComponent()
-    //{ setComponent()
-
-    template <>
-    void setComponent<VectorIndices::X>(v_ui64_2 & v, const v_ui64_2::ValueType s) noexcept {
-#ifdef ARCH_X64
-        v.components = _mm_insert_epi64(v.components, static_cast<long long>(s), VectorIndices::X);
-#else
-        reinterpret_cast<v_ui64_2::ValueType * const>(&v)[VectorIndices::X] = s;
-#endif
-    }
-
-    template <>
-    void setComponent<VectorIndices::Y>(v_ui64_2 & v, const v_ui64_2::ValueType s) noexcept {
-#ifdef ARCH_X64
-        v.components = _mm_insert_epi64(v.components, static_cast<long long>(s), VectorIndices::Y);
-#else
-        reinterpret_cast<v_ui64_2::ValueType * const>(&v)[VectorIndices::Y] = s;
-#endif
-    }
-
-    //}
-#pragma endregion
-
 #pragma region replaceComponent()
     //{ replaceComponent()
 
@@ -423,7 +401,9 @@ namespace vectorization
 #ifdef ARCH_X64
         return static_cast<v_ui64_2::ValueType>(_mm_cvtsi128_si64x(v.components));
 #else
-        return reinterpret_cast<const v_ui64_2::ValueType * const>(&v)[VectorIndices::X];
+        std::array<v_ui64_2::ValueType, v_ui64_2::SIZE> components;
+        std::memcpy(components.data(), &v.components, sizeof v_ui64_2::PackedType);
+        return components.at(VectorIndices::X);
 #endif
     }
 
@@ -432,7 +412,9 @@ namespace vectorization
 #ifdef ARCH_X64
         return static_cast<v_ui64_2::ValueType>(_mm_cvtsi128_si64x(_mm_unpackhi_epi64(v.components, v.components)));
 #else
-        return reinterpret_cast<const v_ui64_2::ValueType * const>(&v)[VectorIndices::Y];
+        std::array<v_ui64_2::ValueType, v_ui64_2::SIZE> components;
+        std::memcpy(components.data(), &v.components, sizeof v_ui64_2::PackedType);
+        return components.at(VectorIndices::Y);
 #endif
     }
 

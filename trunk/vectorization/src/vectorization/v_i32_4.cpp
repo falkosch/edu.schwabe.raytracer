@@ -436,32 +436,6 @@ namespace vectorization
     //}
 #pragma endregion
 
-#pragma region setComponent()
-    //{ setComponent()
-
-    template <>
-    void setComponent<VectorIndices::X>(v_i32_4 & v, const v_i32_4::ValueType s) noexcept {
-        v.components = _mm_insert_epi32(v.components, s, VectorIndices::X);
-    }
-
-    template <>
-    void setComponent<VectorIndices::Y>(v_i32_4 & v, const v_i32_4::ValueType s) noexcept {
-        v.components = _mm_insert_epi32(v.components, s, VectorIndices::Y);
-    }
-
-    template <>
-    void setComponent<VectorIndices::Z>(v_i32_4 & v, const v_i32_4::ValueType s) noexcept {
-        v.components = _mm_insert_epi32(v.components, s, VectorIndices::Z);
-    }
-
-    template <>
-    void setComponent<VectorIndices::W>(v_i32_4 & v, const v_i32_4::ValueType s) noexcept {
-        v.components = _mm_insert_epi32(v.components, s, VectorIndices::W);
-    }
-
-    //}
-#pragma endregion
-
 #pragma region replaceComponent()
     //{ replaceComponent()
 

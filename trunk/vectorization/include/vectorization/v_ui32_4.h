@@ -315,27 +315,6 @@ namespace vectorization
     //}
 #pragma endregion
 
-#pragma region setComponent()
-    //{ setComponent()
-
-    template <ASizeT Index>
-    void setComponent(v_ui32_4 & v, const v_ui32_4::ValueType s) noexcept;
-
-    template <>
-    void setComponent<VectorIndices::X>(v_ui32_4 & v, const v_ui32_4::ValueType s) noexcept;
-
-    template <>
-    void setComponent<VectorIndices::Y>(v_ui32_4 & v, const v_ui32_4::ValueType s) noexcept;
-
-    template <>
-    void setComponent<VectorIndices::Z>(v_ui32_4 & v, const v_ui32_4::ValueType s) noexcept;
-
-    template <>
-    void setComponent<VectorIndices::W>(v_ui32_4 & v, const v_ui32_4::ValueType s) noexcept;
-
-    //}
-#pragma endregion
-
 #pragma region replaceComponent()
     //{ replaceComponent()
 
