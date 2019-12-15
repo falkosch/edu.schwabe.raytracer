@@ -5,6 +5,9 @@
 
 #include "vectorization/accessors.h"
 
+#include <array>
+#include <cstring>
+
 namespace vectorization
 {
     const bool blendMasked(const bool onBitNotSet, const bool onBitSet, const bool mask) noexcept {
@@ -50,11 +53,12 @@ namespace vectorization
     }
 
     const Float_64 blendMasked(const Float_64 onBitNotSet, const Float_64 onBitSet, const BoolTypes<Float_64>::Type mask) noexcept {
-#ifdef ARCH_X64
-        const PackedInts_128 m = _mm_set1_epi64x(mask);
-#else
         PackedInts_128 m;
-        reinterpret_cast<BoolTypes<Float_64>::Type * const>(&m)[VectorIndices::X] = mask;
+#ifdef ARCH_X64
+        m = _mm_set1_epi64x(mask);
+#else
+        const std::array<BoolTypes<Float_64>::Type, 2> maskComponents{ mask, mask };
+        std::memcpy(&m, maskComponents.data(), sizeof(PackedInts_128));
 #endif
         return x(
             blendMasked(_mm_set_sd(onBitNotSet), _mm_set_sd(onBitSet), m)

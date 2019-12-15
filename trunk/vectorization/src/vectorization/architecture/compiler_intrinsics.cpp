@@ -1,9 +1,16 @@
 #include "vectorization/architecture/compiler_intrinsics.h"
 
 #include <array>
+#include <cstring>
 
 namespace vectorization
 {
+    const PackedInts_128 _mm_load_si128(const UInt_32 * const v) noexcept {
+        PackedInts_128 target;
+        std::memcpy(&target, v, sizeof target);
+        return target;
+    }
+
     const PackedFloat4_128 _mm_cvtepu32_ps(const PackedInts_128 v) noexcept {
         // see https://stackoverflow.com/a/34067907
         const PackedInts_128 v2 = _mm_srli_epi32(v, 1); // v2 = v / 2
@@ -16,20 +23,10 @@ namespace vectorization
     const UInt_64 x_64(const PackedInts_128 v) noexcept {
 #ifdef ARCH_X64
         return static_cast<UInt_64>(_mm_cvtsi128_si64(v));
-
 #else
-        union PackBits
-        {
-            PackedInts_128 value;
-            struct
-            {
-                UInt_64 x, y;
-            } bits;
-
-            PackBits(const PackedInts_128 value) : value(value) { }
-        } pack{ v };
-        return pack.bits.x;
-
+        std::array<UInt_64, 2> bits;
+        std::memcpy(bits.data(), &v, sizeof v);
+        return bits.front();
 #endif
     }
 

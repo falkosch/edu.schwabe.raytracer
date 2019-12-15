@@ -44,9 +44,9 @@ namespace vectorization
         const ValueType & operator[](const ASizeT index) const noexcept;
     };
 
-    void store(const v_f32_4 & v, v_f32_4 * const targetMemory) noexcept;
+    void store(const v_f32_4 & src, v_f32_4 * const dst) noexcept;
 
-    void store(const v_f32_4 & v, v_f32_4::PackedType * const targetMemory) noexcept;
+    void store(const v_f32_4 & src, v_f32_4::PackedType * const dst) noexcept;
 
-    void store(const v_f32_4 & v, v_f32_4::ValueType * const targetMemory) noexcept;
+    void store(const v_f32_4 & src, v_f32_4::ValueType * const dst) noexcept;
 }

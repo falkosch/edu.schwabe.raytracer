@@ -1,6 +1,9 @@
 #include "raytracing/common/Bitmap.h"
 #include "../../stdafx.h"
 
+#include <array>
+#include <cstddef>
+#include <cstring>
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -156,6 +159,30 @@ namespace raytracer
         return loaded;
     }
 
+    template<typename T, ASizeT ByteSize>
+    void writeObject(std::ostream & file, const T & object) {
+        constexpr auto CharCount = ByteSize / sizeof(std::ofstream::char_type);
+        std::array<std::ofstream::char_type, CharCount> buffer{ };
+        std::memcpy(buffer.data(), &object, ByteSize);
+        file.write(buffer.data(), CharCount);
+    }
+
+    template<typename T>
+    void writeVariadicObject(std::ostream & file, const T & object, const ASizeT byteSize) {
+        const auto charCount = byteSize / sizeof(std::ofstream::char_type);
+        std::vector<std::ofstream::char_type> buffer(charCount);
+        std::memcpy(buffer.data(), &object, byteSize);
+        file.write(buffer.data(), charCount);
+    }
+
+    template<typename T>
+    void writeVariadicData(std::ostream & file, const T * const data, const ASizeT byteSize) {
+        const auto charCount = byteSize / sizeof(std::ofstream::char_type);
+        std::vector<std::ofstream::char_type> buffer(charCount);
+        std::memcpy(buffer.data(), data, byteSize);
+        file.write(buffer.data(), charCount);
+    }
+
     void Bitmap::saveAsBMP(const std::string & filename) const {
         std::ofstream file(filename.c_str(), std::ios::binary | std::ios::trunc);
         if (!file.is_open()) {
@@ -170,9 +197,9 @@ namespace raytracer
         bmfh.bfOffBits = static_cast<DWORD>(sizeof(BITMAPFILEHEADER)) + bitmapInfo.bmiHeader.biSize;
         bmfh.bfSize = bmfh.bfOffBits + bitmapInfo.bmiHeader.biSizeImage;
 
-        file.write(reinterpret_cast<char *>(&bmfh), sizeof(BITMAPFILEHEADER));
-        file.write(reinterpret_cast<char *>(&bitmapInfo.bmiHeader), bitmapInfo.bmiHeader.biSize);
-        file.write(reinterpret_cast<char *>(data), bitmapInfo.bmiHeader.biSizeImage);
+        writeObject<BITMAPFILEHEADER, sizeof BITMAPFILEHEADER>(file, bmfh);
+        writeVariadicObject<BITMAPINFOHEADER>(file, bitmapInfo.bmiHeader, bitmapInfo.bmiHeader.biSize);
+        writeVariadicData<UInt_8>(file, this->data, bitmapInfo.bmiHeader.biSizeImage);
 
         file.flush();
         file.close();

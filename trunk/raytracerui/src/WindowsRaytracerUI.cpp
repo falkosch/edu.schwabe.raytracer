@@ -2,12 +2,15 @@
 #include "stdafx.h"
 
 #include <iostream>
+#include <map>
 
 #include <windowsx.h>
 
 namespace raytracerui
 {
     const Float WindowsRaytracerUI::MOUSE_SENSITIVITY = 0.02f;
+
+    std::map<HWND, WindowsRaytracerUI *> createUIs{ };
 
     WNDCLASSEX WindowsRaytracerUI::windowClass{
         sizeof(WNDCLASSEX), // cbSize
@@ -37,6 +40,7 @@ namespace raytracerui
     }
 
     WindowsRaytracerUI::~WindowsRaytracerUI() {
+        createUIs.erase(this->hWnd);
         DestroyWindow(hWnd);
     }
 
@@ -63,7 +67,8 @@ namespace raytracerui
             windowClass.hInstance,
             this
         );
-        ShowWindow(hWnd, SW_SHOWDEFAULT);
+        createUIs.insert({ this->hWnd, this });
+        ShowWindow(this->hWnd, SW_SHOWDEFAULT);
     }
 
     const WPARAM WindowsRaytracerUI::run() {
@@ -336,20 +341,10 @@ namespace raytracerui
     }
 
     LRESULT CALLBACK WindowsRaytracerUI::DelegatingWndProc(const HWND hWnd, const UINT msg, const WPARAM wParam, const LPARAM lParam) {
-        WindowsRaytracerUI * targetWindow;
-
-        if (msg == WM_CREATE) {
-            LPCREATESTRUCT createStruct = reinterpret_cast<LPCREATESTRUCT>(lParam);
-            targetWindow = reinterpret_cast<WindowsRaytracerUI *>(createStruct->lpCreateParams);
-            SetWindowLongPtr(hWnd, GWLP_USERDATA, LONG_PTR(targetWindow));
-        } else {
-            targetWindow = reinterpret_cast<WindowsRaytracerUI *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+        const auto targetedUIIterator = createUIs.find(hWnd);
+        if (targetedUIIterator != createUIs.end()) {
+            return targetedUIIterator->second->WndProc(msg, wParam, lParam);
         }
-
-        if (targetWindow) {
-            return targetWindow->WndProc(msg, wParam, lParam);
-        }
-
         return DefWindowProc(hWnd, msg, wParam, lParam);
     }
 
