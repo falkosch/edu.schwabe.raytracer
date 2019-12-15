@@ -9,7 +9,7 @@ namespace vectorization
     struct v_ui64_2
     {
         // Metas
-        static const ASizeT SIZE = VectorSizes::Y;
+        static constexpr ASizeT SIZE = VectorSizes::Y;
         typedef UInt_64 ValueType;
         typedef ValueType BoolType;
         typedef v_ui64_2 VectorType;

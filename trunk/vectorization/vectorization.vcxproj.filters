@@ -539,9 +539,6 @@
     <ClCompile Include="src\vectorization\architecture\memory.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="src\vectorization\architecture\meta_types.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
     <ClCompile Include="src\vectorization\constants\values\Zero.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>

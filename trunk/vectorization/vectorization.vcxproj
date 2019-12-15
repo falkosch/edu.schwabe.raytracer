@@ -403,7 +403,6 @@
     <ClCompile Include="src\vectorization\constants\masks\MaskXY.cpp" />
     <ClCompile Include="src\vectorization\constants\masks\MaskX.cpp" />
     <ClCompile Include="src\vectorization\constants\masks\MaskAll.cpp" />
-    <ClCompile Include="src\vectorization\architecture\meta_types.cpp" />
     <ClCompile Include="src\vectorization\conversions\complex.cpp" />
     <ClCompile Include="src\vectorization\conversions\native.cpp" />
     <ClCompile Include="src\vectorization\functions\abs.cpp" />

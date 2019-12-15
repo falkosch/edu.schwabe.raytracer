@@ -11,7 +11,7 @@ namespace vectorization
     struct v_f32_4
     {
         // Metas
-        static const ASizeT SIZE = VectorSizes::W;
+        static constexpr ASizeT SIZE = VectorSizes::W;
         typedef Float_32 ValueType;
         typedef v_i32_4::ValueType BoolType;
         typedef v_f32_4 VectorType;

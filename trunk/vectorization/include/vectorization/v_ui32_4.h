@@ -9,7 +9,7 @@ namespace vectorization
     struct v_ui32_4
     {
         // Metas
-        static const ASizeT SIZE = VectorSizes::W;
+        static constexpr ASizeT SIZE = VectorSizes::W;
         typedef UInt_32 ValueType;
         typedef ValueType BoolType;
         typedef v_ui32_4 VectorType;

@@ -13,13 +13,13 @@ namespace vectorization
 {
     struct Alignments
     {
-        static const std::size_t ARCH = ARCH_ALIGNMENT;
-        static const std::size_t X86 = X86_ALIGNMENT;
-        static const std::size_t MM = MM_ALIGNMENT;
-        static const std::size_t XMM = XMM_ALIGNMENT;
-        static const std::size_t YMM = YMM_ALIGNMENT;
-        static const std::size_t ZMM = ZMM_ALIGNMENT;
-        static const std::size_t Best = BEST_ALIGNMENT;
+        static constexpr std::size_t ARCH = ARCH_ALIGNMENT;
+        static constexpr std::size_t X86 = X86_ALIGNMENT;
+        static constexpr std::size_t MM = MM_ALIGNMENT;
+        static constexpr std::size_t XMM = XMM_ALIGNMENT;
+        static constexpr std::size_t YMM = YMM_ALIGNMENT;
+        static constexpr std::size_t ZMM = ZMM_ALIGNMENT;
+        static constexpr std::size_t Best = BEST_ALIGNMENT;
     };
 
     void free(void *& data) noexcept;
