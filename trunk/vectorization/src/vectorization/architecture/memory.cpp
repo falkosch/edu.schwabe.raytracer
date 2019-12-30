@@ -4,14 +4,6 @@
 
 namespace vectorization
 {
-    const std::size_t Alignments::ARCH;
-    const std::size_t Alignments::X86;
-    const std::size_t Alignments::MM;
-    const std::size_t Alignments::XMM;
-    const std::size_t Alignments::YMM;
-    const std::size_t Alignments::ZMM;
-    const std::size_t Alignments::Best;
-
     void free(void *& data) noexcept {
         assert(data);
         vectorization::free(data, std::nothrow_t());

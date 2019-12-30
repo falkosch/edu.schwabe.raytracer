@@ -16,9 +16,9 @@ namespace vectorization
         typedef RowVectorType::ValueType ValueType;
         typedef BoolTypes<ValueType>::Type BoolType;
 
-        static const ASizeT SIZE = RowVectorType::SIZE * ColumnVectorType::SIZE;
-        static const ASizeT ROWS = RowVectorType::SIZE;
-        static const ASizeT COLUMNS = ColumnVectorType::SIZE;
+        static constexpr ASizeT SIZE = RowVectorType::SIZE * ColumnVectorType::SIZE;
+        static constexpr ASizeT ROWS = RowVectorType::SIZE;
+        static constexpr ASizeT COLUMNS = ColumnVectorType::SIZE;
 
         // Members
         RowVectorType row0, row1, row2, row3;

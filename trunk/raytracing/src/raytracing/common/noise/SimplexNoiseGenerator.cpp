@@ -5,9 +5,10 @@
 
 namespace raytracer
 {
-    SimplexNoiseGenerator::SimplexNoiseGenerator(const unsigned int seed) {
+    SimplexNoiseGenerator::SimplexNoiseGenerator(const unsigned int seed)
+        :simplexGrid() {
         srand(seed);
-        for (ASizeT i = Zero<ASizeT>(); i < N; ++i) {
+        for (ASizeT i{ 0 }; i < N; ++i) {
             simplexGrid[i] = rand() % static_cast<Int>(B);
         }
     }

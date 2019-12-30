@@ -1,5 +1,7 @@
 #include "vectorization/accessors/replaceComponent_128d.h"
 
+#include "vectorization/blends.h"
+
 #include <cassert>
 
 namespace vectorization
@@ -32,13 +34,11 @@ namespace vectorization
 
     const PackedFloat2_128 replaceComponent(const PackedFloat2_128 & v, const PackedFloat2_128 & replacement, const ASizeT index) noexcept {
         assert(index < VectorSizes::Y);
-        auto indexBlendMask = _mm_castsi128_pd(
-            _mm_cmpeq_epi64(
-                _mm_set1_epi64x(static_cast<int>(index)),
-                _mm_set_epi64x(1, 0)
-            )
+        auto indexBlendMask = _mm_cmpeq_epi64(
+            _mm_set1_epi64x(static_cast<int>(index)),
+            _mm_set_epi64x(1, 0)
         );
-        return _mm_blendv_pd(v, replacement, indexBlendMask);
+        return blendMasked(v, replacement, indexBlendMask);
     }
 
     const PackedFloat2_128 replaceComponent(const PackedFloat2_128 & v, const Float_64 replacement, const ASizeT index) noexcept {

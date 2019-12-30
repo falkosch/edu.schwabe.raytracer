@@ -2,7 +2,7 @@
 
 #include "type.h"
 
-#include "../constants.h"
+#include "vectorization/constants.h"
 
 namespace vectorization
 {

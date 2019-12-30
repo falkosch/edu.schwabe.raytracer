@@ -1,13 +1,9 @@
 TARGET ?= RELEASE
 
-# -Wsuggest-attribute=pure -Wsuggest-attribute=const -Wsuggest-attribute=noreturn -Wsuggest-attribute=format -Wno-error=suggest-attribute=const -Wno-error=suggest-attribute=pure -Wno-error=suggest-attribute=noreturn -Wno-error=suggest-attribute=format -Wpadded -Weffc++ -Wfloat-equal 
+# -Wno-ignored-qualifiers: do not warn about const in return type, because style guide rule wants it their
+# -Wno-unknown-pragmas: do not warn about unknown pragmas, some code uses "#pragma region" to enable cold folding for very old IDEs
 
-WARNING_OPTS = -pedantic -pedantic-errors -Wall -Wextra -Wformat=2 -Wstrict-overflow=5 -Wnormalized=nfkc
-WARNING_OPTS_DISABLED = -Wno-unknown-pragmas -Wno-ignored-qualifiers -Wno-narrowing
-
-#WARNING_OPTS_EXT = -Wabi-tag -Wc++0x-compat -Wcast-align -Wcast-qual -Wconditionally-supported -Wconversion -Wctor-dtor-privacy -Wdate-time -Wdelete-non-virtual-dtor -Wdisabled-optimization -Wdouble-promotion -Winit-self -Winline -Wlogical-op -Wmissing-declarations -Wnoexcept -Wnon-virtual-dtor -Wold-style-cast -Woverloaded-virtual -Wpacked -Wredundant-decls -Wreorder -Wshadow -Wsign-promo -Wstack-protector -Wstrict-null-sentinel -Wswitch-default -Wswitch-enum -Wsynth -Wtrampolines -Wunsafe-loop-optimizations -Wunused-macros -Wuseless-cast -Wvector-operation-performance -Wwrite-strings -Wzero-as-null-pointer-constant
-
-COMMON_OPTS = -march=native -mwin32 -fopenmp -D_WIN32 $(WARNING_OPTS) $(WARNING_OPTS_DISABLED) $(WARNING_OPTS_EXT)
+COMMON_OPTS = -march=native -mwin32 -fopenmp -D_WIN32 -Wall -Wextra -pedantic -Wno-ignored-qualifiers -Wno-unknown-pragmas
 RELEASE_OPTS = $(COMMON_OPTS) -Ofast -flto -funroll-loops
 DEBUG_OPTS = $(COMMON_OPTS) -Og -g2
 
@@ -17,7 +13,6 @@ CPP_OPTS_DEBUG = $(DEBUG_OPTS) -D_DEBUG
 LD_OPTS_DEBUG = $(DEBUG_OPTS)
 
 CPP_OPTS = $(CPP_OPTS_$(TARGET)) -std=c++17 -D_UNICODE -DUNICODE
-#LD_OPTS = $(LD_OPTS_$(TARGET)) -static-libgcc -static -lgdi32 -lopengl32
 LD_OPTS = $(LD_OPTS_$(TARGET)) -lgdi32 -lopengl32
 
 CPP = @g++

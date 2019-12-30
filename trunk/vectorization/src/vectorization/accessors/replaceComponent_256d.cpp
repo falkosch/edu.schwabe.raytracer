@@ -64,13 +64,11 @@ namespace vectorization
 
     const PackedFloat4_256 replaceComponent(const PackedFloat4_256 & v, const PackedFloat4_256 & replacement, const ASizeT index) noexcept {
         assert(index < VectorSizes::Y);
-        auto indexBlendMask = _mm256_castsi256_pd(
-            _mm256_cmpeq_epi64(
-                _mm256_set1_epi64x(static_cast<int>(index)),
-                _mm256_set_epi64x(3, 2, 1, 0)
-            )
+        auto indexBlendMask = _mm256_cmpeq_epi64(
+            _mm256_set1_epi64x(static_cast<int>(index)),
+            _mm256_set_epi64x(3, 2, 1, 0)
         );
-        return _mm256_blendv_pd(v, replacement, indexBlendMask);
+        return blendMasked(v, replacement, indexBlendMask);
     }
 
     const PackedFloat4_256 replaceComponent(const PackedFloat4_256 & v, const Float_64 replacement, const ASizeT index) noexcept {

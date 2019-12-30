@@ -48,9 +48,6 @@
     <ClCompile Include="src\vectorization\v_f32_4\selects_test.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="src\vectorization\v_f32_4\swizzle_blends_test.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
     <ClCompile Include="src\vectorization\v_f32_4\swizzles_test.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
@@ -256,6 +253,33 @@
       <Filter>Quelldateien</Filter>
     </ClCompile>
     <ClCompile Include="src\vectorization\selects\select_scalar_test.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vectorization\swizzledBlends\swizzledBlend_128d_test.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vectorization\swizzledBlends\swizzledBlend_128s_test.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vectorization\swizzledBlends\swizzledBlend_256d_test.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vectorization\swizzledBlends\swizzledBlend_256s_test.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vectorization\swizzledBlends\swizzledBlend1x1_128d_test.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vectorization\v_f32_4\swizzledBlends_test.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vectorization\swizzledBlends\swizzledBlend2x2_128s_test.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vectorization\swizzledBlends\swizzledBlend2x2_256d_test.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vectorization\swizzledBlends\swizzledBlendMasked_128d_test.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
   </ItemGroup>

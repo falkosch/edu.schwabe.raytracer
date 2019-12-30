@@ -90,7 +90,7 @@ namespace vectorization
 
             TEST_METHOD(convertsPackedUInt_32ToFloat32) {
                 std::array<UInt_32, VectorSizes::W> given{ 0, 1, 2, 3 };
-                auto givenPacked = _mm_load_si128(reinterpret_cast<PackedInts_128 *>(given.data()));
+                auto givenPacked = _mm_load_si128(given.data());
                 std::array<Float_32, VectorSizes::W> expected{ 0.0f, 1.0f, 2.0f, 3.0f };
 
                 std::array<Float_32, VectorSizes::W> actual{ };

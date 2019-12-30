@@ -175,11 +175,11 @@ namespace vectorization
     }
 
     const v_ui32_4 xy_xy(const v_ui32_4 & a, const v_ui32_4 & b) noexcept {
-        return swizzledBlend_2x2<VectorIndices::X, VectorIndices::Y, VectorIndices::X, VectorIndices::Y>(a, b);
+        return swizzledBlend2x2<VectorIndices::X, VectorIndices::Y, VectorIndices::X, VectorIndices::Y>(a, b);
     }
 
     const v_ui32_4 zw_zw(const v_ui32_4 & a, const v_ui32_4 & b) noexcept {
-        return swizzledBlend_2x2<VectorIndices::Z, VectorIndices::W, VectorIndices::Z, VectorIndices::W>(a, b);
+        return swizzledBlend2x2<VectorIndices::Z, VectorIndices::W, VectorIndices::Z, VectorIndices::W>(a, b);
     }
 
     //}
@@ -399,17 +399,17 @@ namespace vectorization
     }
 
     template <>
-    const v_ui32_4 swizzledBlend_2x2<VectorIndices::X, VectorIndices::Y, VectorIndices::Z, VectorIndices::W>(const v_ui32_4 & a, const v_ui32_4 & b) noexcept {
+    const v_ui32_4 swizzledBlend2x2<VectorIndices::X, VectorIndices::Y, VectorIndices::Z, VectorIndices::W>(const v_ui32_4 & a, const v_ui32_4 & b) noexcept {
         return blend<false, false, true, true>(a, b);
     }
 
     template <>
-    const v_ui32_4 swizzledBlend_2x2<VectorIndices::X, VectorIndices::Y, VectorIndices::X, VectorIndices::Y>(const v_ui32_4 & a, const v_ui32_4 & b) noexcept {
+    const v_ui32_4 swizzledBlend2x2<VectorIndices::X, VectorIndices::Y, VectorIndices::X, VectorIndices::Y>(const v_ui32_4 & a, const v_ui32_4 & b) noexcept {
         return _mm_unpacklo_epi64(a.components, b.components);
     }
 
     template <>
-    const v_ui32_4 swizzledBlend_2x2<VectorIndices::Z, VectorIndices::W, VectorIndices::Z, VectorIndices::W>(const v_ui32_4 & a, const v_ui32_4 & b) noexcept {
+    const v_ui32_4 swizzledBlend2x2<VectorIndices::Z, VectorIndices::W, VectorIndices::Z, VectorIndices::W>(const v_ui32_4 & a, const v_ui32_4 & b) noexcept {
         return _mm_unpackhi_epi64(a.components, b.components);
     }
 
@@ -421,32 +421,6 @@ namespace vectorization
 
     const v_ui32_4 blendMasked(const v_ui32_4 & a, const v_ui32_4 & b, const v_ui32_4 & mask) noexcept {
         return _mm_blendv_epi8(a.components, b.components, mask.components);
-    }
-
-    //}
-#pragma endregion
-
-#pragma region setComponent()
-    //{ setComponent()
-
-    template <>
-    void setComponent<VectorIndices::X>(v_ui32_4 & v, const v_ui32_4::ValueType s) noexcept {
-        v.components = _mm_insert_epi32(v.components, static_cast<int>(s), VectorIndices::X);
-    }
-
-    template <>
-    void setComponent<VectorIndices::Y>(v_ui32_4 & v, const v_ui32_4::ValueType s) noexcept {
-        v.components = _mm_insert_epi32(v.components, static_cast<int>(s), VectorIndices::Y);
-    }
-
-    template <>
-    void setComponent<VectorIndices::Z>(v_ui32_4 & v, const v_ui32_4::ValueType s) noexcept {
-        v.components = _mm_insert_epi32(v.components, static_cast<int>(s), VectorIndices::Z);
-    }
-
-    template <>
-    void setComponent<VectorIndices::W>(v_ui32_4 & v, const v_ui32_4::ValueType s) noexcept {
-        v.components = _mm_insert_epi32(v.components, static_cast<int>(s), VectorIndices::W);
     }
 
     //}

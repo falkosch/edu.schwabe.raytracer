@@ -2,7 +2,7 @@
 
 #include "type.h"
 
-#include "../blends.h"
+#include "vectorization/blends.h"
 
 namespace vectorization
 {

@@ -31,7 +31,7 @@ namespace vectorization
     }
 
     const ASizeT bitcount(const UInt_32 v) noexcept {
-        return _mm_popcnt_u32(v);
+        return static_cast<ASizeT>(_mm_popcnt_u32(v));
     }
 
     const ASizeT bitcount(const Int_64 v) noexcept {
@@ -39,7 +39,7 @@ namespace vectorization
     }
 
     const ASizeT bitcount(const UInt_64 v) noexcept {
-        return _mm_popcnt_u64(v);
+        return static_cast<ASizeT>(_mm_popcnt_u64(v));
     }
 
     const ASizeT bitcount(const Float_32 v) noexcept {
@@ -51,26 +51,26 @@ namespace vectorization
     }
 
     const ASizeT bitcount(const PackedInts_128 & v) noexcept {
-        return _mm_popcnt_si128(v);
+        return static_cast<ASizeT>(_mm_popcnt_si128(v));
     }
 
     const ASizeT bitcount(const PackedFloat2_128 & v) noexcept {
-        return _mm_popcnt_pd(v);
+        return static_cast<ASizeT>(_mm_popcnt_pd(v));
     }
 
     const ASizeT bitcount(const PackedFloat4_128 & v) noexcept {
-        return _mm_popcnt_ps(v);
+        return static_cast<ASizeT>(_mm_popcnt_ps(v));
     }
 
     const ASizeT bitcount(const PackedInts_256 & v) noexcept {
-        return _mm256_popcnt_si256(v);
+        return static_cast<ASizeT>(_mm256_popcnt_si256(v));
     }
 
     const ASizeT bitcount(const PackedFloat4_256 & v) noexcept {
-        return _mm256_popcnt_pd(v);
+        return static_cast<ASizeT>(_mm256_popcnt_pd(v));
     }
 
     const ASizeT bitcount(const PackedFloat8_256 & v) noexcept {
-        return _mm256_popcnt_ps(v);
+        return static_cast<ASizeT>(_mm256_popcnt_ps(v));
     }
 }

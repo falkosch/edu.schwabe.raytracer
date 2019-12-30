@@ -9,7 +9,7 @@ namespace vectorization
     struct v_ui64_2
     {
         // Metas
-        static const ASizeT SIZE = VectorSizes::Y;
+        static constexpr ASizeT SIZE = VectorSizes::Y;
         typedef UInt_64 ValueType;
         typedef ValueType BoolType;
         typedef v_ui64_2 VectorType;
@@ -220,19 +220,19 @@ namespace vectorization
     // Special case swizzled blend of two vectors, in which only the first
     // two components of this vector and the last two components of the
     // other vector are taken for blending after swizzling.
-    const v_ui64_2 swizzledBlend_1x1(const v_ui64_2 & a, const v_ui64_2 & b) noexcept;
+    const v_ui64_2 swizzledBlend1x1(const v_ui64_2 & a, const v_ui64_2 & b) noexcept;
 
     template <>
-    const v_ui64_2 swizzledBlend_1x1<VectorIndices::X, VectorIndices::X>(const v_ui64_2 & a, const v_ui64_2 & b) noexcept;
+    const v_ui64_2 swizzledBlend1x1<VectorIndices::X, VectorIndices::X>(const v_ui64_2 & a, const v_ui64_2 & b) noexcept;
 
     template <>
-    const v_ui64_2 swizzledBlend_1x1<VectorIndices::X, VectorIndices::Y>(const v_ui64_2 & a, const v_ui64_2 & b) noexcept;
+    const v_ui64_2 swizzledBlend1x1<VectorIndices::X, VectorIndices::Y>(const v_ui64_2 & a, const v_ui64_2 & b) noexcept;
 
     template <>
-    const v_ui64_2 swizzledBlend_1x1<VectorIndices::Y, VectorIndices::X>(const v_ui64_2 & a, const v_ui64_2 & b) noexcept;
+    const v_ui64_2 swizzledBlend1x1<VectorIndices::Y, VectorIndices::X>(const v_ui64_2 & a, const v_ui64_2 & b) noexcept;
 
     template <>
-    const v_ui64_2 swizzledBlend_1x1<VectorIndices::Y, VectorIndices::Y>(const v_ui64_2 & a, const v_ui64_2 & b) noexcept;
+    const v_ui64_2 swizzledBlend1x1<VectorIndices::Y, VectorIndices::Y>(const v_ui64_2 & a, const v_ui64_2 & b) noexcept;
 
     //}
 #pragma endregion
@@ -258,21 +258,6 @@ namespace vectorization
     template <>
     // passthrough
     const v_ui64_2 swizzledBlendMasked<VectorIndices::X, VectorIndices::Y>(const v_ui64_2 & a, const v_ui64_2 & b, const v_ui64_2 & mask) noexcept;
-
-    //}
-#pragma endregion
-
-#pragma region setComponent()
-    //{ setComponent()
-
-    template <ASizeT Index>
-    void setComponent(v_ui64_2 & v, const v_ui64_2::ValueType s) noexcept;
-
-    template <>
-    void setComponent<VectorIndices::X>(v_ui64_2 & v, const v_ui64_2::ValueType s) noexcept;
-
-    template <>
-    void setComponent<VectorIndices::Y>(v_ui64_2 & v, const v_ui64_2::ValueType s) noexcept;
 
     //}
 #pragma endregion

@@ -9,7 +9,7 @@ namespace vectorization
     struct v_ui32_4
     {
         // Metas
-        static const ASizeT SIZE = VectorSizes::W;
+        static constexpr ASizeT SIZE = VectorSizes::W;
         typedef UInt_32 ValueType;
         typedef ValueType BoolType;
         typedef v_ui32_4 VectorType;
@@ -280,18 +280,18 @@ namespace vectorization
     // Special case swizzled blend of two vectors, in which only the first
     // two components of this vector and the last two components of the
     // other vector are taken for blending after swizzling.
-    inline const v_ui32_4 swizzledBlend_2x2(const v_ui32_4 & a, const v_ui32_4 & b) noexcept {
-        return swizzledBlend_2x2<X, Y, Z, W, false, false, true, true>(a, b);
+    inline const v_ui32_4 swizzledBlend2x2(const v_ui32_4 & a, const v_ui32_4 & b) noexcept {
+        return swizzledBlend2x2<X, Y, Z, W, false, false, true, true>(a, b);
     }
 
     template <>
-    const v_ui32_4 swizzledBlend_2x2<VectorIndices::X, VectorIndices::Y, VectorIndices::Z, VectorIndices::W>(const v_ui32_4 & a, const v_ui32_4 & b) noexcept;
+    const v_ui32_4 swizzledBlend2x2<VectorIndices::X, VectorIndices::Y, VectorIndices::Z, VectorIndices::W>(const v_ui32_4 & a, const v_ui32_4 & b) noexcept;
 
     template <>
-    const v_ui32_4 swizzledBlend_2x2<VectorIndices::X, VectorIndices::Y, VectorIndices::X, VectorIndices::Y>(const v_ui32_4 & a, const v_ui32_4 & b) noexcept;
+    const v_ui32_4 swizzledBlend2x2<VectorIndices::X, VectorIndices::Y, VectorIndices::X, VectorIndices::Y>(const v_ui32_4 & a, const v_ui32_4 & b) noexcept;
 
     template <>
-    const v_ui32_4 swizzledBlend_2x2<VectorIndices::Z, VectorIndices::W, VectorIndices::Z, VectorIndices::W>(const v_ui32_4 & a, const v_ui32_4 & b) noexcept;
+    const v_ui32_4 swizzledBlend2x2<VectorIndices::Z, VectorIndices::W, VectorIndices::Z, VectorIndices::W>(const v_ui32_4 & a, const v_ui32_4 & b) noexcept;
 
     //}
 #pragma endregion
@@ -311,27 +311,6 @@ namespace vectorization
     inline const v_ui32_4 swizzledBlendMasked(const v_ui32_4 & a, const v_ui32_4 & b, const v_ui32_4 & mask) noexcept {
         return blendMasked(swizzle<X, Y, Z, W>(a), swizzle<X, Y, Z, W>(b), mask);
     }
-
-    //}
-#pragma endregion
-
-#pragma region setComponent()
-    //{ setComponent()
-
-    template <ASizeT Index>
-    void setComponent(v_ui32_4 & v, const v_ui32_4::ValueType s) noexcept;
-
-    template <>
-    void setComponent<VectorIndices::X>(v_ui32_4 & v, const v_ui32_4::ValueType s) noexcept;
-
-    template <>
-    void setComponent<VectorIndices::Y>(v_ui32_4 & v, const v_ui32_4::ValueType s) noexcept;
-
-    template <>
-    void setComponent<VectorIndices::Z>(v_ui32_4 & v, const v_ui32_4::ValueType s) noexcept;
-
-    template <>
-    void setComponent<VectorIndices::W>(v_ui32_4 & v, const v_ui32_4::ValueType s) noexcept;
 
     //}
 #pragma endregion

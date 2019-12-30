@@ -2,16 +2,16 @@
 
 #include "api.h"
 
-#include "../v_i32_4.h"
+#include "vectorization/v_i32_4.h"
 
-#include "../architecture.h"
+#include "vectorization/architecture.h"
 
 namespace vectorization
 {
     struct v_f32_4
     {
         // Metas
-        static const ASizeT SIZE = VectorSizes::W;
+        static constexpr ASizeT SIZE = VectorSizes::W;
         typedef Float_32 ValueType;
         typedef v_i32_4::ValueType BoolType;
         typedef v_f32_4 VectorType;
@@ -44,9 +44,9 @@ namespace vectorization
         const ValueType & operator[](const ASizeT index) const noexcept;
     };
 
-    void store(const v_f32_4 & v, v_f32_4 * const targetMemory) noexcept;
+    void store(const v_f32_4 & src, v_f32_4 * const dst) noexcept;
 
-    void store(const v_f32_4 & v, v_f32_4::PackedType * const targetMemory) noexcept;
+    void store(const v_f32_4 & src, v_f32_4::PackedType * const dst) noexcept;
 
-    void store(const v_f32_4 & v, v_f32_4::ValueType * const targetMemory) noexcept;
+    void store(const v_f32_4 & src, v_f32_4::ValueType * const dst) noexcept;
 }

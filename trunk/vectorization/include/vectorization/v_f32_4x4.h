@@ -18,9 +18,9 @@ namespace vectorization
         typedef BoolTypes<ValueType>::Type BoolType;
 
         // four vectors packed in this SOA
-        static const ASizeT SIZE_SOA = SOAVectorType::SIZE;
-        static const ASizeT SIZE_AOS = AOSVectorType::SIZE;
-        static const ASizeT SIZE = SIZE_SOA * SIZE_AOS;
+        static constexpr ASizeT SIZE_SOA = SOAVectorType::SIZE;
+        static constexpr ASizeT SIZE_AOS = AOSVectorType::SIZE;
+        static constexpr ASizeT SIZE = SIZE_SOA * SIZE_AOS;
 
         // Members
         SOAVectorType soaX, soaY, soaZ, soaW;

@@ -104,13 +104,11 @@ namespace vectorization
 
     const PackedFloat8_256 replaceComponent(const PackedFloat8_256 & v, const PackedFloat8_256 & replacement, const ASizeT index) noexcept {
         assert(index < VectorSizes::Y);
-        auto indexBlendMask = _mm256_castsi256_ps(
-            _mm256_cmpeq_epi32(
-                _mm256_set1_epi32(static_cast<int>(index)),
-                _mm256_set_epi32(7, 6, 5, 4, 3, 2, 1, 0)
-            )
+        auto indexBlendMask = _mm256_cmpeq_epi32(
+            _mm256_set1_epi32(static_cast<int>(index)),
+            _mm256_set_epi32(7, 6, 5, 4, 3, 2, 1, 0)
         );
-        return _mm256_blendv_ps(v, replacement, indexBlendMask);
+        return blendMasked(v, replacement, indexBlendMask);
     }
 
     const PackedFloat8_256 replaceComponent(const PackedFloat8_256 & v, const Float_32 replacement, const ASizeT index) noexcept {

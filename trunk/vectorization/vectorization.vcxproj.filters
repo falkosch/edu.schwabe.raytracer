@@ -228,9 +228,6 @@
     <ClInclude Include="include\vectorization\v_f32_4\operators.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="include\vectorization\v_f32_4\swizzled_blends.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
     <ClInclude Include="include\vectorization\v_f32_4\swizzles.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
@@ -462,6 +459,45 @@
     <ClInclude Include="include\vectorization\functions\bitcount.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
+    <ClInclude Include="include\vectorization\swizzledBlends\swizzledBlend_128d.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vectorization\swizzledBlends\swizzledBlend_128s.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vectorization\swizzledBlends\swizzledBlend_256d.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vectorization\swizzledBlends\swizzledBlend_256s.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vectorization\swizzledBlends\swizzledBlend1x1_128d.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vectorization\swizzledBlends\swizzledBlend2x2_128s.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vectorization\swizzledBlends\swizzledBlend2x2_256d.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vectorization\swizzledBlends\swizzledBlendMasked_128d.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vectorization\swizzledBlends\swizzledBlendMasked_128s.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vectorization\swizzledBlends\swizzledBlendMasked_256d.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vectorization\swizzledBlends\swizzledBlendMasked_256s.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vectorization\swizzledBlends.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vectorization\v_f32_4\swizzledBlends.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\vectorization\m_f32_4x4.cpp">
@@ -501,9 +537,6 @@
       <Filter>Quelldateien</Filter>
     </ClCompile>
     <ClCompile Include="src\vectorization\architecture\memory.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="src\vectorization\architecture\meta_types.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
     <ClCompile Include="src\vectorization\constants\values\Zero.cpp">
@@ -621,9 +654,6 @@
       <Filter>Quelldateien</Filter>
     </ClCompile>
     <ClCompile Include="src\vectorization\v_f32_4\type.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="src\vectorization\v_f32_4\swizzle_blends.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
     <ClCompile Include="src\vectorization\v_f32_4\operators.cpp">
@@ -840,6 +870,24 @@
       <Filter>Quelldateien</Filter>
     </ClCompile>
     <ClCompile Include="src\vectorization\functions\bitcount.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vectorization\swizzle_blends\swizzleBlend_128s.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vectorization\swizzle_blends\swizzleBlend2x2_128s.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vectorization\swizzle_blends\swizzleBlend_128d.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vectorization\swizzle_blends\swizzleBlend1x1_128d.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vectorization\swizzle_blends\swizzleBlend2x2_256d.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vectorization\v_f32_4\swizzledBlends.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
   </ItemGroup>
