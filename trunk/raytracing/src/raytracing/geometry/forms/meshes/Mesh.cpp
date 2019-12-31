@@ -585,7 +585,7 @@ namespace raytracer
 
     const bool readAndCheckHeaderInOFF(std::istringstream & fileStream, std::string & line) {
         while (std::getline(fileStream, line)) {
-            if (line == "OFF") {
+            if (line == "OFF" || line == "OFF\r") {
                 return true;
             }
         }
