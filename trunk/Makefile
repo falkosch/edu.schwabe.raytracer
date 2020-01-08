@@ -36,7 +36,9 @@ VECTORIZATION_OPTS = $(CPP_OPTS) -Ivectorization/include -Ivectorization/3rdpart
 RAYTRACING_OPTS = $(VECTORIZATION_OPTS) -Iraytracing/include
 RAYTRACERUI_OPTS = $(RAYTRACING_OPTS) -Iraytracerui/include -Ipackages/glew.v140.1.12.0/build/native/include
 
-.PHONY: clean
+.PHONY: clean build
+
+build: $(EXE)
 
 $(EXE): $(VECTORIZATION_OBJS) $(RAYTRACING_OBJS) $(RAYTRACERUI_OBJS)
 		$(LD) $^ -o $@ $(LD_OPTS)
