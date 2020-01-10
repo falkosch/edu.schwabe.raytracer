@@ -402,7 +402,7 @@ namespace vectorization
         return static_cast<v_ui64_2::ValueType>(_mm_cvtsi128_si64x(v.components));
 #else
         std::array<v_ui64_2::ValueType, v_ui64_2::SIZE> components;
-        std::memcpy(components.data(), &v.components, sizeof v_ui64_2::PackedType);
+        std::memcpy(components.data(), &v.components, sizeof(v_ui64_2::PackedType));
         return components.at(VectorIndices::X);
 #endif
     }
@@ -413,7 +413,7 @@ namespace vectorization
         return static_cast<v_ui64_2::ValueType>(_mm_cvtsi128_si64x(_mm_unpackhi_epi64(v.components, v.components)));
 #else
         std::array<v_ui64_2::ValueType, v_ui64_2::SIZE> components;
-        std::memcpy(components.data(), &v.components, sizeof v_ui64_2::PackedType);
+        std::memcpy(components.data(), &v.components, sizeof(v_ui64_2::PackedType));
         return components.at(VectorIndices::Y);
 #endif
     }
