@@ -4,7 +4,7 @@ TARGET ?= RELEASE
 # -Wno-unknown-pragmas: do not warn about unknown pragmas, some code uses "#pragma region" to enable cold folding for very old IDEs
 
 COMMON_OPTS = -march=native -mwin32 -fopenmp -D_WIN32 -Wall -Wextra -pedantic -Wno-ignored-qualifiers -Wno-unknown-pragmas
-RELEASE_OPTS = $(COMMON_OPTS) -Ofast -flto -funroll-loops
+RELEASE_OPTS = $(COMMON_OPTS) -O3 -flto
 DEBUG_OPTS = $(COMMON_OPTS) -Og -g2
 
 CPP_OPTS_RELEASE =  $(RELEASE_OPTS) -DNDEBUG

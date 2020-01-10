@@ -71,6 +71,10 @@ namespace raytracer
         return t * t * (Float4(3) - t - t);
     }
 
+    const Float PerlinNoiseGenerator::noise(const Float4 & v) const {
+        return this->noise4(v);
+    }
+
     const Float PerlinNoiseGenerator::noise(const Float v) const {
         Int4 bx;
         Float4 rx;

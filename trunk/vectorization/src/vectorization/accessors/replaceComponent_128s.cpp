@@ -59,7 +59,7 @@ namespace vectorization
     }
 
     const PackedFloat4_128 replaceComponent(const PackedFloat4_128 & v, const PackedFloat4_128 & replacement, const ASizeT index) noexcept {
-        assert(index < VectorSizes::Y);
+        assert(index < VectorSizes::W);
         auto indexBlendMask = _mm_cmpeq_epi32(
             _mm_set1_epi32(static_cast<int>(index)),
             _mm_set_epi32(3, 2, 1, 0)
