@@ -18,7 +18,7 @@ pipeline {
     stage('build') {
       agent {
         docker {
-          image 'gcc-with-sonar-build-wrapper:latest'
+          image 'cross-gcc-windows-x64-sonar-build-wrapper:latest'
           label 'docker && linux'
         }
       }
@@ -34,7 +34,7 @@ pipeline {
     stage('sonar quality gate') {
       agent {
         docker {
-          image 'gcc-with-sonar-scanner-cli:latest'
+          image 'cross-gcc-windows-x64-sonar-scanner-cli:latest'
           label 'docker && linux'
         }
       }
