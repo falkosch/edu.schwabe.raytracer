@@ -30,26 +30,21 @@ namespace vectorization
 #endif
     }
 
+    const Int_64 _mm_popcnt_u64(const UInt_64 v) noexcept {
+        // see https://stackoverflow.com/a/17355341
+#ifdef ARCH_X64
+        return ::_mm_popcnt_u64(v);
+#else
+        auto count = _mm_popcnt_u32(static_cast<UInt_32>(v & 0xffffffff))
+            + _mm_popcnt_u32(static_cast<UInt_32>(v >> 32));
+        return Int_64{ count };
+#endif
+    }
+
     const Int_64 _mm_popcnt_si128(const PackedInts_128 v) noexcept {
         // see https://stackoverflow.com/a/17355341
-        auto v0 = x_64(v);
-        auto v1 = x_64(_mm_unpackhi_epi64(v, v));
-
-#ifdef ARCH_X64
-#if     defined(__GNUC__)
-        return _mm_popcnt_u64(v0) + _mm_popcnt_u64(v1);
-#else
-        return _mm_popcnt_u64(v0) + _mm_popcnt_u64(v1);
-#endif
-
-#else
-        auto count = _mm_popcnt_u32(static_cast<UInt_32>(v0 & 0xffffffff))
-            + _mm_popcnt_u32(static_cast<UInt_32>(v0 >> 32))
-            + _mm_popcnt_u32(static_cast<UInt_32>(v1 & 0xffffffff))
-            + _mm_popcnt_u32(static_cast<UInt_32>(v1 >> 32));
-        return static_cast<Int_64>(count);
-
-#endif
+        return _mm_popcnt_u64(x_64(v))
+            + _mm_popcnt_u64(x_64(_mm_unpackhi_epi64(v, v)));
     }
 
     const Int_64 _mm256_popcnt_si256(const PackedInts_256 v) noexcept {
