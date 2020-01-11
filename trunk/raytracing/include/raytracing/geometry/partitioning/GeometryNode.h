@@ -16,7 +16,7 @@ namespace raytracer
     {
         virtual ~GeometryNode();
 
-        virtual void includeInBounding(AxisAlignedBoundingBox & aabb) const = 0;
+        virtual const AxisAlignedBoundingBox includeInBounding(const AxisAlignedBoundingBox & aabb) const = 0;
 
         virtual const bool overlaps(const AxisAlignedBoundingBox & aabb) const = 0;
 

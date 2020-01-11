@@ -55,8 +55,6 @@ namespace raytracer
     }
 
     const AxisAlignedBoundingBox SAHKDTreeBalancer::geometryNodeBounding(const GeometryNode & node) {
-        AxisAlignedBoundingBox aabb = AxisAlignedBoundingBox();
-        node.includeInBounding(aabb);
-        return aabb;
+        return node.includeInBounding(AxisAlignedBoundingBox());
     }
 }

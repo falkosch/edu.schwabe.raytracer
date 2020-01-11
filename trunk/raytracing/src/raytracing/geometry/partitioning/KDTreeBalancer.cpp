@@ -167,8 +167,9 @@ namespace raytracer
                 // finite or use the SAH balancers, which will early stop too many splits
                 // when traversal costs exceed the intersection costs.
                 if (!inserted) {
-                    AxisAlignedBoundingBox aabb = AxisAlignedBoundingBox();
-                    geometryNode->includeInBounding(aabb);
+                    const AxisAlignedBoundingBox aabb = geometryNode->includeInBounding(
+                        AxisAlignedBoundingBox()
+                    );
                     if (overlaps(aabb, leftBounding)) {
                         tLeftGeometry->push_back(geometryNode);
                         inserted |= true;

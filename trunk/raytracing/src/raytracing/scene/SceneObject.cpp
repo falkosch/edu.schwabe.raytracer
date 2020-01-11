@@ -33,8 +33,8 @@ namespace raytracer
         }
     }
 
-    void SceneObject::includeInBounding(AxisAlignedBoundingBox & aabb) const {
-        aabb = extendBy(aabb, bounding);
+    const AxisAlignedBoundingBox SceneObject::includeInBounding(const AxisAlignedBoundingBox & aabb) const {
+        return extendBy(aabb, bounding);
     }
 
     const bool SceneObject::overlaps(const AxisAlignedBoundingBox & aabb) const {

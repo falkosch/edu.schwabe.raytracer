@@ -48,7 +48,7 @@ namespace raytracer
 
         void updateBounding();
 
-        void includeInBounding(AxisAlignedBoundingBox & aabb) const;
+        const AxisAlignedBoundingBox includeInBounding(const AxisAlignedBoundingBox & aabb) const;
 
         const bool overlaps(const AxisAlignedBoundingBox & aabb) const;
 

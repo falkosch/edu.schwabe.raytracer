@@ -6,9 +6,7 @@ namespace raytracer
     SamplingKDTreeBalancer::~SamplingKDTreeBalancer() { }
 
     const AxisAlignedBoundingBox SamplingKDTreeBalancer::geometryNodeBox(const GeometryNode & node) {
-        AxisAlignedBoundingBox b = AxisAlignedBoundingBox();
-        node.includeInBounding(b);
-        return b;
+        return node.includeInBounding(AxisAlignedBoundingBox());
     }
 
     const Float4 SamplingKDTreeBalancer::geometryNodeMinimumPredicate(const GeometryNode & node) {

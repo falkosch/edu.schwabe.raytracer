@@ -30,7 +30,7 @@ namespace raytracer
 
 #pragma omp for nowait
             for (int i = Zero<int>(); i < geometrySize; ++i) {
-                geometry[static_cast<ASizeT>(i)]->includeInBounding(t);
+                t = geometry[i]->includeInBounding(t);
             }
 
 #pragma omp critical (mergeBoundings)

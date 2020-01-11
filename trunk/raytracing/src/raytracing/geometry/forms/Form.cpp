@@ -13,8 +13,8 @@ namespace raytracer
         return AxisAlignedBoundingBox(oneW(NegativeOne<Float4>()), One<Float4>());
     }
 
-    void Form::includeInBounding(AxisAlignedBoundingBox & aabb) const {
-        aabb = extendBy(aabb, getBounding());
+    const AxisAlignedBoundingBox Form::includeInBounding(const AxisAlignedBoundingBox & aabb) const {
+        return extendBy(aabb, getBounding());
     }
 
     const bool Form::overlaps(const AxisAlignedBoundingBox & aabb) const {

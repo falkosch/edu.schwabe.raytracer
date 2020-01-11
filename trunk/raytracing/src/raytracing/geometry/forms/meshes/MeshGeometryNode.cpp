@@ -131,8 +131,8 @@ namespace raytracer
 
     // GeometryNode interface
 
-    void MeshGeometryNode::includeInBounding(AxisAlignedBoundingBox & aabb) const {
-        aabb = extendBy(
+    const AxisAlignedBoundingBox MeshGeometryNode::includeInBounding(const AxisAlignedBoundingBox & aabb) const {
+        return extendBy(
             extendBy(
                 extendBy(aabb, trianglePlanes.v0),
                 trianglePlanes.v1

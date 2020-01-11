@@ -18,7 +18,7 @@ namespace raytracer
 
         virtual const AxisAlignedBoundingBox getBounding() const;
 
-        virtual void includeInBounding(AxisAlignedBoundingBox & aabb) const;
+        virtual const AxisAlignedBoundingBox includeInBounding(const AxisAlignedBoundingBox & aabb) const;
 
         virtual const bool overlaps(const AxisAlignedBoundingBox & aabb) const;
     };
