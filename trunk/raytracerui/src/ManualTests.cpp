@@ -1,6 +1,8 @@
 #include "ManualTests.h"
 #include "stdafx.h"
 
+#include "raytracing/geometry/forms/meshes/MeshGeometryNode.h"
+
 #include <iostream>
 
 namespace raytracerui

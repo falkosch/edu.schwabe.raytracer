@@ -64,7 +64,10 @@ namespace primitives
     }
 
     const Float4::VectorBoolType cullingOrientationToMask(const Int cullingOrientation) noexcept {
-        return convert<Float4::VectorBoolType>(cullingOrientation < Zero<Float4::BoolType>(), cullingOrientation > Zero<Float4::BoolType>());
+        return convert<Float4::VectorBoolType>(
+            cullingOrientation < Zero<Float4::BoolType>(),
+            cullingOrientation > Zero<Float4::BoolType>()
+            );
     }
 
     const bool selfOcclusion(const Raycast & r, const Size2::ValueType toCheckId) noexcept {
@@ -80,13 +83,16 @@ namespace primitives
     }
 
     const bool outOfReach(const Raycast & r, const Float t) noexcept {
-        return allTrue(outOfReach(r, Float4(t)));
+        return anyTrue(outOfReach(r, Float4(t)));
     }
 
     const Float4::VectorBoolType outOfReach(const Raycast & r, const Float4 & t) noexcept {
-        const Float4 rMaxDistanceV = Float4(r.maxDistance);
+        const Float4 rMaxDistanceV{ r.maxDistance };
         // t == NaN or (r.maxDistance != NaN and t >= r.maxDistance)
-        return isNaN(t) | (andnot(isNaN(rMaxDistanceV), t >= rMaxDistanceV));
+        return isNaN(t) | andnot(
+            isNaN(rMaxDistanceV),
+            t >= rMaxDistanceV
+        );
     }
 
     const Float4 farPoint(const Raycast & r) noexcept {

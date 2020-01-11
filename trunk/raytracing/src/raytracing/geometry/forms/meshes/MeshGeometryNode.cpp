@@ -3,17 +3,18 @@
 
 namespace raytracer
 {
-#pragma region privates
-    //{privates
-
-    const bool planeBoxOverlap(const Float4 & normal, const Float4 & vert, const Float4 & maxbox) {
-        const Float4::VectorBoolType mask = (normal > Zero<Float4>());
-        const Float4 a = maxbox - vert;
-        const Float4 b = -maxbox - vert;
-        const Float4 vmin = blendMasked(a, b, mask);
-        const Float4 vmax = blendMasked(b, a, mask);
-        const Float4::VectorBoolType vminSide = dot3v(normal, vmin) <= Zero<Float4>();
-        const Float4::VectorBoolType vmaxSide = dot3v(normal, vmax) >= Zero<Float4>();
+    const bool planeBoxOverlap(
+        const Float4 & normal,
+        const Float4 & vert,
+        const Float4 & maxbox
+    ) {
+        auto mask = (normal > Zero<Float4>());
+        auto a = maxbox - vert;
+        auto b = -maxbox - vert;
+        auto vmin = blendMasked(a, b, mask);
+        auto vmax = blendMasked(b, a, mask);
+        auto vminSide = dot3v(normal, vmin) <= Zero<Float4>();
+        auto vmaxSide = dot3v(normal, vmax) >= Zero<Float4>();
         return allTrue(vminSide & vmaxSide);
     }
 
@@ -26,12 +27,12 @@ namespace raytracer
         const Float4 & w10,
         const Float4 & w11
     ) {
-        const Float4 fe = abs(edge);
-        const Float4 rad = zxyw(fe) * yzxBoxHalfSize + yzxw(fe) * zxyBoxHalfSize;
-        const Float4 zxyE = zxyw(edge);
-        const Float4 yzxE = yzxw(edge);
-        const Float4 p135 = zxyE * w00 - yzxE * w01;
-        const Float4 p246 = zxyE * w10 - yzxE * w11;
+        auto fe = abs(edge);
+        auto rad = zxyw(fe) * yzxBoxHalfSize + yzxw(fe) * zxyBoxHalfSize;
+        auto zxyE = zxyw(edge);
+        auto yzxE = yzxw(edge);
+        auto p135 = zxyE * w00 - yzxE * w01;
+        auto p246 = zxyE * w10 - yzxE * w11;
         return anyTrue3((min(p135, p246) > rad) | (max(p135, p246) < -rad));
     }
 
@@ -41,7 +42,7 @@ namespace raytracer
         // tests are in their SSE equivalent manner
 
         // case 1: Test the AABB against the minimal AABB around the triangle
-        const AxisAlignedBoundingBox triBox = bounding(trianglePlanes);
+        auto triBox = bounding(trianglePlanes);
         if (!overlaps(aabb, triBox)) {
             return false;
         }
@@ -49,12 +50,12 @@ namespace raytracer
         // case 2: fast plane/AABB overlap test, which only tests the two diagonal
         // vertices, whose direction is most closely aligned to the normal of
         // the triangle
-        const Float4 f0 = trianglePlanes.v1 - trianglePlanes.v0;
-        const Float4 f1 = trianglePlanes.v2 - trianglePlanes.v1;
-        const Float4 n = cross3(f0, f1);
-        const Float4 boxHalfSize = halfLengths(aabb);
-        const Float4 boxCenter = center(aabb, boxHalfSize);
-        const Float4 v0 = trianglePlanes.v0 - boxCenter;
+        auto f0 = trianglePlanes.v1 - trianglePlanes.v0;
+        auto f1 = trianglePlanes.v2 - trianglePlanes.v1;
+        auto n = cross3(f0, f1);
+        auto boxHalfSize = halfLengths(aabb);
+        auto boxCenter = center(aabb, boxHalfSize);
+        auto v0 = trianglePlanes.v0 - boxCenter;
         if (!planeBoxOverlap(n, v0, boxHalfSize)) {
             return false;
         }
@@ -67,15 +68,15 @@ namespace raytracer
         // outline of the test for i=j=0:
         // a_00 = e_0 * f_0 = (0, -f_0.z, f_0.y)
 
-        const Float4 v1 = trianglePlanes.v1 - boxCenter;
-        const Float4 v2 = trianglePlanes.v2 - boxCenter;
-        const Float4 yzxV0 = yzxw(v0);
-        const Float4 zxyV0 = zxyw(v0);
-        const Float4 yyyV1 = yyyy(v1);
-        const Float4 yzxV2 = yzxw(v2);
-        const Float4 zxyV2 = zxyw(v2);
-        const Float4 yzxBoxHalfSize = yzxw(boxHalfSize);
-        const Float4 zxyBoxHalfSize = zxyw(boxHalfSize);
+        auto v1 = trianglePlanes.v1 - boxCenter;
+        auto v2 = trianglePlanes.v2 - boxCenter;
+        auto yzxV0 = yzxw(v0);
+        auto zxyV0 = zxyw(v0);
+        auto yyyV1 = yyyy(v1);
+        auto yzxV2 = yzxw(v2);
+        auto zxyV2 = zxyw(v2);
+        auto yzxBoxHalfSize = yzxw(boxHalfSize);
+        auto zxyBoxHalfSize = zxyw(boxHalfSize);
 
         if (axisTest(
             f0,
@@ -116,33 +117,30 @@ namespace raytracer
         return true;
     }
 
-    //}
-#pragma endregion
-
     MeshGeometryNode::MeshGeometryNode()
         :
         index(),
-        trianglePlanes() { }
+        facet() { }
 
-    MeshGeometryNode::MeshGeometryNode(const ASizeT index, const Facet & trianglePlanes)
+    MeshGeometryNode::MeshGeometryNode(const ASizeT index, const Facet & facet)
         :
         index(index),
-        trianglePlanes(trianglePlanes) { }
+        facet(facet) { }
 
     // GeometryNode interface
 
     const AxisAlignedBoundingBox MeshGeometryNode::includeInBounding(const AxisAlignedBoundingBox & aabb) const {
         return extendBy(
             extendBy(
-                extendBy(aabb, trianglePlanes.v0),
-                trianglePlanes.v1
+                extendBy(aabb, facet.v0),
+                facet.v1
             ),
-            trianglePlanes.v2
+            facet.v2
         );
     }
 
     const bool MeshGeometryNode::overlaps(const AxisAlignedBoundingBox & aabb) const {
-        return triBoxOverlap(aabb, trianglePlanes);
+        return triBoxOverlap(aabb, facet);
     }
 
     // Intersectable<Raycast, FacetIntersection> interface

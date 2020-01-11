@@ -13,11 +13,11 @@ namespace raytracer
     {
         ASizeT index;
 
-        Facet trianglePlanes;
+        Facet facet;
 
         MeshGeometryNode();
 
-        explicit MeshGeometryNode(const ASizeT index, const Facet & trianglePlanes);
+        explicit MeshGeometryNode(const ASizeT index, const Facet & facet);
 
         // GeometryNode interface
 

@@ -1,7 +1,5 @@
 #pragma once
 
-#include "MeshGeometryNode.h"
-
 #include "../Form.h"
 
 #include "../../partitioning/KDTreeTraverser.h"
@@ -47,22 +45,26 @@ namespace raytracer
 
         static Mesh * const buildTriangleMesh();
 
-        static const Float4 findFacetIntersection(const Facet & trianglePlanes, const Raycast & r);
-
         static Mesh * const loadFromOffFile(const std::string & filename, const bool flipNormals, const KDTreeTraverser<FacetIntersection> * const traverser, const KDTreeBalancer * const balancer);
 
     protected:
 
         AxisAlignedBoundingBox bounding;
 
-        std::vector<UInt3> facetsIndices; // raw
+        // each has size equal to the count of vertices
         std::vector<Float4> vertices; // raw
         std::vector<Float4> vertexNormals;
+
+        // each has size equal to the count of facetsIndices
+        std::vector<UInt3> facetIndices; // per facet indices to vertices
         std::vector<Facet> facets;
         std::vector<Facet> texCoords;
         std::vector<Float4> flatNormals; // per facet
         std::vector<FacetNormals> smoothNormals;
-        std::vector<FacetEdges> facetsEdges; // intermediate for intersection test
+        // intermediate for havel intersection test
+        std::vector<FacetNormals> planeNormals;
+        // intermediate for moeller intersection test
+        std::vector<FacetEdges> facetEdges;
 
         PGeometryNodeList nodes;
         KDTreeRoot * graph;

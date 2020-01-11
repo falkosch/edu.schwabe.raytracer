@@ -195,6 +195,12 @@
     <ClCompile Include="src\raytracing\common\Tools.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="src\raytracing\geometry\forms\meshes\facets.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\raytracing\geometry\forms\meshes\textureCoordinates.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\raytracing.h">
@@ -417,6 +423,18 @@
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="include\raytracing\common\Tools.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="src\raytracing\geometry\forms\meshes\vertices.cpp">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\raytracing\geometry\forms\meshes\vertices.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\raytracing\geometry\forms\meshes\facets.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="include\raytracing\geometry\forms\meshes\textureCoordinates.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>

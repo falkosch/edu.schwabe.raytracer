@@ -191,6 +191,8 @@
     <ClInclude Include="include\raytracing\geometry\forms\Form.h" />
     <ClInclude Include="include\raytracing\geometry\forms\meshes\Mesh.h" />
     <ClInclude Include="include\raytracing\geometry\forms\meshes\MeshGeometryNode.h" />
+    <ClInclude Include="include\raytracing\geometry\forms\meshes\textureCoordinates.h" />
+    <ClInclude Include="include\raytracing\geometry\forms\meshes\vertices.h" />
     <ClInclude Include="include\raytracing\geometry\forms\Plane.h" />
     <ClInclude Include="include\raytracing\geometry\forms\Sphere.h" />
     <ClInclude Include="include\raytracing\geometry\ObjectGeometry.h" />
@@ -250,9 +252,13 @@
     <ClInclude Include="include\raytracing\shading\SurfaceShading.h" />
     <ClInclude Include="include\raytracing\shading\TextureTransformInfo.h" />
     <ClInclude Include="include\raytracing\shading\Raytrace.h" />
+    <ClCompile Include="src\raytracing\geometry\forms\meshes\textureCoordinates.cpp" />
+    <ClCompile Include="src\raytracing\geometry\forms\meshes\vertices.cpp" />
+    <ClInclude Include="include\raytracing\geometry\forms\meshes\facets.h" />
     <ClInclude Include="src\stdafx.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\raytracing\geometry\forms\meshes\facets.cpp" />
     <ClCompile Include="src\raytracing\BRDFParameters.cpp" />
     <ClCompile Include="src\raytracing\common\Bitmap.cpp" />
     <ClCompile Include="src\raytracing\common\HDRImage.cpp" />

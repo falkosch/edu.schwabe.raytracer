@@ -23,7 +23,7 @@ namespace raytracer
         const Float4 & origin,
         const FacetEdges & baseVectorsIn)
         :
-        plane(origin, cross3(baseVectorsIn.v0, baseVectorsIn.v1)),
+        plane(origin, cross3(baseVectorsIn.edge1, baseVectorsIn.edge2)),
         baseVectors(baseVectorsIn) { }
 
     Plane::Plane(const Float4 & planeEquation)
@@ -43,13 +43,17 @@ namespace raytracer
         // choose an axis that is not linear or co-linear to plane-normal
         // and construct a perpendicular vector with it
         const Float4 normal = zeroW(planeEquation);
-        const Float4 base0 = cross3(normal, select(
-            One<Float4>() - xxxx(normal * normal) < Epsilon<Float4>(),
-            OneX<Float4>(),
-            OneY<Float4>()));
-        baseVectors.v0 = base0;
+        const Float4 base0 = cross3(
+            normal,
+            select(
+                One<Float4>() - xxxx(normal * normal) < Epsilon<Float4>(),
+                OneX<Float4>(),
+                OneY<Float4>()
+            )
+        );
+        baseVectors.edge1 = base0;
         // find another perpendicular vector
-        baseVectors.v1 = cross3(normal, base0);
+        baseVectors.edge2 = cross3(normal, base0);
     }
 
     const Float computeFacetIntersection(const Float d, const Raycast & raycast, const Plane & p, FacetIntersection & intersectionOut) {
@@ -64,7 +68,7 @@ namespace raytracer
         intersectionOut.vertex = msVertex;
         intersectionOut.surfaceNormal = normal;
         intersectionOut.smoothedNormal = normal;
-        intersectionOut.texCoords = mapOrthogonal(msVertex, p.baseVectors.v0, p.baseVectors.v1);
+        intersectionOut.texCoords = mapOrthogonal(msVertex, p.baseVectors.edge1, p.baseVectors.edge2);
         intersectionOut.node = &p;
         return d;
     }
