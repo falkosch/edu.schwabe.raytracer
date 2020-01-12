@@ -13,7 +13,7 @@ namespace raytracer
         texCoords.resize(facetIndices.size());
 
 #pragma omp parallel for
-        for (int i{ 0 }; i < static_cast<int>(facetIndices.size()); i++) {
+        for (auto i = int{ 0 }; i < static_cast<int>(facetIndices.size()); i++) {
             auto index = static_cast<ASizeT>(i);
             auto facet = facets[index];
             texCoords[index] = FacetTexCoords4{
@@ -42,7 +42,7 @@ namespace raytracer
 
         // calculate tex-coords for each vertex-normal
 #pragma omp parallel for
-        for (int i{ 0 }; i < static_cast<int>(facetIndices.size()); i++) {
+        for (auto i = int{ 0 }; i < static_cast<int>(facetIndices.size()); i++) {
             auto index = static_cast<ASizeT>(i);
 
             // normalize vertices, they are used as normals for determining the texcoords

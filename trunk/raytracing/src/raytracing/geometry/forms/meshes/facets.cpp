@@ -13,7 +13,7 @@ namespace raytracer
         facets.resize(facetIndices.size());
 
 #pragma omp parallel for
-        for (int i{ 0 }; i < static_cast<int>(facetIndices.size()); i++) {
+        for (auto i = int{ 0 }; i < static_cast<int>(facetIndices.size()); i++) {
             auto index = static_cast<ASizeT>(i);
             auto indices = facetIndices[index];
             facets[index] = Facet{
@@ -43,7 +43,7 @@ namespace raytracer
         facetEdges.resize(facetsCount);
 
 #pragma omp parallel for
-        for (int i{ 0 }; i < static_cast<int>(facets.size()); i++) {
+        for (auto i = int{ 0 }; i < static_cast<int>(facets.size()); i++) {
             auto index = static_cast<ASizeT>(i);
 
             // edges in counter-clockwise order
@@ -87,14 +87,14 @@ namespace raytracer
 
         // normalize vertex-normals
 #pragma omp parallel for
-        for (int i{ 0 }; i < static_cast<int>(vertices.size()); i++) {
+        for (auto i = int{ 0 }; i < static_cast<int>(vertices.size()); i++) {
             auto index = static_cast<ASizeT>(i);
             vertexNormals[index] = normalize3(vertexNormals[index]);
         }
 
         // build smooth normals
 #pragma omp parallel for
-        for (int i{ 0 }; i < static_cast<int>(facets.size()); i++) {
+        for (auto i = int{ 0 }; i < static_cast<int>(facets.size()); i++) {
             auto index = static_cast<ASizeT>(i);
             auto indices = facetIndices[index];
             auto normalV0 = vertexNormals[x(indices)];
@@ -130,7 +130,7 @@ namespace raytracer
         nodes.resize(facets.size());
 
 #pragma omp parallel for
-        for (int i{ 0 }; i < static_cast<int>(facets.size()); i++) {
+        for (auto i = int{ 0 }; i < static_cast<int>(facets.size()); i++) {
             auto index = static_cast<ASizeT>(i);
             nodes[index] = new MeshGeometryNode{ index, facets[index] };
         }

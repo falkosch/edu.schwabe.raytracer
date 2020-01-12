@@ -13,7 +13,7 @@ namespace raytracer
             auto bounding = AxisAlignedBoundingBox();
 
 #pragma omp for
-            for (int i{ 0 }; i < static_cast<int>(vertices.size()); i++) {
+            for (auto i = int{ 0 }; i < static_cast<int>(vertices.size()); i++) {
                 bounding = extendBy(
                     bounding,
                     vertices[static_cast<ASizeT>(i)]
@@ -46,7 +46,7 @@ namespace raytracer
         );
 
 #pragma omp parallel for
-        for (int i{ 0 }; i < static_cast<int>(vertices.size()); i++) {
+        for (auto i = int{ 0 }; i < static_cast<int>(vertices.size()); i++) {
             auto index = static_cast<ASizeT>(i);
             vertices[index] = replaceW(
                 (vertices[index] - translation) * scale,
