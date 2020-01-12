@@ -36,23 +36,21 @@ namespace primitives
         const Float4 & maxDistance
     ) noexcept {
         auto determinant = dot3v(planeNormals.v0, raycast.ray.direction);
-        auto determinantIsPositive = !isNegative(determinant);
-        auto backCulled = (!determinantIsPositive) & backfaceCulled(raycast);
-        auto frontCulled = determinantIsPositive & frontfaceCulled(raycast);
+        auto determinantT = -dotv(planeNormals.v0, raycast.ray.origin);
 
-        if (backCulled | frontCulled) {
-            auto det_t = -dotv(planeNormals.v0, raycast.ray.origin);
+        if (!isNegative(determinantT ^ (determinant * maxDistance - determinantT))) {
+            auto determinantP = raycast.ray.origin * determinant
+                + raycast.ray.direction * determinantT;
+            auto determinantU = dotv(determinantP, planeNormals.v1);
 
-            if (!isNegative(det_t ^ (determinant * maxDistance - det_t))) {
-                auto det_p = raycast.ray.origin * determinant + raycast.ray.direction * det_t;
-                auto det_u = dotv(det_p, planeNormals.v1);
+            if (!isNegative(determinantU ^ (determinant - determinantU))) {
+                auto determinantV = dotv(determinantP, planeNormals.v2);
 
-                if (!isNegative(det_u ^ (determinant - det_u))) {
-                    auto det_v = dotv(det_p, planeNormals.v2);
-
-                    if (!isNegative(det_v ^ (determinant - (det_u + det_v)))) {
-                        return xz_xz(xy_xy(det_u, det_v), det_t) / determinant;
-                    }
+                if (!isNegative(determinantV ^ (determinant - (determinantU + determinantV)))) {
+                    return xz_xz(
+                        xy_xy(determinantU, determinantV),
+                        determinantT
+                    ) / determinant;
                 }
             }
         }

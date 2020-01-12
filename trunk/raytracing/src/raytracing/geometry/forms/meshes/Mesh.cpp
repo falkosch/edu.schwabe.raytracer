@@ -94,6 +94,15 @@ namespace raytracer
 
             auto meshNode = static_cast<const MeshGeometryNode * const>(node);
             auto index = meshNode->index;
+
+            auto determinant = dot3v(flatNormals[index], raycast.ray.direction);
+            auto frontfaced = isNegative(determinant);
+            auto culledBack = (!frontfaced) & backfaceCulled(raycast);
+            auto culledFront = (!!frontfaced) & frontfaceCulled(raycast);
+            if (culledBack | culledFront) {
+                continue;
+            }
+
             //auto facetTexCoordsAndDistance = nearestIntersectionMoeller(
             //    facets[index].v0,
             //    facetEdges[index],
@@ -145,6 +154,15 @@ namespace raytracer
 
             auto meshNode = static_cast<const MeshGeometryNode * const>(node);
             auto index = meshNode->index;
+
+            auto determinant = dot3v(flatNormals[index], raycast.ray.direction);
+            auto frontfaced = isNegative(determinant);
+            auto culledBack = (!frontfaced) & backfaceCulled(raycast);
+            auto culledFront = (!!frontfaced) & frontfaceCulled(raycast);
+            if (culledBack | culledFront) {
+                continue;
+            }
+
             //auto facetTexCoordsAndDistance = nearestIntersectionMoeller(
             //    facets[index].v0,
             //    facetEdges[index],
