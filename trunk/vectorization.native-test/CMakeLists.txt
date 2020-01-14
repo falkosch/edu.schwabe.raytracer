@@ -1,7 +1,6 @@
-project(vectorization.native-test CXX)
+project("vectorization.native-test" CXX)
 
-# Source groups
-set(HEADER_FILES
+add_library(${PROJECT_NAME} SHARED
     "include/Compare.h"
     "include/Iterate.h"
     "include/MessageFormat.h"
@@ -9,10 +8,7 @@ set(HEADER_FILES
     "include/StandardSample.h"
     "include/ToString_specializations.h"
     "include/vectorization_tests.h"
-)
-source_group("Header files" FILES ${HEADER_FILES})
 
-set(SOURCE_FILES
     "src/vectorization/accessors/component_128d_test.cpp"
     "src/vectorization/accessors/component_128s_test.cpp"
     "src/vectorization/accessors/component_256d_test.cpp"
@@ -103,187 +99,93 @@ set(SOURCE_FILES
     "src/vectorization/v_f32_4/swizzles_test.cpp"
     "src/vectorization/v_f32_4/type_test.cpp"
 )
-source_group("Source files" FILES ${SOURCE_FILES})
 
-set(ALL_FILES
-    ${HEADER_FILES}
-    ${SOURCE_FILES}
+source_group(
+    TREE "${CMAKE_CURRENT_SOURCE_DIR}"
+    PREFIX "Files"
+    REGULAR_EXPRESSION ".+\\.(h|cpp)"
 )
 
-# Target
-add_library(${PROJECT_NAME} SHARED ${ALL_FILES})
-
-use_props(${PROJECT_NAME} "${CMAKE_CONFIGURATION_TYPES}" "${DEFAULT_CXX_PROPS}")
-set(ROOT_NAMESPACE vectorization.test)
-
-set_target_properties(${PROJECT_NAME} PROPERTIES
-    VS_GLOBAL_KEYWORD "Win32Proj"
+target_compile_features(${PROJECT_NAME}
+    PUBLIC
+        cxx_std_17
 )
 
-# Output directory
-if("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "x64")
-    set_target_properties(${PROJECT_NAME} PROPERTIES
-        OUTPUT_DIRECTORY_DEBUG   "${CMAKE_SOURCE_DIR}/build/$ENV{PlatformShortName}/test-$<CONFIG>/"
-        OUTPUT_DIRECTORY_RELEASE "${CMAKE_SOURCE_DIR}/build/$ENV{PlatformShortName}/test-$<CONFIG>/"
-    )
-elseif("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "x86")
-    set_target_properties(${PROJECT_NAME} PROPERTIES
-        OUTPUT_DIRECTORY_DEBUG   "${CMAKE_SOURCE_DIR}/build/$ENV{PlatformShortName}/test-$<CONFIG>/"
-        OUTPUT_DIRECTORY_RELEASE "${CMAKE_SOURCE_DIR}/build/$ENV{PlatformShortName}/test-$<CONFIG>/"
-    )
-endif()
-if("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "x64")
-    set_target_properties(${PROJECT_NAME} PROPERTIES
+set_target_properties(${PROJECT_NAME}
+    PROPERTIES
         INTERPROCEDURAL_OPTIMIZATION_RELEASE "TRUE"
-    )
-elseif("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "x86")
-    set_target_properties(${PROJECT_NAME} PROPERTIES
-        INTERPROCEDURAL_OPTIMIZATION_RELEASE "TRUE"
-    )
-endif()
+)
 
-# Include directories
-if("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "x64")
-    target_include_directories(${PROJECT_NAME} PUBLIC
-        "${CMAKE_CURRENT_SOURCE_DIR}/include;"
-        "${CMAKE_CURRENT_SOURCE_DIR}/../vectorization/include;"
-        "$ENV{VCInstallDir}UnitTest/include"
-    )
-elseif("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "x86")
-    target_include_directories(${PROJECT_NAME} PUBLIC
-        "${CMAKE_CURRENT_SOURCE_DIR}/include;"
-        "${CMAKE_CURRENT_SOURCE_DIR}/../vectorization/include;"
-        "$ENV{VCInstallDir}UnitTest/include"
-    )
-endif()
-
-# Compile definitions
-if("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "x64")
-    target_compile_definitions(${PROJECT_NAME} PRIVATE
-        "$<$<CONFIG:Debug>:"
-            "_DEBUG"
-        ">"
-        "$<$<CONFIG:Release>:"
-            "NDEBUG"
-        ">"
-        "WIN32_LEAN_AND_MEAN;"
-        "NOMINMAX;"
-        "X64;"
-        "UNICODE;"
-        "_UNICODE"
-    )
-elseif("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "x86")
-    target_compile_definitions(${PROJECT_NAME} PRIVATE
-        "$<$<CONFIG:Debug>:"
-            "_DEBUG"
-        ">"
-        "$<$<CONFIG:Release>:"
-            "NDEBUG"
-        ">"
-        "WIN32_LEAN_AND_MEAN;"
-        "NOMINMAX;"
-        "WIN32;"
-        "UNICODE;"
-        "_UNICODE"
-    )
-endif()
-
-# Compile and link options
-if(MSVC)
-    if("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "x64")
-        target_compile_options(${PROJECT_NAME} PRIVATE
-            $<$<CONFIG:Debug>:
-                /Od;
-                ${DEFAULT_CXX_DEBUG_RUNTIME_LIBRARY}
-            >
-            $<$<CONFIG:Release>:
-                /O2;
-                /Oi;
-                ${DEFAULT_CXX_RUNTIME_LIBRARY};
-                /Gy;
-                /openmp
-            >
-            /std:c++17;
-            /sdl;
-            /W3;
-            ${DEFAULT_CXX_DEBUG_INFORMATION_FORMAT};
-            /wd4514;
-            /wd4710;
-            /wd4711;
-            /wd4820;
-            ${DEFAULT_CXX_EXCEPTION_HANDLING}
-        )
-    elseif("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "x86")
-        target_compile_options(${PROJECT_NAME} PRIVATE
-            $<$<CONFIG:Debug>:
-                /Od;
-                ${DEFAULT_CXX_DEBUG_RUNTIME_LIBRARY}
-            >
-            $<$<CONFIG:Release>:
-                /O2;
-                /Oi;
-                ${DEFAULT_CXX_RUNTIME_LIBRARY};
-                /Gy;
-                /openmp
-            >
-            /std:c++17;
-            /sdl;
-            /arch:SSE2;
-            /W3;
-            ${DEFAULT_CXX_DEBUG_INFORMATION_FORMAT};
-            /wd4514;
-            /wd4710;
-            /wd4711;
-            /wd4820;
-            ${DEFAULT_CXX_EXCEPTION_HANDLING}
-        )
-    endif()
-    if("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "x64")
-        target_link_options(${PROJECT_NAME} PRIVATE
-            $<$<CONFIG:Debug>:
-                /INCREMENTAL
-            >
-            $<$<CONFIG:Release>:
-                /OPT:REF;
-                /OPT:ICF;
-                /INCREMENTAL:NO
-            >
-            /DEBUG:FULL;
-            /SUBSYSTEM:WINDOWS
-        )
-    elseif("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "x86")
-        target_link_options(${PROJECT_NAME} PRIVATE
-            $<$<CONFIG:Debug>:
-                /INCREMENTAL
-            >
-            $<$<CONFIG:Release>:
-                /OPT:REF;
-                /OPT:ICF;
-                /INCREMENTAL:NO
-            >
-            /DEBUG:FULL;
-            /SUBSYSTEM:WINDOWS
-        )
-    endif()
-endif()
-
-# Dependencies
 add_dependencies(${PROJECT_NAME}
     vectorization
 )
 
-# Link with other targets.
-target_link_libraries(${PROJECT_NAME} PUBLIC
-    vectorization
+target_link_libraries(${PROJECT_NAME}
+    PRIVATE
+        vectorization
 )
 
-if("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "x64")
-    target_link_directories(${PROJECT_NAME} PUBLIC
+target_link_directories(${PROJECT_NAME}
+    PUBLIC
         "$ENV{VCInstallDir}UnitTest/lib"
-    )
-elseif("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "x86")
-    target_link_directories(${PROJECT_NAME} PUBLIC
-        "$ENV{VCInstallDir}UnitTest/lib"
-    )
-endif()
+)
 
+target_include_directories(${PROJECT_NAME}
+    PUBLIC
+        "$ENV{VCInstallDir}UnitTest/include"
+    PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}/include"
+)
+
+target_compile_definitions(${PROJECT_NAME}
+    PRIVATE
+        "$<$<CONFIG:Debug>:"
+        ">"
+        "$<$<CONFIG:Release>:"
+            "NDEBUG"
+        ">"
+        "$<$<STREQUAL:${CMAKE_VS_PLATFORM_NAME},x64>:"
+            "X64"
+        ">"
+        "$<$<STREQUAL:${CMAKE_VS_PLATFORM_NAME},x86>:"
+        ">"
+        "WIN32_LEAN_AND_MEAN"
+        "NOMINMAX"
+        "UNICODE"
+        "_UNICODE"
+)
+
+if(MSVC)
+
+    target_compile_options(${PROJECT_NAME}
+        PRIVATE
+            $<$<CONFIG:Debug>:
+            >
+            $<$<CONFIG:Release>:
+                /Oi
+                /Gy
+                /openmp
+            >
+            $<$<STREQUAL:${CMAKE_VS_PLATFORM_NAME},x86>:
+                /arch:SSE2
+            >
+            /sdl
+            /wd4514
+            /wd4710
+            /wd4711
+            /wd4820
+    )
+
+    target_link_options(${PROJECT_NAME}
+        PRIVATE
+            $<$<CONFIG:Debug>:
+            >
+            $<$<CONFIG:Release>:
+                /OPT:REF
+                /OPT:ICF
+            >
+            /DEBUG:FULL
+            /SUBSYSTEM:WINDOWS
+    )
+
+endif()

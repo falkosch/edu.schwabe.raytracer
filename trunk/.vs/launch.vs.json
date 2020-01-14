@@ -1,5 +1,22 @@
 {
-    "configurations": [],
+    "version": "0.2.1",
     "defaults": {},
-    "version": "0.2.1"
+    "configurations": [
+        {
+            "type": "default",
+            "project": "CMakeLists.txt",
+            "projectTarget": "raytracerui.exe (raytracerui\\raytracerui.exe)",
+            "name": "x64-debug",
+            "args": [],
+            "currentDir": "${workspaceRoot}"
+        },
+        {
+            "type": "default",
+            "project": "CMakeLists.txt",
+            "projectTarget": "raytracerui.exe (raytracerui\\raytracerui.exe)",
+            "name": "x64-release",
+            "args": [],
+            "currentDir": "${workspaceRoot}"
+        }
+    ]
 }

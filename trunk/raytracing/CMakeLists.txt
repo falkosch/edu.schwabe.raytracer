@@ -1,9 +1,6 @@
 project(raytracing CXX)
 
-################################################################################
-# Source groups
-################################################################################
-set(HEADER_FILES
+add_library(${PROJECT_NAME} STATIC
     "include/raytracing.h"
     "include/raytracing/BRDFParameters.h"
     "include/raytracing/common/Bitmap.h"
@@ -80,11 +77,9 @@ set(HEADER_FILES
     "include/raytracing/shading/shaders/NoiseGeneratorMap.h"
     "include/raytracing/shading/SurfaceShading.h"
     "include/raytracing/shading/TextureTransformInfo.h"
-    "src/stdafx.h"
-)
-source_group("Header files" FILES ${HEADER_FILES})
 
-set(SOURCE_FILES
+    "src/stdafx.h"
+
     "src/raytracing/BRDFParameters.cpp"
     "src/raytracing/common/Bitmap.cpp"
     "src/raytracing/common/HDRImage.cpp"
@@ -149,177 +144,78 @@ set(SOURCE_FILES
     "src/raytracing/shading/SurfaceShading.cpp"
     "src/raytracing/shading/TextureTransformInfo.cpp"
 )
-source_group("Source files" FILES ${SOURCE_FILES})
 
-set(ALL_FILES
-    ${HEADER_FILES}
-    ${SOURCE_FILES}
+source_group(
+    TREE "${CMAKE_CURRENT_SOURCE_DIR}"
+    PREFIX "Files"
+    REGULAR_EXPRESSION ".+\\.(h|cpp)"
 )
 
-################################################################################
-# Target
-################################################################################
-add_library(${PROJECT_NAME} STATIC ${ALL_FILES})
-
-use_props(${PROJECT_NAME} "${CMAKE_CONFIGURATION_TYPES}" "${DEFAULT_CXX_PROPS}")
-set(ROOT_NAMESPACE raytracing)
+target_compile_features(${PROJECT_NAME}
+    PUBLIC
+        cxx_std_17
+)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
-    VS_GLOBAL_KEYWORD "Win32Proj"
+    INTERPROCEDURAL_OPTIMIZATION_RELEASE "TRUE"
 )
-################################################################################
-# Output directory
-################################################################################
-if("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "x64")
-    set_target_properties(${PROJECT_NAME} PROPERTIES
-        OUTPUT_DIRECTORY_DEBUG   "${CMAKE_SOURCE_DIR}/build/$ENV{PlatformShortName}/$<CONFIG>/"
-        OUTPUT_DIRECTORY_RELEASE "${CMAKE_SOURCE_DIR}/build/$ENV{PlatformShortName}/$<CONFIG>/"
-    )
-elseif("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "x86")
-    set_target_properties(${PROJECT_NAME} PROPERTIES
-        OUTPUT_DIRECTORY_DEBUG   "${CMAKE_SOURCE_DIR}/build/$ENV{PlatformShortName}/$<CONFIG>/"
-        OUTPUT_DIRECTORY_RELEASE "${CMAKE_SOURCE_DIR}/build/$ENV{PlatformShortName}/$<CONFIG>/"
-    )
-endif()
-if("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "x64")
-    set_target_properties(${PROJECT_NAME} PROPERTIES
-        INTERPROCEDURAL_OPTIMIZATION_RELEASE "TRUE"
-    )
-elseif("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "x86")
-    set_target_properties(${PROJECT_NAME} PROPERTIES
-        INTERPROCEDURAL_OPTIMIZATION_RELEASE "TRUE"
-    )
-endif()
-################################################################################
-# Include directories
-################################################################################
-if("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "x64")
-    target_include_directories(${PROJECT_NAME} PUBLIC
-        "${CMAKE_CURRENT_SOURCE_DIR}/include;"
-        "${CMAKE_CURRENT_SOURCE_DIR}/../vectorization/include"
-    )
-elseif("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "x86")
-    target_include_directories(${PROJECT_NAME} PUBLIC
-        "${CMAKE_CURRENT_SOURCE_DIR}/include;"
-        "${CMAKE_CURRENT_SOURCE_DIR}/../vectorization/include"
-    )
-endif()
 
-################################################################################
-# Compile definitions
-################################################################################
-if("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "x64")
-    target_compile_definitions(${PROJECT_NAME} PRIVATE
+add_dependencies(${PROJECT_NAME} vectorization)
+
+target_link_libraries(${PROJECT_NAME}
+    PUBLIC
+        vectorization
+)
+
+target_include_directories(${PROJECT_NAME}
+    PUBLIC
+        "${CMAKE_CURRENT_SOURCE_DIR}/include"
+)
+
+target_compile_definitions(${PROJECT_NAME}
+    PRIVATE
         "$<$<CONFIG:Debug>:"
-            "_DEBUG"
         ">"
         "$<$<CONFIG:Release>:"
             "NDEBUG"
         ">"
-        "WIN32_LEAN_AND_MEAN;"
-        "NOMINMAX;"
-        "X64;"
-        "_LIB;"
-        "UNICODE;"
-        "_UNICODE"
-    )
-elseif("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "x86")
-    target_compile_definitions(${PROJECT_NAME} PRIVATE
-        "$<$<CONFIG:Debug>:"
-            "_DEBUG"
+        "$<$<STREQUAL:${CMAKE_VS_PLATFORM_NAME},x64>:"
+            "X64"
         ">"
-        "$<$<CONFIG:Release>:"
-            "NDEBUG"
+        "$<$<STREQUAL:${CMAKE_VS_PLATFORM_NAME},x86>:"
         ">"
-        "WIN32_LEAN_AND_MEAN;"
-        "NOMINMAX;"
-        "WIN32;"
-        "_LIB;"
-        "UNICODE;"
+        "WIN32_LEAN_AND_MEAN"
+        "NOMINMAX"
+        "_LIB"
+        "UNICODE"
         "_UNICODE"
-    )
-endif()
+)
 
-################################################################################
-# Compile and link options
-################################################################################
 if(MSVC)
-    if("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "x64")
-        target_compile_options(${PROJECT_NAME} PRIVATE
-            $<$<CONFIG:Debug>:
-                /permissive-;
-                /Od;
-                /sdl;
-                ${DEFAULT_CXX_DEBUG_RUNTIME_LIBRARY}
-            >
-            $<$<CONFIG:Release>:
-                /O2;
-                ${DEFAULT_CXX_RUNTIME_LIBRARY};
-                /Gy;
-                /GS-;
-                /openmp
-            >
-            /std:c++17;
-            /W4;
-            ${DEFAULT_CXX_DEBUG_INFORMATION_FORMAT};
-            /wd4514;
-            /wd4710;
-            /wd4711;
-            /wd4820;
-            ${DEFAULT_CXX_EXCEPTION_HANDLING}
-        )
-    elseif("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "x86")
-        target_compile_options(${PROJECT_NAME} PRIVATE
-            $<$<CONFIG:Debug>:
-                /permissive-;
-                /Od;
-                /sdl;
-                ${DEFAULT_CXX_DEBUG_RUNTIME_LIBRARY}
-            >
-            $<$<CONFIG:Release>:
-                /O2;
-                ${DEFAULT_CXX_RUNTIME_LIBRARY};
-                /Gy;
-                /GS-;
-                /openmp
-            >
-            /std:c++17;
-            /arch:SSE2;
-            /W4;
-            ${DEFAULT_CXX_DEBUG_INFORMATION_FORMAT};
-            /wd4514;
-            /wd4710;
-            /wd4711;
-            /wd4820;
-            ${DEFAULT_CXX_EXCEPTION_HANDLING}
-        )
-    endif()
-    if("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "x64")
-        target_link_options(${PROJECT_NAME} PRIVATE
-            $<$<CONFIG:Release>:
-                /OPT:REF;
-                /OPT:ICF
-            >
-        )
-    elseif("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "x86")
-        target_link_options(${PROJECT_NAME} PRIVATE
-            $<$<CONFIG:Release>:
-                /OPT:REF;
-                /OPT:ICF
-            >
-        )
-    endif()
+    target_compile_options(${PROJECT_NAME} PRIVATE
+        $<$<CONFIG:Debug>:
+            /permissive-
+            /sdl
+        >
+        $<$<CONFIG:Release>:
+            /GT
+            /Gy
+            /GS-
+            /openmp
+        >
+        $<$<STREQUAL:${CMAKE_VS_PLATFORM_NAME},x86>:
+            /arch:SSE2
+        >
+        /wd4514
+        /wd4710
+        /wd4711
+        /wd4820
+    )
+
+    target_link_options(${PROJECT_NAME} PRIVATE
+        $<$<CONFIG:Release>:
+            /OPT:REF
+            /OPT:ICF
+        >
+    )
 endif()
-
-################################################################################
-# Dependencies
-################################################################################
-add_dependencies(${PROJECT_NAME}
-    vectorization
-)
-
-# Link with other targets.
-target_link_libraries(${PROJECT_NAME} PUBLIC
-    vectorization
-)
-
