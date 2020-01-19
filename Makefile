@@ -12,7 +12,7 @@ LD_OPTS_RELEASE = $(RELEASE_OPTS)
 CPP_OPTS_DEBUG = $(DEBUG_OPTS) -D_DEBUG
 LD_OPTS_DEBUG = $(DEBUG_OPTS)
 
-CPP_OPTS = $(CPP_OPTS_$(TARGET)) -std=c++17 -D_WIN32 -D_UNICODE -DUNICODE -Wall -Wextra -pedantic -Wno-ignored-qualifiers -Wno-unknown-pragmas
+CPP_OPTS = $(CPP_OPTS_$(TARGET)) -std=c++17 -D_WIN32 -D_UNICODE -DUNICODE
 LD_OPTS = $(LD_OPTS_$(TARGET)) -lgdi32 -lopengl32
 
 CPP = g++

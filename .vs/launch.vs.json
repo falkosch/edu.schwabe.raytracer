@@ -1,0 +1,16 @@
+{
+  "version": "0.2.1",
+  "defaults": {},
+  "configurations": [
+    {
+      "type": "dll",
+      "exe": "C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/Common7/IDE/CommonExtensions/Microsoft/TestWindow/vstest.console.exe",
+      "project": "CMakeLists.txt",
+      "projectTarget": "vectorization.native-test.dll (tests\\vectorization.native-test\\vectorization.native-test.dll)",
+        "name": "vectorization.native-test.dll (tests\\vectorization.native-test\\vectorization.native-test.dll)",
+        "args": [
+            "vectorization.native-test.dll"
+        ]
+    }
+  ]
+}
