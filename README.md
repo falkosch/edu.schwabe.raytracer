@@ -9,7 +9,7 @@ This is my private raytracing project for hobby and learning purposes only.
 
 ## System Overview
 
-The application is curently parted into three sub projects representing, each representing one of the three core layers:
+The application is curently parted into three sub projects representing, each representing one of the three layers/components/parts:
 
 * _vectorization_ is a static library for the fundamental support for SSE/AVX accelerated FP computations.
 
@@ -90,7 +90,7 @@ The raytracer features:
 
 * OpenMP simple parallelization
 
-* Simple BRDF lightning model (
+* Simple BRDF lightning model
 
     * Schlick-Fresnel refraction
 
@@ -112,26 +112,7 @@ The UI is implemented with the standard Windows API (raytracerui VC++-project as
 
 * Output of the raytracing can be blitted either with a GDI StretchDIBits or an OpenGL implementation (latter has no effect on the performance of the raytracing!)
 
-* QT UI is planned
 
-## TODO
+## Credits
 
-Refactor partitioning API so that generation and traversal of acceleration structures
-
-* can be invoked dynamically via standard Stragety-pattern-based interfaces
-
-* but actual generation and traversing code is fully compile-time optimizeable
-
-
-Use QT for a more fancy, intuitive and comprehensible UI
-
-* Provide visible controls next to the blitted output instead of the mouse and key listeners hidden in code.
-
-
-Implement packeted raytracing to group similar rays for more efficient packeted intersection tests.
-
-
-Provide structure of arrays for more efficient intersection tests for the triangle meshes.
-
-
-Refactor Raytracer.cpp so that different tracing strategies can be used, f.e. a path tracer.
+Project is setup with *[The C++ CMake Project Template](https://github.com/cginternals/cmake-init)*

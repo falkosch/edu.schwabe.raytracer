@@ -25,13 +25,10 @@ namespace vectorization
                 const std::string & operatorText,
                 const v_f32_4::ValueType expected
             ) {
-                return MessageFormat::toString(
-                    std::ostringstream()
-                    << "[" << index << "] "
-                    << value << " "
-                    << prefix << ": " <<
-                    actual << " " << operatorText << " " << expected
-                );
+                auto messageStream = std::ostringstream{}
+                    << "[" << index << "] " << value << " " << prefix
+                    << ": " << actual << " " << operatorText << " " << expected;
+                return MessageFormat::toString(messageStream);
             }
 
             static const std::wstring forIndex(

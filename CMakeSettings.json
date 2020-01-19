@@ -14,7 +14,8 @@
             "variables": [
                 {
                     "name": "CMAKE_VS_PLATFORM_NAME",
-                    "value": "x64"
+                    "value": "x64",
+                    "type": "STRING"
                 }
             ]
         },
@@ -32,7 +33,27 @@
             "variables": [
                 {
                     "name": "CMAKE_VS_PLATFORM_NAME",
-                    "value": "x64"
+                    "value": "x64",
+                    "type": "STRING"
+                }
+            ]
+        },
+        {
+            "name": "x64-Clang-Release",
+            "generator": "Ninja",
+            "configurationType": "Release",
+            "inheritEnvironments": [ "clang_cl_x64" ],
+            "buildRoot": "${projectDir}/build/${name}",
+            "installRoot": "${projectDir}/build/install/${name}",
+            "cmakeCommandArgs": "",
+            "buildCommandArgs": "-v",
+            "ctestCommandArgs": "",
+            "cmakeToolchain": "${env.VCPKG_DIR}/scripts/buildsystems/vcpkg.cmake",
+            "variables": [
+                {
+                    "name": "CMAKE_VS_PLATFORM_NAME",
+                    "value": "x64",
+                    "type": "STRING"
                 }
             ]
         }

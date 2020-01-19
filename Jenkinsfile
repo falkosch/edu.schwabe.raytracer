@@ -10,9 +10,9 @@ pipeline {
   environment {
     CI = true
     HOME = "${env.WORKSPACE}"
-    SOURCE_DIR = 'trunk'
-    OUTPUT_DIR = 'trunk/build'
-    BW_OUTPUT_DIR = 'trunk/bw-out'
+    SOURCE_DIR = 'sources'
+    OUTPUT_DIR = 'build'
+    BW_OUTPUT_DIR = 'bw-out'
   }
   stages {
     stage('build') {
@@ -25,8 +25,9 @@ pipeline {
       stages {
         stage('compile') {
           steps {
-            sh "mkdir -p ${BW_OUTPUT_DIR}"
-            sh "build-wrapper-linux-x86-64 --out-dir ${BW_OUTPUT_DIR} make -C ${SOURCE_DIR} clean build"
+            sh "mkdir -p ${OUTPUT_DIR} ${BW_OUTPUT_DIR}"
+            sh "cmake -B ${OUTPUT_DIR}"
+            sh "build-wrapper-linux-x86-64 --out-dir ${BW_OUTPUT_DIR} cmake --build ${OUTPUT_DIR}"
           }
         }
       }
