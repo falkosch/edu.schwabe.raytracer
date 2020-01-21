@@ -19,6 +19,7 @@ pipeline {
         docker {
           image 'cross-gcc-windows-x64-sonar-build-wrapper:latest'
           label 'docker && linux'
+          args '--memory=1g --memory-swap=1g'
         }
       }
       stages {
