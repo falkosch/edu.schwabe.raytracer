@@ -1,7 +1,4 @@
-add_custom_target(tests
-    DEPENDS
-        sources
-)
+add_custom_target(tests)
 
 enable_testing()
 

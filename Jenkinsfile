@@ -11,7 +11,6 @@ pipeline {
     CI = true
     HOME = "${env.WORKSPACE}"
     SOURCE_DIR = 'sources'
-    OUTPUT_DIR = 'build'
     BW_OUTPUT_DIR = 'bw-out'
   }
   stages {
@@ -25,9 +24,8 @@ pipeline {
       stages {
         stage('compile') {
           steps {
-            sh "mkdir -p ${OUTPUT_DIR} ${BW_OUTPUT_DIR}"
-            sh "cmake -B ${OUTPUT_DIR}"
-            sh "build-wrapper-linux-x86-64 --out-dir ${BW_OUTPUT_DIR} cmake --build ${OUTPUT_DIR}"
+            sh "mkdir -p ${BW_OUTPUT_DIR}"
+            sh "build-wrapper-linux-x86-64 --out-dir ${BW_OUTPUT_DIR} sh build-with-local-cc.sh"
           }
         }
       }
