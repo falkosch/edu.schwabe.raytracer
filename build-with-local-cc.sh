@@ -8,6 +8,5 @@ cmake -B ${OUTPUT_DIR} \
 
 cmake --build ${OUTPUT_DIR} \
     --clean-first \
-    --parallel \
     --target raytracerui \
     --config ${BUILD_TYPE}
