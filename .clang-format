@@ -1,0 +1,14 @@
+---
+Language: Cpp
+BasedOnStyle: Microsoft
+
+ColumnLimit: 100
+FixNamespaceComments: false
+PointerAlignment: Middle
+
+NamespaceIndentation: All
+NamespaceMacros:
+    - TEST_CLASS
+TypenameMacros:
+    - TEST_METHOD
+...
