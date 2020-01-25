@@ -184,13 +184,11 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
         PUBLIC
             $<$<CONFIG:Release>:
                 -O3
-                -fopenmp
             >
             $<$<CONFIG:Debug>:
                 -Og
                 -g2
             >
-            -march=native
     )
 
     target_link_options(${PROJECT_NAME}
@@ -199,22 +197,10 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
                 -O3
                 -flto
                 -fwhole-program
-                -fopenmp
             >
     )
 
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-    target_compile_options(${PROJECT_NAME}
-        PUBLIC
-            $<$<STREQUAL:${CMAKE_VS_PLATFORM_NAME},x86>:
-                #/arch:SSE2
-            >
-            $<$<CONFIG:Release>:
-                /openmp
-            >
-            /arch:AVX2
-    )
-
     target_link_options(${PROJECT_NAME}
         PUBLIC
             $<$<CONFIG:Release>:

@@ -19,11 +19,17 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     )
 
     add_compile_options(
+        -march=native
+        -fopenmp
         -Wall
         -Wextra
         -pedantic
         -Wno-ignored-qualifiers
         -Wno-unknown-pragmas
+    )
+
+    add_link_options(
+        -fopenmp
     )
 
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
@@ -41,10 +47,12 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     endforeach()
 
     add_compile_options(
+        /arch:AVX2
+        /openmp
+        /GS-
+        /fp:fast
         /permissive-
         /Zc:twoPhase-
-        /fp:fast
-        /GS-
         /W4
         /wd4514
         /wd4710
