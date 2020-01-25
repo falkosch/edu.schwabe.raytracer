@@ -182,7 +182,6 @@ target_compile_definitions(${PROJECT_NAME}
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     target_compile_options(${PROJECT_NAME}
         PUBLIC
-            -march=native
             $<$<CONFIG:Release>:
                 -O3
                 -fopenmp
@@ -191,6 +190,7 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
                 -Og
                 -g2
             >
+            -march=native
     )
 
     target_link_options(${PROJECT_NAME}
@@ -224,6 +224,6 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     )
 
 else()
-    message(FATAL "no configuration for compiler ${CMAKE_CXX_COMPILER_ID}")
+    message(FATAL_ERROR "no configuration for compiler ${CMAKE_CXX_COMPILER_ID}")
 
 endif()

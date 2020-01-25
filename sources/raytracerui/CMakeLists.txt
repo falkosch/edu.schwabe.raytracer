@@ -25,11 +25,6 @@ source_group(
     REGULAR_EXPRESSION ".+\\.(h|cpp)"
 )
 
-target_compile_features(${PROJECT_NAME}
-    PUBLIC
-        cxx_std_17
-)
-
 set_target_properties(${PROJECT_NAME}
     PROPERTIES
         INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE
@@ -75,6 +70,6 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     )
 
 else()
-    message(FATAL "no configuration for compiler ${CMAKE_CXX_COMPILER_ID}")
+    message(FATAL_ERROR "no configuration for compiler ${CMAKE_CXX_COMPILER_ID}")
 
 endif()

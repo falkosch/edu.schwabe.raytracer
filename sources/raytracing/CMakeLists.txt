@@ -110,6 +110,6 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 
 else()
-    message(FATAL "no configuration for compiler ${CMAKE_CXX_COMPILER_ID}")
+    message(FATAL_ERROR "no configuration for compiler ${CMAKE_CXX_COMPILER_ID}")
 
 endif()

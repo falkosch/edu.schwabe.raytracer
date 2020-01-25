@@ -130,12 +130,8 @@ target_include_directories(${PROJECT_NAME}
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-    target_link_options(${PROJECT_NAME}
-        PRIVATE
-#            /SUBSYSTEM:WINDOWS
-    )
 
 else()
-    message(FATAL "no configuration for compiler ${CMAKE_CXX_COMPILER_ID}")
+    message(FATAL_ERROR "no configuration for compiler ${CMAKE_CXX_COMPILER_ID}")
 
 endif()
