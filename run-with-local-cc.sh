@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-. __with-local-cc.sh
+. ./build-with-local-cc.sh
 
-RAYTRACERUI_EXE="$(pwd)/${OUTPUT_DIR}/sources/raytracerui/raytracerui.exe"
+SOURCES_DIR="$(pwd)/${OUTPUT_DIR}/sources"
 
-(cd data && exec ${RAYTRACERUI_EXE})
+(cd data && find "${SOURCES_DIR}" -executable -type f -print -exec {} \;)

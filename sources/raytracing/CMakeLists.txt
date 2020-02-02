@@ -76,16 +76,6 @@ source_group(
     REGULAR_EXPRESSION ".+\\.(h|cpp)"
 )
 
-target_compile_features(${PROJECT_NAME}
-    PUBLIC
-        cxx_std_17
-)
-
-set_target_properties(${PROJECT_NAME}
-    PROPERTIES
-        INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE
-)
-
 add_dependencies(${PROJECT_NAME}
     vectorization
 )
@@ -108,6 +98,10 @@ target_compile_definitions(${PROJECT_NAME}
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    set_target_properties(${PROJECT_NAME}
+        PROPERTIES
+            INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE
+    )
 
 else()
     message(FATAL_ERROR "no configuration for compiler ${CMAKE_CXX_COMPILER_ID}")

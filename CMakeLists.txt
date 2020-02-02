@@ -1,10 +1,38 @@
 cmake_minimum_required(VERSION 3.9)
 
+if("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "")
+    set(CMAKE_VS_PLATFORM_NAME "x64")
+endif()
+
+set(CompilerFlags
+    CMAKE_CXX_FLAGS
+    CMAKE_CXX_FLAGS_DEBUG
+    CMAKE_CXX_FLAGS_RELEASE
+    CMAKE_C_FLAGS
+    CMAKE_C_FLAGS_DEBUG
+    CMAKE_C_FLAGS_RELEASE
+)
+
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
+# if(GIT_FOUND AND EXISTS "${CMAKE_SOURCE_DIR}/.git")
+#     execute_process(
+#         COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive
+#         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+#         RESULT_VARIABLE GIT_SUBMOD_RESULT
+#     )
+#     if(NOT GIT_SUBMOD_RESULT EQUAL "0")
+#         message(FATAL_ERROR "${GIT_SUBMOD_RESULT}: updating submodules failed, please checkout submodules manually")
+#         return()
+#     endif()
+# endif()
+
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/build/conan/${CMAKE_VS_PLATFORM_NAME}")
 
 project(Raytracer)
 
-set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+include(Catch2Tests)
 
 add_compile_definitions(
     UNICODE
@@ -14,11 +42,18 @@ add_compile_definitions(
 )
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+
+    foreach(CompilerFlag ${CompilerFlags})
+        string(REGEX REPLACE "-g[0-9]?" "" ${CompilerFlag} "${${CompilerFlag}}")
+        string(REGEX REPLACE "-O[0-9]?" "" ${CompilerFlag} "${${CompilerFlag}}")
+    endforeach()
+
     add_compile_definitions(
         _WIN32
     )
 
     add_compile_options(
+        -g3
         -march=native
         -fopenmp
         -Wall
@@ -29,18 +64,12 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     )
 
     add_link_options(
+        -g3
         -fopenmp
     )
 
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-    set(CompilerFlags
-        CMAKE_CXX_FLAGS
-        CMAKE_CXX_FLAGS_DEBUG
-        CMAKE_CXX_FLAGS_RELEASE
-        CMAKE_C_FLAGS
-        CMAKE_C_FLAGS_DEBUG
-        CMAKE_C_FLAGS_RELEASE
-    )
+
     foreach(CompilerFlag ${CompilerFlags})
         string(REGEX REPLACE "/[wW][0-9]" "" ${CompilerFlag} "${${CompilerFlag}}")
         string(REPLACE "/MD" "/MT" ${CompilerFlag} "${${CompilerFlag}}")
@@ -60,6 +89,10 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
         /wd4820
     )
 
+    add_link_options(
+        /Debug
+    )
+
 else()
     message(FATAL_ERROR "no configuration for compiler ${CMAKE_CXX_COMPILER_ID}")
 
@@ -67,4 +100,18 @@ endif()
 
 add_subdirectory(sources)
 add_subdirectory(tests)
+
+add_custom_target(sources_and_tests
+    DEPENDS
+        sources
+        tests
+)
+
 add_subdirectory(docs)
+
+add_custom_target(ci
+    DEPENDS
+        sources_and_tests
+        docs
+        reports
+)

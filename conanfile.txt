@@ -1,5 +1,5 @@
 [requires]
-glew/2.1.0@bincrafters/stable
+catch2/2.11.0
 
 [generators]
-cmake_paths
+cmake_find_package
