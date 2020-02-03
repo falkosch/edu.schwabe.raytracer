@@ -67,22 +67,22 @@ pipeline {
           }
         }
 
-        stage("collect reports") {
-          steps {
-            junit 'build/ci/**/*-junit.xml'
+        // stage("collect reports") {
+        //   steps {
+        //     junit 'build/ci/**/*-junit.xml'
 
-            cobertura([
-              coberturaReportFile: 'build/ci/**/*-cobertura.xml',
-              conditionalCoverageTargets: '80, 0, 0',
-              enableNewApi: true,
-              lineCoverageTargets: '80, 0, 0',
-              maxNumberOfBuilds: 0,
-              methodCoverageTargets: '80, 0, 0',
-              onlyStable: false,
-              sourceEncoding: 'ASCII'
-            ])
-          }
-        }
+        //     cobertura([
+        //       coberturaReportFile: 'build/ci/**/*-cobertura.xml',
+        //       conditionalCoverageTargets: '80, 0, 0',
+        //       enableNewApi: true,
+        //       lineCoverageTargets: '80, 0, 0',
+        //       maxNumberOfBuilds: 0,
+        //       methodCoverageTargets: '80, 0, 0',
+        //       onlyStable: false,
+        //       sourceEncoding: 'ASCII'
+        //     ])
+        //   }
+        // }
       }
     }
 
