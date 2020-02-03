@@ -61,7 +61,7 @@ pipeline {
 
         stage("build & tests") {
           steps {
-            sh "build-wrapper-linux-x86-64 --out-dir ${BW_OUTPUT_DIR} ./ci-reports-with-local-cc.sh"
+            sh "TOOLCHAIN_FILE=cmake/toolchain-mingw-w64-x86_64.cmake build-wrapper-linux-x86-64 --out-dir ${BW_OUTPUT_DIR} ./ci-reports-with-local-cc.sh"
           }
         }
 
