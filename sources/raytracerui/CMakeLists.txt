@@ -27,19 +27,17 @@ source_group(
 
 add_dependencies(${PROJECT_NAME}
     raytracing
-    vectorization
 )
 
-find_package(GLEW REQUIRED)
+find_package(RealGLEW)
 
 target_link_libraries(${PROJECT_NAME}
-    PRIVATE
+    PUBLIC
         raytracing
-        vectorization
         gdi32
         opengl32
         glu32
-        GLEW::GLEW
+        RealGLEW::RealGLEW
 )
 
 target_include_directories(${PROJECT_NAME}
@@ -52,18 +50,14 @@ target_compile_definitions(${PROJECT_NAME}
         _CONSOLE
 )
 
+set_target_properties(${PROJECT_NAME}
+    PROPERTIES
+        INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE
+)
+
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    target_link_libraries(${PROJECT_NAME}
-        PRIVATE
-            stdc++
-    )
 
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-    set_target_properties(${PROJECT_NAME}
-        PROPERTIES
-            INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE
-    )
-
     target_link_options(${PROJECT_NAME}
         PRIVATE
             /SUBSYSTEM:CONSOLE

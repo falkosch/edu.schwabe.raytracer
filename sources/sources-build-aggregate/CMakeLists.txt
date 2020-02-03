@@ -33,7 +33,17 @@ target_compile_definitions(${PROJECT_NAME}
         >
 )
 
+set_target_properties(${PROJECT_NAME}
+    PROPERTIES
+        INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE
+)
+
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    target_link_libraries(${PROJECT_NAME}
+        PUBLIC
+            stdc++
+    )
+
     target_compile_options(${PROJECT_NAME}
         PUBLIC
             $<$<CONFIG:Release>:
@@ -62,8 +72,6 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
                 >
                 $<$<NOT:$<BOOL:${COVERAGE}>>:
                     -O3
-                    -flto
-                    -fwhole-program
                 >
             >
             $<$<CONFIG:Debug>:
@@ -77,11 +85,6 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     )
 
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-    set_target_properties(${PROJECT_NAME}
-        PROPERTIES
-            INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE
-    )
-
     target_link_options(${PROJECT_NAME}
         PUBLIC
             $<$<CONFIG:Release>:
