@@ -10,8 +10,8 @@ set(doxyfile_src "doxyfile.in")
 set(doxyfile_out "${CMAKE_CURRENT_BINARY_DIR}/doxyfile")
 set(doxyfile_html "${CMAKE_CURRENT_BINARY_DIR}/html")
 
-get_filename_component(doxyfile_path ${doxyfile_src} PATH)
-if(NOT path)
+get_filename_component(doxyfile_path ${doxyfile_src} DIRECTORY)
+if(NOT doxyfile_path)
     set(doxyfile_path ${CMAKE_CURRENT_SOURCE_DIR})
 endif()
 
@@ -21,14 +21,10 @@ add_custom_target("api-docs"
     DEPENDS
         sources
         ${doxyfile_out}
-    BYPRODUCTS
-        "${doxyfile_html}/index.html"
-    WORKING_DIRECTORY
-        ${doxyfile_path}
-    COMMAND
-        ${CMAKE_COMMAND} -E copy_directory ${doxyfile_path} ${doxyfile_html}
-    COMMAND
-        ${DOXYGEN} \"${doxyfile_out}\"
+    WORKING_DIRECTORY ${doxyfile_path}
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${doxyfile_path} ${doxyfile_html}
+    COMMAND ${DOXYGEN} \"${doxyfile_out}\"
+    BYPRODUCTS "${doxyfile_html}/index.html"
 )
 
 install(

@@ -1,4 +1,7 @@
-project(vectorization CXX)
+project(vectorization
+    LANGUAGES CXX
+    VERSION 1.0.0
+)
 
 add_library(${PROJECT_NAME}
     STATIC
@@ -140,14 +143,13 @@ source_group(
     REGULAR_EXPRESSION ".+\\.(h|cpp)"
 )
 
-target_compile_features(${PROJECT_NAME}
-    PUBLIC
-        cxx_std_17
+add_dependencies(${PROJECT_NAME}
+    sources-build-aggregate
 )
 
-set_target_properties(${PROJECT_NAME}
-    PROPERTIES
-        INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE
+target_link_libraries(${PROJECT_NAME}
+    PUBLIC
+        sources-build-aggregate
 )
 
 target_include_directories(${PROJECT_NAME}
@@ -158,41 +160,20 @@ target_include_directories(${PROJECT_NAME}
 )
 
 target_compile_definitions(${PROJECT_NAME}
-    PUBLIC
-        $<$<STREQUAL:${CMAKE_VS_PLATFORM_NAME},x64>:
-            X64
-        >
-        UNICODE
-        _UNICODE
     PRIVATE
-        $<$<CONFIG:Release>:
-            NDEBUG
-        >
-        WIN32_LEAN_AND_MEAN
-        NOMINMAX
         _LIB
 )
 
-if(MSVC)
-    target_compile_options(${PROJECT_NAME}
-        PUBLIC
-            $<$<STREQUAL:${CMAKE_VS_PLATFORM_NAME},x86>:
-                /arch:SSE2
-            >
-        PRIVATE
-            $<$<CONFIG:Release>:
-                /openmp
-            >
-            /GS-
-            /permissive-
-            /Zc:twoPhase-
-    )
+set_target_properties(${PROJECT_NAME}
+    PROPERTIES
+        INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE
+)
 
-    target_link_options(${PROJECT_NAME}
-        PRIVATE
-            $<$<CONFIG:Release>:
-                /OPT:REF
-                /OPT:ICF
-            >
-    )
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+
+else()
+    message(FATAL_ERROR "no configuration for compiler ${CMAKE_CXX_COMPILER_ID}")
+
 endif()

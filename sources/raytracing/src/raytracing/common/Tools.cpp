@@ -4,7 +4,7 @@
 //  override byte to prevent clashes with <cstddef>
 #define byte win_byte_override
 
-#include <Windows.h>
+#include <windows.h>
 
 #undef byte
 

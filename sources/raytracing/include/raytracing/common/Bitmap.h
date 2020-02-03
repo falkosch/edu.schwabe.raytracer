@@ -2,7 +2,7 @@
 
 #include "Image.h"
 
-#include <Windows.h>
+#include <windows.h>
 
 namespace raytracer
 {

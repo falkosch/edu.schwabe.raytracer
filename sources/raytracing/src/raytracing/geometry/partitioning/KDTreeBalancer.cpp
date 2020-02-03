@@ -3,7 +3,6 @@
 
 #include <cassert>
 #include <numeric>
-#include <thread>
 
 namespace raytracer
 {
@@ -138,7 +137,7 @@ namespace raytracer
         leftGeometry = new PGeometryNodeList();
         rightGeometry = new PGeometryNodeList();
 
-#pragma omp parallel if (geometrySize >= int(std::thread::hardware_concurrency()))
+#pragma omp parallel if (geometrySize >= 64)
         {
             PGeometryNodeList * const tLeftGeometry = new PGeometryNodeList();
             tLeftGeometry->reserve(geometry.size());

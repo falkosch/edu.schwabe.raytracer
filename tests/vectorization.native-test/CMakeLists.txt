@@ -1,4 +1,7 @@
-project("vectorization.native-test" CXX)
+project("vectorization.native-test"
+    LANGUAGES CXX
+    VERSION 1.0.0
+)
 
 add_library(${PROJECT_NAME}
     SHARED
@@ -95,18 +98,8 @@ add_library(${PROJECT_NAME}
 
 source_group(
     TREE ${CMAKE_CURRENT_SOURCE_DIR}
-    PREFIX Files
+    PREFIX "Files"
     REGULAR_EXPRESSION ".+\\.(h|cpp)"
-)
-
-target_compile_features(${PROJECT_NAME}
-    PUBLIC
-        cxx_std_17
-)
-
-set_target_properties(${PROJECT_NAME}
-    PROPERTIES
-        INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE
 )
 
 add_dependencies(${PROJECT_NAME}
@@ -129,20 +122,16 @@ target_include_directories(${PROJECT_NAME}
         "${CMAKE_CURRENT_SOURCE_DIR}/include"
 )
 
-target_compile_definitions(${PROJECT_NAME}
-    PRIVATE
-        $<$<CONFIG:Release>:
-            NDEBUG
-        >
-        WIN32_LEAN_AND_MEAN
-        NOMINMAX
+set_target_properties(${PROJECT_NAME}
+    PROPERTIES
+        INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE
 )
 
-if(MSVC)
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 
-    target_link_options(${PROJECT_NAME}
-        PRIVATE
-            /SUBSYSTEM:WINDOWS
-    )
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+   
+else()
+    message(FATAL_ERROR "no configuration for compiler ${CMAKE_CXX_COMPILER_ID}")
 
 endif()

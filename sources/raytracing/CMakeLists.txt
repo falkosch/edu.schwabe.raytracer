@@ -1,4 +1,7 @@
-project(raytracing CXX)
+project(raytracing
+    LANGUAGES CXX
+    VERSION 1.0.0
+)
 
 add_library(${PROJECT_NAME}
     STATIC
@@ -73,16 +76,6 @@ source_group(
     REGULAR_EXPRESSION ".+\\.(h|cpp)"
 )
 
-target_compile_features(${PROJECT_NAME}
-    PUBLIC
-        cxx_std_17
-)
-
-set_target_properties(${PROJECT_NAME}
-    PROPERTIES
-        INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE
-)
-
 add_dependencies(${PROJECT_NAME}
     vectorization
 )
@@ -99,29 +92,19 @@ target_include_directories(${PROJECT_NAME}
 
 target_compile_definitions(${PROJECT_NAME}
     PRIVATE
-        $<$<CONFIG:Release>:
-            NDEBUG
-        >
-        WIN32_LEAN_AND_MEAN
-        NOMINMAX
         _LIB
 )
 
-if(MSVC)
-    target_compile_options(${PROJECT_NAME}
-        PRIVATE
-            $<$<CONFIG:Release>:
-                /openmp
-            >
-            /permissive-
-            /Zc:twoPhase-
-    )
+set_target_properties(${PROJECT_NAME}
+    PROPERTIES
+        INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE
+)
 
-    target_link_options(${PROJECT_NAME}
-        PRIVATE
-            $<$<CONFIG:Release>:
-                /OPT:REF
-                /OPT:ICF
-            >
-    )
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+
+else()
+    message(FATAL_ERROR "no configuration for compiler ${CMAKE_CXX_COMPILER_ID}")
+
 endif()
