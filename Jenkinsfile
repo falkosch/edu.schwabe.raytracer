@@ -2,6 +2,8 @@ pipeline {
   agent none
 
   options {
+    buildDiscarder(logRotator(numToKeepStr: '10'))
+    preserveStashes(buildCount: 3)
     skipStagesAfterUnstable()
     skipDefaultCheckout()
     timeout(time: 1, unit: 'HOURS')
