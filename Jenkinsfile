@@ -57,7 +57,7 @@ pipeline {
             sh "rm -rf ${BW_OUTPUT_DIR} build/*"
             sh "mkdir -p ${BW_OUTPUT_DIR}"
             sh "chmod +x ./*.sh"
-            sh "./install-dependencies-with-local-conan.sh"
+            sh "CONAN_ADD_ARGS=\"--profile cmake/conan_profile_linux_to_win64.txt\" ./install-dependencies-with-local-conan.sh"
           }
         }
 
