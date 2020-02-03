@@ -1,8 +1,6 @@
 #include "raytracing/geometry/partitioning/KDTreeBounding.h"
 #include "../../../stdafx.h"
 
-#include <thread>
-
 namespace raytracer
 {
     void KDTreeBounding::split(
@@ -24,7 +22,7 @@ namespace raytracer
         const int geometrySize = static_cast<int>(geometry.size());
         AxisAlignedBoundingBox bounding = AxisAlignedBoundingBox();
 
-#pragma omp parallel if (geometrySize >= int(std::thread::hardware_concurrency()))
+#pragma omp parallel if (geometrySize >= 64)
         {
             AxisAlignedBoundingBox t = AxisAlignedBoundingBox();
 

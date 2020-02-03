@@ -14,7 +14,7 @@
 #include <string>
 #include <memory>
 
-#include <Windows.h>
+#include <windows.h>
 
 // MAX_TRACE_DEPTH >= 969 causes stackoverflows
 // MAX_TRACE_DEPTH > 31 for most scenes has no significant visual change anymore
