@@ -66,23 +66,6 @@ pipeline {
             sh "TOOLCHAIN_FILE=cmake/toolchain-mingw-w64-x86_64.cmake build-wrapper-linux-x86-64 --out-dir ${BW_OUTPUT_DIR} ./ci-reports-with-local-cc.sh"
           }
         }
-
-        // stage("collect reports") {
-        //   steps {
-        //     junit 'build/ci/**/*-junit.xml'
-
-        //     cobertura([
-        //       coberturaReportFile: 'build/ci/**/*-cobertura.xml',
-        //       conditionalCoverageTargets: '80, 0, 0',
-        //       enableNewApi: true,
-        //       lineCoverageTargets: '80, 0, 0',
-        //       maxNumberOfBuilds: 0,
-        //       methodCoverageTargets: '80, 0, 0',
-        //       onlyStable: false,
-        //       sourceEncoding: 'ASCII'
-        //     ])
-        //   }
-        // }
       }
     }
 
@@ -99,7 +82,7 @@ pipeline {
           sh "sonar-scanner -Dsonar.branch.name=${env.BRANCH_NAME} -Dsonar.cfamily.build-wrapper-output=${BW_OUTPUT_DIR}"
         }
 
-        sleep 3
+        sleep time: 20, unit: 'SECONDS'
 
         timeout(time: 1, unit: 'MINUTES') {
           waitForQualityGate abortPipeline: true
