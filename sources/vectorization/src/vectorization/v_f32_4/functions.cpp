@@ -209,20 +209,17 @@ namespace vectorization
     //{ refract()
 
     const v_f32_4 refractEta(const v_f32_4 & incident, const v_f32_4 & normal, const v_f32_4 & NdotI, const v_f32_4 & eta) noexcept {
-        // By snells law:
-        // sin²(phi_t) = (eta_i/eta_t)² * sin²(phi_i)
-        // = (eta_i/eta_t)² * (1 - cos²(phi_i)) = (eta_i/eta_t)² * (1 - (-I.N)²)
-        // = (eta_i/eta_t)² - ((eta_i/eta_t) * (I.N))²
-        // = 1 - cos²(phi_t)
+        // By snells law: https://en.wikipedia.org/wiki/Snell%27s_law#Vector_form
         const v_f32_4 etaNdotI = eta * NdotI;
         const v_f32_4 sinSqrPhiT = eta * eta - etaNdotI * etaNdotI;
-        // cos²(phi_t) = 1 - sin²(phi_t)
         const v_f32_4 cosSqrPhiT = One<v_f32_4>() - sinSqrPhiT;
-        // TIR if 0 < cosSqrPhiT
-        if (isNegative(cosSqrPhiT)) return Zero<v_f32_4>();
-        // (eta_i/eta_t) * I + ((eta_i/eta_t) * cos(phi_i) - sqrt(cos²(phi_t))) * N
-        // = (eta_i/eta_t) * I + ((eta_i/eta_t) * (-I.N) - sqrt(cos²(phi_t))) * N
-        // = (eta_i/eta_t) * I - ((eta_i/eta_t) * (I.N) + sqrt(cos²(phi_t))) * N
+
+        if (isNegative(cosSqrPhiT))
+        {
+            // Total internal refraction
+            return Zero<v_f32_4>();
+        }
+
         return eta * incident - (etaNdotI + sqrt(cosSqrPhiT)) * normal;
     }
 

@@ -233,7 +233,7 @@ namespace raytracer
         }
 
         // Schlick approximation for polarized light refraction/reflection model:
-        // R0 = ((eta_i - eta_t) / (eta_i + eta_t))²
+        // R0 = ((eta_i - eta_t) / (eta_i + eta_t))Â²
         const Float4 refractions = subadd(zzzz(eta), wwww(eta));
         const Float4 sqrtR0 = xxxx(refractions) / yyyy(refractions);
         const Float4 R0 = sqrtR0 * sqrtR0;
@@ -301,7 +301,7 @@ namespace raytracer
     }
 
     void Raytracer::traceReflection(const Raytrace & incidentRaytrace, const Float maxDistance, RaytracerCache & cache, BRDFParameters & brdf) {
-        // would still be visible but tracing ís not wanted anymore
+        // would still be visible but tracing ï¿½s not wanted anymore
         if (incidentRaytrace.traceDepth >= cache.configuration.maxTraceDepth || maxDistance <= Zero<Float>()) {
             brdf.lighting.reflected = Zero<Float4>();
             return;
@@ -338,7 +338,7 @@ namespace raytracer
         const Float4 & transmittedDirection,
         RaytracerCache & cache,
         BRDFParameters & brdf) {
-        // would still be visible but tracing ís not wanted anymore, set transmitted to background
+        // would still be visible but tracing ï¿½s not wanted anymore, set transmitted to background
         if (incidentRaytrace.traceDepth >= cache.configuration.maxTraceDepth || maxDistance <= Zero<Float>()) {
             brdf.lighting.transmitted = Zero<Float4>();
             return;

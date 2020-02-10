@@ -106,7 +106,7 @@ namespace primitives
 
     // The near distance of a is set to "t.x". The far distance of a is set "t.y". Vice versa is set for b as "t.z" and "t.w".
     inline const Float4 computeBoxIntersectionCoefficients(const Ray & r, const AxisAlignedBoundingBox & a, const AxisAlignedBoundingBox & b) noexcept {
-        // based on: "A Cross-Platform Framework for Interactive Ray Tracing", Geimer and Müller.
+        // based on: "A Cross-Platform Framework for Interactive Ray Tracing", Geimer and MÃ¼ller.
         const Float4 pMinA = (a.minimum - r.origin) * r.reciprocalDirection;
         const Float4 pMaxA = (a.maximum - r.origin) * r.reciprocalDirection;
         const Float4 pMinB = (b.minimum - r.origin) * r.reciprocalDirection;
@@ -151,7 +151,7 @@ namespace primitives
 
     // The near distance t0 is set to "t.x". The far distance t1 is set "t.y". "t.z" and "t.w" will be set to zero.
     inline const Float4 computeBoxIntersectionCoefficients(const Ray & r, const AxisAlignedBoundingBox & a) noexcept {
-        // based on: "A Cross-Platform Framework for Interactive Ray Tracing", Geimer and Müller.
+        // based on: "A Cross-Platform Framework for Interactive Ray Tracing", Geimer and MÃ¼ller.
         const Float4 pMin = (a.minimum - r.origin) * r.reciprocalDirection;
         const Float4 pMax = (a.maximum - r.origin) * r.reciprocalDirection;
         const Float4 vMin = min(pMin, pMax);
