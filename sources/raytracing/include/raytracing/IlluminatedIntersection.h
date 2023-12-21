@@ -2,18 +2,16 @@
 
 #include <vectorization.h>
 
-namespace raytracer
-{
-    using namespace vectorization;
+namespace raytracer {
+  using namespace vectorization;
 
-    struct IlluminatedIntersection
-    {
-        Float4 depth;
+  struct IlluminatedIntersection {
+    Float4 depth;
 
-        Float4 color;
+    Float4 color;
 
-        IlluminatedIntersection(const Float depth, const Float4 & color);
+    IlluminatedIntersection(const Float depth, const Float4 &color);
 
-        IlluminatedIntersection(const Float4 & depth, const Float4 & color);
-    };
+    IlluminatedIntersection(const Float4 &depth, const Float4 &color);
+  };
 }

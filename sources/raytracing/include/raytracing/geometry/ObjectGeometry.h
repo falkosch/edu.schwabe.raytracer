@@ -1,37 +1,33 @@
 #pragma once
 
 #include "Intersectable.h"
-#include "partitioning/GeometryNode.h"
 #include "TransformInfo.h"
+#include "partitioning/GeometryNode.h"
 
-namespace raytracer
-{
-    using namespace vectorization;
+namespace raytracer {
+  using namespace vectorization;
 
-    class ObjectGeometry : public GeometryNode
-    {
-    public:
+  class ObjectGeometry : public GeometryNode {
+  public:
+    ObjectGeometry();
 
-        ObjectGeometry();
+    virtual ~ObjectGeometry();
 
-        virtual ~ObjectGeometry();
+    void resetModelMatrix();
 
-        void resetModelMatrix();
+    void rotate(const Float3 &rotation);
 
-        void rotate(const Float3 & rotation);
+    void translate(const Float3 &translation);
 
-        void translate(const Float3 & translation);
+    void scale(const Float3 &scale);
 
-        void scale(const Float3 & scale);
+  protected:
+    Float44 modelMatrix, transposeInverseModelMatrix;
 
-    protected:
+    TransformInfo transformInfo;
 
-        Float44 modelMatrix, transposeInverseModelMatrix;
+    void updateModelMatrix();
 
-        TransformInfo transformInfo;
-
-        void updateModelMatrix();
-
-        virtual void updateBounding() = 0;
-    };
+    virtual void updateBounding() = 0;
+  };
 }

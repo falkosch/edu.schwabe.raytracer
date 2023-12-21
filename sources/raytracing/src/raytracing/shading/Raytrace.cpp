@@ -1,23 +1,15 @@
 #include "raytracing/shading/Raytrace.h"
 #include "../../stdafx.h"
 
-namespace raytracer
-{
-    Raytrace::Raytrace()
-        :
-        raycast(),
-        originIntersection(),
-        traceDepth(),
-        visibilityIndex() { }
+namespace raytracer {
+  Raytrace::Raytrace() : rayCast(), originIntersection(), traceDepth(), visibilityIndex() {
+  }
 
-    Raytrace::Raytrace(
-        const Raycast & raycastIn,
-        const SceneIntersection * const originIntersectionIn,
-        const ASizeT traceDepthIn,
-        const Float visibilityIndexIn)
-        :
-        raycast(raycastIn),
-        originIntersection(originIntersectionIn),
-        traceDepth(traceDepthIn),
-        visibilityIndex(visibilityIndexIn) { }
+  Raytrace::Raytrace(
+      const RayCast &rayCastIn, const SceneIntersection *const originIntersectionIn, const ASizeT traceDepthIn,
+      const Float visibilityIndexIn
+  )
+      : rayCast(rayCastIn), originIntersection(originIntersectionIn), traceDepth(traceDepthIn),
+        visibilityIndex(visibilityIndexIn) {
+  }
 }

@@ -2,40 +2,41 @@
 
 #include "Form.h"
 
-namespace raytracer
-{
-    using namespace vectorization;
-    using namespace primitives;
+namespace raytracer {
+  using namespace vectorization;
+  using namespace primitives;
 
-    class Plane : public Form
-    {
-        void reconstructFacetEdgesFromPlaneEquation(const Float4 & planeEqu);
+  class Plane : public Form {
+    void reconstructFacetEdgesFromPlaneEquation(const Float4 &planeEqu);
 
-    public:
+  public:
+    SplittingPlane plane;
 
-        SplittingPlane plane;
+    FacetEdges baseVectors;
 
-        FacetEdges baseVectors;
+    Plane();
 
-        Plane();
+    explicit Plane(const Float4 &planeEquation);
 
-        explicit Plane(const Float4 & planeEquation);
+    explicit Plane(const Float4 &origin, const Float4 &normal);
 
-        explicit Plane(const Float4 & origin, const Float4 & normal);
+    explicit Plane(const Float4 &origin, const FacetEdges &baseVectors);
 
-        explicit Plane(const Float4 & origin, const FacetEdges & baseVectors);
+    virtual ~Plane();
 
-        virtual ~Plane();
+    const bool isInfinite() const;
 
-        const bool isInfinite() const;
+    const Float findNearestIntersection(
+        const RayCast &rayCast, const FacetIntersection *const originIntersection, FacetIntersection &intersectionOut
+    ) const;
 
-        const Float findNearestIntersection(const Raycast & raycast, const FacetIntersection * const originIntersection, FacetIntersection & intersectionOut) const;
+    const Float findAnyIntersection(
+        const RayCast &rayCast, const FacetIntersection *const originIntersection, FacetIntersection &intersectionOut
+    ) const;
 
-        const Float findAnyIntersection(const Raycast & raycast, const FacetIntersection * const originIntersection, FacetIntersection & intersectionOut) const;
-
-        const Float getIndividualIntersectionCosts() const {
-            // benchmarked intersection costs in cycles
-            return 18.5633f;
-        }
-    };
+    const Float getIndividualIntersectionCosts() const {
+      // benchmarked intersection costs in cycles
+      return 18.5633f;
+    }
+  };
 }

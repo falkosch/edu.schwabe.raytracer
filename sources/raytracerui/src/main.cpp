@@ -1,22 +1,22 @@
 #include "stdafx.h"
 
 #include "tests/CornellBoxScene.h"
+#include "tests/DragonScene.h"
+#include "tests/ProceduralScene.h"
 #include "tests/TestScene1.h"
 #include "tests/TestScene2.h"
-#include "tests/ProceduralScene.h"
-#include "tests/DragonScene.h"
 
-#include "OpenGLWindowsRaytracerUI.h"
-#include "ManualTests.h"
 #include "Benchmarks.h"
+#include "ManualTests.h"
+#include "OpenGLWindowsRaytracerUI.h"
 
 #include <iostream>
-#include <string>
 #include <memory>
+#include <string>
 
 #include <windows.h>
 
-// MAX_TRACE_DEPTH >= 969 causes stackoverflows
+// MAX_TRACE_DEPTH >= 969 causes stack overflows
 // MAX_TRACE_DEPTH > 31 for most scenes has no significant visual change anymore
 #ifdef NDEBUG
 const ASizeT FAST_PREVIEW_SIZE = 512;
@@ -49,64 +49,60 @@ const Float VISIBILITY_CUTOFF = reciprocal(512.0f);
 // n => (n+1)x(n+1) image-pixels/packet
 const ASizeT RAY_PACKET_SIZE = 15;
 
-namespace raytracerui
-{
-    const LRESULT runRaytracerUI() {
-        Resources resources{ };
-        Scene scene{
-            new NaiveKDTreeTraverser<SceneIntersection>(),
-            new FixedIterationsSAHKDTreeBalancer()
-        };
+namespace raytracerui {
+  LRESULT runRaytracerUI() {
+    Resources resources{};
+    Scene scene{new NaiveKDTreeTraverser<SceneIntersection>(), new FixedIterationsSAHKDTreeBalancer()};
 
-        CornellBoxScene::setup(scene, resources);
-        //TestScene1::setup(scene, resources);
-        //TestScene2::setup(scene, resources);
-        //DragonScene::setup(scene, resources);
-        //ProceduralScene<3, 10>::setup(scene, resources);
+    CornellBoxScene::setup(scene, resources);
+    // TestScene1::setup(scene, resources);
+    // TestScene2::setup(scene, resources);
+    // DragonScene::setup(scene, resources);
+    // ProceduralScene<3, 10>::setup(scene, resources);
 
-        scene.buildSceneGraph();
+    scene.buildSceneGraph();
 
-        Camera camera{ };
-        camera.setProjection(PERSPECTIVE_FOV, PERSPECTIVE_Z_PLANE_EXTENDS, PERSPECTIVE_Z_PLANES);
-        camera.translate(CAMERA_INIT_TRANSLATION);
+    Camera camera{};
+    camera.setProjection(PERSPECTIVE_FOV, PERSPECTIVE_Z_PLANE_EXTENDS, PERSPECTIVE_Z_PLANES);
+    camera.translate(CAMERA_INIT_TRANSLATION);
 
-        RaytraceParameters parameters{ };
-        parameters.visibilityCutoff = VISIBILITY_CUTOFF;
-        parameters.maxDistance = MAX_DISTANCE;
-        parameters.maxTraceDepth = MAX_TRACE_DEPTH;
-        parameters.sceneShader = &scene;
-        parameters.cullingOrientation = CULLING_ORIENTATION;
-        parameters.perspectiveZPlanes = PERSPECTIVE_Z_PLANES;
-        parameters.perspectiveFOV = PERSPECTIVE_FOV;
-        parameters.samplingFactor = SAMPLING_FACTOR;
-        parameters.supersamplingFactor = SUPER_SAMPLING_FACTOR;
-        parameters.rayPacketSize = RAY_PACKET_SIZE;
-        parameters.camera = &camera;
+    RaytraceParameters parameters{};
+    parameters.visibilityCutoff = VISIBILITY_CUTOFF;
+    parameters.maxDistance = MAX_DISTANCE;
+    parameters.maxTraceDepth = MAX_TRACE_DEPTH;
+    parameters.sceneShader = &scene;
+    parameters.cullingOrientation = CULLING_ORIENTATION;
+    parameters.perspectiveZPlanes = PERSPECTIVE_Z_PLANES;
+    parameters.perspectiveFOV = PERSPECTIVE_FOV;
+    parameters.samplingFactor = SAMPLING_FACTOR;
+    parameters.superSamplingFactor = SUPER_SAMPLING_FACTOR;
+    parameters.rayPacketSize = RAY_PACKET_SIZE;
+    parameters.camera = &camera;
 
-        Raytracer raytracer{ };
+    Raytracer raytracer{};
 
-        auto ui = std::make_unique<WindowsRaytracerUI>(raytracer, parameters, FAST_PREVIEW_SIZE);
-        WPARAM returnCode{ };
-        try {
-            returnCode = ui->run();
-        } catch (const std::exception & exception) {
-            std::cerr << exception.what() << std::endl;
-        } catch (...) {
-            std::cerr << "non standard exception occured" << std::endl;
-        }
-
-        return returnCode;
+    auto ui = std::make_unique<OpenGLWindowsRaytracerUI>(raytracer, parameters, FAST_PREVIEW_SIZE);
+    WPARAM returnCode{};
+    try {
+      returnCode = ui->run();
+    } catch (const std::exception &exception) {
+      std::cerr << exception.what() << std::endl;
+    } catch (...) {
+      std::cerr << "non standard exception occurred" << std::endl;
     }
+
+    return static_cast<LRESULT>(returnCode);
+  }
 }
 
 int __cdecl main() {
-    std::array<TCHAR, MAX_PATH + 1> currentPath{ 0 };
-    GetCurrentDirectory(MAX_PATH, currentPath.data());
+  std::array<TCHAR, MAX_PATH + 1> currentPath{0};
+  GetCurrentDirectory(MAX_PATH, currentPath.data());
 
-    std::wcout << "Working directory: " << std::wstring(currentPath.data()) << std::endl;
+  std::wcout << "Working directory: " << std::wstring(currentPath.data()) << std::endl;
 
-    raytracerui::ManualTests()();
-    //raytracerui::Benchmarks()();
+  raytracerui::ManualTests()();
+  // raytracerui::Benchmarks()();
 
-    return static_cast<int>(raytracerui::runRaytracerUI());
+  return static_cast<int>(raytracerui::runRaytracerUI());
 }

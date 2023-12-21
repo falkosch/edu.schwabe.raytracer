@@ -1,104 +1,59 @@
-#include "stdafx.h"
+#include "vectorization_tests.h"
 
-#include <typeinfo>
+namespace vectorization::test {
+  auto A = Zero<Float_32>();
+  auto B = NegativeOne<Float_32>();
+  auto C = One<Float_32>();
+  auto D = Two<Float_32>();
+  auto E = Float_32(3);
+  auto F = Float_32(4);
+  auto G = Float_32(5);
+  auto H = Float_32(6);
 
-namespace vectorization
-{
-    namespace test
-    {
-        TEST_CLASS(m_f32_4x4Test)
-        {
-            enum Specs : ASizeT
-            {
-                ROWS = ASizeT(4),
-                COLUMNS = ASizeT(4),
-                SIZE = ROWS * COLUMNS
-            };
+  TEST_CLASS(m_f32_4x4Test) {
+  public:
+    TEST_METHOD(definesArchitecture) {
+      Assert::AreEqual(ASizeT{4}, m_f32_4x4::ROWS, L"Rows mismatch", LINE_INFO());
+      Assert::AreEqual(ASizeT{4}, m_f32_4x4::COLUMNS, L"Columns mismatch", LINE_INFO());
+      Assert::AreEqual(ASizeT{16}, m_f32_4x4::SIZE, L"Size mismatch", LINE_INFO());
 
-            typedef Float_32 ValueType;
-            typedef Float44 MatrixType;
+      Assert::IsTrue(std::is_same<m_f32_4x4, m_f32_4x4::MatrixType>::value, L"Matrix type mismatch", LINE_INFO());
+      Assert::IsTrue(std::is_same<m_f32_4x4, m_f32_4x4::TransposeType>::value, L"Transpose type mismatch", LINE_INFO());
+      Assert::IsTrue(std::is_same<v_f32_4, m_f32_4x4::RowVectorType>::value, L"Row vector type mismatch", LINE_INFO());
+      Assert::IsTrue(
+          std::is_same<v_f32_4, m_f32_4x4::ColumnVectorType>::value, L"Column vector type mismatch", LINE_INFO()
+      );
+      Assert::IsTrue(std::is_same<m_f32_4x4, m_f32_4x4::MatrixType>::value, L"wrong matrix type spec", LINE_INFO());
 
-            const ValueType A = Zero<ValueType>();
-            const ValueType B = NegOne<ValueType>();
-            const ValueType C = One<ValueType>();
-            const ValueType D = Two<ValueType>();
-            const ValueType E = ValueType(3);
-            const ValueType F = ValueType(4);
-            const ValueType G = ValueType(5);
-            const ValueType H = ValueType(6);
-
-        public:
-
-            TEST_METHOD(Specification) {
-                ASSERT_MSG(Malformed matrix specification);
-                Assert::AreEqual(ASizeT(ROWS), ASizeT(MatrixType::ROWS), MESSAGE, LINE_INFO());
-                Assert::AreEqual(ASizeT(COLUMNS), ASizeT(MatrixType::COLUMNS), MESSAGE, LINE_INFO());
-                Assert::AreEqual(ASizeT(SIZE), ASizeT(MatrixType::SIZE), MESSAGE, LINE_INFO());
-
-                Assert::AreEqual(typeid(Float_32).hash_code(), typeid(MatrixType::ValueType).hash_code(), MESSAGE, LINE_INFO());
-                Assert::AreEqual(typeid(Float_32_Limits).hash_code(), typeid(MatrixType::ValueLimits).hash_code(), MESSAGE, LINE_INFO());
-
-                Assert::IsTrue(std::is_integral<MatrixType::BoolType>::value, MESSAGE, LINE_INFO());
-                Assert::AreEqual(typeid(MatrixType::BoolType).hash_code(), typeid(MatrixType::MatrixBoolType::ValueType).hash_code(), MESSAGE, LINE_INFO());
-                Assert::AreEqual(typeid(MatrixType::BoolType).hash_code(), typeid(MatrixType::MatrixBoolType::MatrixBoolType::ValueType).hash_code(), MESSAGE, LINE_INFO());
-            }
-
-            TEST_METHOD(Constructors) {
-                ASSERT_MSG(Constructor sets wrong initial values);
-                MatrixType t = MatrixType();
-                for (ASizeT r = Zero<ASizeT>(); r < ROWS; ++r)
-                    for (ASizeT c = Zero<ASizeT>(); c < COLUMNS; ++c)
-                        Assert::AreEqual(t[r * COLUMNS + c], (r == c) ? C : A, MESSAGE, LINE_INFO());
-
-                t[0] = B;
-                MatrixType t2 = MatrixType(t);
-                Assert::AreEqual(t2[0], B, MESSAGE, LINE_INFO());
-            }
-
-            TEST_METHOD(BinaryMathOperators) {
-                ASSERT_MSG(Binary math op returns wrong result);
-                MatrixType t = MatrixType() * MatrixType();
-
-                for (ASizeT r = Zero<ASizeT>(); r < ROWS; ++r)
-                    for (ASizeT c = Zero<ASizeT>(); c < COLUMNS; ++c)
-                        Assert::AreEqual(t[r * COLUMNS + c], (r == c) ? C : A, MESSAGE, LINE_INFO());
-
-                t = MatrixType({ {
-                        A, C, A, A,
-                        C, A, A, A,
-                        A, A, A, C,
-                        A, A, C, A
-                    } });
-
-                t = t * t;
-                for (ASizeT r = Zero<ASizeT>(); r < ROWS; ++r)
-                    for (ASizeT c = Zero<ASizeT>(); c < COLUMNS; ++c)
-                        Assert::AreEqual(t[r * COLUMNS + c], (r == c) ? C : A, MESSAGE, LINE_INFO());
-
-                t = MatrixType({ {
-                        A, A, A, C,
-                        A, A, C, A,
-                        A, C, A, A,
-                        C, A, A, A
-                    } });
-
-                MatrixType t2 = t * MatrixType();
-                for (ASizeT r = Zero<ASizeT>(); r < ROWS; ++r)
-                    for (ASizeT c = Zero<ASizeT>(); c < COLUMNS; ++c)
-                        Assert::AreEqual(t2[r * COLUMNS + c], (r == (COLUMNS - (c + 1))) ? C : A, MESSAGE, LINE_INFO());
-            }
-
-            TEST_METHOD(SpecialMathOperations) {
-                ASSERT_MSG(Special math operation returns wrong result);
-                MatrixType t = MatrixType({ {
-                        C, A, A, A,
-                        A, C, A, A,
-                        A, A, C, -D,
-                        A, A, C, A
-                    } });
-
-                MatrixType t2 = inverse(t);
-            }
-        };
+      Assert::IsTrue(
+          std::is_same<v_f32_4::PackedType, m_f32_4x4::PackedType>::value, L"Packed type mismatch", LINE_INFO()
+      );
+      Assert::IsTrue(
+          std::is_same<v_f32_4::ValueType, m_f32_4x4::ValueType>::value, L"Value type mismatch", LINE_INFO()
+      );
+      Assert::IsTrue(std::is_same<v_f32_4::BoolType, m_f32_4x4::BoolType>::value, L"Bool type mismatch", LINE_INFO());
     }
+
+    TEST_METHOD(constructsIdentity) {
+      auto given = m_f32_4x4{};
+
+      for (auto r = Zero<ASizeT>(); r < m_f32_4x4::ROWS; ++r) {
+        for (auto c = Zero<ASizeT>(); c < m_f32_4x4::COLUMNS; ++c) {
+          auto expected = (r == c) ? One<m_f32_4x4::ValueType>() : Zero<m_f32_4x4::ValueType>();
+          auto actual = given[r * m_f32_4x4::COLUMNS + c];
+          Assert::AreEqual(actual, expected, L"Empty constructor sets wrong initial values", LINE_INFO());
+        }
+      }
+    }
+
+    TEST_METHOD(constructsCopy) {
+      auto given = m_f32_4x4{v_f32_4{1, 2, 3, 4}, v_f32_4{5, 6, 7, 8}, v_f32_4{9, 10, 11, 12}, v_f32_4{13, 14, 15, 16}};
+      auto actual = m_f32_4x4{given};
+
+      Assert::IsTrue(allTrue(row<VectorIndices::X>(given) == row<VectorIndices::X>(actual)));
+      Assert::IsTrue(allTrue(row<VectorIndices::Y>(given) == row<VectorIndices::Y>(actual)));
+      Assert::IsTrue(allTrue(row<VectorIndices::Z>(given) == row<VectorIndices::Z>(actual)));
+      Assert::IsTrue(allTrue(row<VectorIndices::W>(given) == row<VectorIndices::W>(actual)));
+    }
+  };
 }

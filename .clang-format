@@ -1,14 +1,20 @@
 ---
 Language: Cpp
-BasedOnStyle: Microsoft
+BasedOnStyle: LLVM
 
-ColumnLimit: 100
+ColumnLimit: 120
+
+AlignAfterOpenBracket: BlockIndent
+AlignEscapedNewlines: Left
+AllowShortFunctionsOnASingleLine: None
+AllowShortLambdasOnASingleLine: None
+AlwaysBreakTemplateDeclarations: Yes
+BreakBeforeBinaryOperators: NonAssignment
 FixNamespaceComments: false
-PointerAlignment: Middle
 
 NamespaceIndentation: All
 NamespaceMacros:
-    - TEST_CLASS
+  - TEST_CLASS
 TypenameMacros:
-    - TEST_METHOD
+  - TEST_METHOD
 ...

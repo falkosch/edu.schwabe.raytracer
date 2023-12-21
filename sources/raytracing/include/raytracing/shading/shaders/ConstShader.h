@@ -2,31 +2,28 @@
 
 #include "../Shader.h"
 
-namespace raytracer
-{
-    template <typename ContainmentType, typename IntersectionType, typename OutputType>
-    class ConstShader : public Shader < ContainmentType, IntersectionType, OutputType >
-    {
-        OutputType constant;
+namespace raytracer {
+  template <typename ContainmentType, typename IntersectionType, typename OutputType>
+  class ConstShader : public Shader<ContainmentType, IntersectionType, OutputType> {
+    OutputType constant;
 
-    public:
+  public:
+    ConstShader(const OutputType &constantIn) : constant(constantIn) {
+    }
 
-        ConstShader(const OutputType & constantIn)
-            :
-            constant(constantIn) { }
+    virtual ~ConstShader() {
+    }
 
-        virtual ~ConstShader() { }
+    const OutputType sample(const ContainmentType &, const IntersectionType &) const {
+      return constant;
+    }
 
-        const OutputType sample(const ContainmentType &, const IntersectionType &) const {
-            return constant;
-        }
+    const OutputType operator()(const ContainmentType &, const IntersectionType &) const {
+      return constant;
+    }
 
-        const OutputType operator()(const ContainmentType &, const IntersectionType &) const {
-            return constant;
-        }
-
-        const OutputType & getConstant() const {
-            return constant;
-        }
-    };
+    const OutputType &getConstant() const {
+      return constant;
+    }
+  };
 }

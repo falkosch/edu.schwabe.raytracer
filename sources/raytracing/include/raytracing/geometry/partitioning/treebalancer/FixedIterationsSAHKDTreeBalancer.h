@@ -2,34 +2,26 @@
 
 #include "SAHKDTreeBalancer.h"
 
-namespace raytracer
-{
-    using namespace vectorization;
-    using namespace primitives;
+namespace raytracer {
+  using namespace vectorization;
+  using namespace primitives;
 
-    class FixedIterationsSAHKDTreeBalancer
-        : public SAHKDTreeBalancer
-    {
-    public:
+  class FixedIterationsSAHKDTreeBalancer : public SAHKDTreeBalancer {
+  public:
+    static const ASizeT GeometryNodesSizeThreshold = ASizeT(25);
 
-        static const ASizeT GeometryNodesSizeThreshold = ASizeT(25);
+    FixedIterationsSAHKDTreeBalancer();
 
-        FixedIterationsSAHKDTreeBalancer();
+    FixedIterationsSAHKDTreeBalancer(const ASizeT geometryNodesSizeThreshold);
 
-        FixedIterationsSAHKDTreeBalancer(const ASizeT geometryNodesSizeThreshold);
+    virtual ~FixedIterationsSAHKDTreeBalancer();
 
-        virtual ~FixedIterationsSAHKDTreeBalancer();
+    const KDTreePlane findSplitter(
+        const KDTreeBuildParameters &parameters, const ASizeT treeDepth, const AxisAlignedBoundingBox &bounding,
+        const PGeometryNodeList &geometry, const KDTreePlane *parentSplitter
+    ) const;
 
-        const KDTreePlane findSplitter(
-            const KDTreeBuildParameters & paramaters,
-            const ASizeT treeDepth,
-            const AxisAlignedBoundingBox & bounding,
-            const PGeometryNodeList & geometry,
-            const KDTreePlane * parentSplitter
-        ) const;
-
-    protected:
-
-        ASizeT geometryNodesSizeThreshold;
-    };
+  protected:
+    ASizeT geometryNodesSizeThreshold;
+  };
 }

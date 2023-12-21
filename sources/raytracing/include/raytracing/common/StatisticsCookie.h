@@ -2,21 +2,19 @@
 
 #include <vectorization.h>
 
-namespace raytracer
-{
-    using namespace vectorization;
+namespace raytracer {
+  using namespace vectorization;
 
-    struct StatisticsCookie
-    {
-        ASizeT primaryRays, missedPrimaryRays;
+  struct StatisticsCookie {
+    ASizeT primaryRays, missedPrimaryRays;
 
-        ASizeT secondaryRays, missedSecondaryRays;
+    ASizeT secondaryRays, missedSecondaryRays;
 
-        ASizeT shadowRays, missedShadowRays;
-        ASizeT objectShadowRays, objectMissedShadowRays;
+    ASizeT shadowRays, missedShadowRays;
+    ASizeT objectShadowRays, objectMissedShadowRays;
 
-        StatisticsCookie();
+    StatisticsCookie();
 
-        void merge(const StatisticsCookie & other);
-    };
+    void merge(const StatisticsCookie &other);
+  };
 }

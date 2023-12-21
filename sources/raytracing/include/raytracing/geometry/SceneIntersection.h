@@ -3,21 +3,19 @@
 #include "FacetIntersection.h"
 #include "ObjectGeometry.h"
 
-namespace raytracer
-{
-    using namespace vectorization;
+namespace raytracer {
+  using namespace vectorization;
 
-    /*
-    * Struct for the handling of scene intersections
-    */
-    struct SceneIntersection : FacetIntersection
-    {
-        Float4 smoothedNdotI;
+  /*
+   * Struct for the handling of scene intersections
+   */
+  struct SceneIntersection : FacetIntersection {
+    Float4 smoothedNdotI;
 
-        Float4 reflectedDirection;
+    Float4 reflectedDirection;
 
-        const ObjectGeometry * object;
+    const ObjectGeometry *object;
 
-        SceneIntersection();
-    };
+    SceneIntersection();
+  };
 }

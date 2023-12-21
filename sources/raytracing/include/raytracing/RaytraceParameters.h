@@ -6,42 +6,40 @@
 
 #include "RaytraceObserver.h"
 
-namespace raytracer
-{
-    using namespace vectorization;
+namespace raytracer {
+  using namespace vectorization;
 
-    /*
-    * Struct for the fixed raytrace parameters.
-    */
-    struct RaytraceParameters : RaytraceBaseParameters
-    {
-        Size2 resolution;
+  /*
+   * Struct for the fixed raytrace parameters.
+   */
+  struct RaytraceParameters : RaytraceBaseParameters {
+    Size2 resolution;
 
-        // x is near-z-plane, y is far-z-plane
-        Float2 perspectiveZPlanes;
+    // x is near-z-plane, y is far-z-plane
+    Float2 perspectiveZPlanes;
 
-        Float perspectiveFOV;
+    Float perspectiveFOV;
 
-        Float samplingFactor;
+    Float samplingFactor;
 
-        // Sets the anti-aliasing supersampling ray count
-        // is 0 == "1x1 sampling"
-        // is 1 == "2x2 sampling"
-        // is 2 == "3x3 sampling"
-        // ...
-        ASizeT supersamplingFactor;
+    // Sets the anti-aliasing ray count
+    // is 0 == "1x1 sampling"
+    // is 1 == "2x2 sampling"
+    // is 2 == "3x3 sampling"
+    // ...
+    ASizeT superSamplingFactor;
 
-        // rectangular patches of primary rays are packed together
-        // is 0 == "1x1 packets"
-        // is 1 == "2x2 packets"
-        // is 2 == "3x3 packets"
-        // ...
-        ASizeT rayPacketSize;
+    // rectangular patches of primary rays are packed together
+    // is 0 == "1x1 packets"
+    // is 1 == "2x2 packets"
+    // is 2 == "3x3 packets"
+    // ...
+    ASizeT rayPacketSize;
 
-        RaytraceObserver * observer;
+    RaytraceObserver *observer;
 
-        Camera * camera;
+    Camera *camera;
 
-        RaytraceParameters();
-    };
+    RaytraceParameters();
+  };
 }

@@ -2,40 +2,35 @@
 
 #include "../Shader.h"
 
-namespace raytracer
-{
-    template <typename ContainmentType, typename IntersectionType, typename OutputType, typename OtherShader>
-    class MultiplyByConstShader : public Shader < ContainmentType, IntersectionType, OutputType >
-    {
-        OutputType constant;
+namespace raytracer {
+  template <typename ContainmentType, typename IntersectionType, typename OutputType, typename OtherShader>
+  class MultiplyByConstShader : public Shader<ContainmentType, IntersectionType, OutputType> {
+    OutputType constant;
 
-        const OtherShader * otherShader;
+    const OtherShader *otherShader;
 
-    public:
+  public:
+    MultiplyByConstShader(const OutputType &constantIn, const OtherShader &otherShaderIn)
+        : constant(constantIn), otherShader(&otherShaderIn) {
+    }
 
-        MultiplyByConstShader(
-            const OutputType & constantIn,
-            const OtherShader & otherShaderIn)
-            :
-            constant(constantIn),
-            otherShader(&otherShaderIn) { }
+    virtual ~MultiplyByConstShader() {
+    }
 
-        virtual ~MultiplyByConstShader() { }
+    const OutputType sample(const ContainmentType &containment, const IntersectionType &intersection) const {
+      return (*this)(containment, intersection);
+    }
 
-        const OutputType sample(const ContainmentType & containment, const IntersectionType & intersection) const {
-            return (*this)(containment, intersection);
-        }
+    const OutputType operator()(const ContainmentType &containment, const IntersectionType &intersection) const {
+      return constant * (*otherShader)(containment, intersection);
+    }
 
-        const OutputType operator()(const ContainmentType & containment, const IntersectionType & intersection) const {
-            return constant * (*otherShader)(containment, intersection);
-        }
+    const OutputType &getConstant() const {
+      return constant;
+    }
 
-        const OutputType & getConstant() const {
-            return constant;
-        }
-
-        const OtherShader & getOtherShader() const {
-            return *otherShader;
-        }
-    };
+    const OtherShader &getOtherShader() const {
+      return *otherShader;
+    }
+  };
 }

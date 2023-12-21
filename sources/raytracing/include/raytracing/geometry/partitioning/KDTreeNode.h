@@ -2,32 +2,28 @@
 
 #include "KDTreeBounding.h"
 
-namespace raytracer
-{
-    using namespace primitives;
+namespace raytracer {
+  using namespace primitives;
 
-    struct KDTreeNodeChilds;
+  struct KDTreeNodeChildren;
 
-    struct KDTreeNode
-    {
-        PGeometryNodeList * geometryNodes;
+  struct KDTreeNode {
+    PGeometryNodeList *geometryNodes;
 
-        KDTreeNodeChilds * childs;
+    KDTreeNodeChildren *children;
 
-        KDTreeNode();
+    KDTreeNode();
 
-        ~KDTreeNode();
+    ~KDTreeNode();
 
-        void clear();
+    void clear();
 
-        const bool isNonEmptyLeaf() const;
+    const bool isNonEmptyLeaf() const;
 
-        // Adds two new childs to this node and makes this node an empty node by deleting the geometryNodes.
-        void grow(
-            const AxisAlignedBoundingBox & leftBounding,
-            PGeometryNodeList & leftGeometryNodes,
-            const AxisAlignedBoundingBox & rightBounding,
-            PGeometryNodeList & rightGeometryNodes
-        );
-    };
+    // Adds two new children to this node and makes this node an empty node by deleting the geometryNodes.
+    void grow(
+        const AxisAlignedBoundingBox &leftBounding, PGeometryNodeList &leftGeometryNodes,
+        const AxisAlignedBoundingBox &rightBounding, PGeometryNodeList &rightGeometryNodes
+    );
+  };
 }

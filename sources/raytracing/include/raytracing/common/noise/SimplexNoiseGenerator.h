@@ -2,38 +2,35 @@
 
 #include "NoiseGenerator.h"
 
-namespace raytracer
-{
-    using namespace vectorization;
+namespace raytracer {
+  using namespace vectorization;
 
-    class SimplexNoiseGenerator : public NoiseGenerator
-    {
-    public:
+  class SimplexNoiseGenerator : public NoiseGenerator {
+  public:
+    SimplexNoiseGenerator(const unsigned int seed);
 
-        SimplexNoiseGenerator(const unsigned int seed);
+    virtual ~SimplexNoiseGenerator() {
+    }
 
-        virtual ~SimplexNoiseGenerator() { }
+    const Float noise(const Float v) const;
 
-        const Float noise(const Float v) const;
+    const Float noise(const Float4 &v) const;
 
-        const Float noise(const Float4 & v) const;
+    const Float noise2(const Float4 &v) const;
 
-        const Float noise2(const Float4 & v) const;
+    const Float noise3(const Float4 &v) const;
 
-        const Float noise3(const Float4 & v) const;
+    const Float noise4(const Float4 &v) const;
 
-        const Float noise4(const Float4 & v) const;
+  protected:
+    static const ASizeT N = 8, B = 256;
 
-    protected:
+    Int simplexGrid[N];
 
-        static const ASizeT N = 8, B = 256;
+    const Int simplex(const Int3 &ijk, const Int B) const;
 
-        Int simplexGrid[N];
+    const Float K(const Int a, const Float3 &ijk, const Float3 &uvw, Float3 &A) const;
 
-        const Int simplex(const Int3 & ijk, const Int B) const;
-
-        const Float K(const Int a, const Float3 & ijk, const Float3 & uvw, Float3 & A) const;
-
-        const Int shuffle(const Int3 & ijk) const;
-    };
+    const Int shuffle(const Int3 &ijk) const;
+  };
 }

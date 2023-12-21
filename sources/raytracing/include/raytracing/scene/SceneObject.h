@@ -3,55 +3,49 @@
 #include "../geometry/forms/Form.h"
 #include "../shading/ObjectShader.h"
 
-namespace raytracer
-{
-    using namespace vectorization;
-    using namespace primitives;
+namespace raytracer {
+  using namespace vectorization;
+  using namespace primitives;
 
-    class SceneObject : public ObjectShader
-    {
-    public:
+  class SceneObject : public ObjectShader {
+  public:
+    SceneObject(std::string id);
 
-        SceneObject(const std::string & id);
+    virtual ~SceneObject();
 
-        virtual ~SceneObject();
+    const std::string &getId() const;
 
-        const std::string & getId() const;
+    const Form *const getForm() const;
 
-        const Form * const getForm() const;
+    void setForm(const Form *const value);
 
-        void setForm(const Form * const value);
+    const Float findNearestIntersection(
+        const RayCast &rayCast, const FacetIntersection *const originIntersection, FacetIntersection &intersectionOut
+    ) const;
 
-        const Float findNearestIntersection(
-            const Raycast & raycast,
-            const FacetIntersection * const originIntersection,
-            FacetIntersection & intersectionOut
-        ) const;
+    const Float findAnyIntersection(
+        const RayCast &rayCast, const FacetIntersection *const originIntersection, FacetIntersection &intersectionOut
+    ) const;
 
-        const Float findAnyIntersection(
-            const Raycast & raycast,
-            const FacetIntersection * const originIntersection,
-            FacetIntersection & intersectionOut
-        ) const;
+    const Float getIndividualIntersectionCosts() const {
+      return form ? form->getIndividualIntersectionCosts() : One<Float>();
+    }
 
-        const Float getIndividualIntersectionCosts() const {
-            return form ? form->getIndividualIntersectionCosts() : One<Float>();
-        }
+  protected:
+    AxisAlignedBoundingBox bounding;
 
-    protected:
+    const Form *form;
 
-        AxisAlignedBoundingBox bounding;
+    std::string id;
 
-        const Form * form;
+    void updateBounding();
 
-        std::string id;
+    const AxisAlignedBoundingBox includeInBounding(const AxisAlignedBoundingBox &aabb) const;
 
-        void updateBounding();
+    const bool overlaps(const AxisAlignedBoundingBox &aabb) const;
 
-        const AxisAlignedBoundingBox includeInBounding(const AxisAlignedBoundingBox & aabb) const;
-
-        const bool overlaps(const AxisAlignedBoundingBox & aabb) const;
-
-        const Float transformIntersection(const Raycast & raycast, const FacetIntersection & facetIntersection, FacetIntersection & intersectionOut) const;
-    };
+    const Float transformIntersection(
+        const RayCast &rayCast, const FacetIntersection &facetIntersection, FacetIntersection &intersectionOut
+    ) const;
+  };
 }

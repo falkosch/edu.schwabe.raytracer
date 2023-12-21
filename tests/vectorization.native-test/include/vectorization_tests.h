@@ -3,8 +3,8 @@
 #include "ToString_specializations.h"
 
 #include "Compare.h"
-#include "Mutate.h"
 #include "MessageFormat.h"
+#include "Mutate.h"
 #include "StandardSample.h"
 
 #include "Iterate.h"

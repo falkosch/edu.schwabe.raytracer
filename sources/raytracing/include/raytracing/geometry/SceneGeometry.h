@@ -1,56 +1,53 @@
 #pragma once
 
+#include "SceneIntersection.h"
 #include "partitioning/KDTreeNode.h"
 #include "partitioning/KDTreeTraverser.h"
-#include "SceneIntersection.h"
 
 #include <vector>
 
-namespace raytracer
-{
-    using namespace vectorization;
-    using namespace primitives;
+namespace raytracer {
+  using namespace vectorization;
+  using namespace primitives;
 
-    class SceneGeometry : public Intersectable<Raycast, SceneIntersection>, protected GeometryNodesTraverser < SceneIntersection >
-    {
-    public:
+  class SceneGeometry : public Intersectable<RayCast, SceneIntersection>,
+                        protected GeometryNodesTraverser<SceneIntersection> {
+  public:
+    SceneGeometry();
 
-        SceneGeometry();
+    explicit SceneGeometry(const KDTreeTraverser<SceneIntersection> *const treeTraverser);
 
-        explicit SceneGeometry(const KDTreeTraverser<SceneIntersection> * const treeTraverser);
+    virtual ~SceneGeometry();
 
-        virtual ~SceneGeometry();
+    void clearSceneGraph();
 
-        void clearSceneGraph();
+    const Float findNearestIntersection(
+        const RayCast &rayCast, const SceneIntersection *const originIntersection, SceneIntersection &intersectionOut
+    ) const;
 
-        const Float findNearestIntersection(const Raycast & raycast, const SceneIntersection * const originIntersection, SceneIntersection & intersectionOut) const;
+    const Float findAnyIntersection(
+        const RayCast &rayCast, const SceneIntersection *const originIntersection, SceneIntersection &intersectionOut
+    ) const;
 
-        const Float findAnyIntersection(const Raycast & raycast, const SceneIntersection * const originIntersection, SceneIntersection & intersectionOut) const;
+    virtual void buildSceneGraph() = 0;
 
-        virtual void buildSceneGraph() = 0;
+  protected:
+    const KDTreeTraverser<SceneIntersection> *treeTraverser;
 
-    protected:
+    const KDTreeRoot *sceneGraph;
 
-        const KDTreeTraverser<SceneIntersection> * treeTraverser;
+    PGeometryNodeList finiteSceneObjectsAsGeometryNodes;
 
-        const KDTreeRoot * sceneGraph;
+    PGeometryNodeList infiniteSceneObjectsAsGeometryNodes;
 
-        PGeometryNodeList finiteSceneObjectsAsGeometryNodes;
+    const Float findNearestIntersection(
+        const PGeometryNodeList &geometryNodes, const RayCast &rayCast,
+        const SceneIntersection *const originIntersection, SceneIntersection &intersectionOut
+    ) const;
 
-        PGeometryNodeList infiniteSceneObjectsAsGeometryNodes;
-
-        const Float findNearestIntersection(
-            const PGeometryNodeList & geometryNodes,
-            const Raycast & raycast,
-            const SceneIntersection * const originIntersection,
-            SceneIntersection & intersectionOut
-        ) const;
-
-        const Float findAnyIntersection(
-            const PGeometryNodeList & geometryNodes,
-            const Raycast & raycast,
-            const SceneIntersection * const originIntersection,
-            SceneIntersection & intersectionOut
-        ) const;
-    };
+    const Float findAnyIntersection(
+        const PGeometryNodeList &geometryNodes, const RayCast &rayCast,
+        const SceneIntersection *const originIntersection, SceneIntersection &intersectionOut
+    ) const;
+  };
 }

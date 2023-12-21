@@ -1,16 +1,13 @@
 #pragma once
 
-namespace raytracer
-{
-    // forward decleration of RaytraceParameters for RaytraceObserver
-    struct RaytraceConfiguration;
+namespace raytracer {
+  // forward declaration of RaytraceParameters for RaytraceObserver
+  struct RaytraceConfiguration;
 
-    class RaytraceObserver
-    {
-    public:
+  class RaytraceObserver {
+  public:
+    virtual ~RaytraceObserver();
 
-        virtual ~RaytraceObserver();
-
-        virtual void notifyUpdate(const RaytraceConfiguration & raytraceConfiguration) = 0;
-    };
+    virtual void notifyUpdate(const RaytraceConfiguration &raytraceConfiguration) = 0;
+  };
 }

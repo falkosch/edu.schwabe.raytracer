@@ -1,179 +1,343 @@
 project(vectorization
-    LANGUAGES CXX
-    VERSION 1.0.0
+        LANGUAGES CXX
+        VERSION 1.0.0
 )
 
-add_library(${PROJECT_NAME}
-    STATIC
-        "src/primitives/AxisAlignedBoundingBox.cpp"
-        "src/primitives/BoundingSphere.cpp"
-        "src/primitives/Facet.cpp"
-        "src/primitives/FacetEdges.cpp"
-        "src/primitives/Ray.cpp"
-        "src/primitives/Raycast.cpp"
-        "src/primitives/SplittingPlane.cpp"
-        "src/vectorization/accessors/component_128d.cpp"
-        "src/vectorization/accessors/component_128s.cpp"
-        "src/vectorization/accessors/component_256d.cpp"
-        "src/vectorization/accessors/component_256s.cpp"
-        "src/vectorization/accessors/replaceComponent_128d.cpp"
-        "src/vectorization/accessors/replaceComponent_128s.cpp"
-        "src/vectorization/accessors/replaceComponent_256d.cpp"
-        "src/vectorization/accessors/replaceComponent_256s.cpp"
-        "src/vectorization/architecture/compiler_intrinsics.cpp"
-        "src/vectorization/architecture/memory.cpp"
-        "src/vectorization/blends/blend_128d.cpp"
-        "src/vectorization/blends/blend_128s.cpp"
-        "src/vectorization/blends/blend_256d.cpp"
-        "src/vectorization/blends/blend_256s.cpp"
-        "src/vectorization/blends/blendMasked_128d.cpp"
-        "src/vectorization/blends/blendMasked_128i.cpp"
-        "src/vectorization/blends/blendMasked_128s.cpp"
-        "src/vectorization/blends/blendMasked_256d.cpp"
-        "src/vectorization/blends/blendMasked_256i.cpp"
-        "src/vectorization/blends/blendMasked_256s.cpp"
-        "src/vectorization/blends/blendMasked_scalar.cpp"
-        "src/vectorization/constants/masks/MaskAll.cpp"
-        "src/vectorization/constants/masks/MaskNone.cpp"
-        "src/vectorization/constants/masks/MaskW.cpp"
-        "src/vectorization/constants/masks/MaskX.cpp"
-        "src/vectorization/constants/masks/MaskXY.cpp"
-        "src/vectorization/constants/masks/MaskXYZ.cpp"
-        "src/vectorization/constants/masks/MaskXYZW.cpp"
-        "src/vectorization/constants/masks/MaskY.cpp"
-        "src/vectorization/constants/masks/MaskYZ.cpp"
-        "src/vectorization/constants/masks/MaskYZW.cpp"
-        "src/vectorization/constants/masks/MaskZ.cpp"
-        "src/vectorization/constants/masks/MaskZW.cpp"
-        "src/vectorization/constants/values/DegreeToRadian.cpp"
-        "src/vectorization/constants/values/Epsilon.cpp"
-        "src/vectorization/constants/values/Half.cpp"
-        "src/vectorization/constants/values/Identity.cpp"
-        "src/vectorization/constants/values/Infinity.cpp"
-        "src/vectorization/constants/values/NegativeInfinity.cpp"
-        "src/vectorization/constants/values/NegativeOne.cpp"
-        "src/vectorization/constants/values/NegativeTwo.cpp"
-        "src/vectorization/constants/values/NegativeZero.cpp"
-        "src/vectorization/constants/values/NotANumber.cpp"
-        "src/vectorization/constants/values/One.cpp"
-        "src/vectorization/constants/values/OneHalf.cpp"
-        "src/vectorization/constants/values/OneW.cpp"
-        "src/vectorization/constants/values/OneX.cpp"
-        "src/vectorization/constants/values/OneY.cpp"
-        "src/vectorization/constants/values/OneZ.cpp"
-        "src/vectorization/constants/values/Pi.cpp"
-        "src/vectorization/constants/values/RadianToDegree.cpp"
-        "src/vectorization/constants/values/RadianToUniform.cpp"
-        "src/vectorization/constants/values/ReciprocalPi.cpp"
-        "src/vectorization/constants/values/SelfOcclusionEpsilon.cpp"
-        "src/vectorization/constants/values/Sin45.cpp"
-        "src/vectorization/constants/values/Two.cpp"
-        "src/vectorization/constants/values/Zero.cpp"
-        "src/vectorization/conversions/complex.cpp"
-        "src/vectorization/conversions/native.cpp"
-        "src/vectorization/functions/abs.cpp"
-        "src/vectorization/functions/acos.cpp"
-        "src/vectorization/functions/atan2.cpp"
-        "src/vectorization/functions/bitcount.cpp"
-        "src/vectorization/functions/bitpad.cpp"
-        "src/vectorization/functions/ceil.cpp"
-        "src/vectorization/functions/clamp.cpp"
-        "src/vectorization/functions/copysign.cpp"
-        "src/vectorization/functions/cos.cpp"
-        "src/vectorization/functions/divide.cpp"
-        "src/vectorization/functions/exp.cpp"
-        "src/vectorization/functions/floor.cpp"
-        "src/vectorization/functions/fract.cpp"
-        "src/vectorization/functions/isNaN.cpp"
-        "src/vectorization/functions/log.cpp"
-        "src/vectorization/functions/logN.cpp"
-        "src/vectorization/functions/max.cpp"
-        "src/vectorization/functions/min.cpp"
-        "src/vectorization/functions/mix.cpp"
-        "src/vectorization/functions/modpad.cpp"
-        "src/vectorization/functions/modulo.cpp"
-        "src/vectorization/functions/pow.cpp"
-        "src/vectorization/functions/reciprocal.cpp"
-        "src/vectorization/functions/round.cpp"
-        "src/vectorization/functions/roundDown.cpp"
-        "src/vectorization/functions/rsqrt.cpp"
-        "src/vectorization/functions/sign.cpp"
-        "src/vectorization/functions/sin.cpp"
-        "src/vectorization/functions/sqr.cpp"
-        "src/vectorization/functions/sqrt.cpp"
-        "src/vectorization/functions/tan.cpp"
-        "src/vectorization/m_f32_4x4.cpp"
-        "src/vectorization/selects/selects_128d.cpp"
-        "src/vectorization/selects/selects_128i.cpp"
-        "src/vectorization/selects/selects_128s.cpp"
-        "src/vectorization/selects/selects_256d.cpp"
-        "src/vectorization/selects/selects_256i.cpp"
-        "src/vectorization/selects/selects_256s.cpp"
-        "src/vectorization/selects/selects_scalar.cpp"
-        "src/vectorization/swizzle_blends/swizzleBlend1x1_128d.cpp"
-        "src/vectorization/swizzle_blends/swizzleBlend2x2_128s.cpp"
-        "src/vectorization/swizzle_blends/swizzleBlend2x2_256d.cpp"
-        "src/vectorization/swizzle_blends/swizzleBlend_128d.cpp"
-        "src/vectorization/swizzle_blends/swizzleBlend_128s.cpp"
-        "src/vectorization/swizzles/swizzle_128d.cpp"
-        "src/vectorization/swizzles/swizzle_128s.cpp"
-        "src/vectorization/swizzles/swizzle_256d.cpp"
-        "src/vectorization/swizzles/swizzle_256s.cpp"
-        "src/vectorization/v_f32_4/accessors.cpp"
-        "src/vectorization/v_f32_4/api.cpp"
-        "src/vectorization/v_f32_4/blends.cpp"
-        "src/vectorization/v_f32_4/constants.cpp"
-        "src/vectorization/v_f32_4/conversions.cpp"
-        "src/vectorization/v_f32_4/functions.cpp"
-        "src/vectorization/v_f32_4/functions_trigonometry.cpp"
-        "src/vectorization/v_f32_4/operators.cpp"
-        "src/vectorization/v_f32_4/selects.cpp"
-        "src/vectorization/v_f32_4/swizzledBlends.cpp"
-        "src/vectorization/v_f32_4/swizzles.cpp"
-        "src/vectorization/v_f32_4/type.cpp"
-        "src/vectorization/v_f32_4x4.cpp"
-        "src/vectorization/v_i32_4.cpp"
-        "src/vectorization/v_ui32_4.cpp"
-        "src/vectorization/v_ui64_2.cpp"
+set(SOURCES
+        src/primitives/AxisAlignedBoundingBox.cpp
+        src/primitives/BoundingSphere.cpp
+        src/primitives/Facet.cpp
+        src/primitives/FacetEdges.cpp
+        src/primitives/Ray.cpp
+        src/primitives/RayCast.cpp
+        src/primitives/SplittingPlane.cpp
+        src/vectorization/accessors/component_128d.cpp
+        src/vectorization/accessors/component_128s.cpp
+        src/vectorization/accessors/component_256d.cpp
+        src/vectorization/accessors/component_256s.cpp
+        src/vectorization/accessors/replaceComponent_128d.cpp
+        src/vectorization/accessors/replaceComponent_128s.cpp
+        src/vectorization/accessors/replaceComponent_256d.cpp
+        src/vectorization/accessors/replaceComponent_256s.cpp
+        src/vectorization/architecture/compiler_intrinsics.cpp
+        src/vectorization/architecture/memory.cpp
+        src/vectorization/blends/blendMasked_128d.cpp
+        src/vectorization/blends/blendMasked_128i.cpp
+        src/vectorization/blends/blendMasked_128s.cpp
+        src/vectorization/blends/blendMasked_256d.cpp
+        src/vectorization/blends/blendMasked_256i.cpp
+        src/vectorization/blends/blendMasked_256s.cpp
+        src/vectorization/blends/blendMasked_scalar.cpp
+        src/vectorization/blends/blend_128d.cpp
+        src/vectorization/blends/blend_128s.cpp
+        src/vectorization/blends/blend_256d.cpp
+        src/vectorization/blends/blend_256s.cpp
+        src/vectorization/constants/masks/MaskAll.cpp
+        src/vectorization/constants/masks/MaskNone.cpp
+        src/vectorization/constants/masks/MaskW.cpp
+        src/vectorization/constants/masks/MaskX.cpp
+        src/vectorization/constants/masks/MaskXY.cpp
+        src/vectorization/constants/masks/MaskXYZ.cpp
+        src/vectorization/constants/masks/MaskXYZW.cpp
+        src/vectorization/constants/masks/MaskY.cpp
+        src/vectorization/constants/masks/MaskYZ.cpp
+        src/vectorization/constants/masks/MaskYZW.cpp
+        src/vectorization/constants/masks/MaskZ.cpp
+        src/vectorization/constants/masks/MaskZW.cpp
+        src/vectorization/constants/values/DegreeToRadian.cpp
+        src/vectorization/constants/values/Epsilon.cpp
+        src/vectorization/constants/values/Half.cpp
+        src/vectorization/constants/values/Identity.cpp
+        src/vectorization/constants/values/Infinity.cpp
+        src/vectorization/constants/values/NegativeInfinity.cpp
+        src/vectorization/constants/values/NegativeOne.cpp
+        src/vectorization/constants/values/NegativeTwo.cpp
+        src/vectorization/constants/values/NegativeZero.cpp
+        src/vectorization/constants/values/NotANumber.cpp
+        src/vectorization/constants/values/One.cpp
+        src/vectorization/constants/values/OneHalf.cpp
+        src/vectorization/constants/values/OneW.cpp
+        src/vectorization/constants/values/OneX.cpp
+        src/vectorization/constants/values/OneY.cpp
+        src/vectorization/constants/values/OneZ.cpp
+        src/vectorization/constants/values/Pi.cpp
+        src/vectorization/constants/values/RadianToDegree.cpp
+        src/vectorization/constants/values/RadianToUniform.cpp
+        src/vectorization/constants/values/ReciprocalPi.cpp
+        src/vectorization/constants/values/SelfOcclusionEpsilon.cpp
+        src/vectorization/constants/values/Sin45.cpp
+        src/vectorization/constants/values/Two.cpp
+        src/vectorization/constants/values/Zero.cpp
+        src/vectorization/conversions/complex.cpp
+        src/vectorization/conversions/native.cpp
+        src/vectorization/functions/abs.cpp
+        src/vectorization/functions/acos.cpp
+        src/vectorization/functions/atan2.cpp
+        src/vectorization/functions/bitCount.cpp
+        src/vectorization/functions/bitPad.cpp
+        src/vectorization/functions/ceil.cpp
+        src/vectorization/functions/clamp.cpp
+        src/vectorization/functions/copySign.cpp
+        src/vectorization/functions/cos.cpp
+        src/vectorization/functions/divide.cpp
+        src/vectorization/functions/exp.cpp
+        src/vectorization/functions/floor.cpp
+        src/vectorization/functions/fract.cpp
+        src/vectorization/functions/isNaN.cpp
+        src/vectorization/functions/log.cpp
+        src/vectorization/functions/logN.cpp
+        src/vectorization/functions/max.cpp
+        src/vectorization/functions/min.cpp
+        src/vectorization/functions/mix.cpp
+        src/vectorization/functions/modPad.cpp
+        src/vectorization/functions/modulo.cpp
+        src/vectorization/functions/pow.cpp
+        src/vectorization/functions/reciprocal.cpp
+        src/vectorization/functions/round.cpp
+        src/vectorization/functions/roundDown.cpp
+        src/vectorization/functions/rsqrt.cpp
+        src/vectorization/functions/sign.cpp
+        src/vectorization/functions/sin.cpp
+        src/vectorization/functions/sqr.cpp
+        src/vectorization/functions/sqrt.cpp
+        src/vectorization/functions/tan.cpp
+        src/vectorization/m_f32_4x4.cpp
+        src/vectorization/selects/selects_128d.cpp
+        src/vectorization/selects/selects_128i.cpp
+        src/vectorization/selects/selects_128s.cpp
+        src/vectorization/selects/selects_256d.cpp
+        src/vectorization/selects/selects_256i.cpp
+        src/vectorization/selects/selects_256s.cpp
+        src/vectorization/selects/selects_scalar.cpp
+        src/vectorization/swizzledBlends/swizzledBlend1x1_128d.cpp
+        src/vectorization/swizzledBlends/swizzledBlend2x2_128s.cpp
+        src/vectorization/swizzledBlends/swizzledBlend2x2_256d.cpp
+        src/vectorization/swizzledBlends/swizzledBlend_128d.cpp
+        src/vectorization/swizzledBlends/swizzledBlend_128s.cpp
+        src/vectorization/swizzles/swizzle_128d.cpp
+        src/vectorization/swizzles/swizzle_128s.cpp
+        src/vectorization/swizzles/swizzle_256d.cpp
+        src/vectorization/swizzles/swizzle_256s.cpp
+        src/vectorization/v_f32_4/accessors.cpp
+        src/vectorization/v_f32_4/api.cpp
+        src/vectorization/v_f32_4/blends.cpp
+        src/vectorization/v_f32_4/constants.cpp
+        src/vectorization/v_f32_4/conversions.cpp
+        src/vectorization/v_f32_4/functions.cpp
+        src/vectorization/v_f32_4/functions_trigonometry.cpp
+        src/vectorization/v_f32_4/operators.cpp
+        src/vectorization/v_f32_4/selects.cpp
+        src/vectorization/v_f32_4/swizzledBlends.cpp
+        src/vectorization/v_f32_4/swizzles.cpp
+        src/vectorization/v_f32_4/type.cpp
+        src/vectorization/v_f32_4x4.cpp
+        src/vectorization/v_i32_4.cpp
+        src/vectorization/v_ui32_4.cpp
+        src/vectorization/v_ui64_2.cpp
 )
+
+set(HEADERS
+        include/primitives.h
+        include/primitives/AxisAlignedBoundingBox.h
+        include/primitives/BoundingSphere.h
+        include/primitives/Facet.h
+        include/primitives/FacetEdges.h
+        include/primitives/Ray.h
+        include/primitives/RayCast.h
+        include/primitives/SplittingPlane.h
+        include/vectorization.h
+        include/vectorization/accessors.h
+        include/vectorization/accessors/component_128d.h
+        include/vectorization/accessors/component_128s.h
+        include/vectorization/accessors/component_256d.h
+        include/vectorization/accessors/component_256s.h
+        include/vectorization/accessors/replaceComponent_128d.h
+        include/vectorization/accessors/replaceComponent_128s.h
+        include/vectorization/accessors/replaceComponent_256d.h
+        include/vectorization/accessors/replaceComponent_256s.h
+        include/vectorization/api_type_definitions.h
+        include/vectorization/architecture.h
+        include/vectorization/architecture/compiler_definitions.h
+        include/vectorization/architecture/compiler_intrinsics.h
+        include/vectorization/architecture/memory.h
+        include/vectorization/architecture/meta_bool_types.h
+        include/vectorization/architecture/meta_packed_types.h
+        include/vectorization/architecture/meta_types.h
+        include/vectorization/blends.h
+        include/vectorization/blends/blendMasked_128d.h
+        include/vectorization/blends/blendMasked_128i.h
+        include/vectorization/blends/blendMasked_128s.h
+        include/vectorization/blends/blendMasked_256d.h
+        include/vectorization/blends/blendMasked_256i.h
+        include/vectorization/blends/blendMasked_256s.h
+        include/vectorization/blends/blendMasked_scalar.h
+        include/vectorization/blends/blend_128d.h
+        include/vectorization/blends/blend_128s.h
+        include/vectorization/blends/blend_256d.h
+        include/vectorization/blends/blend_256s.h
+        include/vectorization/constants.h
+        include/vectorization/constants/masks.h
+        include/vectorization/constants/masks/MaskAll.h
+        include/vectorization/constants/masks/MaskNone.h
+        include/vectorization/constants/masks/MaskW.h
+        include/vectorization/constants/masks/MaskX.h
+        include/vectorization/constants/masks/MaskXY.h
+        include/vectorization/constants/masks/MaskXYZ.h
+        include/vectorization/constants/masks/MaskXYZW.h
+        include/vectorization/constants/masks/MaskY.h
+        include/vectorization/constants/masks/MaskYZ.h
+        include/vectorization/constants/masks/MaskYZW.h
+        include/vectorization/constants/masks/MaskZ.h
+        include/vectorization/constants/masks/MaskZW.h
+        include/vectorization/constants/values.h
+        include/vectorization/constants/values/DegreeToRadian.h
+        include/vectorization/constants/values/Epsilon.h
+        include/vectorization/constants/values/Half.h
+        include/vectorization/constants/values/Identity.h
+        include/vectorization/constants/values/Infinity.h
+        include/vectorization/constants/values/NegativeInfinity.h
+        include/vectorization/constants/values/NegativeOne.h
+        include/vectorization/constants/values/NegativeTwo.h
+        include/vectorization/constants/values/NegativeZero.h
+        include/vectorization/constants/values/NotANumber.h
+        include/vectorization/constants/values/One.h
+        include/vectorization/constants/values/OneHalf.h
+        include/vectorization/constants/values/OneW.h
+        include/vectorization/constants/values/OneX.h
+        include/vectorization/constants/values/OneY.h
+        include/vectorization/constants/values/OneZ.h
+        include/vectorization/constants/values/Pi.h
+        include/vectorization/constants/values/RadianToDegree.h
+        include/vectorization/constants/values/RadianToUniform.h
+        include/vectorization/constants/values/ReciprocalPi.h
+        include/vectorization/constants/values/SelfOcclusionEpsilon.h
+        include/vectorization/constants/values/Sin45.h
+        include/vectorization/constants/values/Two.h
+        include/vectorization/constants/values/Zero.h
+        include/vectorization/conversions.h
+        include/vectorization/conversions/complex.h
+        include/vectorization/conversions/native.h
+        include/vectorization/functions.h
+        include/vectorization/functions/abs.h
+        include/vectorization/functions/acos.h
+        include/vectorization/functions/atan2.h
+        include/vectorization/functions/average.h
+        include/vectorization/functions/bitCount.h
+        include/vectorization/functions/bitPad.h
+        include/vectorization/functions/ceil.h
+        include/vectorization/functions/clamp.h
+        include/vectorization/functions/copySign.h
+        include/vectorization/functions/cos.h
+        include/vectorization/functions/divide.h
+        include/vectorization/functions/exp.h
+        include/vectorization/functions/floor.h
+        include/vectorization/functions/fract.h
+        include/vectorization/functions/isNaN.h
+        include/vectorization/functions/log.h
+        include/vectorization/functions/logN.h
+        include/vectorization/functions/max.h
+        include/vectorization/functions/min.h
+        include/vectorization/functions/mix.h
+        include/vectorization/functions/modPad.h
+        include/vectorization/functions/modulo.h
+        include/vectorization/functions/normalize.h
+        include/vectorization/functions/pow.h
+        include/vectorization/functions/reciprocal.h
+        include/vectorization/functions/round.h
+        include/vectorization/functions/roundDown.h
+        include/vectorization/functions/rsqrt.h
+        include/vectorization/functions/sign.h
+        include/vectorization/functions/sin.h
+        include/vectorization/functions/sqr.h
+        include/vectorization/functions/sqrt.h
+        include/vectorization/functions/staticFor.h
+        include/vectorization/functions/tan.h
+        include/vectorization/m_f32_4x4.h
+        include/vectorization/selects.h
+        include/vectorization/selects/selects_128d.h
+        include/vectorization/selects/selects_128i.h
+        include/vectorization/selects/selects_128s.h
+        include/vectorization/selects/selects_256d.h
+        include/vectorization/selects/selects_256i.h
+        include/vectorization/selects/selects_256s.h
+        include/vectorization/selects/selects_scalar.h
+        include/vectorization/selects/static_select.h
+        include/vectorization/swizzledBlends.h
+        include/vectorization/swizzledBlends/swizzledBlend1x1_128d.h
+        include/vectorization/swizzledBlends/swizzledBlend2x2_128s.h
+        include/vectorization/swizzledBlends/swizzledBlend2x2_256d.h
+        include/vectorization/swizzledBlends/swizzledBlendMasked_128d.h
+        include/vectorization/swizzledBlends/swizzledBlendMasked_128s.h
+        include/vectorization/swizzledBlends/swizzledBlendMasked_256d.h
+        include/vectorization/swizzledBlends/swizzledBlendMasked_256s.h
+        include/vectorization/swizzledBlends/swizzledBlend_128d.h
+        include/vectorization/swizzledBlends/swizzledBlend_128s.h
+        include/vectorization/swizzledBlends/swizzledBlend_256d.h
+        include/vectorization/swizzledBlends/swizzledBlend_256s.h
+        include/vectorization/swizzles.h
+        include/vectorization/swizzles/swizzle_128d.h
+        include/vectorization/swizzles/swizzle_128s.h
+        include/vectorization/swizzles/swizzle_256d.h
+        include/vectorization/swizzles/swizzle_256s.h
+        include/vectorization/v_f32_4.h
+        include/vectorization/v_f32_4/accessors.h
+        include/vectorization/v_f32_4/api.h
+        include/vectorization/v_f32_4/blends.h
+        include/vectorization/v_f32_4/constants.h
+        include/vectorization/v_f32_4/conversions.h
+        include/vectorization/v_f32_4/functions.h
+        include/vectorization/v_f32_4/functions_trigonometry.h
+        include/vectorization/v_f32_4/operators.h
+        include/vectorization/v_f32_4/selects.h
+        include/vectorization/v_f32_4/swizzledBlends.h
+        include/vectorization/v_f32_4/swizzles.h
+        include/vectorization/v_f32_4/type.h
+        include/vectorization/v_f32_4x4.h
+        include/vectorization/v_i32_4.h
+        include/vectorization/v_ui32_4.h
+        include/vectorization/v_ui64_2.h
+)
+
+set(THIRD_PARTY
+        3rdparty/avx_mathfun.h
+        3rdparty/sse_mathfun.h
+)
+
+add_library(${PROJECT_NAME} STATIC ${SOURCES} ${HEADERS} ${THIRD_PARTY})
 
 source_group(
-    TREE ${CMAKE_CURRENT_SOURCE_DIR}
-    PREFIX "Files"
-    REGULAR_EXPRESSION ".+\\.(h|cpp)"
+        TREE ${CMAKE_CURRENT_SOURCE_DIR}
+        PREFIX "Files"
+        REGULAR_EXPRESSION ".+\\.(h|cpp)"
 )
 
-add_dependencies(${PROJECT_NAME}
-    sources-build-aggregate
-)
+add_dependencies(${PROJECT_NAME} sources-build-aggregate)
 
 target_link_libraries(${PROJECT_NAME}
-    PUBLIC
-        sources-build-aggregate
+        PUBLIC sources-build-aggregate
 )
 
 target_include_directories(${PROJECT_NAME}
-    PUBLIC
-        "${CMAKE_CURRENT_SOURCE_DIR}/include"
-    PRIVATE
-        "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty"
+        PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include"
+        PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty"
 )
 
 target_compile_definitions(${PROJECT_NAME}
-    PRIVATE
-        _LIB
+        PRIVATE _LIB
 )
 
 set_target_properties(${PROJECT_NAME}
-    PROPERTIES
+        PROPERTIES
         INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE
 )
 
-if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 
-elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 
-else()
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+
+else ()
     message(FATAL_ERROR "no configuration for compiler ${CMAKE_CXX_COMPILER_ID}")
 
-endif()
+endif ()

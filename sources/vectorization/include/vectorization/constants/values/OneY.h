@@ -2,8 +2,7 @@
 
 #include "vectorization/architecture.h"
 
-namespace vectorization
-{
-    template <typename V>
-    const V OneY() noexcept;
+namespace vectorization {
+  template <typename V>
+  const V OneY() noexcept;
 }

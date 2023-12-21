@@ -2,170 +2,167 @@
 #include "../stdafx.h"
 
 #include "tests/TestResources.h"
-#include "tests/TestLightScene.h"
 
-namespace raytracerui
-{
-    void CornellBoxScene::setup(Scene & scene, Resources & resources) {
-        TestResources::setup(resources);
+namespace raytracerui {
 
-        scene.setBackgroundShader(new ConstShader<SceneShader, Float4, Float4>(Float4(1.f, 1.f, 1.f, 0.f)));
-        scene.setAmbientLight(Float4(0.f, 0.f, 0.f, 0.f));
+  auto ceiling() {
+    auto sceneObject = new SceneObject("ceiling");
+    sceneObject->setForm(new Box());
+    sceneObject->scale(Float3(1.0f, 0.001f, 1.0f));
+    sceneObject->translate(Float3(0.0f, 1.0f, 0.0f));
+    sceneObject->setEmittanceShader(new Resources::ConstMaterialShader(Float4(0.0f, 0.0f, 0.0f, 1.0f)));
+    sceneObject->setDiffusionShader(new Resources::ConstMaterialShader(Float4(1.0f, 1.0f, 1.0f, 1.0f)));
+    sceneObject->setReflectanceShader(new Resources::ConstMaterialShader(Float4(0.0f, 0.0f, 0.0f, 1.0f)));
+    sceneObject->setSpecularShader(new Resources::ConstMaterialShader(Float4(0.0f, 0.0f, 0.0f, 1.0f)));
+    sceneObject->setShininessShader(new Resources::ConstMaterialShader(Float4(0.0f, 0.0f, 0.0f, 32.0f)));
+    sceneObject->setTransmittanceShader(new Resources::ConstMaterialShader(Float4(0.0f, 0.0f, 0.0f, 1.0f)));
+    sceneObject->setRefractionEtaShader(new Resources::ConstMaterialShader(
+        RefractionIndices::refractionEta(RefractionIndices::Vacuum, RefractionIndices::Vacuum)
+    ));
+    return sceneObject;
+  }
 
-        LightInfo * light = new LightInfo();
-        light->position = Float4(0.f, .98f, 0.f, 1.f);
-        light->emissivity = Float4(1.f, .9f, .8f, 1.f);
-        light->glare = Float4(4.f, 4.f, 4.f, 1.f);
-        light->attenuationFactors = Float4(.5f, .4f, .3f, 1.f);
-        scene.getLights().push_back(light);
+  auto floor() {
+    auto sceneObject = new SceneObject("floor");
+    sceneObject->setForm(new Box());
+    sceneObject->scale(Float3(1.0f, 0.001f, 1.0f));
+    sceneObject->translate(Float3(0.0f, -1.0f, 0.0f));
+    sceneObject->setEmittanceShader(new Resources::ConstMaterialShader(Float4(0.0f, 0.0f, 0.0f, 1.0f)));
+    sceneObject->setDiffusionShader(new Resources::ConstMaterialShader(Float4(1.0f, 1.0f, 1.0f, 1.0f)));
+    sceneObject->setReflectanceShader(new Resources::ConstMaterialShader(Float4(0.0f, 0.0f, 0.0f, 1.0f)));
+    sceneObject->setSpecularShader(new Resources::ConstMaterialShader(Float4(0.0f, 0.0f, 0.0f, 1.0f)));
+    sceneObject->setShininessShader(new Resources::ConstMaterialShader(Float4(0.0f, 0.0f, 0.0f, 32.0f)));
+    sceneObject->setTransmittanceShader(new Resources::ConstMaterialShader(Float4(0.0f, 0.0f, 0.0f, 1.0f)));
+    sceneObject->setRefractionEtaShader(new Resources::ConstMaterialShader(
+        RefractionIndices::refractionEta(RefractionIndices::Vacuum, RefractionIndices::Vacuum)
+    ));
+    return sceneObject;
+  }
 
-        const Float4 vacuum2vacuum = RefractionIndices::refractionEta(RefractionIndices::Vacuum, RefractionIndices::Vacuum);
-        SceneObject * so;
+  auto backWall() {
+    auto sceneObject = new SceneObject("back wall");
+    sceneObject->setForm(new Box());
+    sceneObject->scale(Float3(1.0f, 1.0f, 0.001f));
+    sceneObject->translate(Float3(0.0f, 0.0f, -1.0f));
+    sceneObject->setEmittanceShader(new Resources::ConstMaterialShader(Float4(0.0f, 0.0f, 0.0f, 1.0f)));
+    sceneObject->setDiffusionShader(new Resources::ConstMaterialShader(Float4(1.0f, 1.0f, 1.0f, 1.0f)));
+    sceneObject->setReflectanceShader(new Resources::ConstMaterialShader(Float4(0.0f, 0.0f, 0.0f, 1.0f)));
+    sceneObject->setSpecularShader(new Resources::ConstMaterialShader(Float4(0.0f, 0.0f, 0.0f, 1.0f)));
+    sceneObject->setShininessShader(new Resources::ConstMaterialShader(Float4(0.0f, 0.0f, 0.0f, 32.0f)));
+    sceneObject->setTransmittanceShader(new Resources::ConstMaterialShader(Float4(0.0f, 0.0f, 0.0f, 1.0f)));
+    sceneObject->setRefractionEtaShader(new Resources::ConstMaterialShader(
+        RefractionIndices::refractionEta(RefractionIndices::Vacuum, RefractionIndices::Vacuum)
+    ));
+    return sceneObject;
+  }
 
-        // ceiling
-        so = new SceneObject("ceiling");
-        so->setForm(new Box());
-        so->scale(Float3(1.f, .001f, 1.f));
-        so->rotate(Float3(0.f, 0.f, 0.f));
-        so->translate(Float3(0.f, 1.f, 0.f));
-        so->scaleTexture(Float2(1.f, 1.f));
-        so->rotateTexture(0.f);
-        so->translateTexture(Float2(0.f, 0.f));
-        so->setEmissivityShader(new Resources::ConstMaterialShader(Float4(1.f, 1.f, 1.f, 0.f)));
-        so->setDiffusionShader(new Resources::ConstMaterialShader(Float4(1.f, 1.f, 1.f, 1.f)));
-        so->setReflectanceShader(new Resources::ConstMaterialShader(Float4(1.f, 1.f, 1.f, 0.f)));
-        so->setSpecularityShader(new Resources::ConstMaterialShader(Float4(1.f, 1.f, 1.f, 0.f)));
-        so->setShininessShader(new Resources::ConstMaterialShader(Float4(1.f, 1.f, 1.f, 32.f)));
-        so->setTransmittanceShader(new Resources::ConstMaterialShader(Float4(1.f, 1.f, 1.f, 0.f)));
-        so->setRefractionEtaShader(new Resources::ConstMaterialShader(vacuum2vacuum));
-        scene.getSceneObjects().push_back(so);
+  auto rightWall() {
+    auto sceneObject = new SceneObject("right wall");
+    sceneObject->setForm(new Box());
+    sceneObject->scale(Float3(0.001f, 1.0f, 1.0f));
+    sceneObject->translate(Float3(1.0f, 0.0f, 0.0f));
+    sceneObject->setEmittanceShader(new Resources::ConstMaterialShader(Float4(0.0f, 0.0f, 0.0f, 1.0f)));
+    sceneObject->setDiffusionShader(new Resources::ConstMaterialShader(Float4(0.0f, 1.0f, 0.0f, 1.0f)));
+    sceneObject->setReflectanceShader(new Resources::ConstMaterialShader(Float4(0.0f, 0.0f, 0.0f, 1.0f)));
+    sceneObject->setSpecularShader(new Resources::ConstMaterialShader(Float4(0.0f, 0.0f, 0.0f, 1.0f)));
+    sceneObject->setShininessShader(new Resources::ConstMaterialShader(Float4(0.0f, 0.0f, 0.0f, 32.0f)));
+    sceneObject->setTransmittanceShader(new Resources::ConstMaterialShader(Float4(0.0f, 0.0f, 0.0f, 1.0f)));
+    sceneObject->setRefractionEtaShader(new Resources::ConstMaterialShader(
+        RefractionIndices::refractionEta(RefractionIndices::Vacuum, RefractionIndices::Vacuum)
+    ));
+    return sceneObject;
+  }
 
-        // floor
-        so = new SceneObject("floor");
-        so->setForm(new Box());
-        so->scale(Float3(1.f, .001f, 1.f));
-        so->rotate(Float3(0.f, 0.f, 0.f));
-        so->translate(Float3(0.f, -1.f, 0.f));
-        so->scaleTexture(Float2(1.f, 1.f));
-        so->rotateTexture(0.f);
-        so->translateTexture(Float2(0.f, 0.f));
-        so->setEmissivityShader(new Resources::ConstMaterialShader(Float4(1.f, 1.f, 1.f, 0.f)));
-        so->setDiffusionShader(new Resources::ConstMaterialShader(Float4(1.f, 1.f, 1.f, 1.f)));
-        so->setReflectanceShader(new Resources::ConstMaterialShader(Float4(1.f, 1.f, 1.f, 0.f)));
-        so->setSpecularityShader(new Resources::ConstMaterialShader(Float4(1.f, 1.f, 1.f, 0.f)));
-        so->setShininessShader(new Resources::ConstMaterialShader(Float4(1.f, 1.f, 1.f, 32.f)));
-        so->setTransmittanceShader(new Resources::ConstMaterialShader(Float4(1.f, 1.f, 1.f, 0.f)));
-        so->setRefractionEtaShader(new Resources::ConstMaterialShader(vacuum2vacuum));
-        scene.getSceneObjects().push_back(so);
+  auto leftWall() {
+    auto sceneObject = new SceneObject("left wall");
+    sceneObject->setForm(new Box());
+    sceneObject->scale(Float3(0.001f, 1.0f, 1.0f));
+    sceneObject->translate(Float3(-1.0f, 0.0f, 0.0f));
+    sceneObject->setEmittanceShader(new Resources::ConstMaterialShader(Float4(0.0f, 0.0f, 0.0f, 1.0f)));
+    sceneObject->setDiffusionShader(new Resources::ConstMaterialShader(Float4(1.0f, 0.0f, 0.0f, 1.0f)));
+    sceneObject->setReflectanceShader(new Resources::ConstMaterialShader(Float4(0.0f, 0.0f, 0.0f, 1.0f)));
+    sceneObject->setSpecularShader(new Resources::ConstMaterialShader(Float4(0.0f, 0.0f, 0.0f, 1.0f)));
+    sceneObject->setShininessShader(new Resources::ConstMaterialShader(Float4(0.0f, 0.0f, 0.0f, 32.0f)));
+    sceneObject->setTransmittanceShader(new Resources::ConstMaterialShader(Float4(0.0f, 0.0f, 0.0f, 1.0f)));
+    sceneObject->setRefractionEtaShader(new Resources::ConstMaterialShader(
+        RefractionIndices::refractionEta(RefractionIndices::Vacuum, RefractionIndices::Vacuum)
+    ));
+    return sceneObject;
+  }
 
-        // back wall
-        so = new SceneObject("back wall");
-        so->setForm(new Box());
-        so->scale(Float3(1.f, 1.f, .001f));
-        so->rotate(Float3(0.f, 0.f, 0.f));
-        so->translate(Float3(0.f, 0.f, -1.f));
-        so->scaleTexture(Float2(1.f, 1.f));
-        so->rotateTexture(0.f);
-        so->translateTexture(Float2(0.f, 0.f));
-        so->setEmissivityShader(new Resources::ConstMaterialShader(Float4(1.f, 1.f, 1.f, 0.f)));
-        so->setDiffusionShader(new Resources::ConstMaterialShader(Float4(1.f, 1.f, 1.f, 1.f)));
-        so->setReflectanceShader(new Resources::ConstMaterialShader(Float4(1.f, 1.f, 1.f, 0.f)));
-        so->setSpecularityShader(new Resources::ConstMaterialShader(Float4(1.f, 1.f, 1.f, 0.f)));
-        so->setShininessShader(new Resources::ConstMaterialShader(Float4(1.f, 1.f, 1.f, 32.f)));
-        so->setTransmittanceShader(new Resources::ConstMaterialShader(Float4(1.f, 1.f, 1.f, 0.f)));
-        so->setRefractionEtaShader(new Resources::ConstMaterialShader(vacuum2vacuum));
-        scene.getSceneObjects().push_back(so);
+  auto smallSphere() {
+    auto sceneObject = new SceneObject("small sphere");
+    sceneObject->setForm(new Sphere());
+    sceneObject->scale(Float3(0.35f, 0.35f, 0.35f));
+    sceneObject->translate(Float3(0.35f, -0.64f, 0.35f));
+    sceneObject->setEmittanceShader(new Resources::ConstMaterialShader(Float4(0.0f, 0.0f, 0.0f, 1.0f)));
+    sceneObject->setDiffusionShader(new Resources::ConstMaterialShader(Float4(1.0f, 1.0f, 1.0f, 0.87f)));
+    sceneObject->setReflectanceShader(new Resources::ConstMaterialShader(Float4(1.0f, 1.0f, 1.0f, 0.13f)));
+    sceneObject->setSpecularShader(new Resources::ConstMaterialShader(Float4(1.0f, 1.0f, 1.0f, 0.13f)));
+    sceneObject->setShininessShader(new Resources::ConstMaterialShader(Float4(1.0f, 1.0f, 1.0f, 4.0f)));
+    sceneObject->setTransmittanceShader(new Resources::ConstMaterialShader(Float4(1.0f, 1.0f, 1.0f, 0.87f)));
+    sceneObject->setRefractionEtaShader(new Resources::ConstMaterialShader(
+        RefractionIndices::refractionEta(RefractionIndices::Vacuum, RefractionIndices::Water)
+    ));
+    return sceneObject;
+  }
 
-        // right wall
-        so = new SceneObject("right wall");
-        so->setForm(new Box());
-        so->scale(Float3(.001f, 1.f, 1.f));
-        so->rotate(Float3(0.f, 0.f, 0.f));
-        so->translate(Float3(1.f, 0.f, 0.f));
-        so->scaleTexture(Float2(1.f, 1.f));
-        so->rotateTexture(0.f);
-        so->translateTexture(Float2(0.f, 0.f));
-        so->setEmissivityShader(new Resources::ConstMaterialShader(Float4(1.f, 1.f, 1.f, 0.f)));
-        so->setDiffusionShader(new Resources::ConstMaterialShader(Float4(0.f, 1.f, 0.f, 1.f)));
-        so->setReflectanceShader(new Resources::ConstMaterialShader(Float4(1.f, 1.f, 1.f, 0.f)));
-        so->setSpecularityShader(new Resources::ConstMaterialShader(Float4(1.f, 1.f, 1.f, 0.f)));
-        so->setShininessShader(new Resources::ConstMaterialShader(Float4(1.f, 1.f, 1.f, 32.f)));
-        so->setTransmittanceShader(new Resources::ConstMaterialShader(Float4(1.f, 1.f, 1.f, 0.f)));
-        so->setRefractionEtaShader(new Resources::ConstMaterialShader(vacuum2vacuum));
-        scene.getSceneObjects().push_back(so);
+  auto largeBox() {
+    auto sceneObject = new SceneObject("large box");
+    sceneObject->setForm(new Box());
+    sceneObject->scale(Float3(0.35f, 0.60f, 0.35f));
+    sceneObject->rotate(Float3(0.0f, 20.0f, 0.0f));
+    sceneObject->translate(Float3(-0.35f, -0.39f, -0.35f));
+    sceneObject->setEmittanceShader(new Resources::ConstMaterialShader(Float4(0.0f, 0.0f, 0.0f, 1.0f)));
+    sceneObject->setDiffusionShader(new Resources::ConstMaterialShader(Float4(1.0f, 1.0f, 1.0f, 1.0f)));
+    sceneObject->setReflectanceShader(new Resources::ConstMaterialShader(Float4(0.0f, 0.0f, 0.0f, 1.0f)));
+    sceneObject->setSpecularShader(new Resources::ConstMaterialShader(Float4(0.0f, 0.0f, 0.0f, 1.0f)));
+    sceneObject->setShininessShader(new Resources::ConstMaterialShader(Float4(1.0f, 1.0f, 1.0f, 32.0f)));
+    sceneObject->setTransmittanceShader(new Resources::ConstMaterialShader(Float4(0.0f, 0.0f, 0.0f, 1.0f)));
+    sceneObject->setRefractionEtaShader(new Resources::ConstMaterialShader(
+        RefractionIndices::refractionEta(RefractionIndices::Vacuum, RefractionIndices::Vacuum)
+    ));
+    return sceneObject;
+  }
 
-        // left wall
-        so = new SceneObject("left wall");
-        so->setForm(new Box());
-        so->scale(Float3(.001f, 1.f, 1.f));
-        so->rotate(Float3(0.f, 0.f, 0.f));
-        so->translate(Float3(-1.f, 0.f, 0.f));
-        so->scaleTexture(Float2(1.f, 1.f));
-        so->rotateTexture(0.f);
-        so->translateTexture(Float2(0.f, 0.f));
-        so->setEmissivityShader(new Resources::ConstMaterialShader(Float4(1.f, 1.f, 1.f, 0.f)));
-        so->setDiffusionShader(new Resources::ConstMaterialShader(Float4(1.f, 0.f, 0.f, 1.f)));
-        so->setReflectanceShader(new Resources::ConstMaterialShader(Float4(1.f, 1.f, 1.f, 0.f)));
-        so->setSpecularityShader(new Resources::ConstMaterialShader(Float4(1.f, 1.f, 1.f, 0.f)));
-        so->setShininessShader(new Resources::ConstMaterialShader(Float4(1.f, 1.f, 1.f, 32.f)));
-        so->setTransmittanceShader(new Resources::ConstMaterialShader(Float4(1.f, 1.f, 1.f, 0.f)));
-        so->setRefractionEtaShader(new Resources::ConstMaterialShader(vacuum2vacuum));
-        scene.getSceneObjects().push_back(so);
+  auto meshAboveLargeBox(Resources &resources) {
+    auto sceneObject = new SceneObject("mesh object");
+    sceneObject->setForm(resources.getMesh("teapot"));
+    sceneObject->scale(Float3(0.3f, 0.3f, 0.3f));
+    sceneObject->rotate(Float3(0.0f, 0.0f, 0.0f));
+    sceneObject->translate(Float3(-0.35f, 0.375f, -0.35f));
+    sceneObject->setEmittanceShader(new Resources::ConstMaterialShader(Float4(0.0f, 0.0f, 0.0f, 1.0f)));
+    sceneObject->setDiffusionShader(new Resources::ConstMaterialShader(Float4(1.0f, 1.0f, 1.0f, 0.13f)));
+    sceneObject->setReflectanceShader(new Resources::ConstMaterialShader(Float4(1.0f, 1.0f, 1.0f, 0.87f)));
+    sceneObject->setSpecularShader(new Resources::ConstMaterialShader(Float4(1.0f, 1.0f, 1.0f, 0.87f)));
+    sceneObject->setShininessShader(new Resources::ConstMaterialShader(Float4(1.0f, 1.0f, 1.0f, 32.0f)));
+    sceneObject->setTransmittanceShader(new Resources::ConstMaterialShader(Float4(1.0f, 1.0f, 1.0f, 0.87f)));
+    sceneObject->setRefractionEtaShader(new Resources::ConstMaterialShader(
+        RefractionIndices::refractionEta(RefractionIndices::Vacuum, RefractionIndices::Glass)
+    ));
+    return sceneObject;
+  }
 
-        // small object
-        so = new SceneObject("small object");
-        so->setForm(new Sphere());
-        so->scale(Float3(.35f, .35f, .35f));
-        so->rotate(Float3(0.f, -20.f, 0.f));
-        so->translate(Float3(.35f, -.64f, .35f));
-        so->scaleTexture(Float2(1.f, 1.f));
-        so->rotateTexture(0.f);
-        so->translateTexture(Float2(0.f, 0.f));
-        so->setEmissivityShader(new Resources::ConstMaterialShader(Float4(1.f, 1.f, 1.f, 0.f)));
-        so->setDiffusionShader(new Resources::ConstMaterialShader(Float4(1.f, 1.f, 1.f, 0.f)));
-        so->setReflectanceShader(new Resources::ConstMaterialShader(Float4(1.f, 1.f, 1.f, .95f)));
-        so->setSpecularityShader(new Resources::ConstMaterialShader(Float4(1.f, 1.f, 1.f, .95f)));
-        so->setShininessShader(new Resources::ConstMaterialShader(Float4(1.f, 1.f, 1.f, 32.f)));
-        so->setTransmittanceShader(new Resources::ConstMaterialShader(Float4(1.f, 1.f, 1.f, .95f)));
-        so->setRefractionEtaShader(new Resources::ConstMaterialShader(
-            RefractionIndices::refractionEta(RefractionIndices::Vacuum, RefractionIndices::Diamond)));
-        scene.getSceneObjects().push_back(so);
+  void CornellBoxScene::setup(Scene &scene, Resources &resources) {
+    TestResources::setup(resources);
 
-        // large object
-        so = new SceneObject("large object");
-        so->setForm(new Box());
-        so->scale(Float3(.35f, .60f, .35f));
-        so->rotate(Float3(0.f, 20.f, 0.f));
-        so->translate(Float3(-.35f, -.39f, -.35f));
-        so->scaleTexture(Float2(1.f, 1.f));
-        so->rotateTexture(0.f);
-        so->translateTexture(Float2(0.f, 0.f));
-        so->setEmissivityShader(new Resources::ConstMaterialShader(Float4(1.f, 1.f, 1.f, 0.f)));
-        so->setDiffusionShader(new Resources::ConstMaterialShader(Float4(1.f, 1.f, 1.f, 1.f)));
-        so->setReflectanceShader(new Resources::ConstMaterialShader(Float4(1.f, 1.f, 1.f, 0.f)));
-        so->setSpecularityShader(new Resources::ConstMaterialShader(Float4(1.f, 1.f, 1.f, 0.f)));
-        so->setShininessShader(new Resources::ConstMaterialShader(Float4(1.f, 1.f, 1.f, 32.f)));
-        so->setTransmittanceShader(new Resources::ConstMaterialShader(Float4(1.f, 1.f, 1.f, 0.f)));
-        so->setRefractionEtaShader(new Resources::ConstMaterialShader(vacuum2vacuum));
-        scene.getSceneObjects().push_back(so);
+    scene.setBackgroundShader(new ConstShader<SceneShader, Float4, Float4>(Float4(1.0f, 1.0f, 1.0f, 0.0f)));
+    scene.setAmbientLight(Float4(0.0f, 0.0f, 0.0f, 0.0f));
 
-        // test mesh
-        so = new SceneObject("test mesh");
-        so->setForm(resources.getMesh("teapot"));
-        so->scale(Float3(.25f, .25f, .25f));
-        so->rotate(Float3(0.f, 0.f, 0.f));
-        so->translate(Float3(-.35f, .455f, -.35f));
-        so->scaleTexture(Float2(1.f, 1.f));
-        so->rotateTexture(0.f);
-        so->translateTexture(Float2(0.f, 0.f));
-        so->setEmissivityShader(new Resources::ConstMaterialShader(Float4(1.f, 1.f, 1.f, 0.f)));
-        so->setDiffusionShader(new Resources::ConstMaterialShader(Float4(1.f, 1.f, 1.f, .05f)));
-        so->setReflectanceShader(new Resources::ConstMaterialShader(Float4(1.f, 1.f, 1.f, .95f)));
-        so->setSpecularityShader(new Resources::ConstMaterialShader(Float4(1.f, 1.f, 1.f, .95f)));
-        so->setShininessShader(new Resources::ConstMaterialShader(Float4(1.f, 1.f, 1.f, 32.f)));
-        so->setTransmittanceShader(new Resources::ConstMaterialShader(Float4(1.f, 1.f, 1.f, .95f)));
-        so->setRefractionEtaShader(new Resources::ConstMaterialShader(
-            RefractionIndices::refractionEta(RefractionIndices::Vacuum, RefractionIndices::Glass)));
-        scene.getSceneObjects().push_back(so);
-    }
+    auto light = new LightInfo();
+    light->position = Float4(0.0f, 0.98f, 0.0f, 1.0f);
+    light->emittance = Float4(1.0f, 0.9f, 0.8f, 1.0f);
+    light->glare = Float4(4.0f, 4.0f, 4.0f, 1.0f);
+    light->attenuationFactors = Float4(0.0f, 0.13f, 1.0f, 1.0f);
+    scene.getLights().push_back(light);
+
+    scene.getSceneObjects().push_back(ceiling());
+    scene.getSceneObjects().push_back(floor());
+    scene.getSceneObjects().push_back(backWall());
+    scene.getSceneObjects().push_back(rightWall());
+    scene.getSceneObjects().push_back(leftWall());
+    scene.getSceneObjects().push_back(smallSphere());
+    scene.getSceneObjects().push_back(largeBox());
+    scene.getSceneObjects().push_back(meshAboveLargeBox(resources));
+  }
 }

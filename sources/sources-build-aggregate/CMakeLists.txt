@@ -7,93 +7,90 @@ set(SOURCES_BUILD_AGGREGATE_DUMMY_FILE "${CMAKE_CURRENT_BINARY_DIR}/dummy.cxx")
 file(GENERATE OUTPUT ${SOURCES_BUILD_AGGREGATE_DUMMY_FILE} CONTENT "")
 
 add_library(${PROJECT_NAME}
-    STATIC
-        ${SOURCES_BUILD_AGGREGATE_DUMMY_FILE}
+        STATIC ${SOURCES_BUILD_AGGREGATE_DUMMY_FILE}
 )
 
 target_compile_features(${PROJECT_NAME}
-    PUBLIC
-        cxx_std_17
+        PUBLIC cxx_std_20
 )
 
 target_compile_definitions(${PROJECT_NAME}
-    PUBLIC
+        PUBLIC
         $<$<STREQUAL:${CMAKE_VS_PLATFORM_NAME},x64>:
-            X64
+        X64
         >
         $<$<STREQUAL:${CMAKE_VS_PLATFORM_NAME},x86>:
-            X86
+        X86
         >
         $<$<CONFIG:Release>:
-            NDEBUG
+        NDEBUG
         >
         $<$<CONFIG:Debug>:
-            _DEBUG
-            DEBUG
+        _DEBUG
+        DEBUG
         >
 )
 
 set_target_properties(${PROJECT_NAME}
-    PROPERTIES
+        PROPERTIES
         INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE
 )
 
-if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    target_link_libraries(${PROJECT_NAME}
-        PUBLIC
-            stdc++
-    )
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    target_link_libraries(${PROJECT_NAME} PUBLIC stdc++)
 
     target_compile_options(${PROJECT_NAME}
-        PUBLIC
+            PUBLIC
             $<$<CONFIG:Release>:
-                $<$<BOOL:${COVERAGE}>:
-                    -O0
-                >
-                $<$<NOT:$<BOOL:${COVERAGE}>>:
-                    -O3
-                >
+            $<$<BOOL:${COVERAGE}>:
+            -O0
+            >
+            $<$<NOT:$<BOOL:${COVERAGE}>>:
+            -O3
+            >
             >
             $<$<CONFIG:Debug>:
-                $<$<BOOL:${COVERAGE}>:
-                    -O0
-                >
-                $<$<NOT:$<BOOL:${COVERAGE}>>:
-                    -Og
-                >
+            $<$<BOOL:${COVERAGE}>:
+            -O0
+            >
+            $<$<NOT:$<BOOL:${COVERAGE}>>:
+            -Og
+            >
             >
     )
 
     target_link_options(${PROJECT_NAME}
-        PUBLIC
+            PUBLIC
             $<$<CONFIG:Release>:
-                $<$<BOOL:${COVERAGE}>:
-                    -O0
-                >
-                $<$<NOT:$<BOOL:${COVERAGE}>>:
-                    -O3
-                >
+            $<$<BOOL:${COVERAGE}>:
+            -O0
+            >
+            $<$<NOT:$<BOOL:${COVERAGE}>>:
+            -O3
+            >
             >
             $<$<CONFIG:Debug>:
-                $<$<BOOL:${COVERAGE}>:
-                    -O0
-                >
-                $<$<NOT:$<BOOL:${COVERAGE}>>:
-                    -Og
-                >
+            $<$<BOOL:${COVERAGE}>:
+            -O0
+            >
+            $<$<NOT:$<BOOL:${COVERAGE}>>:
+            -Og
+            >
             >
     )
 
-elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     target_link_options(${PROJECT_NAME}
-        PUBLIC
+            PUBLIC
             $<$<CONFIG:Release>:
-                /OPT:REF
-                /OPT:ICF
+            /OPT:REF
+            /OPT:ICF
             >
     )
 
-else()
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+
+else ()
     message(FATAL_ERROR "no configuration for compiler ${CMAKE_CXX_COMPILER_ID}")
 
-endif()
+endif ()

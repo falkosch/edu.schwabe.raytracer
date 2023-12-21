@@ -2,6 +2,4 @@
 
 #include "type.h"
 
-namespace vectorization
-{
-}
+namespace vectorization {}

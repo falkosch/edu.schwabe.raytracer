@@ -2,12 +2,10 @@
 
 #include <raytracing.h>
 
-namespace raytracerui
-{
-    using namespace raytracer;
+namespace raytracerui {
+  using namespace raytracer;
 
-    struct TestLightScene
-    {
-        static void setup(Scene & scene, Resources & resources);
-    };
+  struct TestLightScene {
+    static void setup(Scene &scene, Resources &resources);
+  };
 }

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "raytracing/Raytracer.h"
 #include "raytracing/common/RefractionIndices.h"
 #include "raytracing/geometry/forms/Box.h"
 #include "raytracing/geometry/forms/Plane.h"
@@ -15,4 +16,3 @@
 #include "raytracing/scene/Scene.h"
 #include "raytracing/shading/shaders/EnvironmentShader.h"
 #include "raytracing/shading/shaders/HDRImageShader.h"
-#include "raytracing/Raytracer.h"

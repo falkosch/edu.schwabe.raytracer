@@ -1,21 +1,19 @@
 #pragma once
 
-#include "common/StatisticsCookie.h"
 #include "common/HDRImage.h"
+#include "common/StatisticsCookie.h"
 
-namespace raytracer
-{
-    /*
-    * Struct for the raytrace output
-    */
-    struct RaytraceOutput
-    {
-        HDRImage * image, * timingMap, * depthMap;
+namespace raytracer {
+  /*
+   * Struct for the raytrace output
+   */
+  struct RaytraceOutput {
+    HDRImage *image, *timingMap, *depthMap;
 
-        bool state;
+    bool state;
 
-        StatisticsCookie statistics;
+    StatisticsCookie statistics;
 
-        RaytraceOutput();
-    };
+    RaytraceOutput();
+  };
 }
