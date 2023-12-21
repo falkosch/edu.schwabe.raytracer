@@ -1,9 +1,6 @@
 output.bmp
 raytraced.bmp
 
-data/textures/
-data/meshes/
-
 build/*
 !build/.gitkeep
 
