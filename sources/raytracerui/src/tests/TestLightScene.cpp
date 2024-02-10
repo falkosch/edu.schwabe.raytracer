@@ -7,7 +7,7 @@ namespace raytracerui {
     scene.setBackgroundShader(new ConstShader<SceneShader, Float4, Float4>(Float4(1.f, 1.f, 1.f, 0.f)));
     scene.setAmbientLight(Float4(.01f, .01f, .01f, 1.f));
 
-    LightInfo *light = new LightInfo();
+    auto *light = new LightInfo();
     light->position = Float4(2.f, 0.f, 2.f, 1.f);
     light->emittance = Float4(1.f, .75f, .5f, 1.f);
     light->attenuationFactors = Float4(1.f, 0.f, 1.f, 1.f);

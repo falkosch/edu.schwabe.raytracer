@@ -2,16 +2,16 @@
 #include "../stdafx.h"
 
 namespace raytracer {
-  const Size2 calculateSuperSamplingLengths(const Size2::ValueType superSamplingFactor) {
+  Size2 calculateSuperSamplingLengths(const Size2::ValueType superSamplingFactor) {
     auto superSamplingLength = superSamplingFactor + One<Size2::ValueType>();
     return Size2(superSamplingLength, superSamplingLength * superSamplingLength);
   }
 
-  const Size2 calculatePacketLengths(const Size2::ValueType rayPacketSize, const Size2 &superSamplingLength) {
+  Size2 calculatePacketLengths(const Size2::ValueType rayPacketSize, const Size2 &superSamplingLength) {
     return Size2(max(One<Size2::ValueType>(), (rayPacketSize + One<Size2::ValueType>()) / x(superSamplingLength)));
   }
 
-  const Size2 calculatePacketCounts(const Size2 &resolution, const Size2 &packetLength) {
+  Size2 calculatePacketCounts(const Size2 &resolution, const Size2 &packetLength) {
     auto packetCountXY = (resolution - One<Size2>()) / packetLength + One<Size2>();
     // overwrite vertical packet count with the total packet count
     return replaceY(packetCountXY, x(packetCountXY) * y(packetCountXY));
@@ -47,39 +47,39 @@ namespace raytracer {
     packetCount = calculatePacketCounts(configuration.resolution, packetLength);
   }
 
-  const int RaytracerPackets::getPacketCount() const {
+  int RaytracerPackets::getPacketCount() const {
     return static_cast<int>(y(packetCount));
   }
 
-  const Size2 RaytracerPackets::packetStartOf(const int packet) const {
+  Size2 RaytracerPackets::packetStartOf(const int packet) const {
     return packetStartOf(static_cast<Size2::ValueType>(packet));
   }
 
-  const Size2 RaytracerPackets::packetStartOf(const Size2::ValueType packet) const {
+  Size2 RaytracerPackets::packetStartOf(const Size2::ValueType packet) const {
     auto count = x(packetCount);
     return Size2((packet % count) * x(packetLength), (packet / count) * y(packetLength));
   }
 
-  const Size2 RaytracerPackets::clampPacketLength(const Size2 &resolution, const Size2 &packetXYStart) const {
+  Size2 RaytracerPackets::clampPacketLength(const Size2 &resolution, const Size2 &packetXYStart) const {
     // clamp packet length
     auto minPacketLength = min(packetLength, resolution - packetXYStart);
     // overwrite vertical packet length with the total packet length
     return replaceY(minPacketLength, x(minPacketLength) * y(minPacketLength));
   }
 
-  const Size2::ValueType RaytracerPackets::packetPixelsCount(const Size2 minPacketLength) {
+  Size2::ValueType RaytracerPackets::packetPixelsCount(const Size2 minPacketLength) {
     return y(minPacketLength);
   }
 
-  const Float4 RaytracerPackets::pixelNearTopLeft(const Float4 &pixelCoordinates) const {
+  Float4 RaytracerPackets::pixelNearTopLeft(const Float4 &pixelCoordinates) const {
     return nearTopLeft + nearRightDir * xxxx(pixelCoordinates) + nearBottomDir * yyyy(pixelCoordinates);
   }
 
-  const Float4 RaytracerPackets::pixelFarTopLeft(const Float4 &pixelCoordinates) const {
+  Float4 RaytracerPackets::pixelFarTopLeft(const Float4 &pixelCoordinates) const {
     return farTopLeft + farRightDir * xxxx(pixelCoordinates) + farBottomDir * yyyy(pixelCoordinates);
   }
 
-  const Ray RaytracerPackets::setupRayOfSampleInPixel(
+  Ray RaytracerPackets::setupRayOfSampleInPixel(
       const Size2::ValueType sample, const Float4 &pixelNearTopLeft, const Float4 &pixelFarTopLeft
   ) const {
     auto xSSLength = x(ssLength);
@@ -95,26 +95,26 @@ namespace raytracer {
     store(Float4(pixel) + sample * ssAvg, pixel);
   }
 
-  const Float4 RaytracerPackets::superSampledPixelDepth(const Float4 &sampledDepth) const {
+  Float4 RaytracerPackets::superSampledPixelDepth(const Float4 &sampledDepth) const {
     return log3(xy_zw(sampledDepth, sampledDepth * ssAvg));
   }
 
-  const Size2::ValueType RaytracerPackets::pixelSubSamplesCount() const {
+  Size2::ValueType RaytracerPackets::pixelSubSamplesCount() const {
     return y(ssLength);
   }
 
-  const Size2 RaytracerPackets::coordsOfPixel(
+  Size2 RaytracerPackets::coordsOfPixel(
       const Size2::ValueType pixelInPacket, const Size2 &packetStart, const Size2 &minPacketLength
   ) {
     auto xMinPacketLength = x(minPacketLength);
     return packetStart + Size2(pixelInPacket % xMinPacketLength, pixelInPacket / xMinPacketLength);
   }
 
-  const Size2::ValueType RaytracerPackets::imageIndexOfPixel(const Size2 &coordsOfPixel, const Size2 &resolution) {
+  Size2::ValueType RaytracerPackets::imageIndexOfPixel(const Size2 &coordsOfPixel, const Size2 &resolution) {
     return x(coordsOfPixel) + y(coordsOfPixel) * x(resolution);
   }
 
-  const Float4 RaytracerPackets::samplePixelDepth(const Float4 &sampledPixelDepth, const Float4 &depth) {
+  Float4 RaytracerPackets::samplePixelDepth(const Float4 &sampledPixelDepth, const Float4 &depth) {
     return xz_xz(xx_yy(min(depth, sampledPixelDepth), max(depth, sampledPixelDepth)), depth);
   }
 }

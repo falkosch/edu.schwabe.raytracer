@@ -15,13 +15,11 @@ namespace raytracer {
 
     virtual ~Raytracer();
 
+    [[nodiscard]] RaytraceConfiguration getRunning() const;
+
     void requestUpdate();
 
     void trigger(const RaytraceParameters &parameters);
-
-    const RaytraceConfiguration getRunning() const {
-      return running;
-    }
 
   private:
     volatile ASizeT runId;
@@ -32,9 +30,9 @@ namespace raytracer {
 
     void trace();
 
-    static const Float4 applyBRDF(const BRDFParameters &brdf);
+    static Float4 applyBRDF(const BRDFParameters &brdf);
 
-    static const IlluminatedIntersection trace(const Raytrace &raytrace, RaytracerCache &cache);
+    static IlluminatedIntersection trace(const Raytrace &raytrace, RaytracerCache &cache);
 
     static void traceReflection(
         const Raytrace &incidentRaytrace, const Float maxDistance, RaytracerCache &cache, BRDFParameters &brdf

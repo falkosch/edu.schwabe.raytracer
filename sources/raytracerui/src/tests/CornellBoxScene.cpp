@@ -6,7 +6,7 @@
 namespace raytracerui {
 
   auto ceiling() {
-    auto sceneObject = new SceneObject("ceiling");
+    auto sceneObject = new SceneObject("ceiling, black");
     sceneObject->setForm(new Box());
     sceneObject->scale(Float3(1.0f, 0.001f, 1.0f));
     sceneObject->translate(Float3(0.0f, 1.0f, 0.0f));
@@ -23,7 +23,7 @@ namespace raytracerui {
   }
 
   auto floor() {
-    auto sceneObject = new SceneObject("floor");
+    auto sceneObject = new SceneObject("floor, white");
     sceneObject->setForm(new Box());
     sceneObject->scale(Float3(1.0f, 0.001f, 1.0f));
     sceneObject->translate(Float3(0.0f, -1.0f, 0.0f));
@@ -40,7 +40,7 @@ namespace raytracerui {
   }
 
   auto backWall() {
-    auto sceneObject = new SceneObject("back wall");
+    auto sceneObject = new SceneObject("back wall, white");
     sceneObject->setForm(new Box());
     sceneObject->scale(Float3(1.0f, 1.0f, 0.001f));
     sceneObject->translate(Float3(0.0f, 0.0f, -1.0f));
@@ -57,7 +57,7 @@ namespace raytracerui {
   }
 
   auto rightWall() {
-    auto sceneObject = new SceneObject("right wall");
+    auto sceneObject = new SceneObject("right wall, green");
     sceneObject->setForm(new Box());
     sceneObject->scale(Float3(0.001f, 1.0f, 1.0f));
     sceneObject->translate(Float3(1.0f, 0.0f, 0.0f));
@@ -74,7 +74,7 @@ namespace raytracerui {
   }
 
   auto leftWall() {
-    auto sceneObject = new SceneObject("left wall");
+    auto sceneObject = new SceneObject("left wall, red");
     sceneObject->setForm(new Box());
     sceneObject->scale(Float3(0.001f, 1.0f, 1.0f));
     sceneObject->translate(Float3(-1.0f, 0.0f, 0.0f));
