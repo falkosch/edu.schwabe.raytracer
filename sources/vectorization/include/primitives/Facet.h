@@ -18,22 +18,27 @@ namespace primitives {
 
   typedef Facet FacetTexCoords4, FacetNormals;
 
-  const AxisAlignedBoundingBox bounding(const Facet &facet) noexcept;
+  AxisAlignedBoundingBox bounding(const Facet &facet) noexcept;
 
-  const Facet operator+(const Facet &a, const Float4 &b) noexcept;
+  Facet operator+(const Facet &a, const Float4 &b) noexcept;
 
-  const Facet operator-(const Facet &a, const Float4 &b) noexcept;
+  Facet operator-(const Facet &a, const Float4 &b) noexcept;
 
-  // Computes the bary centric point given coordinates { u, v } and a Facet.
-  const Float4 baryCenter(const Float4 &uv, const Facet &facet) noexcept;
-
-  /*
-   * Returns { u, v, distance } if ray intersects with facet given by a
-   * facet's origin vertex and its edges. Outputs u and v are the barycenter
-   * texture coords at the intersection. If there is no intersection, the
-   * return value is equal to maxDistance.
+  /**
+   * @param uv coordinates of bary center
+   * @param facet facet with normals
+   * @return bary centric point
    */
-  const Float4 nearestIntersectionHavel(
+  Float4 baryCenter(const Float4 &uv, const Facet &facet) noexcept;
+
+  /**
+   * @param planeNormals facet's origin vertex and its edges
+   * @param rayCast
+   * @param maxDistance
+   * @return { u, v, distance } if ray intersects with facet, u and v are coordinates of the barycenter at the
+   * intersection. If there is no intersection, the return value is equal to maxDistance.
+   */
+  Float4 nearestIntersectionHavel(
       const FacetNormals &planeNormals, const RayCast &rayCast, const Float4 &maxDistance
   ) noexcept;
 }

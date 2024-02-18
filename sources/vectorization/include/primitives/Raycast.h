@@ -5,15 +5,18 @@
 namespace primitives {
   using namespace vectorization;
 
-  /*
-   * Combines casting data about a ray
+  /**
+   * Ray with culling orientation, origin ids, and a max distance
    */
   struct RayCast {
     Ray ray;
 
-    // x: indicates backface culling wanted
-    // y: indicates frontface culling wanted
-    // z, w: reserved
+    /**
+     * @p .x indicates backface culling wanted
+     * @p .y indicates front-face culling wanted
+     * @p .z reserved
+     * @p .w reserved
+     */
     Float4::VectorBoolType cullingMask;
 
     Size2 originIds;
@@ -23,42 +26,41 @@ namespace primitives {
     RayCast() noexcept;
 
     explicit RayCast(
-        const Ray &ray, const Float4::VectorBoolType &cullingMask, const Size2 &originIds, const Float maxDistance
+        const Ray &ray, const Float4::VectorBoolType &cullingMask, const Size2 &originIds, Float maxDistance
     ) noexcept;
   };
 
   // Note: changes the maxDistance to the max-value of its value-type,
   // instead of taking over the original maxDistance.
-  const RayCast toObjectSpace(const RayCast &r, const Float44 &transInvModelMatrix, const Float4 &osOrigin) noexcept;
+  RayCast toObjectSpace(const RayCast &r, const Float44 &transInvModelMatrix, const Float4 &osOrigin) noexcept;
 
-  const RayCast toObjectSpace(const RayCast &r, const Float44 &inverseModelMatrix) noexcept;
+  RayCast toObjectSpace(const RayCast &r, const Float44 &inverseModelMatrix) noexcept;
 
-  const Int cullingOrientation(const RayCast &r) noexcept;
+  Float4::VectorBoolType backfaceCulledv(const RayCast &r) noexcept;
 
-  const Float4::VectorBoolType cullingOrientationToMask(const Int cullingOrientation) noexcept;
+  bool backfaceCulled(const RayCast &r) noexcept;
 
-  const Float4::VectorBoolType backfaceCulledv(const RayCast &r) noexcept;
+  Float4::VectorBoolType frontfaceCulledv(const RayCast &r) noexcept;
 
-  const bool backfaceCulled(const RayCast &r) noexcept;
+  bool frontfaceCulled(const RayCast &r) noexcept;
 
-  const Float4::VectorBoolType frontfaceCulledv(const RayCast &r) noexcept;
+  Float4::VectorBoolType notCulledv(const RayCast &r) noexcept;
 
-  const bool frontfaceCulled(const RayCast &r) noexcept;
+  bool notCulled(const RayCast &r) noexcept;
 
-  const Float4::VectorBoolType notCulledv(const RayCast &r) noexcept;
+  Int cullingOrientation(const RayCast &r) noexcept;
 
-  const bool notCulled(const RayCast &r) noexcept;
+  Float4::VectorBoolType cullingOrientationToMask(Int cullingOrientation) noexcept;
 
-  const bool selfOcclusion(const RayCast &r, const Size2::ValueType toCheckId) noexcept;
+  bool selfOcclusion(const RayCast &r, Size2::ValueType toCheckId) noexcept;
 
-  const bool
-  selfOcclusion(const RayCast &r, const Size2::ValueType toCheckId, const Float t, const Float epsilon) noexcept;
+  bool selfOcclusion(const RayCast &r, Size2::ValueType toCheckId, Float t, Float epsilon) noexcept;
 
-  const bool selfOcclusion(const RayCast &r, const Size2::ValueType toCheckId, const Float t) noexcept;
+  bool selfOcclusion(const RayCast &r, Size2::ValueType toCheckId, Float t) noexcept;
 
-  const bool outOfReach(const RayCast &r, const Float t) noexcept;
+  bool outOfReach(const RayCast &r, Float t) noexcept;
 
-  const Float4::VectorBoolType outOfReach(const RayCast &r, const Float4 &t) noexcept;
+  Float4::VectorBoolType outOfReach(const RayCast &r, const Float4 &t) noexcept;
 
-  const Float4 farPoint(const RayCast &r) noexcept;
+  Float4 farPoint(const RayCast &r) noexcept;
 }

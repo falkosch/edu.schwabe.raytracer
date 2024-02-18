@@ -18,15 +18,15 @@ namespace primitives {
     reciprocalDirection = zeroW(reciprocal(directionIn));
   }
 
-  const Ray replaceDirection(const Ray &r, const Float4 &value) noexcept {
+  Ray replaceDirection(const Ray &r, const Float4 &value) noexcept {
     return Ray(r.origin, value);
   }
 
-  const Float4 point(const Ray &r, const Float4 &v) noexcept {
+  Float4 point(const Ray &r, const Float4 &v) noexcept {
     return r.origin + r.direction * v;
   }
 
-  const Float4 point(const Ray &r, const Float t) noexcept {
+  Float4 point(const Ray &r, const Float t) noexcept {
     return point(r, Float4(t));
   }
 }

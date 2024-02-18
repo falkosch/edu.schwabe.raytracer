@@ -13,41 +13,53 @@ namespace primitives {
     explicit AxisAlignedBoundingBox(const Float4 &a, const Float4 &b) noexcept;
   };
 
-  const Float4 extents(const AxisAlignedBoundingBox &a) noexcept;
+  Float4 extents(const AxisAlignedBoundingBox &box) noexcept;
 
-  const Float4 halfLengths(const AxisAlignedBoundingBox &a) noexcept;
+  Float4 halfLengths(const AxisAlignedBoundingBox &box) noexcept;
 
-  const Float4 center(const AxisAlignedBoundingBox &a) noexcept;
+  Float4 center(const AxisAlignedBoundingBox &box) noexcept;
 
-  const Float4 center(const AxisAlignedBoundingBox &a, const Float4 &halfLengths) noexcept;
+  Float4 center(const AxisAlignedBoundingBox &box, const Float4 &halfLengths) noexcept;
 
-  const Float surfaceArea(const AxisAlignedBoundingBox &a) noexcept;
+  Float surfaceArea(const AxisAlignedBoundingBox &box) noexcept;
 
-  // extents = (x, y, z, 0); returns A = 2(w * d + w * h + d * h) = 2(z * y + z * x + y * x)
-  const Float surfaceArea(const AxisAlignedBoundingBox &a, const Float4 &extents) noexcept;
+  /**
+   * @param box the box
+   * @param extents \c extents(box)
+   * @return surface area for the rectangular cuboid of \p box, i.e. \c A=2(z*y+z*x+y*x)
+   */
+  Float surfaceArea(const AxisAlignedBoundingBox &box, const Float4 &extents) noexcept;
 
-  const AxisAlignedBoundingBox extendBy(const AxisAlignedBoundingBox &a, const Float4 &by) noexcept;
+  AxisAlignedBoundingBox extendBy(const AxisAlignedBoundingBox &box, const Float4 &by) noexcept;
 
-  const AxisAlignedBoundingBox
-  extendBy(const AxisAlignedBoundingBox &a, const Float4 &byMin, const Float4 &byMax) noexcept;
+  AxisAlignedBoundingBox extendBy(const AxisAlignedBoundingBox &box, const Float4 &byMin, const Float4 &byMax) noexcept;
 
-  const AxisAlignedBoundingBox extendBy(const AxisAlignedBoundingBox &a, const AxisAlignedBoundingBox &by) noexcept;
+  AxisAlignedBoundingBox extendBy(const AxisAlignedBoundingBox &box, const AxisAlignedBoundingBox &by) noexcept;
 
-  const AxisAlignedBoundingBox clamp(const AxisAlignedBoundingBox &a, const AxisAlignedBoundingBox &by) noexcept;
+  AxisAlignedBoundingBox clamp(const AxisAlignedBoundingBox &box, const AxisAlignedBoundingBox &by) noexcept;
 
-  const AxisAlignedBoundingBox transform(const AxisAlignedBoundingBox &a, const Float44 &by) noexcept;
+  /**
+   * Based on: Transforming Axis-Aligned Bounding Boxes by Jim Arvo (Graphics Gems, Academic Press, 1990)
+   * https://github.com/erich666/GraphicsGems/blob/master/gems/TransBox.c
+   * @param box
+   * @param by
+   * @return
+   */
+  AxisAlignedBoundingBox transform(const AxisAlignedBoundingBox &box, const Float44 &by) noexcept;
 
-  const bool overlaps(const AxisAlignedBoundingBox &a, const Float4 &by) noexcept;
+  bool overlaps(const AxisAlignedBoundingBox &box, const Float4 &by) noexcept;
 
-  // Checks for intersection of this box with another box.
-  const bool overlaps(const AxisAlignedBoundingBox &a, const AxisAlignedBoundingBox &by) noexcept;
+  /**
+   * Tests whether two boxes overlap but does not compute intersection coefficients.
+   * @return \c true if \p a and \p b intersect, otherwise \c false
+   */
+  bool overlaps(const AxisAlignedBoundingBox &a, const AxisAlignedBoundingBox &b) noexcept;
 
-  const Float4::VectorBoolType
+  Float4::VectorBoolType
   overlaps(const RayCast &rayCast, const AxisAlignedBoundingBox &a, const AxisAlignedBoundingBox &b) noexcept;
 
-  const bool overlaps(const RayCast &rayCast, const AxisAlignedBoundingBox &by) noexcept;
+  bool overlaps(const RayCast &rayCast, const AxisAlignedBoundingBox &box) noexcept;
 
-  const Float nearestIntersection(
-      const RayCast &rayCast, const AxisAlignedBoundingBox &a, const Size2::ValueType originId
-  ) noexcept;
+  Float
+  nearestIntersection(const RayCast &rayCast, const AxisAlignedBoundingBox &box, Size2::ValueType originId) noexcept;
 }
