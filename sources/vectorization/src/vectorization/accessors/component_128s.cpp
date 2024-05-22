@@ -4,54 +4,54 @@
 
 namespace vectorization {
   template <>
-  const Float_32 component<VectorIndices::X>(const PackedFloat4_128 &v) noexcept {
-    return _mm_cvtss_f32(v);
+  Float_32 component<VectorIndices::X>(const PackedFloat4_128 &values) noexcept {
+    return _mm_cvtss_f32(values);
   }
 
   template <>
-  const Float_32 component<VectorIndices::Y>(const PackedFloat4_128 &v) noexcept {
-    return component<VectorIndices::X>(yyww(v));
+  Float_32 component<VectorIndices::Y>(const PackedFloat4_128 &values) noexcept {
+    return component<VectorIndices::X>(yyww(values));
   }
 
   template <>
-  const Float_32 component<VectorIndices::Z>(const PackedFloat4_128 &v) noexcept {
-    return component<VectorIndices::X>(zwzw(v));
+  Float_32 component<VectorIndices::Z>(const PackedFloat4_128 &values) noexcept {
+    return component<VectorIndices::X>(zwzw(values));
   }
 
   template <>
-  const Float_32 component<VectorIndices::W>(const PackedFloat4_128 &v) noexcept {
-    return component<VectorIndices::X>(wwww(v));
+  Float_32 component<VectorIndices::W>(const PackedFloat4_128 &values) noexcept {
+    return component<VectorIndices::X>(wwww(values));
   }
 
-  const Float_32 x(const PackedFloat4_128 &v) noexcept {
-    return component<VectorIndices::X>(v);
+  Float_32 x(const PackedFloat4_128 &values) noexcept {
+    return component<VectorIndices::X>(values);
   }
 
-  const Float_32 y(const PackedFloat4_128 &v) noexcept {
-    return component<VectorIndices::Y>(v);
+  Float_32 y(const PackedFloat4_128 &values) noexcept {
+    return component<VectorIndices::Y>(values);
   }
 
-  const Float_32 z(const PackedFloat4_128 &v) noexcept {
-    return component<VectorIndices::Z>(v);
+  Float_32 z(const PackedFloat4_128 &values) noexcept {
+    return component<VectorIndices::Z>(values);
   }
 
-  const Float_32 w(const PackedFloat4_128 &v) noexcept {
-    return component<VectorIndices::W>(v);
+  Float_32 w(const PackedFloat4_128 &values) noexcept {
+    return component<VectorIndices::W>(values);
   }
 
-  const Float_32 x1(const PackedFloat4_128 &v) noexcept {
-    return component<VectorIndices::X1>(v);
+  Float_32 x1(const PackedFloat4_128 &values) noexcept {
+    return component<VectorIndices::X1>(values);
   }
 
-  const Float_32 x2(const PackedFloat4_128 &v) noexcept {
-    return component<VectorIndices::X2>(v);
+  Float_32 x2(const PackedFloat4_128 &values) noexcept {
+    return component<VectorIndices::X2>(values);
   }
 
-  const Float_32 x3(const PackedFloat4_128 &v) noexcept {
-    return component<VectorIndices::X3>(v);
+  Float_32 x3(const PackedFloat4_128 &values) noexcept {
+    return component<VectorIndices::X3>(values);
   }
 
-  const Float_32 x4(const PackedFloat4_128 &v) noexcept {
-    return component<VectorIndices::X4>(v);
+  Float_32 x4(const PackedFloat4_128 &values) noexcept {
+    return component<VectorIndices::X4>(values);
   }
 }

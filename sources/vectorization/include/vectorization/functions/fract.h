@@ -3,15 +3,12 @@
 #include "vectorization/architecture.h"
 
 namespace vectorization {
-  const Float_32 fract(const Float_32 v) noexcept;
+  Float_32 fract(Float_32 value) noexcept;
+  Float_64 fract(Float_64 value) noexcept;
 
-  const Float_64 fract(const Float_64 v) noexcept;
+  PackedFloat4_128 fract(const PackedFloat4_128 &values) noexcept;
+  PackedFloat2_128 fract(const PackedFloat2_128 &values) noexcept;
 
-  const PackedFloat4_128 fract(const PackedFloat4_128 &v) noexcept;
-
-  const PackedFloat2_128 fract(const PackedFloat2_128 &v) noexcept;
-
-  const PackedFloat8_256 fract(const PackedFloat8_256 &v) noexcept;
-
-  const PackedFloat4_256 fract(const PackedFloat4_256 &v) noexcept;
+  PackedFloat8_256 fract(const PackedFloat8_256 &values) noexcept;
+  PackedFloat4_256 fract(const PackedFloat4_256 &values) noexcept;
 }

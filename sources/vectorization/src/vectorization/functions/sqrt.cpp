@@ -4,19 +4,19 @@
 #include "vectorization/constants.h"
 
 namespace vectorization {
-  const Float_32 sqrt(const Float_32 v) noexcept {
-    return x(_mm_sqrt_ss(_mm_set_ss(v)));
+  Float_32 sqrt(const Float_32 value) noexcept {
+    return x(_mm_sqrt_ss(_mm_set_ss(value)));
   }
 
-  const Float_64 sqrt(const Float_64 v) noexcept {
-    return x(_mm_sqrt_sd(_mm_set_sd(v), Zero<PackedFloat2_128>()));
+  Float_64 sqrt(const Float_64 value) noexcept {
+    return x(_mm_sqrt_sd(_mm_set_sd(value), Zero<PackedFloat2_128>()));
   }
 
-  const PackedFloat4_128 sqrt(const PackedFloat4_128 &v) noexcept {
-    return _mm_sqrt_ps(v);
+  PackedFloat4_128 sqrt(const PackedFloat4_128 &values) noexcept {
+    return _mm_sqrt_ps(values);
   }
 
-  const PackedFloat2_128 sqrt(const PackedFloat2_128 &v) noexcept {
-    return _mm_sqrt_pd(v);
+  PackedFloat2_128 sqrt(const PackedFloat2_128 &values) noexcept {
+    return _mm_sqrt_pd(values);
   }
 }

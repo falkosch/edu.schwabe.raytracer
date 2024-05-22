@@ -5,61 +5,61 @@
 namespace vectorization {
   template <>
   struct BoolTypes<Int_8> {
-    typedef Int_8 ValueType;
-    typedef Bool_8 Type;
+    using ValueType = Int_8;
+    using Type = Bool_8;
   };
 
   template <>
   struct BoolTypes<Int_16> {
-    typedef Int_16 ValueType;
-    typedef Bool_16 Type;
+    using ValueType = Int_16;
+    using Type = Bool_16;
   };
 
   template <>
   struct BoolTypes<Int_32> {
-    typedef Int_32 ValueType;
-    typedef Bool_32 Type;
+    using ValueType = Int_32;
+    using Type = Bool_32;
   };
 
   template <>
   struct BoolTypes<Int_64> {
-    typedef Int_64 ValueType;
-    typedef Bool_64 Type;
+    using ValueType = Int_64;
+    using Type = Bool_64;
   };
 
   template <>
   struct BoolTypes<UInt_8> {
-    typedef UInt_8 ValueType;
-    typedef Bool_8 Type;
+    using ValueType = UInt_8;
+    using Type = Bool_8;
   };
 
   template <>
   struct BoolTypes<UInt_16> {
-    typedef UInt_16 ValueType;
-    typedef Bool_16 Type;
+    using ValueType = UInt_16;
+    using Type = Bool_16;
   };
 
   template <>
   struct BoolTypes<UInt_32> {
-    typedef UInt_32 ValueType;
-    typedef Bool_32 Type;
+    using ValueType = UInt_32;
+    using Type = Bool_32;
   };
 
   template <>
   struct BoolTypes<UInt_64> {
-    typedef UInt_64 ValueType;
-    typedef Bool_64 Type;
+    using ValueType = UInt_64;
+    using Type = Bool_64;
   };
 
   template <>
   struct BoolTypes<Float_32> {
-    typedef Float_32 ValueType;
-    typedef Bool_32 Type;
+    using ValueType = Float_32;
+    using Type = Bool_32;
   };
 
   template <>
   struct BoolTypes<Float_64> {
-    typedef Float_64 ValueType;
-    typedef Bool_64 Type;
+    using ValueType = Float_64;
+    using Type = Bool_64;
   };
 }

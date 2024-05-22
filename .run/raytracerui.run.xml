@@ -1,7 +1,12 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="raytracerui" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" WORKING_DIR="file://$PROJECT_DIR$/data" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Raytracer" TARGET_NAME="raytracerui" CONFIG_NAME="Default-Visual Studio" RUN_TARGET_PROJECT_NAME="Raytracer" RUN_TARGET_NAME="raytracerui">
-    <method v="2">
-      <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-    </method>
-  </configuration>
+    <configuration default="false" name="raytracerui" type="CMakeRunConfiguration" factoryName="Application"
+                   REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false"
+                   WORKING_DIR="file://$PROJECT_DIR$/data" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Raytracer"
+                   TARGET_NAME="raytracerui" CONFIG_NAME="Release-Visual Studio" RUN_TARGET_PROJECT_NAME="Raytracer"
+                   RUN_TARGET_NAME="raytracerui">
+        <method v="2">
+            <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask"
+                    enabled="true"/>
+        </method>
+    </configuration>
 </component>

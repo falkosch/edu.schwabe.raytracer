@@ -3,31 +3,24 @@
 #include "vectorization/architecture.h"
 
 namespace vectorization {
-  const Int_8 modulo(const Int_8 a, const Int_8 b) noexcept;
+  Int_8 modulo(Int_8 a, Int_8 b) noexcept;
+  UInt_8 modulo(UInt_8 a, UInt_8 b) noexcept;
 
-  const UInt_8 modulo(const UInt_8 a, const UInt_8 b) noexcept;
+  Int_16 modulo(Int_16 a, Int_16 b) noexcept;
+  UInt_16 modulo(UInt_16 a, UInt_16 b) noexcept;
 
-  const Int_16 modulo(const Int_16 a, const Int_16 b) noexcept;
+  Int_32 modulo(Int_32 a, Int_32 b) noexcept;
+  UInt_32 modulo(UInt_32 a, UInt_32 b) noexcept;
 
-  const UInt_16 modulo(const UInt_16 a, const UInt_16 b) noexcept;
+  Int_64 modulo(Int_64 a, Int_64 b) noexcept;
+  UInt_64 modulo(UInt_64 a, UInt_64 b) noexcept;
 
-  const Int_32 modulo(const Int_32 a, const Int_32 b) noexcept;
+  Float_32 modulo(Float_32 a, Float_32 b) noexcept;
+  Float_64 modulo(Float_64 a, Float_64 b) noexcept;
 
-  const UInt_32 modulo(const UInt_32 a, const UInt_32 b) noexcept;
+  PackedFloat4_128 modulo(const PackedFloat4_128 &a, const PackedFloat4_128 &b) noexcept;
+  PackedFloat2_128 modulo(const PackedFloat2_128 &a, const PackedFloat2_128 &b) noexcept;
 
-  const Int_64 modulo(const Int_64 a, const Int_64 b) noexcept;
-
-  const UInt_64 modulo(const UInt_64 a, const UInt_64 b) noexcept;
-
-  const Float_32 modulo(const Float_32 a, const Float_32 b) noexcept;
-
-  const Float_64 modulo(const Float_64 a, const Float_64 b) noexcept;
-
-  const PackedFloat4_128 modulo(const PackedFloat4_128 &a, const PackedFloat4_128 &b) noexcept;
-
-  const PackedFloat2_128 modulo(const PackedFloat2_128 &a, const PackedFloat2_128 &b) noexcept;
-
-  const PackedFloat8_256 modulo(const PackedFloat8_256 &a, const PackedFloat8_256 &b) noexcept;
-
-  const PackedFloat4_256 modulo(const PackedFloat4_256 &a, const PackedFloat4_256 &b) noexcept;
+  PackedFloat8_256 modulo(const PackedFloat8_256 &a, const PackedFloat8_256 &b) noexcept;
+  PackedFloat4_256 modulo(const PackedFloat4_256 &a, const PackedFloat4_256 &b) noexcept;
 }

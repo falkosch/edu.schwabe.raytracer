@@ -64,14 +64,14 @@ namespace vectorization {
   template <typename TValueType, ASizeT TElements>
   struct PackedTypes {
     static constexpr ASizeT Elements = TElements;
-    typedef TValueType ValueType;
-    typedef void Type;
+    using ValueType = TValueType;
+    using Type = void;
   };
 
   /// Reflects the integer-based boolean-type of the given typename TValueType
   template <typename TValueType>
   struct BoolTypes {
-    typedef TValueType ValueType;
-    typedef void Type;
+    using ValueType = TValueType;
+    using Type = void;
   };
 }

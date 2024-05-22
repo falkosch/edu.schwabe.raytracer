@@ -4,13 +4,6 @@ project(vectorization
 )
 
 set(SOURCES
-        src/primitives/AxisAlignedBoundingBox.cpp
-        src/primitives/BoundingSphere.cpp
-        src/primitives/Facet.cpp
-        src/primitives/FacetEdges.cpp
-        src/primitives/Ray.cpp
-        src/primitives/RayCast.cpp
-        src/primitives/SplittingPlane.cpp
         src/vectorization/accessors/component_128d.cpp
         src/vectorization/accessors/component_128s.cpp
         src/vectorization/accessors/component_256d.cpp
@@ -101,7 +94,11 @@ set(SOURCES
         src/vectorization/functions/sqr.cpp
         src/vectorization/functions/sqrt.cpp
         src/vectorization/functions/tan.cpp
-        src/vectorization/m_f32_4x4.cpp
+        src/vectorization/m_f32_4x4/accessors.cpp
+        src/vectorization/m_f32_4x4/constants.cpp
+        src/vectorization/m_f32_4x4/functions.cpp
+        src/vectorization/m_f32_4x4/operators.cpp
+        src/vectorization/m_f32_4x4/type.cpp
         src/vectorization/selects/selects_128d.cpp
         src/vectorization/selects/selects_128i.cpp
         src/vectorization/selects/selects_128s.cpp
@@ -119,7 +116,6 @@ set(SOURCES
         src/vectorization/swizzles/swizzle_256d.cpp
         src/vectorization/swizzles/swizzle_256s.cpp
         src/vectorization/v_f32_4/accessors.cpp
-        src/vectorization/v_f32_4/api.cpp
         src/vectorization/v_f32_4/blends.cpp
         src/vectorization/v_f32_4/constants.cpp
         src/vectorization/v_f32_4/conversions.cpp
@@ -130,21 +126,20 @@ set(SOURCES
         src/vectorization/v_f32_4/swizzledBlends.cpp
         src/vectorization/v_f32_4/swizzles.cpp
         src/vectorization/v_f32_4/type.cpp
-        src/vectorization/v_f32_4x4.cpp
-        src/vectorization/v_i32_4.cpp
-        src/vectorization/v_ui32_4.cpp
-        src/vectorization/v_ui64_2.cpp
+        src/vectorization/v_f32_4x4/v_f32_4x4.cpp
+        src/vectorization/v_i32_4/v_i32_4.cpp
+        src/vectorization/v_ui32_4/v_ui32_4.cpp
+        src/vectorization/v_ui64_2/accessors.cpp
+        src/vectorization/v_ui64_2/blends.cpp
+        src/vectorization/v_ui64_2/constants.cpp
+        src/vectorization/v_ui64_2/functions.cpp
+        src/vectorization/v_ui64_2/operators.cpp
+        src/vectorization/v_ui64_2/swizzledBlends.cpp
+        src/vectorization/v_ui64_2/swizzles.cpp
+        src/vectorization/v_ui64_2/type.cpp
 )
 
 set(HEADERS
-        include/primitives.h
-        include/primitives/AxisAlignedBoundingBox.h
-        include/primitives/BoundingSphere.h
-        include/primitives/Facet.h
-        include/primitives/FacetEdges.h
-        include/primitives/Ray.h
-        include/primitives/RayCast.h
-        include/primitives/SplittingPlane.h
         include/vectorization.h
         include/vectorization/accessors.h
         include/vectorization/accessors/component_128d.h
@@ -221,7 +216,6 @@ set(HEADERS
         include/vectorization/functions/abs.h
         include/vectorization/functions/acos.h
         include/vectorization/functions/atan2.h
-        include/vectorization/functions/average.h
         include/vectorization/functions/bitCount.h
         include/vectorization/functions/bitPad.h
         include/vectorization/functions/ceil.h
@@ -240,7 +234,6 @@ set(HEADERS
         include/vectorization/functions/mix.h
         include/vectorization/functions/modPad.h
         include/vectorization/functions/modulo.h
-        include/vectorization/functions/normalize.h
         include/vectorization/functions/pow.h
         include/vectorization/functions/reciprocal.h
         include/vectorization/functions/round.h
@@ -250,9 +243,17 @@ set(HEADERS
         include/vectorization/functions/sin.h
         include/vectorization/functions/sqr.h
         include/vectorization/functions/sqrt.h
+        include/vectorization/functions/staticAverage.h
         include/vectorization/functions/staticFor.h
+        include/vectorization/functions/staticNormalize.h
         include/vectorization/functions/tan.h
         include/vectorization/m_f32_4x4.h
+        include/vectorization/m_f32_4x4/accessors.h
+        include/vectorization/m_f32_4x4/api.h
+        include/vectorization/m_f32_4x4/constants.h
+        include/vectorization/m_f32_4x4/functions.h
+        include/vectorization/m_f32_4x4/operators.h
+        include/vectorization/m_f32_4x4/type.h
         include/vectorization/selects.h
         include/vectorization/selects/selects_128d.h
         include/vectorization/selects/selects_128i.h
@@ -260,8 +261,8 @@ set(HEADERS
         include/vectorization/selects/selects_256d.h
         include/vectorization/selects/selects_256i.h
         include/vectorization/selects/selects_256s.h
+        include/vectorization/selects/selects_generic.h
         include/vectorization/selects/selects_scalar.h
-        include/vectorization/selects/static_select.h
         include/vectorization/swizzledBlends.h
         include/vectorization/swizzledBlends/swizzledBlend1x1_128d.h
         include/vectorization/swizzledBlends/swizzledBlend2x2_128s.h
@@ -293,9 +294,21 @@ set(HEADERS
         include/vectorization/v_f32_4/swizzles.h
         include/vectorization/v_f32_4/type.h
         include/vectorization/v_f32_4x4.h
+        include/vectorization/v_f32_4x4/api.h
         include/vectorization/v_i32_4.h
+        include/vectorization/v_i32_4/api.h
         include/vectorization/v_ui32_4.h
+        include/vectorization/v_ui32_4/api.h
         include/vectorization/v_ui64_2.h
+        include/vectorization/v_ui64_2/accessors.h
+        include/vectorization/v_ui64_2/api.h
+        include/vectorization/v_ui64_2/blends.h
+        include/vectorization/v_ui64_2/constants.h
+        include/vectorization/v_ui64_2/functions.h
+        include/vectorization/v_ui64_2/operators.h
+        include/vectorization/v_ui64_2/swizzledBlends.h
+        include/vectorization/v_ui64_2/swizzles.h
+        include/vectorization/v_ui64_2/type.h
 )
 
 set(THIRD_PARTY

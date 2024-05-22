@@ -3,7 +3,6 @@
 #include "vectorization/architecture.h"
 
 namespace vectorization {
-  const Float_32 acos(const Float_32 v) noexcept;
-
-  const Float_64 acos(const Float_64 v) noexcept;
+  Float_32 acos(Float_32 value) noexcept;
+  Float_64 acos(Float_64 value) noexcept;
 }

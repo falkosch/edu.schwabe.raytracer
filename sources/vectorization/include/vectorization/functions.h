@@ -38,6 +38,6 @@
 #include "functions/sqrt.h"
 #include "functions/tan.h"
 
-#include "functions/average.h"
-#include "functions/normalize.h"
+#include "functions/staticAverage.h"
 #include "functions/staticFor.h"
+#include "functions/staticNormalize.h"

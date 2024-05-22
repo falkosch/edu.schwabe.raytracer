@@ -3,11 +3,11 @@
 #include <cmath>
 
 namespace vectorization {
-  const Float_32 tan(const Float_32 v) noexcept {
-    return std::tan(v);
+  Float_32 tan(const Float_32 value) noexcept {
+    return std::tan(value);
   }
 
-  const Float_64 tan(const Float_64 v) noexcept {
-    return std::tan(v);
+  Float_64 tan(const Float_64 value) noexcept {
+    return std::tan(value);
   }
 }

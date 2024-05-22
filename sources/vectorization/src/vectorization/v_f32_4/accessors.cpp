@@ -4,114 +4,114 @@
 
 namespace vectorization {
   template <>
-  const v_f32_4::ValueType component<VectorIndices::X>(const v_f32_4 &v) noexcept {
-    return component<VectorIndices::X>(v.components);
+  v_f32_4::ValueType component<VectorIndices::X>(const v_f32_4 &vector) noexcept {
+    return component<VectorIndices::X>(vector.components);
   }
 
   template <>
-  const v_f32_4::ValueType component<VectorIndices::Y>(const v_f32_4 &v) noexcept {
-    return component<VectorIndices::Y>(v.components);
+  v_f32_4::ValueType component<VectorIndices::Y>(const v_f32_4 &vector) noexcept {
+    return component<VectorIndices::Y>(vector.components);
   }
 
   template <>
-  const v_f32_4::ValueType component<VectorIndices::Z>(const v_f32_4 &v) noexcept {
-    return component<VectorIndices::Z>(v.components);
+  v_f32_4::ValueType component<VectorIndices::Z>(const v_f32_4 &vector) noexcept {
+    return component<VectorIndices::Z>(vector.components);
   }
 
   template <>
-  const v_f32_4::ValueType component<VectorIndices::W>(const v_f32_4 &v) noexcept {
-    return component<VectorIndices::W>(v.components);
+  v_f32_4::ValueType component<VectorIndices::W>(const v_f32_4 &vector) noexcept {
+    return component<VectorIndices::W>(vector.components);
   }
 
-  const v_f32_4::ValueType x(const v_f32_4 &v) noexcept {
-    return x(v.components);
+  v_f32_4::ValueType x(const v_f32_4 &vector) noexcept {
+    return x(vector.components);
   }
 
-  const v_f32_4::ValueType y(const v_f32_4 &v) noexcept {
-    return y(v.components);
+  v_f32_4::ValueType y(const v_f32_4 &vector) noexcept {
+    return y(vector.components);
   }
 
-  const v_f32_4::ValueType z(const v_f32_4 &v) noexcept {
-    return z(v.components);
+  v_f32_4::ValueType z(const v_f32_4 &vector) noexcept {
+    return z(vector.components);
   }
 
-  const v_f32_4::ValueType w(const v_f32_4 &v) noexcept {
-    return w(v.components);
+  v_f32_4::ValueType w(const v_f32_4 &vector) noexcept {
+    return w(vector.components);
   }
 
-  const v_f32_4::ValueType x1(const v_f32_4 &v) noexcept {
-    return x1(v.components);
+  v_f32_4::ValueType x1(const v_f32_4 &vector) noexcept {
+    return x1(vector.components);
   }
 
-  const v_f32_4::ValueType x2(const v_f32_4 &v) noexcept {
-    return x2(v.components);
+  v_f32_4::ValueType x2(const v_f32_4 &vector) noexcept {
+    return x2(vector.components);
   }
 
-  const v_f32_4::ValueType x3(const v_f32_4 &v) noexcept {
-    return x3(v.components);
+  v_f32_4::ValueType x3(const v_f32_4 &vector) noexcept {
+    return x3(vector.components);
   }
 
-  const v_f32_4::ValueType x4(const v_f32_4 &v) noexcept {
-    return x4(v.components);
-  }
-
-  template <>
-  const v_f32_4 replaceComponent<VectorIndices::X>(const v_f32_4 &v, const v_f32_4::ValueType s) noexcept {
-    return replaceComponent<VectorIndices::X>(v.components, s);
+  v_f32_4::ValueType x4(const v_f32_4 &vector) noexcept {
+    return x4(vector.components);
   }
 
   template <>
-  const v_f32_4 replaceComponent<VectorIndices::Y>(const v_f32_4 &v, const v_f32_4::ValueType s) noexcept {
-    return replaceComponent<VectorIndices::Y>(v.components, s);
+  v_f32_4 replaceComponent<VectorIndices::X>(const v_f32_4 &vector, const v_f32_4::ValueType scalar) noexcept {
+    return replaceComponent<VectorIndices::X>(vector.components, scalar);
   }
 
   template <>
-  const v_f32_4 replaceComponent<VectorIndices::Z>(const v_f32_4 &v, const v_f32_4::ValueType s) noexcept {
-    return replaceComponent<VectorIndices::Z>(v.components, s);
+  v_f32_4 replaceComponent<VectorIndices::Y>(const v_f32_4 &vector, const v_f32_4::ValueType scalar) noexcept {
+    return replaceComponent<VectorIndices::Y>(vector.components, scalar);
   }
 
   template <>
-  const v_f32_4 replaceComponent<VectorIndices::W>(const v_f32_4 &v, const v_f32_4::ValueType s) noexcept {
-    return replaceComponent<VectorIndices::W>(v.components, s);
+  v_f32_4 replaceComponent<VectorIndices::Z>(const v_f32_4 &vector, const v_f32_4::ValueType scalar) noexcept {
+    return replaceComponent<VectorIndices::Z>(vector.components, scalar);
   }
 
-  const v_f32_4 replaceX(const v_f32_4 &v, const v_f32_4::ValueType s) noexcept {
-    return replaceX(v.components, s);
+  template <>
+  v_f32_4 replaceComponent<VectorIndices::W>(const v_f32_4 &vector, const v_f32_4::ValueType scalar) noexcept {
+    return replaceComponent<VectorIndices::W>(vector.components, scalar);
   }
 
-  const v_f32_4 replaceY(const v_f32_4 &v, const v_f32_4::ValueType s) noexcept {
-    return replaceY(v.components, s);
+  v_f32_4 replaceX(const v_f32_4 &vector, const v_f32_4::ValueType scalar) noexcept {
+    return replaceX(vector.components, scalar);
   }
 
-  const v_f32_4 replaceZ(const v_f32_4 &v, const v_f32_4::ValueType s) noexcept {
-    return replaceZ(v.components, s);
+  v_f32_4 replaceY(const v_f32_4 &vector, const v_f32_4::ValueType scalar) noexcept {
+    return replaceY(vector.components, scalar);
   }
 
-  const v_f32_4 replaceW(const v_f32_4 &v, const v_f32_4::ValueType s) noexcept {
-    return replaceW(v.components, s);
+  v_f32_4 replaceZ(const v_f32_4 &vector, const v_f32_4::ValueType scalar) noexcept {
+    return replaceZ(vector.components, scalar);
   }
 
-  const v_f32_4 replaceX1(const v_f32_4 &v, const v_f32_4::ValueType s) noexcept {
-    return replaceX1(v.components, s);
+  v_f32_4 replaceW(const v_f32_4 &vector, const v_f32_4::ValueType scalar) noexcept {
+    return replaceW(vector.components, scalar);
   }
 
-  const v_f32_4 replaceX2(const v_f32_4 &v, const v_f32_4::ValueType s) noexcept {
-    return replaceX2(v.components, s);
+  v_f32_4 replaceX1(const v_f32_4 &vector, const v_f32_4::ValueType scalar) noexcept {
+    return replaceX1(vector.components, scalar);
   }
 
-  const v_f32_4 replaceX3(const v_f32_4 &v, const v_f32_4::ValueType s) noexcept {
-    return replaceX3(v.components, s);
+  v_f32_4 replaceX2(const v_f32_4 &vector, const v_f32_4::ValueType scalar) noexcept {
+    return replaceX2(vector.components, scalar);
   }
 
-  const v_f32_4 replaceX4(const v_f32_4 &v, const v_f32_4::ValueType s) noexcept {
-    return replaceX4(v.components, s);
+  v_f32_4 replaceX3(const v_f32_4 &vector, const v_f32_4::ValueType scalar) noexcept {
+    return replaceX3(vector.components, scalar);
   }
 
-  const v_f32_4 replaceComponent(const v_f32_4 &v, const v_f32_4 &replacement, const ASizeT index) noexcept {
-    return replaceComponent(v.components, replacement.components, index);
+  v_f32_4 replaceX4(const v_f32_4 &vector, const v_f32_4::ValueType scalar) noexcept {
+    return replaceX4(vector.components, scalar);
   }
 
-  const v_f32_4 replaceComponent(const v_f32_4 &v, const v_f32_4::ValueType replacement, const ASizeT index) noexcept {
-    return replaceComponent(v.components, replacement, index);
+  v_f32_4 replaceComponent(const v_f32_4 &vector, const v_f32_4 &replacement, const ASizeT index) noexcept {
+    return replaceComponent(vector.components, replacement.components, index);
+  }
+
+  v_f32_4 replaceComponent(const v_f32_4 &vector, const v_f32_4::ValueType replacement, const ASizeT index) noexcept {
+    return replaceComponent(vector.components, replacement, index);
   }
 }

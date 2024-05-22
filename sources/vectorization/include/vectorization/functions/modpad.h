@@ -3,19 +3,15 @@
 #include "vectorization/architecture.h"
 
 namespace vectorization {
-  const Int_8 modPad(const Int_8 unpadded, const Int_8 modPadding) noexcept;
+  Int_8 modPad(Int_8 value, Int_8 padding) noexcept;
+  UInt_8 modPad(UInt_8 value, UInt_8 padding) noexcept;
 
-  const UInt_8 modPad(const UInt_8 unpadded, const UInt_8 modPadding) noexcept;
+  Int_16 modPad(Int_16 value, Int_16 padding) noexcept;
+  UInt_16 modPad(UInt_16 value, UInt_16 padding) noexcept;
 
-  const Int_16 modPad(const Int_16 unpadded, const Int_16 modPadding) noexcept;
+  Int_32 modPad(Int_32 value, Int_32 padding) noexcept;
+  UInt_32 modPad(UInt_32 value, UInt_32 padding) noexcept;
 
-  const UInt_16 modPad(const UInt_16 unpadded, const UInt_16 modPadding) noexcept;
-
-  const Int_32 modPad(const Int_32 unpadded, const Int_32 modPadding) noexcept;
-
-  const UInt_32 modPad(const UInt_32 unpadded, const UInt_32 modPadding) noexcept;
-
-  const Int_64 modPad(const Int_64 unpadded, const Int_64 modPadding) noexcept;
-
-  const UInt_64 modPad(const UInt_64 unpadded, const UInt_64 modPadding) noexcept;
+  Int_64 modPad(Int_64 value, Int_64 padding) noexcept;
+  UInt_64 modPad(UInt_64 value, UInt_64 padding) noexcept;
 }

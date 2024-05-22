@@ -3,23 +3,17 @@
 #include "vectorization/architecture.h"
 
 namespace vectorization {
-  const Int_8 abs(const Int_8 v) noexcept;
+  Int_8 abs(Int_8 value) noexcept;
+  Int_16 abs(Int_16 value) noexcept;
+  Int_32 abs(Int_32 value) noexcept;
+  Int_64 abs(Int_64 value) noexcept;
 
-  const Int_16 abs(const Int_16 v) noexcept;
+  Float_32 abs(Float_32 value) noexcept;
+  Float_64 abs(Float_64 value) noexcept;
 
-  const Int_32 abs(const Int_32 v) noexcept;
+  PackedFloat4_128 abs(const PackedFloat4_128 &values) noexcept;
+  PackedFloat2_128 abs(const PackedFloat2_128 &values) noexcept;
 
-  const Int_64 abs(const Int_64 v) noexcept;
-
-  const Float_32 abs(const Float_32 v) noexcept;
-
-  const Float_64 abs(const Float_64 v) noexcept;
-
-  const PackedFloat4_128 abs(const PackedFloat4_128 &v) noexcept;
-
-  const PackedFloat2_128 abs(const PackedFloat2_128 &v) noexcept;
-
-  const PackedFloat8_256 abs(const PackedFloat8_256 &v) noexcept;
-
-  const PackedFloat4_256 abs(const PackedFloat4_256 &v) noexcept;
+  PackedFloat8_256 abs(const PackedFloat8_256 &values) noexcept;
+  PackedFloat4_256 abs(const PackedFloat4_256 &values) noexcept;
 }

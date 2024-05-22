@@ -364,16 +364,18 @@ namespace raytracer {
 
   Float4 Raytracer::applyBRDF(const BRDFParameters &brdf) {
     // https://en.wikipedia.org/wiki/Phong_reflection_model
-    auto reflected =
-        brdf.lighting.reflected * brdf.surface.reflectance + brdf.lighting.specular * brdf.surface.specular;
+    auto ambient = brdf.surface.diffusion * brdf.lighting.ambient;
+    auto diffuse = brdf.surface.diffusion * brdf.lighting.diffuse;
+    auto specularReflection = brdf.surface.specular * brdf.lighting.specular;
+    auto phong = ambient + diffuse + specularReflection;
 
     // Transmittance model: Absorption coefficient/Beer-Lambert-law
     // http://tog.acm.org/resources/RTNews/html/rtnv10n1.html#art3
     // http://en.wikipedia.org/wiki/Absorption_coefficient
     // http://en.wikipedia.org/wiki/Beer%E2%80%93Lambert_law
-    auto diffuse = (brdf.lighting.ambient + brdf.lighting.diffuse) * brdf.surface.diffusion;
-    auto transmitted = mix(diffuse, brdf.lighting.transmitted, brdf.fractionTransmitted);
+    auto reflection = brdf.surface.reflectance * brdf.lighting.reflected;
+    auto transmitted = brdf.fractionTransmitted * brdf.lighting.transmitted;
 
-    return brdf.surface.emittance + mix(transmitted, reflected, brdf.reflectanceCoefficient);
+    return brdf.surface.emittance + phong + mix(transmitted, reflection, brdf.reflectanceCoefficient);
   }
 }

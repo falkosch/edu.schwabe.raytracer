@@ -3,11 +3,11 @@
 #include <cmath>
 
 namespace vectorization {
-  const Float_32 cos(const Float_32 v) noexcept {
-    return std::cos(v);
+  Float_32 cos(const Float_32 value) noexcept {
+    return std::cos(value);
   }
 
-  const Float_64 cos(const Float_64 v) noexcept {
-    return std::cos(v);
+  Float_64 cos(const Float_64 value) noexcept {
+    return std::cos(value);
   }
 }

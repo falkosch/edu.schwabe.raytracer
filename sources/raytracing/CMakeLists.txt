@@ -157,10 +157,10 @@ source_group(
         REGULAR_EXPRESSION ".+\\.(h|cpp)"
 )
 
-add_dependencies(${PROJECT_NAME} vectorization)
+add_dependencies(${PROJECT_NAME} vectorization primitives)
 
 target_link_libraries(${PROJECT_NAME}
-        PUBLIC vectorization
+        PUBLIC vectorization primitives
 )
 
 target_include_directories(${PROJECT_NAME}

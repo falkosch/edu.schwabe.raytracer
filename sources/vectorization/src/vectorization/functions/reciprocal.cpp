@@ -4,7 +4,7 @@
 #include "vectorization/constants.h"
 
 namespace vectorization {
-  const Float_32 reciprocal(const Float_32 v) noexcept {
+  Float_32 reciprocal(const Float_32 value) noexcept {
 #ifdef VECTORIZATION_APPROXIMATIONS
 #ifdef VECTORIZATION_FINE_APPROXIMATIONS
     // Do two Newton-Raphson steps for y = 1/x
@@ -12,25 +12,25 @@ namespace vectorization {
     // y_0 = rcp(x)
     // y_1 = y_0(2 - x * y_0)
     // y_2 = y_1(2 - x * y_1)
-    const PackedFloat4_128 two = Two<PackedFloat4_128>();
-    const PackedFloat4_128 N = _mm_set_ss(v);
-    const PackedFloat4_128 x0 = _mm_rcp_ss(N);
-    const PackedFloat4_128 x1 = _mm_mul_ss(_mm_sub_ss(two, _mm_mul_ss(N, x0)), x0);
+    const auto two = Two<PackedFloat4_128>();
+    const auto N = _mm_set_ss(v);
+    const auto x0 = _mm_rcp_ss(N);
+    const auto x1 = _mm_mul_ss(_mm_sub_ss(two, _mm_mul_ss(N, x0)), x0);
     return x(_mm_mul_ss(_mm_sub_ss(two, _mm_mul_ss(N, x1)), x1));
 #else
     return x(_mm_rcp_ss(_mm_set_ss(v)));
 #endif
 #else
-    return x(_mm_div_ss(One<PackedFloat4_128>(), _mm_set_ss(v)));
+    return x(_mm_div_ss(One<PackedFloat4_128>(), _mm_set_ss(value)));
 #endif
   }
 
-  const Float_64 reciprocal(const Float_64 v) noexcept {
+  Float_64 reciprocal(const Float_64 value) noexcept {
     // no approximation available for 64-bit floats in SSE or AVX
-    return x(_mm_div_sd(One<PackedFloat2_128>(), _mm_set_sd(v)));
+    return x(_mm_div_sd(One<PackedFloat2_128>(), _mm_set_sd(value)));
   }
 
-  const PackedFloat4_128 reciprocal(const PackedFloat4_128 &v) noexcept {
+  PackedFloat4_128 reciprocal(const PackedFloat4_128 &values) noexcept {
 #ifdef VECTORIZATION_APPROXIMATIONS
 #ifdef VECTORIZATION_FINE_APPROXIMATIONS
     // Do two Newton-Raphson steps for y = 1/x
@@ -38,20 +38,20 @@ namespace vectorization {
     // y_0 = rcp(x)
     // y_1 = y_0(2 - x * y_0)
     // y_2 = y_1(2 - x * y_1)
-    const PackedFloat4_128 two = Two<PackedFloat4_128>();
-    const PackedFloat4_128 x0 = _mm_rcp_ps(v);
-    const PackedFloat4_128 x1 = _mm_mul_ps(_mm_sub_ps(two, _mm_mul_ps(v, x0)), x0);
+    const auto two = Two<PackedFloat4_128>();
+    const auto x0 = _mm_rcp_ps(v);
+    const auto x1 = _mm_mul_ps(_mm_sub_ps(two, _mm_mul_ps(v, x0)), x0);
     return _mm_mul_ps(_mm_sub_ps(two, _mm_mul_ps(v, x1)), x1);
 #else
     return _mm_rcp_ps(v);
 #endif
 #else
-    return _mm_div_ps(One<PackedFloat4_128>(), v);
+    return _mm_div_ps(One<PackedFloat4_128>(), values);
 #endif
   }
 
-  const PackedFloat2_128 reciprocal(const PackedFloat2_128 &v) noexcept {
-    // no approximative variants available in SSE or AVX
-    return _mm_div_pd(One<PackedFloat2_128>(), v);
+  PackedFloat2_128 reciprocal(const PackedFloat2_128 &values) noexcept {
+    // double-packed rcp-op not available in SSE or AVX
+    return _mm_div_pd(One<PackedFloat2_128>(), values);
   }
 }
