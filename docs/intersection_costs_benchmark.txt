@@ -1,4 +1,4 @@
-Intel i5 3470S @ 3.6GHz single-threaded benchmark
+Intel i5 3470S @ 3.6 GHz single-threaded benchmark
 Updated: 2015-06-24 03:33
 
 overlaps cost Ray-AABBx2 (=traversal cost of kd-tree):

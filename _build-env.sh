@@ -12,4 +12,4 @@ OUTPUT_DIR="${OUTPUT_DIR:-build/${ARCH_TYPE}-local-cc-${BUILD_TYPE}}"
 SOURCES_DIR="${SOURCES_DIR:-${OUTPUT_DIR}/sources}"
 TESTS_DIR="${TESTS_DIR:-${OUTPUT_DIR}/tests}"
 
-mkdir -p ${OUTPUT_DIR}
+mkdir -p "${OUTPUT_DIR}"

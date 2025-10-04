@@ -68,7 +68,7 @@ Holding the left button:
 * holding SHIFT and moving translates the camera forward (when moving right or up) or backward (when moving left or
   down)
 * holding CTRL and moving translates the camera sidewards or up and down
-* holding ALT and moving scales the world space (zooming in and out so to say)
+* holding ALT and moving scales the world space (zooming in and out)
 
 Holding the right button:
 
@@ -92,7 +92,7 @@ image output are negligible)
 
 *J* - Decrease the antialiasing factor to have fewer traces per image pixel
 
-*K* - Increase antialiasing factor to enable anti aliased like sampling traces per image pixel
+*K* - Increase the antialiasing factor to enable anti aliased like sampling traces per image pixel
 
 *SPACE* - Manually trigger trace again (f.e. to compare changes in trace time for the very same perspective)
 
@@ -100,7 +100,7 @@ image output are negligible)
 
 _For debugging purposes:_
 
-*W* - Write last raytracing output to file "raytraced.bmp" in the current working directory
+*W* - Write last raytracing output to the file "raytraced.bmp" in the current working directory
 
 *E* - Cycle through the output types
 
