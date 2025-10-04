@@ -34,7 +34,7 @@ namespace vectorization {
     explicit m_f32_4x4(const std::array<ValueType, SIZE> &data) noexcept;
     explicit m_f32_4x4(const ValueType *values) noexcept;
 
-    MatrixType &operator=(const m_f32_4x4::RowVectorType::PackedType &row) noexcept;
+    MatrixType &operator=(const RowVectorType::PackedType &row) noexcept;
 
     ValueType &operator[](int index) noexcept;
     const ValueType &operator[](int index) const noexcept;

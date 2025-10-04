@@ -90,6 +90,10 @@ namespace vectorization {
     ));
   }
 
+  // Optimized version of glm:unproject: Doesn't take the projection and
+  // view matrix separately but requires precomputed inverse of the
+  // view-projection-matrix. Also assumes that in viewport.z is "one over
+  // viewport-width" and in viewport.w is "one over viewport-height" stored.
   m_f32_4x4::RowVectorType unproject(
       const m_f32_4x4::RowVectorType &screenPosition, const m_f32_4x4 &inverseViewProjectionMatrix,
       const m_f32_4x4::RowVectorType &viewport

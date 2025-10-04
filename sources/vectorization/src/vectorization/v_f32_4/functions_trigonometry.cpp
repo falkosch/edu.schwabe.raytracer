@@ -3,6 +3,8 @@
 #include "vectorization/v_f32_4/accessors.h"
 #include "vectorization/v_f32_4/blends.h"
 
+#include "vectorization/functions.h"
+
 #define USE_THIRD_PARTY 1
 
 #if defined(USE_THIRD_PARTY)

@@ -8,7 +8,7 @@
 
 namespace vectorization {
   template <ASizeT Size, typename T>
-  inline T staticAverage(const T *const values) noexcept {
+  T staticAverage(const T *const values) noexcept {
     auto sum = Zero<T>();
 
     StaticFor<VectorIndices::X, Size>::apply([&](const auto i) {

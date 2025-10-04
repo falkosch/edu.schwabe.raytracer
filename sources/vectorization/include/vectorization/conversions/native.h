@@ -4,10 +4,10 @@
 
 namespace vectorization {
   template <typename U>
-  U convert(bool) noexcept;
+  U convert(bool v) noexcept;
 
   template <typename U>
-  U convert(bool, bool) noexcept;
+  U convert(bool a, bool b) noexcept;
 
   template <typename U>
   U convert(Int_32 v) noexcept;

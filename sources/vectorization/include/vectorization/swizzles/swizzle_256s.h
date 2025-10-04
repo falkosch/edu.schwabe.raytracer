@@ -6,7 +6,7 @@
 namespace vectorization {
   template <ASizeT X, ASizeT Y, ASizeT Z, ASizeT W>
   // generic swizzle for both PackedFloat4_128
-  inline PackedFloat8_256 swizzle(const PackedFloat8_256 &values) noexcept {
+  PackedFloat8_256 swizzle(const PackedFloat8_256 &values) noexcept {
     static_assert(X < VectorSizes::W, "Index X is out of range");
     static_assert(Y < VectorSizes::W, "Index Y is out of range");
     static_assert(Z < VectorSizes::W, "Index Z is out of range");
@@ -17,7 +17,7 @@ namespace vectorization {
   }
 
   template <>
-  // passthrough
+  // pass through
   PackedFloat8_256
   swizzle<VectorIndices::X, VectorIndices::Y, VectorIndices::Z, VectorIndices::W>(const PackedFloat8_256 &values
   ) noexcept;
@@ -73,7 +73,7 @@ namespace vectorization {
 
   template <ASizeT X1, ASizeT X2, ASizeT X3, ASizeT X4, ASizeT X5, ASizeT X6, ASizeT X7, ASizeT X8>
   // generic swizzle
-  inline PackedFloat8_256 swizzle(const PackedFloat8_256 &values) noexcept {
+  PackedFloat8_256 swizzle(const PackedFloat8_256 &values) noexcept {
     static_assert(X1 < VectorSizes::X8, "Index X1 is out of range");
     static_assert(X2 < VectorSizes::X8, "Index X2 is out of range");
     static_assert(X3 < VectorSizes::X8, "Index X3 is out of range");
@@ -105,7 +105,7 @@ namespace vectorization {
   }
 
   template <>
-  // passthrough swizzle
+  // pass through swizzle
   PackedFloat8_256 swizzle<
       VectorIndices::X1, VectorIndices::X2, VectorIndices::X3, VectorIndices::X4, VectorIndices::X5, VectorIndices::X6,
       VectorIndices::X7, VectorIndices::X8>(const PackedFloat8_256 &values) noexcept;

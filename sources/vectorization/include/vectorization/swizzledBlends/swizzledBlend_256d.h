@@ -7,7 +7,7 @@
 namespace vectorization {
   // generic swizzled blend
   template <ASizeT X, ASizeT Y, ASizeT Z, ASizeT W, bool SelectX, bool SelectY, bool SelectZ, bool SelectW>
-  inline PackedFloat4_256 swizzledBlend(const PackedFloat4_256 &a, const PackedFloat4_256 &b) noexcept {
+  PackedFloat4_256 swizzledBlend(const PackedFloat4_256 &a, const PackedFloat4_256 &b) noexcept {
     return blend<SelectX, SelectY, SelectZ, SelectW>(swizzle<X, Y, Z, W>(a), swizzle<X, Y, Z, W>(b));
   }
 }

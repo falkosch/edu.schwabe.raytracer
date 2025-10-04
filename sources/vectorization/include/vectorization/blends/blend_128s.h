@@ -5,17 +5,17 @@
 namespace vectorization {
   template <bool SelectX, bool SelectY, bool SelectZ, bool SelectW>
   // generic blend of two vectors
-  inline PackedFloat4_128 blend(const PackedFloat4_128 &a, const PackedFloat4_128 &b) noexcept {
+  PackedFloat4_128 blend(const PackedFloat4_128 &a, const PackedFloat4_128 &b) noexcept {
     constexpr auto blendMask = (SelectX & 1) | ((SelectY & 1) << 1) | ((SelectZ & 1) << 2) | ((SelectW & 1) << 3);
     return _mm_blend_ps(a, b, blendMask);
   }
 
   template <>
-  // passthrough a
+  // pass through a
   PackedFloat4_128 blend<false, false, false, false>(const PackedFloat4_128 &a, const PackedFloat4_128 &b) noexcept;
 
   template <>
-  // passthrough b
+  // pass through b
   PackedFloat4_128 blend<true, true, true, true>(const PackedFloat4_128 &a, const PackedFloat4_128 &b) noexcept;
 
   template <>

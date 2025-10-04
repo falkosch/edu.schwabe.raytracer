@@ -8,7 +8,7 @@ namespace vectorization {
   PackedFloat2_128 blend(const PackedFloat2_128 &a, const PackedFloat2_128 &b) noexcept;
 
   template <>
-  // passthrough a
+  // pass through a
   PackedFloat2_128 blend<false, false>(const PackedFloat2_128 &a, const PackedFloat2_128 &b) noexcept;
 
   template <>

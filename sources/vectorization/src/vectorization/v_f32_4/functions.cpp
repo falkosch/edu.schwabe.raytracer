@@ -7,6 +7,8 @@
 #include "vectorization/v_f32_4/swizzledBlends.h"
 #include "vectorization/v_f32_4/swizzles.h"
 
+#include "vectorization/functions.h"
+
 namespace vectorization {
 #pragma region min()
   //{ min()
@@ -230,8 +232,7 @@ namespace vectorization {
     return refract(incident, normal, dotv(normal, incident), eta);
   }
 
-  v_f32_4
-  refract(const v_f32_4 &incident, const v_f32_4 &normal, const v_f32_4 &NdotI, const v_f32_4 &eta) noexcept {
+  v_f32_4 refract(const v_f32_4 &incident, const v_f32_4 &normal, const v_f32_4 &NdotI, const v_f32_4 &eta) noexcept {
     if (isNegative(NdotI)) {
       return refractEta(incident, normal, NdotI, xxxx(eta));
     }

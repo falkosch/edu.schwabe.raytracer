@@ -1,7 +1,5 @@
 #pragma once
 
-#include "api.h"
-
 #include "vectorization/architecture.h"
 
 namespace vectorization {

@@ -5,7 +5,7 @@
 namespace vectorization {
   template <ASizeT X, ASizeT Y>
   // generic swizzle
-  inline PackedFloat2_128 swizzle(const PackedFloat2_128 &values) noexcept {
+  PackedFloat2_128 swizzle(const PackedFloat2_128 &values) noexcept {
     static_assert(X < VectorSizes::Y, "Index X is out of range");
     static_assert(Y < VectorSizes::Y, "Index Y is out of range");
     constexpr auto swizzleMask = X + (Y << 1);

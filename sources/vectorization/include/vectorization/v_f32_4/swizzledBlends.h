@@ -6,7 +6,7 @@
 namespace vectorization {
   // generic swizzled blend
   template <ASizeT X, ASizeT Y, ASizeT Z, ASizeT W, bool SelectX, bool SelectY, bool SelectZ, bool SelectW>
-  inline const v_f32_4 swizzledBlend(const v_f32_4 &a, const v_f32_4 &b) noexcept {
+  v_f32_4 swizzledBlend(const v_f32_4 &a, const v_f32_4 &b) noexcept {
     return swizzledBlend<X, Y, Z, W, SelectX, SelectY, SelectZ, SelectW>(a.components, b.components);
   }
 
@@ -14,7 +14,7 @@ namespace vectorization {
   // components of this vector and the last two components of the other
   // vector are taken for blending after swizzling.
   template <ASizeT X, ASizeT Y, ASizeT Z, ASizeT W>
-  inline const v_f32_4 swizzledBlend2x2(const v_f32_4 &a, const v_f32_4 &b) noexcept {
+  v_f32_4 swizzledBlend2x2(const v_f32_4 &a, const v_f32_4 &b) noexcept {
     static_assert(X < v_f32_4::SIZE, "Index is out of range");
     static_assert(Y < v_f32_4::SIZE, "Index is out of range");
     static_assert(Z < v_f32_4::SIZE, "Index is out of range");
@@ -47,13 +47,12 @@ namespace vectorization {
   v_f32_4 ww_ww(const v_f32_4 &a, const v_f32_4 &b) noexcept;
 
   template <ASizeT X, ASizeT Y, ASizeT Z, ASizeT W>
-  inline const v_f32_4 swizzledBlendMasked(const v_f32_4 &a, const v_f32_4 &b, const v_f32_4 &mask) noexcept {
+  v_f32_4 swizzledBlendMasked(const v_f32_4 &a, const v_f32_4 &b, const v_f32_4 &mask) noexcept {
     return swizzledBlendMasked<X, Y, Z, W>(a.components, b.components, mask.components);
   }
 
   template <ASizeT X, ASizeT Y, ASizeT Z, ASizeT W>
-  inline const v_f32_4
-  swizzledBlendMasked(const v_f32_4 &a, const v_f32_4 &b, const v_f32_4::VectorBoolType &mask) noexcept {
+  v_f32_4 swizzledBlendMasked(const v_f32_4 &a, const v_f32_4 &b, const v_f32_4::VectorBoolType &mask) noexcept {
     return swizzledBlendMasked<X, Y, Z, W>(a.components, b.components, mask.components);
   }
 }

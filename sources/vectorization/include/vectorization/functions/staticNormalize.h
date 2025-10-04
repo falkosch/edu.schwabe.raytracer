@@ -10,7 +10,7 @@
 
 namespace vectorization {
   template <ASizeT Size, typename T>
-  inline void staticNormalize(const T *const values) noexcept {
+  void staticNormalize(const T *const values) noexcept {
     auto squaredSum = Zero<T>();
 
     StaticFor<VectorIndices::X, Size>::apply([&](const auto i) {

@@ -56,7 +56,7 @@ namespace vectorization {
     return blendMasked(swizzle<X, Y>(a), swizzle<X, Y>(b), mask);
   }
 
-  // passthrough
+  // pass through
   template <>
   v_ui64_2 swizzledBlendMasked<VectorIndices::X, VectorIndices::Y>(
       const v_ui64_2 &a, const v_ui64_2 &b, const v_ui64_2 &mask

@@ -4,7 +4,6 @@
 
 #include <array>
 #include <cassert>
-#include <cstring>
 
 namespace vectorization {
   v_f32_4::v_f32_4() noexcept : components(Zero<PackedType>()) {

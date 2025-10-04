@@ -124,13 +124,11 @@ namespace vectorization {
 
   v_f32_4 refractEta(const v_f32_4 &incident, const v_f32_4 &normal, const v_f32_4 &eta) noexcept;
 
-  v_f32_4
-  refractEta(const v_f32_4 &incident, const v_f32_4 &normal, const v_f32_4 &NdotI, const v_f32_4 &eta) noexcept;
+  v_f32_4 refractEta(const v_f32_4 &incident, const v_f32_4 &normal, const v_f32_4 &NdotI, const v_f32_4 &eta) noexcept;
 
   v_f32_4 refract(const v_f32_4 &incident, const v_f32_4 &normal, const v_f32_4 &eta) noexcept;
 
-  v_f32_4
-  refract(const v_f32_4 &incident, const v_f32_4 &normal, const v_f32_4 &NdotI, const v_f32_4 &eta) noexcept;
+  v_f32_4 refract(const v_f32_4 &incident, const v_f32_4 &normal, const v_f32_4 &NdotI, const v_f32_4 &eta) noexcept;
 
   v_f32_4 refract(
       const v_f32_4::VectorBoolType &cullingOrientation, const v_f32_4 &incident, const v_f32_4 &normal,
@@ -171,7 +169,7 @@ namespace vectorization {
   // Checks whether a has Nan or b has NaN values
   v_f32_4::VectorBoolType isNaN(const v_f32_4 &a, const v_f32_4 &b) noexcept;
 
-  // Alternatively subtracts and adds the components, i.e.:
+  // Subtracts components with even index and adds components with uneven components, i.e.:
   // x(out) = x(a) - x(b);
   // y(out) = y(a) + y(b);
   // z(out) = z(a) - z(b);

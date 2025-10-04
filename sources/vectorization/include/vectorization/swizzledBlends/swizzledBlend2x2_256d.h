@@ -9,7 +9,7 @@ namespace vectorization {
   // two components of this vector and the last two components of the
   // other vector are taken for blending after swizzling.
   template <ASizeT X, ASizeT Y, ASizeT Z, ASizeT W>
-  inline PackedFloat4_256 swizzledBlend2x2(const PackedFloat4_256 &a, const PackedFloat4_256 &b) noexcept {
+  PackedFloat4_256 swizzledBlend2x2(const PackedFloat4_256 &a, const PackedFloat4_256 &b) noexcept {
     static_assert(X < VectorSizes::W, "Index is out of range");
     static_assert(Y < VectorSizes::W, "Index is out of range");
     static_assert(Z < VectorSizes::W, "Index is out of range");

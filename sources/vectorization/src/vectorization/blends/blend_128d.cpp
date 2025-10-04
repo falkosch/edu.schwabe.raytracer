@@ -2,13 +2,13 @@
 
 namespace vectorization {
   template <>
-  // passthrough a
+  // pass through a
   PackedFloat2_128 blend<false, false>(const PackedFloat2_128 &a, const PackedFloat2_128 & /*unused*/) noexcept {
     return a;
   }
 
   template <>
-  // passthrough b
+  // pass through b
   PackedFloat2_128 blend<true, true>(const PackedFloat2_128 & /*unused*/, const PackedFloat2_128 &b) noexcept {
     return b;
   }

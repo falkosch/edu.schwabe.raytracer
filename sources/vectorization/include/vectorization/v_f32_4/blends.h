@@ -7,7 +7,7 @@
 namespace vectorization {
   template <bool SelectX, bool SelectY, bool SelectZ, bool SelectW>
   // generic blend of two vectors
-  inline const v_f32_4 blend(const v_f32_4 &a, const v_f32_4 &b) noexcept {
+  v_f32_4 blend(const v_f32_4 &a, const v_f32_4 &b) noexcept {
     return blend<SelectX, SelectY, SelectZ, SelectW>(a.components, b.components);
   }
 

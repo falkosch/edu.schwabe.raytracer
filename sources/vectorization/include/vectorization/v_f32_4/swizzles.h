@@ -6,7 +6,7 @@
 namespace vectorization {
   template <ASizeT X, ASizeT Y, ASizeT Z, ASizeT W>
   // generic swizzle
-  inline const v_f32_4 swizzle(const v_f32_4 &v) noexcept {
+  v_f32_4 swizzle(const v_f32_4 &v) noexcept {
     return swizzle<X, Y, Z, W>(v.components);
   }
 

@@ -9,7 +9,7 @@ namespace vectorization {
   // component of this vector and the last component of the other vector are
   // taken for blending after swizzling.
   template <ASizeT X, ASizeT Y>
-  inline PackedFloat2_128 swizzledBlend1x1(const PackedFloat2_128 &a, const PackedFloat2_128 &b) noexcept {
+  PackedFloat2_128 swizzledBlend1x1(const PackedFloat2_128 &a, const PackedFloat2_128 &b) noexcept {
     static_assert(X < VectorSizes::W, "Index is out of range");
     static_assert(Y < VectorSizes::W, "Index is out of range");
     const auto shuffleMask = ((X & 1) << 0) | ((Y & 1) << 1);

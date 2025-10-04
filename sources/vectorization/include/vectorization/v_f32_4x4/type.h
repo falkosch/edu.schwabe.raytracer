@@ -7,7 +7,7 @@
 #include "vectorization/architecture.h"
 
 namespace vectorization {
-  // Structure of arrays of four v_f32_4 like this:
+  // Structure of arrays containing four v_f32_4:
   // this->soaX = x1, x2, x3, x4
   // this->soaY = y1, y2, y3, y4
   // this->soaZ = z1, z2, z3, z4

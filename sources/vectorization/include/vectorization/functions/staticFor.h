@@ -17,7 +17,7 @@ namespace vectorization {
     }
   };
 
-  // Can take care for C4100 when First equals Last index
+  // Can take care of C4100 when First equals Last index
   template <ASizeT N>
   struct StaticFor<N, N> {
     template <typename Lambda>

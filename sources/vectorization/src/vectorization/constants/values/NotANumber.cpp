@@ -7,8 +7,8 @@
 #include <limits>
 
 namespace vectorization {
-  // NaNs have all exponent bits set to 1
-  // sign bit and fraction bits except MSB are usually undetermined
+  // NaNs have all exponent bits set to 1.
+  // Sign bit and fraction bits except MSB are usually undetermined.
 
   // Example: (Signed) Quiet NaN for Float_32 is 1111 1111 11xx xxxx xxxx xxxx xxxx xxxx
   // bits with x are undetermined

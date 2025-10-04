@@ -1,7 +1,5 @@
 #pragma once
 
-#include "api.h"
-
 #include "vectorization/v_i32_4.h"
 
 #include "vectorization/architecture.h"
@@ -23,28 +21,28 @@ namespace vectorization {
 
     v_f32_4(const PackedType &v) noexcept;
 
-    explicit v_f32_4(const ValueType v) noexcept;
+    explicit v_f32_4(ValueType v) noexcept;
 
-    explicit v_f32_4(const ValueType x, const ValueType y) noexcept;
+    explicit v_f32_4(ValueType x, ValueType y) noexcept;
 
-    explicit v_f32_4(const ValueType x, const ValueType y, const ValueType z) noexcept;
+    explicit v_f32_4(ValueType x, ValueType y, ValueType z) noexcept;
 
-    explicit v_f32_4(const ValueType x, const ValueType y, const ValueType z, const ValueType w) noexcept;
+    explicit v_f32_4(ValueType x, ValueType y, ValueType z, ValueType w) noexcept;
 
-    explicit v_f32_4(const PackedType *const v) noexcept;
+    explicit v_f32_4(const PackedType *v) noexcept;
 
-    explicit v_f32_4(const VectorType *const v) noexcept;
+    explicit v_f32_4(const VectorType *v) noexcept;
 
-    explicit v_f32_4(const ValueType *const v) noexcept;
+    explicit v_f32_4(const ValueType *v) noexcept;
 
     VectorType &operator=(const PackedType &v) noexcept;
 
-    const ValueType &operator[](const ASizeT index) const noexcept;
+    const ValueType &operator[](ASizeT index) const noexcept;
   };
 
-  void store(const v_f32_4 &src, v_f32_4 *const dst) noexcept;
+  void store(const v_f32_4 &src, v_f32_4 *dst) noexcept;
 
-  void store(const v_f32_4 &src, v_f32_4::PackedType *const dst) noexcept;
+  void store(const v_f32_4 &src, v_f32_4::PackedType *dst) noexcept;
 
-  void store(const v_f32_4 &src, v_f32_4::ValueType *const dst) noexcept;
+  void store(const v_f32_4 &src, v_f32_4::ValueType *dst) noexcept;
 }
