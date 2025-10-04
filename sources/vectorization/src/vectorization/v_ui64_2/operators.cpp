@@ -62,7 +62,9 @@ namespace vectorization {
   }
 
   v_ui64_2 operator>=(const v_ui64_2 &a, const v_ui64_2 &b) noexcept {
-    return (a > b) | (a == b);
+    const auto greater = a > b;
+    const auto equal = a == b;
+    return greater | equal;
   }
 
   v_ui64_2 operator==(const v_ui64_2 &a, const v_ui64_2 &b) noexcept {

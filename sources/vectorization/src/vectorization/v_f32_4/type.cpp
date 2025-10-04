@@ -28,11 +28,11 @@ namespace vectorization {
   }
 
   v_f32_4::v_f32_4(const PackedType *const v) noexcept : components() {
-    std::memcpy(&(this->components), v, sizeof(PackedType));
+    std::memcpy(&this->components, v, sizeof(PackedType));
   }
 
   v_f32_4::v_f32_4(const VectorType *const v) noexcept : components() {
-    std::memcpy(&(this->components), &(v->components), sizeof(PackedType));
+    std::memcpy(&this->components, &v->components, sizeof(PackedType));
   }
 
   v_f32_4::v_f32_4(const ValueType *const v) noexcept : components(_mm_load_ps(v)) {
@@ -45,11 +45,11 @@ namespace vectorization {
 
   const v_f32_4::ValueType &v_f32_4::operator[](const ASizeT index) const noexcept {
     assert(index < SIZE);
-    return reinterpret_cast<const ValueType *const>(&(this->components))[index];
+    return reinterpret_cast<const ValueType *>(&this->components)[index];
   }
 
   void store(const v_f32_4 &src, v_f32_4 *const dst) noexcept {
-    std::memcpy(&(dst->components), &src.components, sizeof(v_f32_4::PackedType));
+    std::memcpy(&dst->components, &src.components, sizeof(v_f32_4::PackedType));
   }
 
   void store(const v_f32_4 &src, v_f32_4::PackedType *const dst) noexcept {

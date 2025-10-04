@@ -1,8 +1,7 @@
 #include "vectorization/v_f32_4x4.h"
 
 namespace vectorization {
-  v_f32_4x4::v_f32_4x4() noexcept : soaX(), soaY(), soaZ(), soaW() {
-  }
+  v_f32_4x4::v_f32_4x4() noexcept = default;
 
   v_f32_4x4::v_f32_4x4(
       const PackedType &soaXIn, const PackedType &soaYIn, const PackedType &soaZIn, const PackedType &soaWIn
