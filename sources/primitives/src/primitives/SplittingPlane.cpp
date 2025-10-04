@@ -8,7 +8,7 @@ namespace primitives {
   SplittingPlane::SplittingPlane() noexcept : normalDistance(OneZ<Float4>()) {
   }
 
-  SplittingPlane::SplittingPlane(const Float4 &normalDistanceIn) noexcept : normalDistance(normalDistanceIn) {
+  SplittingPlane::SplittingPlane(const Float4 &normalDistance) noexcept : normalDistance(normalDistance) {
   }
 
   SplittingPlane::SplittingPlane(const Float4 &origin, const Float4 &normal) noexcept
@@ -24,9 +24,9 @@ namespace primitives {
   // y = ray dot normal
   // z = -ray dot normal
   // w = ray dot normal
-  inline Float4 computePlaneIntersectionCoefficients(const Ray &r, const SplittingPlane &p) noexcept {
-    const auto orientation = dot3v(r.direction, p.normalDistance);
-    const auto signedDistance = dotv(r.origin, p.normalDistance) / orientation;
+  inline Float4 computePlaneIntersectionCoefficients(const Ray &ray, const SplittingPlane &plane) noexcept {
+    const auto orientation = dot3v(ray.direction, plane.normalDistance);
+    const auto signedDistance = dotv(ray.origin, plane.normalDistance) / orientation;
     return x_yzw(signedDistance, orientation) ^ SIGN_MASK;
   }
 
@@ -34,32 +34,43 @@ namespace primitives {
   // y = (ray dot normal <= 0)
   // z = (ray dot normal > 0)
   // w = (ray dot normal <= 0)
-  inline Float4::VectorBoolType testPlaneIntersectionCoefficients(const Float4 &c) noexcept {
-    return c < Zero<Float4>();
+  inline Float4::VectorBoolType testPlaneIntersectionCoefficients(const Float4 &coefficients) noexcept {
+    return coefficients < Zero<Float4>();
   }
 
-  bool overlaps(const AxisAlignedBoundingBox &a, const SplittingPlane &p) noexcept {
-    const auto notNegative = p.normalDistance >= Zero<Float4>();
-    const auto selmin = oneW(blendMasked(a.maximum, a.minimum, notNegative));
-    const auto selmax = oneW(blendMasked(a.minimum, a.maximum, notNegative));
-    return isNegative(dotv(p.normalDistance, selmin)) & !isNegative(dotv(p.normalDistance, selmax));
+  bool overlaps(const AxisAlignedBoundingBox &box, const SplittingPlane &plane) noexcept {
+    const auto notNegative = plane.normalDistance >= Zero<Float4>();
+    const auto selmin = oneW(blendMasked(box.maximum, box.minimum, notNegative));
+    const auto selmax = oneW(blendMasked(box.minimum, box.maximum, notNegative));
+    return isNegative(dotv(plane.normalDistance, selmin)) & !isNegative(dotv(plane.normalDistance, selmax));
   }
 
-  bool overlaps(const RayCast &r, const SplittingPlane &p) noexcept {
-    const auto coefficients = computePlaneIntersectionCoefficients(r.ray, p);
-    const auto check = testPlaneIntersectionCoefficients(coefficients);
-    if (x(check | (zwzw(check) & backfaceCulledv(r)) | (yyyy(check) & frontfaceCulledv(r)))) {
+  bool overlaps(const RayCast &rayCast, const SplittingPlane &plane) noexcept {
+    const auto coefficients = computePlaneIntersectionCoefficients(rayCast.ray, plane);
+    const auto distanceAndFaceCulling = testPlaneIntersectionCoefficients(coefficients);
+    const auto notVisibleBack = zwzw(distanceAndFaceCulling) & backfaceCulledv(rayCast);
+
+    if (const auto notVisibleFront = yyyy(distanceAndFaceCulling) & frontfaceCulledv(rayCast);
+        x(distanceAndFaceCulling | notVisibleBack | notVisibleFront)) {
+
       return false;
     }
-    return !outOfReach(r, x(coefficients));
+
+    return !outOfReach(rayCast, x(coefficients));
   }
 
-  Float nearestIntersection(const RayCast &r, const SplittingPlane &p, const Size2::ValueType originId) noexcept {
-    const auto coefficients = computePlaneIntersectionCoefficients(r.ray, p);
+  Float
+  nearestIntersection(const RayCast &rayCast, const SplittingPlane &plane, const Size2::ValueType originId) noexcept {
+    const auto coefficients = computePlaneIntersectionCoefficients(rayCast.ray, plane);
     const auto check = testPlaneIntersectionCoefficients(coefficients);
-    if (x(check | (zwzw(check) & backfaceCulledv(r)) | (yyyy(check) & frontfaceCulledv(r)))) {
-      return r.maxDistance;
+    const auto notVisibleBack = zwzw(check) & backfaceCulledv(rayCast);
+
+    if (const auto notVisibleFront = yyyy(check) & frontfaceCulledv(rayCast);
+        x(check | notVisibleBack | notVisibleFront)) {
+
+      return rayCast.maxDistance;
     }
-    return select(selfOcclusion(r, originId, x(coefficients)), r.maxDistance, x(coefficients));
+
+    return select(selfOcclusion(rayCast, originId, x(coefficients)), rayCast.maxDistance, x(coefficients));
   }
 }

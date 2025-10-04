@@ -14,7 +14,6 @@ namespace primitives {
     Float4 edge2;
 
     FacetEdges() noexcept;
-
     explicit FacetEdges(const Float4 &edge1, const Float4 &edge2) noexcept;
   };
 
@@ -25,6 +24,6 @@ namespace primitives {
    * return value is equal to maxDistance.
    */
   Float4 nearestIntersectionMoeller(
-      const Float4 &v0, const FacetEdges &facetEdges, const Ray &ray, const Float4 &maxDistance
+      const Float4 &origin, const FacetEdges &facetEdges, const Ray &ray, const Float4 &maxDistance
   ) noexcept;
 }

@@ -96,11 +96,15 @@ namespace primitives {
   }
 
   bool overlaps(const AxisAlignedBoundingBox &box, const Float4 &by) noexcept {
-    return allTrue3((box.minimum >= by) & (by >= box.maximum));
+    const auto minimumIsBefore = box.minimum >= by;
+    const auto maximumIsAfter = box.maximum <= by;
+    return allTrue3(minimumIsBefore & maximumIsAfter);
   }
 
   bool overlaps(const AxisAlignedBoundingBox &a, const AxisAlignedBoundingBox &b) noexcept {
-    return allFalse3((a.minimum > b.maximum) | (b.minimum > a.maximum));
+    const auto minimumAIsBeforeMaximumB = a.minimum > b.maximum;
+    const auto minimumBIsBeforeMaximumA = b.minimum > a.maximum;
+    return allFalse3(minimumAIsBeforeMaximumB | minimumBIsBeforeMaximumA);
   }
 
   /**
@@ -134,18 +138,22 @@ namespace primitives {
 
   Float4::VectorBoolType
   overlaps(const RayCast &rayCast, const AxisAlignedBoundingBox &a, const AxisAlignedBoundingBox &b) noexcept {
-    const auto c = computeBoxIntersectionCoefficients(rayCast.ray, a, b);
-    const auto cYW = yyww(c);
-    const auto cXZ = xxzz(c);
+    const auto distances = computeBoxIntersectionCoefficients(rayCast.ray, a, b);
+    const auto farDistances = yyww(distances);
+    const auto nearDistances = xxzz(distances);
     // overlaps if
     // 1. (c.y >= c.x, c.w >= c.z) and
     // 2. (c.y >= 0, c.w >= 0) and
     // 3. (c.x < 0, c.z < 0) or ray is in front and reaches the boxes
     // optimized with c & (a | !b) == !(!a & b) & c using andnot(x, y) = !x & y
-    return (cYW >= cXZ) & andnot(andnot(cXZ < Zero<Float4>(), outOfReach(rayCast, cXZ)), (cYW >= Zero<Float4>()));
+    const auto validDistances = farDistances >= nearDistances;
+    const auto positiveFarDistances = farDistances >= Zero<Float4>();
+    const auto negativeNearDistances = nearDistances < Zero<Float4>();
+    return validDistances
+           & andnot(andnot(negativeNearDistances, outOfReach(rayCast, nearDistances)), positiveFarDistances);
   }
 
-  // The near distance t0 is set to "t.x". The far distance t1 is set "t.y". "t.z" and "t.w" will be set to zero.
+  // The near distance t0 is set to "t.x". The far distance t1 is set "t.y" while "t.z" and "t.w" will be set to zero.
   inline Float4 computeBoxIntersectionCoefficients(const Ray &ray, const AxisAlignedBoundingBox &box) noexcept {
     // based on: "A Cross-Platform Framework for Interactive Ray Tracing", Geimer and Müller.
     const auto pMin = (box.minimum - ray.origin) * ray.reciprocalDirection;
@@ -178,7 +186,7 @@ namespace primitives {
       return false;
     }
 
-    // if check.z is true then ray overlaps box; otherwise ray is in front and may not reach it
+    // if check.z is true, then ray overlaps the box; otherwise ray is in front and may not reach it
     // optimized with (box | !b) == !(!box & b) using andnot(x, y) = !x & y
     return !x(andnot(zzww(check), outOfReach(rayCast, c)));
   }

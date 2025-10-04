@@ -5,55 +5,56 @@
 using namespace vectorization;
 
 namespace primitives {
-  RayCast::RayCast() noexcept : ray(), cullingMask(), originIds(), maxDistance(std::numeric_limits<Float>::max()) {
+  RayCast::RayCast() noexcept : maxDistance(std::numeric_limits<Float>::max()) {
   }
 
   RayCast::RayCast(
-      const Ray &rayIn, const Float4::VectorBoolType &cullingMaskIn, const Size2 &originIdsIn, const Float maxDistanceIn
+      const Ray &ray, const Float4::VectorBoolType &cullingMask, const Size2 &originIds, const Float maxDistance
   ) noexcept
-      : ray(rayIn), cullingMask(cullingMaskIn), originIds(originIdsIn), maxDistance(maxDistanceIn) {
+      : ray(ray), cullingMask(cullingMask), originIds(originIds), maxDistance(maxDistance) {
   }
 
-  RayCast toObjectSpace(const RayCast &r, const Float44 &transInvModelMatrix, const Float4 &osOrigin) noexcept {
+  RayCast
+  toObjectSpace(const RayCast &rayCast, const Float44 &transInvModelMatrix, const Float4 &objectSpaceOrigin) noexcept {
     return RayCast(
-        Ray(osOrigin, normalize3(r.ray.direction * transInvModelMatrix)), r.cullingMask, r.originIds,
-        distance3(osOrigin, farPoint(r) * transInvModelMatrix)
+        Ray(objectSpaceOrigin, normalize3(rayCast.ray.direction * transInvModelMatrix)), rayCast.cullingMask,
+        rayCast.originIds, distance3(objectSpaceOrigin, farPoint(rayCast) * transInvModelMatrix)
     );
   }
 
-  RayCast toObjectSpace(const RayCast &r, const Float44 &transInvModelMatrix) noexcept {
-    return toObjectSpace(r, transInvModelMatrix, r.ray.origin * transInvModelMatrix);
+  RayCast toObjectSpace(const RayCast &rayCast, const Float44 &inverseModelMatrix) noexcept {
+    return toObjectSpace(rayCast, inverseModelMatrix, rayCast.ray.origin * inverseModelMatrix);
   }
 
-  Float4::VectorBoolType backfaceCulledv(const RayCast &r) noexcept {
-    return xxxx(r.cullingMask);
+  Float4::VectorBoolType backfaceCulledv(const RayCast &rayCast) noexcept {
+    return xxxx(rayCast.cullingMask);
   }
 
-  bool backfaceCulled(const RayCast &r) noexcept {
-    return !!x(backfaceCulledv(r));
+  bool backfaceCulled(const RayCast &rayCast) noexcept {
+    return !!x(backfaceCulledv(rayCast));
   }
 
-  Float4::VectorBoolType frontfaceCulledv(const RayCast &r) noexcept {
-    return yyyy(r.cullingMask);
+  Float4::VectorBoolType frontfaceCulledv(const RayCast &rayCast) noexcept {
+    return yyyy(rayCast.cullingMask);
   }
 
-  bool frontfaceCulled(const RayCast &r) noexcept {
-    return !!x(frontfaceCulledv(r));
+  bool frontfaceCulled(const RayCast &rayCast) noexcept {
+    return !!x(frontfaceCulledv(rayCast));
   }
 
-  Float4::VectorBoolType notCulledv(const RayCast &r) noexcept {
-    return ~(backfaceCulledv(r) ^ frontfaceCulledv(r));
+  Float4::VectorBoolType notCulledv(const RayCast &rayCast) noexcept {
+    return ~(backfaceCulledv(rayCast) ^ frontfaceCulledv(rayCast));
   }
 
-  bool notCulled(const RayCast &r) noexcept {
-    return !!x(notCulledv(r));
+  bool notCulled(const RayCast &rayCast) noexcept {
+    return !!x(notCulledv(rayCast));
   }
 
-  Int cullingOrientation(const RayCast &r) noexcept {
-    if (notCulled(r)) {
+  Int cullingOrientation(const RayCast &rayCast) noexcept {
+    if (notCulled(rayCast)) {
       return Zero<Int>();
     }
-    return backfaceCulled(r) ? NegativeOne<Int>() : One<Int>();
+    return backfaceCulled(rayCast) ? NegativeOne<Int>() : One<Int>();
   }
 
   Float4::VectorBoolType cullingOrientationToMask(const Int cullingOrientation) noexcept {
@@ -62,29 +63,30 @@ namespace primitives {
     );
   }
 
-  bool selfOcclusion(const RayCast &r, const Size2::ValueType toCheckId) noexcept {
-    return y(r.originIds) == toCheckId;
+  bool selfOcclusion(const RayCast &rayCast, const Size2::ValueType toCheckId) noexcept {
+    return y(rayCast.originIds) == toCheckId;
   }
 
-  bool selfOcclusion(const RayCast &r, const Size2::ValueType toCheckId, const Float t, const Float epsilon) noexcept {
-    return selfOcclusion(r, toCheckId) & (t <= epsilon);
+  bool
+  selfOcclusion(const RayCast &rayCast, const Size2::ValueType toCheckId, const Float t, const Float epsilon) noexcept {
+    const auto tooNear = t < epsilon;
+    return selfOcclusion(rayCast, toCheckId) & tooNear;
   }
 
-  bool selfOcclusion(const RayCast &r, const Size2::ValueType toCheckId, const Float t) noexcept {
-    return selfOcclusion(r, toCheckId, t, Epsilon<Float>());
+  bool selfOcclusion(const RayCast &rayCast, const Size2::ValueType toCheckId, const Float t) noexcept {
+    return selfOcclusion(rayCast, toCheckId, t, Epsilon<Float>());
   }
 
-  bool outOfReach(const RayCast &r, const Float t) noexcept {
-    return anyTrue(outOfReach(r, Float4(t)));
+  bool outOfReach(const RayCast &rayCast, const Float t) noexcept {
+    return anyTrue(outOfReach(rayCast, Float4(t)));
   }
 
-  Float4::VectorBoolType outOfReach(const RayCast &r, const Float4 &t) noexcept {
-    const auto rMaxDistanceV = Float4(r.maxDistance);
-    // t == NaN or (r.maxDistance != NaN and t >= r.maxDistance)
+  Float4::VectorBoolType outOfReach(const RayCast &rayCast, const Float4 &t) noexcept {
+    const auto rMaxDistanceV = Float4(rayCast.maxDistance);
     return isNaN(t) | andnot(isNaN(rMaxDistanceV), t >= rMaxDistanceV);
   }
 
-  Float4 farPoint(const RayCast &r) noexcept {
-    return point(r.ray, r.maxDistance);
+  Float4 farPoint(const RayCast &rayCast) noexcept {
+    return point(rayCast.ray, rayCast.maxDistance);
   }
 }

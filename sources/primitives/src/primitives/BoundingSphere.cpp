@@ -10,19 +10,22 @@ namespace primitives {
       : centerRadius(replaceW(center, radius)) {
   }
 
-  AxisAlignedBoundingBox bounding(const BoundingSphere &b) noexcept {
-    const auto radius = wwww(b.centerRadius);
-    return AxisAlignedBoundingBox(oneW(b.centerRadius - radius), oneW(b.centerRadius + radius));
+  AxisAlignedBoundingBox bounding(const BoundingSphere &sphere) noexcept {
+    const auto radius = wwww(sphere.centerRadius);
+    return AxisAlignedBoundingBox(oneW(sphere.centerRadius - radius), oneW(sphere.centerRadius + radius));
   }
 
-  inline Float4 computeSphereIntersectionCoefficients(const Ray &r, const BoundingSphere &b) noexcept {
+  inline Float4 computeSphereIntersectionCoefficients(const Ray &ray, const BoundingSphere &sphere) noexcept {
     // geometric method from Real-Time Rendering 3: http://books.google.de/books?id=V1k1V9Ra1FoC&pg=PA741
-    const auto sqrRadius = wwww(b.centerRadius * b.centerRadius);
-    const auto vl = zeroW(b.centerRadius - r.origin);
-    const auto s = dotv(vl, r.direction);
-    const auto ll = dotv(vl, vl);
-    const auto sqrM = ll - s * s;
-    if ((isNegative(s) & x(ll > sqrRadius)) | x(sqrM > sqrRadius)) {
+    const auto sqrRadius = wwww(sphere.centerRadius * sphere.centerRadius);
+    const auto originToCenter = zeroW(sphere.centerRadius - ray.origin);
+    const auto s = dotv(originToCenter, ray.direction);
+    const auto sqrLengthOriginToCenter = dotv(originToCenter, originToCenter);
+    const auto sqrM = sqrLengthOriginToCenter - s * s;
+
+    if (const auto sphereIsBeforeAndOutOfReach = isNegative(s) & x(sqrLengthOriginToCenter > sqrRadius);
+        sphereIsBeforeAndOutOfReach | x(sqrM > sqrRadius)) {
+
       return NegativeInfinity<Float4>();
     }
 
@@ -41,19 +44,19 @@ namespace primitives {
     return c < Zero<Float4>();
   }
 
-  bool overlaps(const RayCast &rayCast, const BoundingSphere &by) noexcept {
-    const auto coefficients = computeSphereIntersectionCoefficients(rayCast.ray, by);
+  bool overlaps(const RayCast &rayCast, const BoundingSphere &sphere) noexcept {
+    const auto coefficients = computeSphereIntersectionCoefficients(rayCast.ray, sphere);
     const auto check = testSphereIntersectionCoefficients(coefficients);
-    // overlaps if coefficients.y >= 0 and (coefficients.x < 0 or ray reaches front of sphere)
+    // overlaps if coefficients.y >= 0 and (coefficients.x < 0 or ray reaches front of the sphere)
     return !!x(andnot(andnot(check, outOfReach(rayCast, coefficients)), !yyyy(check)));
   }
 
-  Float nearestIntersection(const RayCast &rayCast, const BoundingSphere &b, const Size2::ValueType originId) noexcept {
-    const auto coefficients = computeSphereIntersectionCoefficients(rayCast.ray, b);
-    const auto check = testSphereIntersectionCoefficients(coefficients);
+  Float
+  nearestIntersection(const RayCast &rayCast, const BoundingSphere &sphere, const Size2::ValueType originId) noexcept {
+    const auto coefficients = computeSphereIntersectionCoefficients(rayCast.ray, sphere);
 
-    // rayCast starts behind sphere
-    if (y(check)) {
+    // rayCast starts behind the sphere
+    if (const auto check = testSphereIntersectionCoefficients(coefficients); y(check)) {
       return rayCast.maxDistance;
     }
 

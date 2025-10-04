@@ -10,13 +10,12 @@ namespace primitives {
     Float4 centerRadius;
 
     BoundingSphere() noexcept;
-
     explicit BoundingSphere(const Float4 &center, Float radius) noexcept;
   };
 
-  AxisAlignedBoundingBox bounding(const BoundingSphere &b) noexcept;
+  AxisAlignedBoundingBox bounding(const BoundingSphere &sphere) noexcept;
 
-  bool overlaps(const RayCast &rayCast, const BoundingSphere &by) noexcept;
+  bool overlaps(const RayCast &rayCast, const BoundingSphere &sphere) noexcept;
 
-  Float nearestIntersection(const RayCast &r, const BoundingSphere &b, Size2::ValueType originId) noexcept;
+  Float nearestIntersection(const RayCast &rayCast, const BoundingSphere &sphere, Size2::ValueType originId) noexcept;
 }
