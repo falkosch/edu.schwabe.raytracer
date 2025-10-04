@@ -6,8 +6,7 @@
 
 ![alt text](./docs/project-logo.jpg "Project Logo")
 
-SSE/AVX accelerated implementation of recursive raytracing (a.k.a. Whitted Raytracing). Creative commons CC-BY-NC-SA
-licensed.
+SSE/AVX implementation of recursive raytracing (a.k.a. Whitted Raytracing). Creative commons CC-BY-NC-SA licensed.
 
 This is my private raytracing project for hobby and learning purposes only.
 
@@ -24,11 +23,11 @@ run `git submodule update --init --recursive` if you cloned this repository with
 
 ### Prepare data folder
 
-See [instructions in data folder](./data/README.md).
+See [instructions in the data folder](./data/README.md).
 
 ### Install dependencies
 
-If you open this repository as cmake project in Visual Studio, e.g. VS Community 2022,
+If you open this repository as a cmake project in Visual Studio, e.g. VS Community 2022,
 
 1. Install [vcpkg](https://vcpkg.io/en/getting-started).
 2. Add a `VCPKG_DIR` environment variable pointing to the directory, which contains the `vcpkg.exe`.
@@ -51,10 +50,10 @@ executable.
 The application is currently parted into three subprojects representing, each representing one of the three
 layers/components/parts:
 
-* _vectorization_ is a static library for the fundamental support for SSE/AVX accelerated FP computations.
+* _vectorization_ is a static library for the fundamental support for SSE/AVX FP computations.
 * _primitives_ is a static library providing geometric primitives like spheres, cubes, planes, which can be added to a
   scene.
-* _raytracing_ is a static library of the core of the raytracer backend. Here you will find the scene management,
+* _raytracing_ is a static library of the raytracer backend. Here you will find the scene management,
   partitioning of the scene and its objects and the actual raytracer kernel, which is implemented as a
   Whitted-raytracer.
 * _raytracerui_ contains the simple frontend and a basic setup of different scenes.
@@ -63,7 +62,7 @@ layers/components/parts:
 
 ### Mouse control
 
-Holding left button:
+Holding the left button:
 
 * moving the mouse rotates the camera
 * holding SHIFT and moving translates the camera forward (when moving right or up) or backward (when moving left or
@@ -71,16 +70,16 @@ Holding left button:
 * holding CTRL and moving translates the camera sidewards or up and down
 * holding ALT and moving scales the world space (zooming in and out so to say)
 
-Holding right button:
+Holding the right button:
 
 * moving the mouse translates the last-added light object on the world's Z-axis
-* holding SHIFT and moving translates the last-added object on the world's Z-axis
+* holding SHIFT and moving translates to the last-added object on the world's Z-axis
 
 ### Key controls
 
-*R* - Reset camera to world's origin and rotation towards world's Z-axis
+*R* - Reset camera to world's origin and rotation towards the world's Z-axis
 
-*T* - Enable/disable fast preview, enabled by default (limits output image size -> fewer traces to perform)
+*T* - Enable/disable fast preview, enabled by default (limits output image size → fewer traces to perform)
 
 *A* - Half the sampling-factor, which halves the output size proportionally
 
@@ -88,10 +87,10 @@ Holding right button:
 
 *D* - Decrease trace depth to have less reflection and transmission traces
 
-*F* - Increase trace depth to have more reflections and transmissions details (at some trace depth the changes in the
-image output is negligible)
+*F* - Increase trace depth to have more reflections and transmission details (at some trace depth the changes in the
+image output are negligible)
 
-*J* - Decrease antialiasing factor to have fewer traces per image pixel
+*J* - Decrease the antialiasing factor to have fewer traces per image pixel
 
 *K* - Increase antialiasing factor to enable anti aliased like sampling traces per image pixel
 
@@ -101,7 +100,7 @@ image output is negligible)
 
 _For debugging purposes:_
 
-*W* - Write last raytracing output to file "raytraced.bmp" in current working directory
+*W* - Write last raytracing output to file "raytraced.bmp" in the current working directory
 
 *E* - Cycle through the output types
 
@@ -125,7 +124,7 @@ The raytracer features:
 * OpenMP simple parallelization
 * Unit tests implemented as Visual C++ component tests
 * UI is implemented with the standard Windows API (raytracerui VC++-project as Windows executable).
-* Raytrace output can be blitted either with
+* Raytrace output as an image can be blit with
     * a GDI StretchDIBits implementation or
     * an OpenGL implementation (has no effect on raytracing performance)
 * Simple BRDF lightning model
@@ -134,14 +133,16 @@ The raytracer features:
     * Phong-based specular reflections
     * Beer-Lambert-Law-based diffused and transmitted lightning
 
-Vector math is implemented with intrinsic instructions (vectorization VC++-project as static library)
+Vector math is implemented with intrinsic instructions (vectorization VC++-project as a static library)
 
 * Supports SSE4, AVX and FMA instructions
 * SSE4 is used by default.
-* Third party implementations [sse_mathfun.h](http://gruntthepeon.free.fr/ssemath/)
-  and [avx_mathfun.h](http://software-lisc.fbk.eu/avx_mathfun/) are used for vectorized exp and log trigonometry
-  functions
+* Vectorized exp and log trigonometry functions use third party implementations sse_mathfun.h and avx_mathfun.h (see
+  Credits).
 
 ## Credits
 
 Project is set up with *[The C++ CMake Project Template](https://github.com/cginternals/cmake-init)*
+
+Uses [sse_mathfun.h](http://gruntthepeon.free.fr/ssemath/) and [avx_mathfun.h](http://software-lisc.fbk.eu/avx_mathfun/)
+in vectorized exp and log trigonometry functions.
