@@ -15,16 +15,16 @@ namespace primitives {
       : normalDistance(replaceW(normal, dot3(normal, origin))) {
   }
 
-  const AxisAlignedBoundingBox bounding(const SplittingPlane & /* p */) noexcept {
+  AxisAlignedBoundingBox bounding(const SplittingPlane & /* p */) noexcept {
     // infinite planes have infinite bounds
-    return AxisAlignedBoundingBox();
+    return {};
   }
 
   // x = signed distance to plane
   // y = ray dot normal
   // z = -ray dot normal
   // w = ray dot normal
-  inline const Float4 computePlaneIntersectionCoefficients(const Ray &r, const SplittingPlane &p) noexcept {
+  inline Float4 computePlaneIntersectionCoefficients(const Ray &r, const SplittingPlane &p) noexcept {
     auto orientation = dot3v(r.direction, p.normalDistance);
     auto signedDistance = dotv(r.origin, p.normalDistance) / orientation;
     return x_yzw(signedDistance, orientation) ^ SIGN_MASK;
@@ -34,18 +34,18 @@ namespace primitives {
   // y = (ray dot normal <= 0)
   // z = (ray dot normal > 0)
   // w = (ray dot normal <= 0)
-  inline const Float4::VectorBoolType testPlaneIntersectionCoefficients(const Float4 &c) noexcept {
+  inline Float4::VectorBoolType testPlaneIntersectionCoefficients(const Float4 &c) noexcept {
     return c < Zero<Float4>();
   }
 
-  const bool overlaps(const AxisAlignedBoundingBox &a, const SplittingPlane &p) noexcept {
+  bool overlaps(const AxisAlignedBoundingBox &a, const SplittingPlane &p) noexcept {
     auto notNegative = p.normalDistance >= Zero<Float4>();
     auto selmin = oneW(blendMasked(a.maximum, a.minimum, notNegative));
     auto selmax = oneW(blendMasked(a.minimum, a.maximum, notNegative));
     return isNegative(dotv(p.normalDistance, selmin)) & !isNegative(dotv(p.normalDistance, selmax));
   }
 
-  const bool overlaps(const RayCast &r, const SplittingPlane &p) noexcept {
+  bool overlaps(const RayCast &r, const SplittingPlane &p) noexcept {
     auto coefficients = computePlaneIntersectionCoefficients(r.ray, p);
     auto check = testPlaneIntersectionCoefficients(coefficients);
     if (x(check | (zwzw(check) & backfaceCulledv(r)) | (yyyy(check) & frontfaceCulledv(r)))) {
@@ -54,7 +54,7 @@ namespace primitives {
     return !outOfReach(r, x(coefficients));
   }
 
-  const Float nearestIntersection(const RayCast &r, const SplittingPlane &p, const Size2::ValueType originId) noexcept {
+  Float nearestIntersection(const RayCast &r, const SplittingPlane &p, Size2::ValueType originId) noexcept {
     auto coefficients = computePlaneIntersectionCoefficients(r.ray, p);
     auto check = testPlaneIntersectionCoefficients(coefficients);
     if (x(check | (zwzw(check) & backfaceCulledv(r)) | (yyyy(check) & frontfaceCulledv(r)))) {

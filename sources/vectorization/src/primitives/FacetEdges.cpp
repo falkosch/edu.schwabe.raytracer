@@ -9,7 +9,7 @@ namespace primitives {
   FacetEdges::FacetEdges(const Float4 &edge1, const Float4 &edge2) noexcept : edge1(edge1), edge2(edge2) {
   }
 
-  const Float4 nearestIntersectionMoeller(
+  Float4 nearestIntersectionMoeller(
       const Float4 &v0, const FacetEdges &facetEdges, const Ray &ray, const Float4 &maxDistance
   ) noexcept {
     // calculate direction from v0 to ray.origin
@@ -32,11 +32,8 @@ namespace primitives {
       return maxDistance;
     }
 
-    // calculate tv in "ray.origin + tv * ray.direction"
-    return x_yzw(
-        u, xy_zw(
-               v, dotv(facetEdges.edge2, qv) * determinant // == tv
-           )
-    );
+    // calculate d in "ray.origin + d * ray.direction"
+    auto d = dotv(facetEdges.edge2, qv) * determinant;
+    return x_yzw(u, xy_zw(v, d));
   }
 }

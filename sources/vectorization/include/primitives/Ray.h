@@ -5,8 +5,8 @@
 namespace primitives {
   using namespace vectorization;
 
-  /*
-   * A simple structure to contain a ray
+  /**
+   * Ray origin and direction, with precomputed reciprocal direction
    */
   struct Ray {
     Float4 origin, direction, reciprocalDirection;
@@ -20,9 +20,9 @@ namespace primitives {
     void setDirection(const Float4 &direction) noexcept;
   };
 
-  const Ray replaceDirection(const Ray &r, const Float4 &value) noexcept;
+  Ray replaceDirection(const Ray &r, const Float4 &value) noexcept;
 
-  const Float4 point(const Ray &r, const Float t) noexcept;
+  Float4 point(const Ray &r, Float t) noexcept;
 
-  const Float4 point(const Ray &r, const Float4 &v) noexcept;
+  Float4 point(const Ray &r, const Float4 &v) noexcept;
 }

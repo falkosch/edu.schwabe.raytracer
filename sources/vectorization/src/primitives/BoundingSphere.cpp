@@ -6,16 +6,15 @@ namespace primitives {
   BoundingSphere::BoundingSphere() noexcept : centerRadius(OneW<Float4>()) {
   }
 
-  BoundingSphere::BoundingSphere(const Float4 &center, const Float radius) noexcept
-      : centerRadius(replaceW(center, radius)) {
+  BoundingSphere::BoundingSphere(const Float4 &center, Float radius) noexcept : centerRadius(replaceW(center, radius)) {
   }
 
-  const AxisAlignedBoundingBox bounding(const BoundingSphere &b) noexcept {
+  AxisAlignedBoundingBox bounding(const BoundingSphere &b) noexcept {
     auto radius = wwww(b.centerRadius);
     return AxisAlignedBoundingBox(oneW(b.centerRadius - radius), oneW(b.centerRadius + radius));
   }
 
-  inline const Float4 computeSphereIntersectionCoefficients(const Ray &r, const BoundingSphere &b) noexcept {
+  inline Float4 computeSphereIntersectionCoefficients(const Ray &r, const BoundingSphere &b) noexcept {
     // geometric method from Real-Time Rendering 3: http://books.google.de/books?id=V1k1V9Ra1FoC&pg=PA741
     auto sqrRadius = wwww(b.centerRadius * b.centerRadius);
     auto vl = zeroW(b.centerRadius - r.origin);
@@ -33,7 +32,7 @@ namespace primitives {
     return blend<false, true, false, true>(min(d, yyww(d)), max(xxzz(d), d));
   }
 
-  inline const Float4::VectorBoolType testSphereIntersectionCoefficients(const Float4 &c) noexcept {
+  inline Float4::VectorBoolType testSphereIntersectionCoefficients(const Float4 &c) noexcept {
     // x = t0 < 0 = c.x < 0
     // y = t1 < 0 = c.y < 0
     // z = t0 < 0 = c.z < 0
@@ -41,15 +40,14 @@ namespace primitives {
     return c < Zero<Float4>();
   }
 
-  const bool overlaps(const RayCast &r, const BoundingSphere &b) noexcept {
+  bool overlaps(const RayCast &r, const BoundingSphere &b) noexcept {
     auto coefficients = computeSphereIntersectionCoefficients(r.ray, b);
     auto check = testSphereIntersectionCoefficients(coefficients);
     // overlaps if coefficients.y >= 0 and (coefficients.x < 0 or ray reaches front of sphere)
     return !!x(andnot(andnot(check, outOfReach(r, coefficients)), !yyyy(check)));
   }
 
-  const Float
-  nearestIntersection(const RayCast &rayCast, const BoundingSphere &b, const Size2::ValueType originId) noexcept {
+  Float nearestIntersection(const RayCast &rayCast, const BoundingSphere &b, Size2::ValueType originId) noexcept {
     auto coefficients = computeSphereIntersectionCoefficients(rayCast.ray, b);
     auto check = testSphereIntersectionCoefficients(coefficients);
 
