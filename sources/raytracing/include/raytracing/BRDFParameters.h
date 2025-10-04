@@ -2,36 +2,34 @@
 
 #include "geometry/SceneIntersection.h"
 
-#include "shading/SurfaceShading.h"
 #include "shading/LightShading.h"
+#include "shading/SurfaceShading.h"
 
-namespace raytracer
-{
-    using namespace vectorization;
+namespace raytracer {
+  using namespace vectorization;
 
-    struct BRDFParameters
-    {
-        // Intersection information of ray with a scene-element
-        SceneIntersection intersection;
+  struct BRDFParameters {
+    // Intersection information of ray with a scene-element
+    SceneIntersection intersection;
 
-        // Sampled surface properties at scene-intersection
-        SurfaceShading surface;
+    // Sampled surface properties at scene-intersection
+    SurfaceShading surface;
 
-        // Sampled lighting properties at scene-intersection
-        LightShading lighting;
+    // Sampled lighting properties at scene-intersection
+    LightShading lighting;
 
-        // Direction of transmitted ray
-        Float4 transmissionDirection;
+    // Direction of transmitted ray
+    Float4 transmissionDirection;
 
-        // Fresnel reflectance coefficient = 1 - transmittance coefficient
-        Float4 reflectanceCoefficient;
+    // Fresnel reflectance coefficient = 1 - transmittance coefficient
+    Float4 reflectanceCoefficient;
 
-        // Light absorbtion weight in material
-        Float4 absorbtionCoefficient;
+    // Light absorption weight in material
+    Float4 absorptionCoefficient;
 
-        // Distance from ray-origin to scene-intersection
-        Float viewDistance;
+    // Distance from ray-origin to scene-intersection
+    Float viewDistance;
 
-        BRDFParameters();
-    };
+    BRDFParameters();
+  };
 }

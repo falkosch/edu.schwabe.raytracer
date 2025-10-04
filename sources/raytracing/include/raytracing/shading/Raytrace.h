@@ -4,30 +4,27 @@
 
 #include <primitives.h>
 
-namespace raytracer
-{
-    using namespace vectorization;
-    using namespace primitives;
+namespace raytracer {
+  using namespace vectorization;
+  using namespace primitives;
 
-    /*
-    * Specializes RayCast by visibility properties
-    */
-    struct Raytrace
-    {
-        Raycast raycast;
+  /**
+   * Adds visibility properties to a RayCast
+   */
+  struct Raytrace {
+    RayCast rayCast;
 
-        const SceneIntersection * originIntersection;
+    const SceneIntersection *originIntersection;
 
-        ASizeT traceDepth;
+    ASizeT traceDepth;
 
-        Float visibilityIndex;
+    Float visibilityIndex;
 
-        Raytrace();
+    Raytrace();
 
-        explicit Raytrace(
-            const Raycast & raycast,
-            const SceneIntersection * const originIntersection,
-            const ASizeT traceDepth,
-            const Float visibilityIndex);
-    };
+    explicit Raytrace(
+        const RayCast &rayCast, const SceneIntersection *const originIntersection, const ASizeT traceDepth,
+        const Float visibilityIndex
+    );
+  };
 }

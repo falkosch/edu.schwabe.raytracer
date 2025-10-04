@@ -1,7 +1,7 @@
 #pragma once
 
-#include <vectorization.h>
 #include <primitives.h>
+#include <vectorization.h>
 
 using namespace std;
 using namespace vectorization;

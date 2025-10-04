@@ -2,20 +2,18 @@
 
 #include "RaytraceConfiguration.h"
 
-#include "shading/Raytrace.h"
 #include "shading/PerLightShadowCache.h"
+#include "shading/Raytrace.h"
 
-namespace raytracer
-{
-    // per worker thread cached raytracing information
-    struct RaytracerCache
-    {
-        RaytraceConfiguration configuration;
+namespace raytracer {
+  // per worker thread cached raytracing information
+  struct RaytracerCache {
+    RaytraceConfiguration configuration;
 
-        StatisticsCookie statistics;
+    StatisticsCookie statistics;
 
-        PerLightShadowCache::ShadowCacheType shadowCache;
+    PerLightShadowCache::ShadowCacheType shadowCache;
 
-        RaytracerCache(const RaytraceConfiguration & configuration);
-    };
+    RaytracerCache(const RaytraceConfiguration &configuration);
+  };
 }

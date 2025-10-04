@@ -4,15 +4,16 @@
 #include "vectorization/blends.h"
 #include "vectorization/swizzles.h"
 
-namespace vectorization
-{
-    template <ASizeT X, ASizeT Y>
-    inline const PackedFloat2_128 swizzledBlendMasked(const PackedFloat2_128 & a, const PackedFloat2_128 & b, const PackedFloat2_128 & mask) noexcept {
-        return blendMasked(swizzle<X, Y>(a), swizzle<X, Y>(b), mask);
-    }
+namespace vectorization {
+  template <ASizeT X, ASizeT Y>
+  inline const PackedFloat2_128
+  swizzledBlendMasked(const PackedFloat2_128 &a, const PackedFloat2_128 &b, const PackedFloat2_128 &mask) noexcept {
+    return blendMasked(swizzle<X, Y>(a), swizzle<X, Y>(b), mask);
+  }
 
-    template <ASizeT X, ASizeT Y>
-    inline const PackedFloat2_128 swizzledBlendMasked(const PackedFloat2_128 & a, const PackedFloat2_128 & b, const PackedInts_128 & mask) noexcept {
-        return blendMasked(swizzle<X, Y>(a), swizzle<X, Y>(b), mask);
-    }
+  template <ASizeT X, ASizeT Y>
+  inline const PackedFloat2_128
+  swizzledBlendMasked(const PackedFloat2_128 &a, const PackedFloat2_128 &b, const PackedInts_128 &mask) noexcept {
+    return blendMasked(swizzle<X, Y>(a), swizzle<X, Y>(b), mask);
+  }
 }

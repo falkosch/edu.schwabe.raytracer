@@ -1,46 +1,38 @@
 #pragma once
 
 #include "../common/HDRImage.h"
+#include "../geometry/forms/meshes/Mesh.h"
+#include "../shading/ObjectShader.h"
 #include "../shading/shaders/ConstShader.h"
 #include "../shading/shaders/MultiplyByConstShader.h"
-#include "../shading/ObjectShader.h"
-#include "../geometry/forms/meshes/Mesh.h"
 
 #include <map>
 
-namespace raytracer
-{
-    using namespace vectorization;
+namespace raytracer {
+  using namespace vectorization;
 
-    class Resources
-    {
-    public:
+  class Resources {
+  public:
+    typedef ConstShader<ObjectShader, FacetIntersection, Float4> ConstMaterialShader;
 
-        typedef ConstShader<ObjectShader, FacetIntersection, Float4> ConstMaterialShader;
+    typedef MultiplyByConstShader<ObjectShader, FacetIntersection, Float4, ObjectShader::MaterialShader>
+        MultiplyByConstMaterialShader;
 
-        typedef MultiplyByConstShader <
-            ObjectShader,
-            FacetIntersection,
-            Float4,
-            ObjectShader::MaterialShader
-        > MultiplyByConstMaterialShader;
+    Resources();
 
-        Resources();
+    virtual ~Resources();
 
-        virtual ~Resources();
+    std::map<std::string, Mesh *> meshes;
 
-        std::map<std::string, Mesh *> meshes;
+    std::map<std::string, HDRImage *> textures;
 
-        std::map<std::string, HDRImage *> textures;
+    Mesh *const getMesh(const std::string &identifier);
 
-        Mesh * const getMesh(const std::string & identifier);
+    HDRImage *const getPPM(const std::string &identifier);
 
-        HDRImage * const getPPM(const std::string & identifier);
+  protected:
+    std::vector<std::string, AlignedAllocator<std::string>> revertedNormalsCheckList;
 
-    protected:
-
-        std::vector<std::string, AlignedAllocator<std::string>> revertedNormalsCheckList;
-
-        const bool hasRevertedNormals(const std::string & identifier) const;
-    };
+    const bool hasRevertedNormals(const std::string &identifier) const;
+  };
 }

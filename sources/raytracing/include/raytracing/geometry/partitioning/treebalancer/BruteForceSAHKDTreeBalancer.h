@@ -2,24 +2,17 @@
 
 #include "SAHKDTreeBalancer.h"
 
-namespace raytracer
-{
-    using namespace vectorization;
-    using namespace primitives;
+namespace raytracer {
+  using namespace vectorization;
+  using namespace primitives;
 
-    class BruteForceSAHKDTreeBalancer
-        : public SAHKDTreeBalancer
-    {
-    public:
+  class BruteForceSAHKDTreeBalancer : public SAHKDTreeBalancer {
+  public:
+    virtual ~BruteForceSAHKDTreeBalancer();
 
-        virtual ~BruteForceSAHKDTreeBalancer();
-
-        const KDTreePlane findSplitter(
-            const KDTreeBuildParameters & paramaters,
-            const ASizeT treeDepth,
-            const AxisAlignedBoundingBox & bounding,
-            const PGeometryNodeList & geometry,
-            const KDTreePlane * parentSplitter
-        ) const;
-    };
+    const KDTreePlane findSplitter(
+        const KDTreeBuildParameters &parameters, const ASizeT treeDepth, const AxisAlignedBoundingBox &bounding,
+        const PGeometryNodeList &geometry, const KDTreePlane *parentSplitter
+    ) const;
+  };
 }

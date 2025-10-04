@@ -6,78 +6,74 @@
 #include "SurfaceShading.h"
 #include "TextureTransformInfo.h"
 
-namespace raytracer
-{
-    using namespace vectorization;
+namespace raytracer {
+  using namespace vectorization;
 
-    class ObjectShader : public ObjectGeometry, public Shader < SceneShader, SceneIntersection, SurfaceShading >
-    {
-    public:
+  class ObjectShader : public ObjectGeometry, public Shader<SceneShader, SceneIntersection, SurfaceShading> {
+  public:
+    typedef Shader<ObjectShader, FacetIntersection, Float4> MaterialShader;
 
-        typedef Shader<ObjectShader, FacetIntersection, Float4> MaterialShader;
+    ObjectShader();
 
-        ObjectShader();
+    virtual ~ObjectShader();
 
-        virtual ~ObjectShader();
+    const MaterialShader *const getDiffusionShader() const;
 
-        const MaterialShader * const getDiffusionShader() const;
+    void setDiffusionShader(const MaterialShader *const value);
 
-        void setDiffusionShader(const MaterialShader * const value);
+    const MaterialShader *const getReflectanceShader() const;
 
-        const MaterialShader * const getReflectanceShader() const;
+    void setReflectanceShader(const MaterialShader *const value);
 
-        void setReflectanceShader(const MaterialShader * const value);
+    const MaterialShader *const getSpecularShader() const;
 
-        const MaterialShader * const getSpecularityShader() const;
+    void setSpecularShader(const MaterialShader *const value);
 
-        void setSpecularityShader(const MaterialShader * const value);
+    const MaterialShader *const getShininessShader() const;
 
-        const MaterialShader * const getShininessShader() const;
+    void setShininessShader(const MaterialShader *const value);
 
-        void setShininessShader(const MaterialShader * const value);
+    const MaterialShader *const getTransmittanceShader() const;
 
-        const MaterialShader * const getTransmittanceShader() const;
+    void setTransmittanceShader(const MaterialShader *const value);
 
-        void setTransmittanceShader(const MaterialShader * const value);
+    const MaterialShader *const getRefractionEtaShader() const;
 
-        const MaterialShader * const getRefractionEtaShader() const;
+    void setRefractionEtaShader(const MaterialShader *const value);
 
-        void setRefractionEtaShader(const MaterialShader * const value);
+    const MaterialShader *const getEmittanceShader() const;
 
-        const MaterialShader * const getEmissivityShader() const;
+    void setEmittanceShader(const MaterialShader *const value);
 
-        void setEmissivityShader(const MaterialShader * const value);
+    void resetTextureMatrix();
 
-        void resetTextureMatrix();
+    void rotateTexture(const Float angle);
 
-        void rotateTexture(const Float angle);
+    void translateTexture(const Float2 &translation);
 
-        void translateTexture(const Float2 & translation);
+    void scaleTexture(const Float2 &scale);
 
-        void scaleTexture(const Float2 & scale);
+    const SurfaceShading sample(const SceneShader &sceneShader, const SceneIntersection &intersection) const;
 
-        const SurfaceShading sample(const SceneShader & sceneShader, const SceneIntersection & intersection) const;
+  protected:
+    Float44 textureMatrix;
 
-    protected:
+    TextureTransformInfo textureTransformInfo;
 
-        Float44 textureMatrix;
+    const MaterialShader *diffusionShader;
 
-        TextureTransformInfo textureTransformInfo;
+    const MaterialShader *reflectanceShader;
 
-        const MaterialShader * diffusionShader;
+    const MaterialShader *specularShader;
 
-        const MaterialShader * reflectanceShader;
+    const MaterialShader *shininessShader;
 
-        const MaterialShader * specularityShader;
+    const MaterialShader *transmittanceShader;
 
-        const MaterialShader * shininessShader;
+    const MaterialShader *refractionEtaShader;
 
-        const MaterialShader * transmittanceShader;
+    const MaterialShader *emittanceShader;
 
-        const MaterialShader * refractionEtaShader;
-
-        const MaterialShader * emissivityShader;
-
-        void updateTextureMatrix();
-    };
+    void updateTextureMatrix();
+  };
 }

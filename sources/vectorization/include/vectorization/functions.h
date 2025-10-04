@@ -1,19 +1,19 @@
 /*
-* Introduces a centric helper class for general math functions.
-*
-* @file vectorization/functions.h
-*/
+ * Introduces a centric helper class for general math functions.
+ *
+ * @file vectorization/functions.h
+ */
 
 #pragma once
 
 #include "functions/abs.h"
 #include "functions/acos.h"
 #include "functions/atan2.h"
-#include "functions/bitcount.h"
-#include "functions/bitpad.h"
+#include "functions/bitCount.h"
+#include "functions/bitPad.h"
 #include "functions/ceil.h"
 #include "functions/clamp.h"
-#include "functions/copysign.h"
+#include "functions/copySign.h"
 #include "functions/cos.h"
 #include "functions/divide.h"
 #include "functions/exp.h"
@@ -25,7 +25,7 @@
 #include "functions/max.h"
 #include "functions/min.h"
 #include "functions/mix.h"
-#include "functions/modpad.h"
+#include "functions/modPad.h"
 #include "functions/modulo.h"
 #include "functions/pow.h"
 #include "functions/reciprocal.h"

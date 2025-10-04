@@ -1,37 +1,33 @@
 #pragma once
 
-#include "../geometry/partitioning/KDTreeTraverser.h"
 #include "../geometry/partitioning/KDTreeBalancer.h"
+#include "../geometry/partitioning/KDTreeTraverser.h"
 #include "../shading/SceneShader.h"
 #include "SceneObject.h"
 
-namespace raytracer
-{
-    using namespace vectorization;
-    using namespace primitives;
+namespace raytracer {
+  using namespace vectorization;
+  using namespace primitives;
 
-    class Scene : public SceneShader
-    {
-    public:
+  class Scene : public SceneShader {
+  public:
+    typedef std::vector<SceneObject *, AlignedAllocator<SceneObject *>> SceneList;
 
-        typedef std::vector<SceneObject *, AlignedAllocator<SceneObject *>> SceneList;
+    Scene();
 
-        Scene();
+    Scene(const KDTreeTraverser<SceneIntersection> *const treeTraverser, const KDTreeBalancer *const treeBalancer);
 
-        Scene(const KDTreeTraverser<SceneIntersection> * const treeTraverser, const KDTreeBalancer * const treeBalancer);
+    virtual ~Scene();
 
-        virtual ~Scene();
+    const SceneList &getSceneObjects() const;
 
-        const SceneList & getSceneObjects() const;
+    SceneList &getSceneObjects();
 
-        SceneList & getSceneObjects();
+    void buildSceneGraph();
 
-        void buildSceneGraph();
+  protected:
+    SceneList sceneObjects;
 
-    protected:
-
-        SceneList sceneObjects;
-
-        const KDTreeBalancer * treeBalancer;
-    };
+    const KDTreeBalancer *treeBalancer;
+  };
 }

@@ -1,10 +1,10 @@
 #include "raytracing/geometry/forms/meshes/Mesh.h"
 #include "../../../../stdafx.h"
 
+#include "raytracing/geometry/forms/meshes/MeshGeometryNode.h"
 #include "raytracing/geometry/forms/meshes/facets.h"
 #include "raytracing/geometry/forms/meshes/textureCoordinates.h"
 #include "raytracing/geometry/forms/meshes/vertices.h"
-#include "raytracing/geometry/forms/meshes/MeshGeometryNode.h"
 
 #include <cassert>
 #include <fstream>
@@ -12,402 +12,341 @@
 #include <iostream>
 #include <sstream>
 
-namespace raytracer
-{
-    Mesh::Mesh()
-        :
-        bounding(),
-        vertices(),
-        vertexNormals(),
-        facetIndices(),
-        facets(),
-        texCoords(),
-        flatNormals(),
-        smoothNormals(),
-        planeNormals(),
-        facetEdges(),
-        nodes(),
-        graph(),
-        traverser(),
-        balancer() { }
+namespace raytracer {
+  Mesh::Mesh()
+      : bounding(), vertices(), vertexNormals(), facetIndices(), facets(), texCoords(), flatNormals(), smoothNormals(),
+        planeNormals(), facetEdges(), nodes(), graph(), traverser(), balancer() {
+  }
 
-    Mesh::Mesh(const KDTreeTraverser<FacetIntersection> * const traverser, const KDTreeBalancer * const balancer)
-        :
-        bounding(),
-        vertices(),
-        vertexNormals(),
-        facetIndices(),
-        facets(),
-        texCoords(),
-        flatNormals(),
-        smoothNormals(),
-        planeNormals(),
-        facetEdges(),
-        nodes(),
-        graph(),
-        traverser(traverser),
-        balancer(balancer) { }
+  Mesh::Mesh(const KDTreeTraverser<FacetIntersection> *const traverser, const KDTreeBalancer *const balancer)
+      : bounding(), vertices(), vertexNormals(), facetIndices(), facets(), texCoords(), flatNormals(), smoothNormals(),
+        planeNormals(), facetEdges(), nodes(), graph(), traverser(traverser), balancer(balancer) {
+  }
 
-    Mesh::~Mesh() {
-        clear();
-        delete graph;
-        delete traverser;
-        delete balancer;
+  Mesh::~Mesh() {
+    clear();
+    delete graph;
+    delete traverser;
+    delete balancer;
+  }
+
+  const AxisAlignedBoundingBox Mesh::getBounding() const {
+    return bounding;
+  }
+
+  const Float Mesh::findNearestIntersection(
+      const RayCast &rayCast, const FacetIntersection *const originIntersection, FacetIntersection &intersectionOut
+  ) const {
+    if (graph) {
+      return traverser->findNearestIntersection(*this, *graph, rayCast, originIntersection, intersectionOut);
+    }
+    return findNearestIntersection(nodes, rayCast, originIntersection, intersectionOut);
+  }
+
+  const Float Mesh::findAnyIntersection(
+      const RayCast &rayCast, const FacetIntersection *const originIntersection, FacetIntersection &intersectionOut
+  ) const {
+    if (graph) {
+      return traverser->findAnyIntersection(*this, *graph, rayCast, originIntersection, intersectionOut);
+    }
+    return findAnyIntersection(nodes, rayCast, originIntersection, intersectionOut);
+  }
+
+  const Float Mesh::findNearestIntersection(
+      const PGeometryNodeList &geometryNodes, const RayCast &rayCast, const FacetIntersection *const originIntersection,
+      FacetIntersection &intersectionOut
+  ) const {
+    if (outOfReach(rayCast, Zero<Float>())) {
+      return rayCast.maxDistance;
     }
 
-    const AxisAlignedBoundingBox Mesh::getBounding() const {
-        return bounding;
+    auto nearestTexCoordsAndDistance = Float4{rayCast.maxDistance};
+    ASizeT nearestIndex{0};
+
+    for (auto node : geometryNodes) {
+      // avoid self occlusion
+      if (originIntersection && originIntersection->node == node) {
+        continue;
+      }
+
+      auto meshNode = static_cast<const MeshGeometryNode *const>(node);
+      auto index = meshNode->index;
+
+      auto determinant = dot3v(flatNormals[index], rayCast.ray.direction);
+      auto frontfaced = isNegative(determinant);
+      auto culledBack = (!frontfaced) & backfaceCulled(rayCast);
+      auto culledFront = (!!frontfaced) & frontfaceCulled(rayCast);
+      if (culledBack | culledFront) {
+        continue;
+      }
+
+      // auto facetTexCoordsAndDistance = nearestIntersectionMoeller(
+      //     facets[index].v0,
+      //     facetEdges[index],
+      //     rayCast.ray,
+      //     nearestTexCoordsAndDistance
+      //);
+      auto facetTexCoordsAndDistance =
+          nearestIntersectionHavel(planeNormals[index], rayCast, zzzz(nearestTexCoordsAndDistance));
+
+      if (z(facetTexCoordsAndDistance < nearestTexCoordsAndDistance)) {
+        nearestTexCoordsAndDistance = facetTexCoordsAndDistance;
+        nearestIndex = index;
+      }
     }
 
-    const Float Mesh::findNearestIntersection(const Raycast & raycast, const FacetIntersection * const originIntersection, FacetIntersection & intersectionOut) const {
-        if (graph) {
-            return traverser->findNearestIntersection(*this, *graph, raycast, originIntersection, intersectionOut);
-        }
-        return findNearestIntersection(nodes, raycast, originIntersection, intersectionOut);
+    return computeFacetIntersection(
+        nearestIndex, nearestTexCoordsAndDistance, rayCast, texCoords, flatNormals, smoothNormals, nodes,
+        intersectionOut
+    );
+  }
+
+  // Finds any intersection of a Ray within a geometry.
+  const Float Mesh::findAnyIntersection(
+      const PGeometryNodeList &geometryNodes, const RayCast &rayCast, const FacetIntersection *const originIntersection,
+      FacetIntersection &intersectionOut
+  ) const {
+    if (outOfReach(rayCast, Zero<Float>())) {
+      return rayCast.maxDistance;
     }
 
-    const Float Mesh::findAnyIntersection(const Raycast & raycast, const FacetIntersection * const originIntersection, FacetIntersection & intersectionOut) const {
-        if (graph) {
-            return traverser->findAnyIntersection(*this, *graph, raycast, originIntersection, intersectionOut);
-        }
-        return findAnyIntersection(nodes, raycast, originIntersection, intersectionOut);
-    }
+    const Float4 maxDistance = Float4(rayCast.maxDistance);
 
-    const Float Mesh::findNearestIntersection(
-        const PGeometryNodeList & geometryNodes,
-        const Raycast & raycast,
-        const FacetIntersection * const originIntersection,
-        FacetIntersection & intersectionOut
-    ) const {
-        if (outOfReach(raycast, Zero<Float>())) {
-            return raycast.maxDistance;
-        }
+    for (auto node : geometryNodes) {
+      // avoid self occlusion
+      if (originIntersection && originIntersection->node == node) {
+        continue;
+      }
 
-        auto nearestTexCoordsAndDistance = Float4{ raycast.maxDistance };
-        ASizeT nearestIndex{ 0 };
+      auto meshNode = static_cast<const MeshGeometryNode *const>(node);
+      auto index = meshNode->index;
 
-        for (auto node : geometryNodes) {
-            // avoid self occulusion
-            if (originIntersection && originIntersection->node == node) {
-                continue;
-            }
+      auto determinant = dot3v(flatNormals[index], rayCast.ray.direction);
+      auto frontfaced = isNegative(determinant);
+      auto culledBack = (!frontfaced) & backfaceCulled(rayCast);
+      auto culledFront = (!!frontfaced) & frontfaceCulled(rayCast);
+      if (culledBack | culledFront) {
+        continue;
+      }
 
-            auto meshNode = static_cast<const MeshGeometryNode * const>(node);
-            auto index = meshNode->index;
+      // auto facetTexCoordsAndDistance = nearestIntersectionMoeller(
+      //     facets[index].v0,
+      //     facetEdges[index],
+      //     rayCast.ray,
+      //     maxDistance
+      //);
+      auto facetTexCoordsAndDistance = nearestIntersectionHavel(planeNormals[index], rayCast, zzzz(maxDistance));
 
-            auto determinant = dot3v(flatNormals[index], raycast.ray.direction);
-            auto frontfaced = isNegative(determinant);
-            auto culledBack = (!frontfaced) & backfaceCulled(raycast);
-            auto culledFront = (!!frontfaced) & frontfaceCulled(raycast);
-            if (culledBack | culledFront) {
-                continue;
-            }
-
-            //auto facetTexCoordsAndDistance = nearestIntersectionMoeller(
-            //    facets[index].v0,
-            //    facetEdges[index],
-            //    raycast.ray,
-            //    nearestTexCoordsAndDistance
-            //);
-            auto facetTexCoordsAndDistance = nearestIntersectionHavel(
-                planeNormals[index],
-                raycast,
-                zzzz(nearestTexCoordsAndDistance)
-            );
-
-            if (z(facetTexCoordsAndDistance < nearestTexCoordsAndDistance)) {
-                nearestTexCoordsAndDistance = facetTexCoordsAndDistance;
-                nearestIndex = index;
-            }
-        }
-
+      // is distance in t more near than the distance in preserved d
+      if (z(facetTexCoordsAndDistance < maxDistance)) {
         return computeFacetIntersection(
-            nearestIndex,
-            nearestTexCoordsAndDistance,
-            raycast,
-            texCoords,
-            flatNormals,
-            smoothNormals,
-            nodes,
-            intersectionOut
+            index, facetTexCoordsAndDistance, rayCast, texCoords, flatNormals, smoothNormals, nodes, intersectionOut
         );
+      }
     }
 
-    // Finds any intersection of a Ray within a geometry.
-    const Float Mesh::findAnyIntersection(
-        const PGeometryNodeList & geometryNodes,
-        const Raycast & raycast,
-        const FacetIntersection * const originIntersection,
-        FacetIntersection & intersectionOut
-    ) const {
-        if (outOfReach(raycast, Zero<Float>())) {
-            return raycast.maxDistance;
-        }
+    return rayCast.maxDistance;
+  }
 
-        const Float4 maxDistance = Float4(raycast.maxDistance);
+  Mesh *const Mesh::buildCubeMesh() {
+    auto mesh = new Mesh();
 
-        for (auto node : geometryNodes) {
-            // avoid self occulusion
-            if (originIntersection && originIntersection->node == node) {
-                continue;
-            }
+    mesh->vertices.reserve(8);
+    mesh->vertices.push_back(Float4(-1.0f, -1.0f, -1.0f, 1.0f));
+    mesh->vertices.push_back(Float4(-1.0f, -1.0f, 1.0f, 1.0f));
+    mesh->vertices.push_back(Float4(1.0f, -1.0f, 1.0f, 1.0f));
+    mesh->vertices.push_back(Float4(1.0f, -1.0f, -1.0f, 1.0f));
+    mesh->vertices.push_back(Float4(-1.0f, 1.0f, -1.0f, 1.0f));
+    mesh->vertices.push_back(Float4(-1.0f, 1.0f, 1.0f, 1.0f));
+    mesh->vertices.push_back(Float4(1.0f, 1.0f, 1.0f, 1.0f));
+    mesh->vertices.push_back(Float4(1.0f, 1.0f, -1.0f, 1.0f));
 
-            auto meshNode = static_cast<const MeshGeometryNode * const>(node);
-            auto index = meshNode->index;
+    mesh->facetIndices.reserve(12);
+    // 2 x bottom facets
+    mesh->facetIndices.push_back(UInt3(0, 2, 1));
+    mesh->facetIndices.push_back(UInt3(2, 0, 3));
+    // 2 x top facets
+    mesh->facetIndices.push_back(UInt3(4, 5, 6));
+    mesh->facetIndices.push_back(UInt3(6, 7, 4));
+    // 2 x left facets
+    mesh->facetIndices.push_back(UInt3(0, 1, 5));
+    mesh->facetIndices.push_back(UInt3(5, 4, 0));
+    // 2 x front facets
+    mesh->facetIndices.push_back(UInt3(1, 2, 6));
+    mesh->facetIndices.push_back(UInt3(6, 5, 1));
+    // 2 x right facets
+    mesh->facetIndices.push_back(UInt3(2, 3, 7));
+    mesh->facetIndices.push_back(UInt3(7, 6, 2));
+    // 2 x back facets
+    mesh->facetIndices.push_back(UInt3(3, 0, 4));
+    mesh->facetIndices.push_back(UInt3(4, 7, 3));
 
-            auto determinant = dot3v(flatNormals[index], raycast.ray.direction);
-            auto frontfaced = isNegative(determinant);
-            auto culledBack = (!frontfaced) & backfaceCulled(raycast);
-            auto culledFront = (!!frontfaced) & frontfaceCulled(raycast);
-            if (culledBack | culledFront) {
-                continue;
-            }
+    mesh->setupMesh();
+    computeTexCoordsOrtho(
+        mesh->facetIndices, mesh->facets, Float4{1.0f, 1.0f, 0.0f, 0.25f}, Float4{0.0f, 1.0f, 1.0f, 0.25f},
+        mesh->texCoords
+    );
 
-            //auto facetTexCoordsAndDistance = nearestIntersectionMoeller(
-            //    facets[index].v0,
-            //    facetEdges[index],
-            //    raycast.ray,
-            //    maxDistance
-            //);
-            auto facetTexCoordsAndDistance = nearestIntersectionHavel(
-                planeNormals[index],
-                raycast,
-                zzzz(maxDistance)
-            );
+    return mesh;
+  }
 
-            // is distance in t more near than the distance in preserved d
-            if (z(facetTexCoordsAndDistance < maxDistance)) {
-                return computeFacetIntersection(
-                    index,
-                    facetTexCoordsAndDistance,
-                    raycast,
-                    texCoords,
-                    flatNormals,
-                    smoothNormals,
-                    nodes,
-                    intersectionOut
-                );
-            }
-        }
+  Mesh *const Mesh::buildPlaneMesh() {
+    auto mesh = new Mesh();
 
-        return raycast.maxDistance;
+    mesh->vertices.reserve(4);
+    mesh->vertices.push_back(Float4{-1.0f, -1.0f, 0.0f, 1.0f});
+    mesh->vertices.push_back(Float4{-1.0f, 1.0f, 0.0f, 1.0f});
+    mesh->vertices.push_back(Float4{1.0f, 1.0f, 0.0f, 1.0f});
+    mesh->vertices.push_back(Float4{1.0f, -1.0f, 0.0f, 1.0f});
+
+    mesh->facetIndices.reserve(2);
+    mesh->facetIndices.push_back(UInt3{0, 1, 2});
+    mesh->facetIndices.push_back(UInt3{2, 3, 0});
+
+    mesh->setupMesh();
+    computeTexCoordsOrtho(
+        mesh->facetIndices, mesh->facets, Float4{1.0f, 0.0f, 0.0f, 0.5f}, Float4{0.0f, 1.0f, 0.0f, 0.5f},
+        mesh->texCoords
+    );
+
+    return mesh;
+  }
+
+  Mesh *const Mesh::buildTriangleMesh() {
+    auto mesh = new Mesh();
+
+    mesh->vertices.reserve(3);
+    mesh->vertices.push_back(Float4{-0.5f, 0.0f, 0.0f, 1.0f});
+    mesh->vertices.push_back(Float4{0.0f, 1.0f, 0.0f, 1.0f});
+    mesh->vertices.push_back(Float4{0.5f, 0.0f, 0.0f, 1.0f});
+
+    mesh->facetIndices.push_back(UInt3{0, 1, 2});
+
+    mesh->setupMesh();
+    computeTexCoordsOrtho(
+        mesh->facetIndices, mesh->facets, Float4{1.0f, 0.0f, 0.0f, 0.5f}, Float4{0.0f, 1.0f, 0.0f, 0.5f},
+        mesh->texCoords
+    );
+
+    return mesh;
+  }
+
+  const bool readMeshFileContent(std::ifstream file, std::string &stringOut) {
+    if (file.is_open()) {
+      stringOut = std::string{std::istreambuf_iterator<char>(file), std::istreambuf_iterator<char>()};
+      file.close();
+      return true;
+    }
+    return false;
+  }
+
+  void readNextNonEmptyLineInOFF(std::istringstream &fileStream, std::string &line) {
+    line = "";
+    while (line.empty()) {
+      std::getline(fileStream, line);
+    }
+  }
+
+  const bool readAndCheckHeaderInOFF(std::istringstream &fileStream, std::string &line) {
+    while (std::getline(fileStream, line)) {
+      if (line == "OFF" || line == "OFF\r") {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  Mesh *const Mesh::loadFromOffFile(
+      const std::string &filename, const bool flipNormals, const KDTreeTraverser<FacetIntersection> *const traverser,
+      const KDTreeBalancer *const balancer
+  ) {
+    auto mesh = new Mesh(traverser, balancer);
+    if (filename.empty()) {
+      std::cerr << "File name is empty" << std::endl;
+      return mesh;
     }
 
-    Mesh * const Mesh::buildCubeMesh() {
-        auto mesh = new Mesh();
+    std::string fileContent;
+    if (!readMeshFileContent(std::ifstream{filename}, fileContent)) {
+      std::cerr << "Failed to open " << filename << std::endl;
+      return mesh;
+    }
+    std::cout << "Loaded " << fileContent.size() << " bytes from file " << filename << std::endl;
 
-        mesh->vertices.reserve(8);
-        mesh->vertices.push_back(Float4(-1.0f, -1.0f, -1.0f, 1.0f));
-        mesh->vertices.push_back(Float4(-1.0f, -1.0f, 1.0f, 1.0f));
-        mesh->vertices.push_back(Float4(1.0f, -1.0f, 1.0f, 1.0f));
-        mesh->vertices.push_back(Float4(1.0f, -1.0f, -1.0f, 1.0f));
-        mesh->vertices.push_back(Float4(-1.0f, 1.0f, -1.0f, 1.0f));
-        mesh->vertices.push_back(Float4(-1.0f, 1.0f, 1.0f, 1.0f));
-        mesh->vertices.push_back(Float4(1.0f, 1.0f, 1.0f, 1.0f));
-        mesh->vertices.push_back(Float4(1.0f, 1.0f, -1.0f, 1.0f));
+    std::istringstream fileStream{fileContent};
+    std::string line;
+    if (!readAndCheckHeaderInOFF(fileStream, line)) {
+      std::cerr << "File " << filename << " is not an OFF-file" << std::endl;
+      return mesh;
+    }
 
-        mesh->facetIndices.reserve(12);
-        // 2 x bottom facets
-        mesh->facetIndices.push_back(UInt3(0, 2, 1));
-        mesh->facetIndices.push_back(UInt3(2, 0, 3));
-        // 2 x top facets
-        mesh->facetIndices.push_back(UInt3(4, 5, 6));
-        mesh->facetIndices.push_back(UInt3(6, 7, 4));
-        // 2 x left facets
-        mesh->facetIndices.push_back(UInt3(0, 1, 5));
-        mesh->facetIndices.push_back(UInt3(5, 4, 0));
-        // 2 x front facets
-        mesh->facetIndices.push_back(UInt3(1, 2, 6));
-        mesh->facetIndices.push_back(UInt3(6, 5, 1));
-        // 2 x right facets
-        mesh->facetIndices.push_back(UInt3(2, 3, 7));
-        mesh->facetIndices.push_back(UInt3(7, 6, 2));
-        // 2 x back facets
-        mesh->facetIndices.push_back(UInt3(3, 0, 4));
-        mesh->facetIndices.push_back(UInt3(4, 7, 3));
+    readNextNonEmptyLineInOFF(fileStream, line);
 
-        mesh->setupMesh();
-        computeTexCoordsOrtho(
-            mesh->facetIndices,
-            mesh->facets,
-            Float4{ 1.0f, 1.0f, 0.0f, 0.25f },
-            Float4{ 0.0f, 1.0f, 1.0f, 0.25f },
-            mesh->texCoords
-        );
+    // read number of vertices and faces
+    ASizeT verticesCount, facetsCount;
+    std::istringstream{line} >> verticesCount >> facetsCount;
+    assert(verticesCount > 0);
+    assert(facetsCount > 0);
 
+    // read vertices
+    mesh->vertices.resize(verticesCount);
+    for (ASizeT i{0}; i < verticesCount; i++) {
+      readNextNonEmptyLineInOFF(fileStream, line);
+
+      Float x, y, z;
+      std::istringstream{line} >> x >> y >> z;
+      mesh->vertices[i] = Float4{x, y, z, One<Float>()};
+    }
+
+    // read faces
+    mesh->facetIndices.resize(facetsCount);
+    for (ASizeT i{0}; i < facetsCount; i++) {
+      readNextNonEmptyLineInOFF(fileStream, line);
+
+      std::istringstream lineStream{line};
+
+      ASizeT faceVerticesCount;
+      lineStream >> faceVerticesCount;
+      if (faceVerticesCount != 3) {
+        std::cerr << filename << " is corrupted!" << std::endl;
         return mesh;
+      }
+
+      UInt v1, v2, v3;
+      lineStream >> v1 >> v2 >> v3;
+      if (flipNormals) {
+        mesh->facetIndices[i] = UInt3{v1, v3, v2};
+      } else {
+        mesh->facetIndices[i] = UInt3{v1, v2, v3};
+      }
     }
 
-    Mesh * const Mesh::buildPlaneMesh() {
-        auto mesh = new Mesh();
+    mesh->setupMesh();
+    computeTexCoordsSpherical(mesh->facetIndices, mesh->facets, mesh->texCoords);
 
-        mesh->vertices.reserve(4);
-        mesh->vertices.push_back(Float4{ -1.0f, -1.0f, 0.0f, 1.0f });
-        mesh->vertices.push_back(Float4{ -1.0f, 1.0f, 0.0f, 1.0f });
-        mesh->vertices.push_back(Float4{ 1.0f, 1.0f, 0.0f, 1.0f });
-        mesh->vertices.push_back(Float4{ 1.0f, -1.0f, 0.0f, 1.0f });
+    std::cout << "loaded " << filename << ": " << verticesCount << " vertices, " << facetsCount << " faces"
+              << std::endl;
 
-        mesh->facetIndices.reserve(2);
-        mesh->facetIndices.push_back(UInt3{ 0, 1, 2 });
-        mesh->facetIndices.push_back(UInt3{ 2, 3, 0 });
+    return mesh;
+  }
 
-        mesh->setupMesh();
-        computeTexCoordsOrtho(
-            mesh->facetIndices,
-            mesh->facets,
-            Float4{ 1.0f, 0.0f, 0.0f, 0.5f },
-            Float4{ 0.0f, 1.0f, 0.0f, 0.5f },
-            mesh->texCoords
-        );
+  void Mesh::clear() {
+    vertices.clear();
+    vertexNormals.clear();
 
-        return mesh;
-    }
+    facetIndices.clear();
+    facets.clear();
+    texCoords.clear();
+    flatNormals.clear();
+    smoothNormals.clear();
+    planeNormals.clear();
+    facetEdges.clear();
+  }
 
-    Mesh * const Mesh::buildTriangleMesh() {
-        auto mesh = new Mesh();
-
-        mesh->vertices.reserve(3);
-        mesh->vertices.push_back(Float4{ -0.5f, 0.0f, 0.0f, 1.0f });
-        mesh->vertices.push_back(Float4{ 0.0f, 1.0f, 0.0f, 1.0f });
-        mesh->vertices.push_back(Float4{ 0.5f, 0.0f, 0.0f, 1.0f });
-
-        mesh->facetIndices.push_back(UInt3{ 0, 1, 2 });
-
-        mesh->setupMesh();
-        computeTexCoordsOrtho(
-            mesh->facetIndices,
-            mesh->facets,
-            Float4{ 1.0f, 0.0f, 0.0f, 0.5f },
-            Float4{ 0.0f, 1.0f, 0.0f, 0.5f },
-            mesh->texCoords
-        );
-
-        return mesh;
-    }
-
-    const bool readMeshFileContent(std::ifstream file, std::string & stringOut) {
-        if (file.is_open()) {
-            stringOut = std::string{ std::istreambuf_iterator<char>(file), std::istreambuf_iterator<char>() };
-            file.close();
-            return true;
-        }
-        return false;
-    }
-
-    void readNextNonEmptyLineInOFF(std::istringstream & fileStream, std::string & line) {
-        line = "";
-        while (line.empty()) {
-            std::getline(fileStream, line);
-        }
-    }
-
-    const bool readAndCheckHeaderInOFF(std::istringstream & fileStream, std::string & line) {
-        while (std::getline(fileStream, line)) {
-            if (line == "OFF" || line == "OFF\r") {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    Mesh * const  Mesh::loadFromOffFile(const std::string & filename, const bool flipNormals, const KDTreeTraverser<FacetIntersection> * const traverser, const KDTreeBalancer * const balancer) {
-        auto mesh = new Mesh(traverser, balancer);
-        if (filename.empty()) {
-            std::cerr << "File name is empty" << std::endl;
-            return mesh;
-        }
-
-        std::string fileContent;
-        if (!readMeshFileContent(std::ifstream{ filename }, fileContent)) {
-            std::cerr << "Failed to open " << filename << std::endl;
-            return mesh;
-        }
-        std::cout << "Loaded " << fileContent.size() << " bytes from file " << filename << std::endl;
-
-        std::istringstream fileStream{ fileContent };
-        std::string line;
-        if (!readAndCheckHeaderInOFF(fileStream, line)) {
-            std::cerr << "File " << filename << " is not an OFF-file" << std::endl;
-            return mesh;
-        }
-
-        readNextNonEmptyLineInOFF(fileStream, line);
-
-        // read number of vertices and faces
-        ASizeT verticesCount, facetsCount;
-        std::istringstream{ line } >> verticesCount >> facetsCount;
-        assert(verticesCount > 0);
-        assert(facetsCount > 0);
-
-        // read vertices
-        mesh->vertices.resize(verticesCount);
-        for (ASizeT i{ 0 }; i < verticesCount; i++) {
-            readNextNonEmptyLineInOFF(fileStream, line);
-
-            Float x, y, z;
-            std::istringstream{ line } >> x >> y >> z;
-            mesh->vertices[i] = Float4{ x, y, z, One<Float>() };
-        }
-
-        // read faces
-        mesh->facetIndices.resize(facetsCount);
-        for (ASizeT i{ 0 }; i < facetsCount; i++) {
-            readNextNonEmptyLineInOFF(fileStream, line);
-
-            std::istringstream lineStream{ line };
-
-            ASizeT faceVerticesCount;
-            lineStream >> faceVerticesCount;
-            if (faceVerticesCount != 3) {
-                std::cerr << filename << " is corrupted!" << std::endl;
-                return mesh;
-            }
-
-            UInt v1, v2, v3;
-            lineStream >> v1 >> v2 >> v3;
-            if (flipNormals) {
-                mesh->facetIndices[i] = UInt3{ v1, v3, v2 };
-            } else {
-                mesh->facetIndices[i] = UInt3{ v1, v2, v3 };
-            }
-        }
-
-        mesh->setupMesh();
-        computeTexCoordsSpherical(mesh->facetIndices, mesh->facets, mesh->texCoords);
-
-        std::cout << "loaded " << filename << ": "
-            << verticesCount << " vertices, "
-            << facetsCount << " faces" << std::endl;
-
-        return mesh;
-    }
-
-    void Mesh::clear() {
-        vertices.clear();
-        vertexNormals.clear();
-
-        facetIndices.clear();
-        facets.clear();
-        texCoords.clear();
-        flatNormals.clear();
-        smoothNormals.clear();
-        planeNormals.clear();
-        facetEdges.clear();
-    }
-
-    void Mesh::setupMesh() {
-        bounding = computeStandardMesh(vertices);
-        computeFacets(vertices, facetIndices, facets);
-        computeNormals(
-            vertices,
-            facetIndices,
-            facets,
-            vertexNormals,
-            flatNormals,
-            smoothNormals,
-            planeNormals,
-            facetEdges
-        );
-        graph = computeNodesAndGraph(facets, balancer, nodes);
-    }
+  void Mesh::setupMesh() {
+    bounding = computeStandardMesh(vertices);
+    computeFacets(vertices, facetIndices, facets);
+    computeNormals(vertices, facetIndices, facets, vertexNormals, flatNormals, smoothNormals, planeNormals, facetEdges);
+    graph = computeNodesAndGraph(facets, balancer, nodes);
+  }
 }

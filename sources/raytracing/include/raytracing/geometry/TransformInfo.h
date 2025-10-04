@@ -2,19 +2,17 @@
 
 #include <vectorization.h>
 
-namespace raytracer
-{
-    using namespace vectorization;
+namespace raytracer {
+  using namespace vectorization;
 
-    /*
-    * Model or view transformations
-    */
-    struct TransformInfo
-    {
-        Float3 translation;
-        Float3 rotation;
-        Float3 scale;
+  /*
+   * Model or view transformations
+   */
+  struct TransformInfo {
+    Float3 translation;
+    Float3 rotation;
+    Float3 scale;
 
-        TransformInfo();
-    };
+    TransformInfo();
+  };
 }

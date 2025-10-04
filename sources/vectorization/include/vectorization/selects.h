@@ -1,8 +1,8 @@
 /*
-* Branchless blending and selecting for primitive types.
-*
-* @file vectorization/selects.h
-*/
+ * Branch-less blending and selecting for primitive types.
+ *
+ * @file vectorization/selects.h
+ */
 
 #pragma once
 

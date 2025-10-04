@@ -2,43 +2,39 @@
 
 #include <raytracing.h>
 
-namespace raytracerui
-{
-    using namespace vectorization;
-    using namespace raytracer;
+namespace raytracerui {
+  using namespace vectorization;
+  using namespace raytracer;
 
-    class RaytracerUI : public RaytraceObserver
-    {
-    protected:
+  class RaytracerUI : public RaytraceObserver {
+  protected:
+    RaytraceParameters parameters;
 
-        RaytraceParameters parameters;
+    Int2 screenSize;
 
-        Int2 screenSize;
+    ASizeT fastPreviewSize;
 
-        ASizeT fastPreviewSize;
+    ASizeT showMapIndex;
 
-        ASizeT showMapIndex;
+    bool disableFastPreview;
 
-        bool disableFastPreview;
+    const HDRImage *outputHDR;
 
-        const HDRImage * outputHDR;
+    const Bitmap *output;
 
-        const Bitmap * output;
+    Raytracer *raytracer;
 
-        Raytracer * raytracer;
+    virtual void reshape(const Int2 &newSize);
 
-        virtual void reshape(const Int2 & newSize);
+  public:
+    RaytracerUI(Raytracer &raytracer, const RaytraceParameters &parameters, ASizeT &fastPreviewSize);
 
-    public:
+    ~RaytracerUI() override;
 
-        RaytracerUI(Raytracer & raytracer, const RaytraceParameters & parameters, const ASizeT & fastPreviewSize);
+    virtual void triggerRaytracing(bool fastPreview);
 
-        virtual ~RaytracerUI();
+    void notifyUpdate(const RaytraceConfiguration &configuration) override;
 
-        void triggerRaytracing(const bool fastPreview);
-
-        void notifyUpdate(const RaytraceConfiguration & configuration);
-
-        const HDRImage * const selectOutputImage(const RaytraceConfiguration & configuration) const;
-    };
+    const HDRImage *const selectOutputImage(const RaytraceConfiguration &configuration) const;
+  };
 }

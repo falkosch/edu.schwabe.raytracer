@@ -2,24 +2,22 @@
 
 #include <vectorization.h>
 
-namespace raytracer
-{
-    using namespace vectorization;
+namespace raytracer {
+  using namespace vectorization;
 
-    struct LightShading
-    {
-        Float4 ambient;
+  struct LightShading {
+    Float4 ambient;
 
-        Float4 diffuse;
+    Float4 diffuse;
 
-        Float4 specular;
+    Float4 specular;
 
-        Float4 reflected;
+    Float4 reflected;
 
-        Float4 transmitted;
+    Float4 transmitted;
 
-        LightShading();
+    LightShading();
 
-        LightShading(const Float4 & ambient);
-    };
+    LightShading(const Float4 &ambient);
+  };
 }

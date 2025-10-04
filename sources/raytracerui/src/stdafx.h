@@ -1,8 +1,8 @@
 #pragma once
 
-#include <vectorization.h>
 #include <primitives.h>
 #include <raytracing.h>
+#include <vectorization.h>
 
 using namespace vectorization;
 using namespace primitives;

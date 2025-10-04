@@ -1,28 +1,25 @@
 #pragma once
 
-#include "../SceneShader.h"
 #include "../../common/HDRImage.h"
+#include "../SceneShader.h"
 
-namespace raytracer
-{
-    using namespace vectorization;
+namespace raytracer {
+  using namespace vectorization;
 
-    class EnvironmentShader : public Shader < SceneShader, Float4, Float4 >
-    {
-        Size2 resolution;
+  class EnvironmentShader : public Shader<SceneShader, Float4, Float4> {
+    Size2 resolution;
 
-        Float4 alignedSize;
+    Float4 alignedSize;
 
-        const HDRImage * environmentImage;
+    const HDRImage *environmentImage;
 
-    public:
+  public:
+    EnvironmentShader(const HDRImage &image);
 
-        EnvironmentShader(const HDRImage & image);
+    virtual ~EnvironmentShader();
 
-        virtual ~EnvironmentShader();
+    const Float4 sample(const SceneShader &sceneShader, const Float4 &rayDirection) const;
 
-        const Float4 sample(const SceneShader & sceneShader, const Float4 & rayDirection) const;
-
-        const Float4 operator()(const SceneShader & sceneShader, const Float4 & rayDirection) const;
-    };
+    const Float4 operator()(const SceneShader &sceneShader, const Float4 &rayDirection) const;
+  };
 }

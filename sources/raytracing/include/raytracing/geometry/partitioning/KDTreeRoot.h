@@ -1,19 +1,17 @@
 #pragma once
 
-#include "KDTreeNodeChilds.h"
+#include "KDTreeNodeChildren.h"
 
-namespace raytracer
-{
-    using namespace primitives;
+namespace raytracer {
+  using namespace primitives;
 
-    struct KDTreeRoot
-    {
-        AxisAlignedBoundingBox rootBounding;
+  struct KDTreeRoot {
+    AxisAlignedBoundingBox rootBounding;
 
-        KDTreeNode rootNode;
+    KDTreeNode rootNode;
 
-        KDTreeRoot();
+    KDTreeRoot();
 
-        ~KDTreeRoot();
-    };
+    ~KDTreeRoot();
+  };
 }

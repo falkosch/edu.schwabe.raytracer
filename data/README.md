@@ -1,4 +1,4 @@
-# edu.schwabe.raytracer 
+# edu.schwabe.raytracer
 
 Contains the meshes and textures, which can be used in scene setups of the raytracer.
 

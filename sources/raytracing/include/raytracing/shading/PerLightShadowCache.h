@@ -6,26 +6,24 @@
 
 #include <vector>
 
-namespace raytracer
-{
-    using namespace vectorization;
-    using namespace primitives;
+namespace raytracer {
+  using namespace vectorization;
+  using namespace primitives;
 
-    // per light shadowing information
-    struct PerLightShadowCache
-    {
-        typedef std::vector<PerLightShadowCache, AlignedAllocator<PerLightShadowCache>> ShadowCacheType;
+  // per light shadowing information
+  struct PerLightShadowCache {
+    typedef std::vector<PerLightShadowCache, AlignedAllocator<PerLightShadowCache>> ShadowCacheType;
 
-        // the facet, that has shadowed this lightsource last time.
-        const Intersectable<Raycast, FacetIntersection> * lastShadowedByFacet;
+    // the facet, that has shadowed this light source last time.
+    const Intersectable<RayCast, FacetIntersection> *lastShadowedByFacet;
 
-        // the object, that has shadowed this lightsource last time.
-        const ObjectGeometry * lastShadowedByObject;
+    // the object, that has shadowed this light source last time.
+    const ObjectGeometry *lastShadowedByObject;
 
-        PerLightShadowCache();
+    PerLightShadowCache();
 
-        PerLightShadowCache(
-            const Intersectable<Raycast, FacetIntersection> & lastShadowedByFacet,
-            const ObjectGeometry & lastShadowedByObject);
-    };
+    PerLightShadowCache(
+        const Intersectable<RayCast, FacetIntersection> &lastShadowedByFacet, const ObjectGeometry &lastShadowedByObject
+    );
+  };
 }

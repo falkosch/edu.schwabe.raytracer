@@ -4,7 +4,7 @@
 
 # edu.schwabe.raytracer
 
-![alt text](./project-logo.jpg "Project Logo")
+![alt text](./docs/project-logo.jpg "Project Logo")
 
 SSE/AVX accelerated implementation of recursive raytracing (a.k.a. Whitted Raytracing). Creative commons CC-BY-NC-SA licensed.
 
@@ -27,7 +27,7 @@ See [instructions in data folder](./data/README.md).
 
 If you open this repository as cmake project in Visual Studio, e.g. VS Community 2022,
 1. Install [vcpkg](https://vcpkg.io/en/getting-started).
-2. Add a `VCPKG_DIR` user environment variables pointing to the directory, which contains the `vcpkg.exe`.
+2. Add a `VCPKG_DIR` environment variable pointing to the directory, which contains the `vcpkg.exe`.
 3. Add the same directory to the `PATH` environment variable as well.
 4. Use the `install-dependencies-with-vcpkg.bat` script to provide the required dependencies.
 
@@ -42,11 +42,11 @@ With a local gcc setup, you can use `./build-with-local-cc.sh` or `./run-with-lo
 
 ## System Overview
 
-The application is curently parted into three sub projects representing, each representing one of the three layers/components/parts:
+The application is currently parted into three subprojects representing, each representing one of the three layers/components/parts:
 
 * _vectorization_ is a static library for the fundamental support for SSE/AVX accelerated FP computations.
 
-* _raytracing_ is a static library of the core of the raytracer backend. Here you will find the scene management, partitioning of the scene and its objects and the actual raytracer kernel, which is currently implementd as a Whitted-raytracer.
+* _raytracing_ is a static library of the core of the raytracer backend. Here you will find the scene management, partitioning of the scene and its objects and the actual raytracer kernel, which is implemented as a Whitted-raytracer.
 
 * _raytracerui_ contains the simple frontend and a basic setup of different scenes.
 
@@ -61,7 +61,7 @@ Holding left button:
 
 * holding SHIFT and moving translates the camera forward (when moving right or up) or backward (when moving left or down)
 
-* holding CTRL and moving translates the camera sideward or up and down
+* holding CTRL and moving translates the camera sidewards or up and down
 
 * holding ALT and moving scales the world space (zooming in and out so to say)
 
@@ -75,7 +75,7 @@ Holding right button:
 
 *R* - Reset camera to world's origin and rotation towards world's Z-axis
 
-*T* - Enable/disable fast preview, enabled by default (limits output image size -> less traces to perform)
+*T* - Enable/disable fast preview, enabled by default (limits output image size -> fewer traces to perform)
 
 *A* - Half the sampling-factor, which halves the output size proportionally
 
@@ -83,11 +83,11 @@ Holding right button:
 
 *D* - Decrease trace depth to have less reflection and transmission traces
 
-*F* - Increase trace depth to have more reflections and transmissions details (at some trace depth the changes in the image output is neglectable)
+*F* - Increase trace depth to have more reflections and transmissions details (at some trace depth the changes in the image output is negligible)
 
-*J* - Decrease supersampling factor to have less traces per image pixel
+*J* - Decrease antialiasing factor to have fewer traces per image pixel
 
-*K* - Increase supersampling factor to enable anti aliased like sampling traces per image pixel
+*K* - Increase antialiasing factor to enable anti aliased like sampling traces per image pixel
 
 *SPACE* - Manually trigger trace again (f.e. to compare changes in trace time for the very same perspective)
 
@@ -98,16 +98,13 @@ _For debugging purposes:_
 *W* - Write last raytracing output to file "raytraced.bmp" in current working directory
 
 *E* - Cycle through the output types
-
 1. Raytraced image of the world
-
-1. Trace time map
-
-1. Trace depth map
+2. Trace time map
+3. Trace depth map
 
 *Q* - Change culling orientation
 
-*G* - Decrease ray packet size (currently it has very less effect on the performance as packeted raytracing is not really implemented)
+*G* - Decrease ray packet size (currently it has very less effect on the performance as packed raytracing is not really implemented)
 
 *H* - Increase ray packet size again
 
@@ -148,4 +145,4 @@ The UI is implemented with the standard Windows API (raytracerui VC++-project as
 
 ## Credits
 
-Project is setup with *[The C++ CMake Project Template](https://github.com/cginternals/cmake-init)*
+Project is set up with *[The C++ CMake Project Template](https://github.com/cginternals/cmake-init)*
