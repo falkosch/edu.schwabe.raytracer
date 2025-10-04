@@ -1,7 +1,5 @@
 #include "vectorization/v_f32_4/constants.h"
 
-#include <cassert>
-
 namespace vectorization {
   template <>
   const v_f32_4 MaskAll<v_f32_4>() noexcept {

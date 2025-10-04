@@ -2,18 +2,18 @@
 
 namespace vectorization {
   template <>
-  PackedFloat2_128 swizzle<VectorIndices::X, VectorIndices::Y>(const PackedFloat2_128 &v) noexcept {
-    return v;
+  PackedFloat2_128 swizzle<VectorIndices::X, VectorIndices::Y>(const PackedFloat2_128 &values) noexcept {
+    return values;
   }
 
   template <>
-  PackedFloat2_128 swizzle<VectorIndices::X, VectorIndices::X>(const PackedFloat2_128 &v) noexcept {
-    return _mm_movedup_pd(v);
+  PackedFloat2_128 swizzle<VectorIndices::X, VectorIndices::X>(const PackedFloat2_128 &values) noexcept {
+    return _mm_movedup_pd(values);
   }
 
   template <>
-  PackedFloat2_128 swizzle<VectorIndices::Y, VectorIndices::Y>(const PackedFloat2_128 &v) noexcept {
-    return _mm_unpackhi_pd(v, v);
+  PackedFloat2_128 swizzle<VectorIndices::Y, VectorIndices::Y>(const PackedFloat2_128 &values) noexcept {
+    return _mm_unpackhi_pd(values, values);
   }
 
   PackedFloat2_128 xx(const PackedFloat2_128 &values) noexcept {

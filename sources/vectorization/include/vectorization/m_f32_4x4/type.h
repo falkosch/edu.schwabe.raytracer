@@ -18,20 +18,21 @@ namespace vectorization {
     using ValueType = RowVectorType::ValueType;
     using BoolType = BoolTypes<ValueType>::Type;
 
-    static constexpr ASizeT SIZE = RowVectorType::SIZE * ColumnVectorType::SIZE;
     static constexpr ASizeT ROWS = RowVectorType::SIZE;
     static constexpr ASizeT COLUMNS = ColumnVectorType::SIZE;
+    static constexpr ASizeT SIZE = ROWS * COLUMNS;
 
     RowVectorType row0, row1, row2, row3;
 
     m_f32_4x4() noexcept;
     explicit m_f32_4x4(
-        const RowVectorType &row0, const RowVectorType &row1, const RowVectorType &row2, const RowVectorType &row3
+        const RowVectorType &row0In, const RowVectorType &row1In, const RowVectorType &row2In,
+        const RowVectorType &row3In
     ) noexcept;
     explicit m_f32_4x4(const RowVectorType::PackedType &row) noexcept;
     explicit m_f32_4x4(const RowVectorType &row) noexcept;
     explicit m_f32_4x4(const std::array<ValueType, SIZE> &data) noexcept;
-    explicit m_f32_4x4(const ValueType *m) noexcept;
+    explicit m_f32_4x4(const ValueType *values) noexcept;
 
     MatrixType &operator=(const m_f32_4x4::RowVectorType::PackedType &row) noexcept;
 

@@ -3,7 +3,9 @@
 #include "vectorization/functions/reciprocal.h"
 #include "vectorization/functions/sqrt.h"
 
+#ifdef VECTORIZATION_APPROXIMATIONS
 #include "vectorization/accessors.h"
+#endif
 
 namespace vectorization {
   Float_32 rsqrt(const Float_32 value) noexcept {

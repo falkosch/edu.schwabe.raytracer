@@ -22,29 +22,29 @@ namespace vectorization {
     return swizzledBlend2x2<X, Y, Z, W>(a.components, b.components);
   }
 
-  const v_f32_4 xx_xx(const v_f32_4 &a, const v_f32_4 &b) noexcept;
+  v_f32_4 xx_xx(const v_f32_4 &a, const v_f32_4 &b) noexcept;
 
-  const v_f32_4 xx_yy(const v_f32_4 &a, const v_f32_4 &b) noexcept;
+  v_f32_4 xx_yy(const v_f32_4 &a, const v_f32_4 &b) noexcept;
 
-  const v_f32_4 xy_xy(const v_f32_4 &a, const v_f32_4 &b) noexcept;
+  v_f32_4 xy_xy(const v_f32_4 &a, const v_f32_4 &b) noexcept;
 
-  const v_f32_4 xy_zw(const v_f32_4 &a, const v_f32_4 &b) noexcept;
+  v_f32_4 xy_zw(const v_f32_4 &a, const v_f32_4 &b) noexcept;
 
-  const v_f32_4 xz_xz(const v_f32_4 &a, const v_f32_4 &b) noexcept;
+  v_f32_4 xz_xz(const v_f32_4 &a, const v_f32_4 &b) noexcept;
 
-  const v_f32_4 yx_xy(const v_f32_4 &a, const v_f32_4 &b) noexcept;
+  v_f32_4 yx_xy(const v_f32_4 &a, const v_f32_4 &b) noexcept;
 
-  const v_f32_4 yy_yy(const v_f32_4 &a, const v_f32_4 &b) noexcept;
+  v_f32_4 yy_yy(const v_f32_4 &a, const v_f32_4 &b) noexcept;
 
-  const v_f32_4 yw_yw(const v_f32_4 &a, const v_f32_4 &b) noexcept;
+  v_f32_4 yw_yw(const v_f32_4 &a, const v_f32_4 &b) noexcept;
 
-  const v_f32_4 zz_yy(const v_f32_4 &a, const v_f32_4 &b) noexcept;
+  v_f32_4 zz_yy(const v_f32_4 &a, const v_f32_4 &b) noexcept;
 
-  const v_f32_4 zz_zz(const v_f32_4 &a, const v_f32_4 &b) noexcept;
+  v_f32_4 zz_zz(const v_f32_4 &a, const v_f32_4 &b) noexcept;
 
-  const v_f32_4 zw_zw(const v_f32_4 &a, const v_f32_4 &b) noexcept;
+  v_f32_4 zw_zw(const v_f32_4 &a, const v_f32_4 &b) noexcept;
 
-  const v_f32_4 ww_ww(const v_f32_4 &a, const v_f32_4 &b) noexcept;
+  v_f32_4 ww_ww(const v_f32_4 &a, const v_f32_4 &b) noexcept;
 
   template <ASizeT X, ASizeT Y, ASizeT Z, ASizeT W>
   inline const v_f32_4 swizzledBlendMasked(const v_f32_4 &a, const v_f32_4 &b, const v_f32_4 &mask) noexcept {

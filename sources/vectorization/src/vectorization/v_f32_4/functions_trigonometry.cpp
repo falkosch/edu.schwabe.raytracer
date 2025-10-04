@@ -18,7 +18,7 @@
 #endif
 
 namespace vectorization {
-  const v_f32_4 log(const v_f32_4 &v) noexcept {
+  v_f32_4 log(const v_f32_4 &v) noexcept {
 #ifdef USE_THIRD_PARTY
 
     return log_ps(v.components);
@@ -30,7 +30,7 @@ namespace vectorization {
 #endif
   }
 
-  const v_f32_4 log3(const v_f32_4 &v) noexcept {
+  v_f32_4 log3(const v_f32_4 &v) noexcept {
 #ifdef USE_THIRD_PARTY
 
     return blend<false, false, false, true>(log_ps(v.components), v.components);
@@ -42,7 +42,7 @@ namespace vectorization {
 #endif
   }
 
-  const v_f32_4 exp(const v_f32_4 &v) noexcept {
+  v_f32_4 exp(const v_f32_4 &v) noexcept {
 #ifdef USE_THIRD_PARTY
 
     return exp_ps(v.components);
@@ -54,7 +54,7 @@ namespace vectorization {
 #endif
   }
 
-  const v_f32_4 exp3(const v_f32_4 &v) noexcept {
+  v_f32_4 exp3(const v_f32_4 &v) noexcept {
 #ifdef USE_THIRD_PARTY
 
     return blend<false, false, false, true>(exp_ps(v.components), v.components);
@@ -66,19 +66,19 @@ namespace vectorization {
 #endif
   }
 
-  const v_f32_4 pow(const v_f32_4 &v, const v_f32_4 &exponent) noexcept {
+  v_f32_4 pow(const v_f32_4 &v, const v_f32_4 &exponent) noexcept {
     return v_f32_4(pow(x(v), x(exponent)), pow(y(v), y(exponent)), pow(z(v), z(exponent)), pow(w(v), w(exponent)));
   }
 
-  const v_f32_4 pow(const v_f32_4 &v, const v_f32_4::ValueType exponent) noexcept {
+  v_f32_4 pow(const v_f32_4 &v, const v_f32_4::ValueType exponent) noexcept {
     return v_f32_4(pow(x(v), exponent), pow(y(v), exponent), pow(z(v), exponent), pow(w(v), exponent));
   }
 
-  const v_f32_4 pow3(const v_f32_4 &v, const v_f32_4 &exponent) noexcept {
+  v_f32_4 pow3(const v_f32_4 &v, const v_f32_4 &exponent) noexcept {
     return v_f32_4(pow(x(v), x(exponent)), pow(y(v), y(exponent)), pow(z(v), z(exponent)), w(v));
   }
 
-  const v_f32_4 pow3(const v_f32_4 &v, const v_f32_4::ValueType exponent) noexcept {
+  v_f32_4 pow3(const v_f32_4 &v, const v_f32_4::ValueType exponent) noexcept {
     return v_f32_4(pow(x(v), exponent), pow(y(v), exponent), pow(z(v), exponent), w(v));
   }
 }

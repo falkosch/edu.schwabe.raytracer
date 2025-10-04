@@ -29,9 +29,9 @@ namespace vectorization {
         row2(&data[VectorIndices::Z * COLUMNS]), row3(&data[VectorIndices::W * COLUMNS]) {
   }
 
-  m_f32_4x4::m_f32_4x4(const m_f32_4x4::ValueType *const m) noexcept
-      : row0(m + VectorIndices::X * COLUMNS), row1(m + VectorIndices::Y * COLUMNS),
-        row2(m + VectorIndices::Z * COLUMNS), row3(m + VectorIndices::W * COLUMNS) {
+  m_f32_4x4::m_f32_4x4(const m_f32_4x4::ValueType *const values) noexcept
+      : row0(values + VectorIndices::X * COLUMNS), row1(values + VectorIndices::Y * COLUMNS),
+        row2(values + VectorIndices::Z * COLUMNS), row3(values + VectorIndices::W * COLUMNS) {
   }
 
   m_f32_4x4 &m_f32_4x4::operator=(const m_f32_4x4::RowVectorType::PackedType &row) noexcept {

@@ -1,26 +1,26 @@
 #include "vectorization/m_f32_4x4.h"
 
 namespace vectorization {
-  const m_f32_4x4 operator*(const m_f32_4x4 &matrix, const m_f32_4x4::ValueType scale) noexcept {
+  m_f32_4x4 operator*(const m_f32_4x4 &matrix, const m_f32_4x4::ValueType scale) noexcept {
     const auto broadcast = m_f32_4x4::RowVectorType(scale);
     return m_f32_4x4(
         matrix.row0 * broadcast, matrix.row1 * broadcast, matrix.row2 * broadcast, matrix.row3 * broadcast
     );
   }
 
-  const m_f32_4x4 operator*(const m_f32_4x4::ValueType scale, const m_f32_4x4 &matrix) noexcept {
+  m_f32_4x4 operator*(const m_f32_4x4::ValueType scale, const m_f32_4x4 &matrix) noexcept {
     return matrix * scale;
   }
 
-  const m_f32_4x4 operator+(const m_f32_4x4 &a, const m_f32_4x4 &b) noexcept {
+  m_f32_4x4 operator+(const m_f32_4x4 &a, const m_f32_4x4 &b) noexcept {
     return m_f32_4x4(a.row0 + b.row0, a.row1 + b.row1, a.row2 + b.row2, a.row3 + b.row3);
   }
 
-  const m_f32_4x4 operator*(const m_f32_4x4 &a, const m_f32_4x4 &b) noexcept {
+  m_f32_4x4 operator*(const m_f32_4x4 &a, const m_f32_4x4 &b) noexcept {
     return m_f32_4x4(a.row0 * b, a.row1 * b, a.row2 * b, a.row3 * b);
   }
 
-  const m_f32_4x4::RowVectorType operator*(const m_f32_4x4 &matrix, const m_f32_4x4::RowVectorType &vector) noexcept {
+  m_f32_4x4::RowVectorType operator*(const m_f32_4x4 &matrix, const m_f32_4x4::RowVectorType &vector) noexcept {
     // #if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
     //         const auto vv = _mm256_broadcast_ps(&v.components);
     //         const auto ha_02_13 = _mm256_hadd_ps(
@@ -42,7 +42,7 @@ namespace vectorization {
     // #endif
   }
 
-  const m_f32_4x4::ColumnVectorType
+  m_f32_4x4::ColumnVectorType
   operator*(const m_f32_4x4::ColumnVectorType &vector, const m_f32_4x4 &matrix) noexcept {
     return (xxxx(vector) * matrix.row0 + yyyy(vector) * matrix.row1)
            + (zzzz(vector) * matrix.row2 + wwww(vector) * matrix.row3);

@@ -126,7 +126,11 @@ set(SOURCES
         src/vectorization/v_f32_4/swizzledBlends.cpp
         src/vectorization/v_f32_4/swizzles.cpp
         src/vectorization/v_f32_4/type.cpp
-        src/vectorization/v_f32_4x4/v_f32_4x4.cpp
+        src/vectorization/v_f32_4x4/accessors.cpp
+        src/vectorization/v_f32_4x4/constants.cpp
+        src/vectorization/v_f32_4x4/functions.cpp
+        src/vectorization/v_f32_4x4/operators.cpp
+        src/vectorization/v_f32_4x4/type.cpp
         src/vectorization/v_i32_4/v_i32_4.cpp
         src/vectorization/v_ui32_4/v_ui32_4.cpp
         src/vectorization/v_ui64_2/accessors.cpp
@@ -294,7 +298,12 @@ set(HEADERS
         include/vectorization/v_f32_4/swizzles.h
         include/vectorization/v_f32_4/type.h
         include/vectorization/v_f32_4x4.h
+        include/vectorization/v_f32_4x4/accessors.h
         include/vectorization/v_f32_4x4/api.h
+        include/vectorization/v_f32_4x4/constants.h
+        include/vectorization/v_f32_4x4/functions.h
+        include/vectorization/v_f32_4x4/operators.h
+        include/vectorization/v_f32_4x4/type.h
         include/vectorization/v_i32_4.h
         include/vectorization/v_i32_4/api.h
         include/vectorization/v_ui32_4.h

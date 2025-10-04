@@ -16,7 +16,7 @@ namespace vectorization {
   }
 
   Int_16 modPad(const Int_16 value, const Int_16 padding) noexcept {
-    auto overPadded = value + padding - One<Int_32>();
+    const auto overPadded = value + padding - One<Int_32>();
     return static_cast<Int_16>(overPadded - modulo(overPadded, static_cast<Int_32>(padding)));
   }
 
@@ -31,7 +31,7 @@ namespace vectorization {
   }
 
   UInt_32 modPad(const UInt_32 value, const UInt_32 padding) noexcept {
-    auto overPadded = value + padding - One<UInt_32>();
+    const auto overPadded = value + padding - One<UInt_32>();
     return overPadded - modulo(overPadded, padding);
   }
 

@@ -3,38 +3,44 @@
 namespace vectorization {
   template <>
   PackedFloat4_256
-  swizzle<VectorIndices::X, VectorIndices::Y, VectorIndices::Z, VectorIndices::W>(const PackedFloat4_256 &v) noexcept {
-    return v;
+  swizzle<VectorIndices::X, VectorIndices::Y, VectorIndices::Z, VectorIndices::W>(const PackedFloat4_256 &values
+  ) noexcept {
+    return values;
   }
 
   template <>
   PackedFloat4_256
-  swizzle<VectorIndices::X, VectorIndices::X, VectorIndices::Z, VectorIndices::Z>(const PackedFloat4_256 &v) noexcept {
-    return _mm256_movedup_pd(v);
+  swizzle<VectorIndices::X, VectorIndices::X, VectorIndices::Z, VectorIndices::Z>(const PackedFloat4_256 &values
+  ) noexcept {
+    return _mm256_movedup_pd(values);
   }
 
   template <>
   PackedFloat4_256
-  swizzle<VectorIndices::X, VectorIndices::Y, VectorIndices::X, VectorIndices::Y>(const PackedFloat4_256 &v) noexcept {
-    return _mm256_permute2f128_pd(v, v, 0b00000000);
+  swizzle<VectorIndices::X, VectorIndices::Y, VectorIndices::X, VectorIndices::Y>(const PackedFloat4_256 &values
+  ) noexcept {
+    return _mm256_permute2f128_pd(values, values, 0b00000000);
   }
 
   template <>
   PackedFloat4_256
-  swizzle<VectorIndices::Y, VectorIndices::Y, VectorIndices::W, VectorIndices::W>(const PackedFloat4_256 &v) noexcept {
-    return _mm256_unpackhi_pd(v, v);
+  swizzle<VectorIndices::Y, VectorIndices::Y, VectorIndices::W, VectorIndices::W>(const PackedFloat4_256 &values
+  ) noexcept {
+    return _mm256_unpackhi_pd(values, values);
   }
 
   template <>
   PackedFloat4_256
-  swizzle<VectorIndices::Z, VectorIndices::W, VectorIndices::X, VectorIndices::Y>(const PackedFloat4_256 &v) noexcept {
-    return _mm256_permute2f128_pd(v, v, 0b00000001);
+  swizzle<VectorIndices::Z, VectorIndices::W, VectorIndices::X, VectorIndices::Y>(const PackedFloat4_256 &values
+  ) noexcept {
+    return _mm256_permute2f128_pd(values, values, 0b00000001);
   }
 
   template <>
   PackedFloat4_256
-  swizzle<VectorIndices::Z, VectorIndices::W, VectorIndices::Z, VectorIndices::W>(const PackedFloat4_256 &v) noexcept {
-    return _mm256_permute2f128_pd(v, v, 0b00010001);
+  swizzle<VectorIndices::Z, VectorIndices::W, VectorIndices::Z, VectorIndices::W>(const PackedFloat4_256 &values
+  ) noexcept {
+    return _mm256_permute2f128_pd(values, values, 0b00010001);
   }
 
   PackedFloat4_256 xxxx(const PackedFloat4_256 &values) noexcept {

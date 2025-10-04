@@ -3,32 +3,37 @@
 namespace vectorization {
   template <>
   PackedFloat8_256
-  swizzle<VectorIndices::X, VectorIndices::Y, VectorIndices::Z, VectorIndices::W>(const PackedFloat8_256 &v) noexcept {
-    return v;
+  swizzle<VectorIndices::X, VectorIndices::Y, VectorIndices::Z, VectorIndices::W>(const PackedFloat8_256 &values
+  ) noexcept {
+    return values;
   }
 
   template <>
   PackedFloat8_256
-  swizzle<VectorIndices::X, VectorIndices::X, VectorIndices::Y, VectorIndices::Y>(const PackedFloat8_256 &v) noexcept {
-    return _mm256_unpacklo_ps(v, v);
+  swizzle<VectorIndices::X, VectorIndices::X, VectorIndices::Y, VectorIndices::Y>(const PackedFloat8_256 &values
+  ) noexcept {
+    return _mm256_unpacklo_ps(values, values);
   }
 
   template <>
   PackedFloat8_256
-  swizzle<VectorIndices::X, VectorIndices::X, VectorIndices::Z, VectorIndices::Z>(const PackedFloat8_256 &v) noexcept {
-    return _mm256_moveldup_ps(v);
+  swizzle<VectorIndices::X, VectorIndices::X, VectorIndices::Z, VectorIndices::Z>(const PackedFloat8_256 &values
+  ) noexcept {
+    return _mm256_moveldup_ps(values);
   }
 
   template <>
   PackedFloat8_256
-  swizzle<VectorIndices::Y, VectorIndices::Y, VectorIndices::W, VectorIndices::W>(const PackedFloat8_256 &v) noexcept {
-    return _mm256_movehdup_ps(v);
+  swizzle<VectorIndices::Y, VectorIndices::Y, VectorIndices::W, VectorIndices::W>(const PackedFloat8_256 &values
+  ) noexcept {
+    return _mm256_movehdup_ps(values);
   }
 
   template <>
   PackedFloat8_256
-  swizzle<VectorIndices::Z, VectorIndices::Z, VectorIndices::W, VectorIndices::W>(const PackedFloat8_256 &v) noexcept {
-    return _mm256_unpackhi_ps(v, v);
+  swizzle<VectorIndices::Z, VectorIndices::Z, VectorIndices::W, VectorIndices::W>(const PackedFloat8_256 &values
+  ) noexcept {
+    return _mm256_unpackhi_ps(values, values);
   }
 
   PackedFloat8_256 xxxx(const PackedFloat8_256 &values) noexcept {
@@ -118,56 +123,56 @@ namespace vectorization {
   template <>
   PackedFloat8_256 swizzle<
       VectorIndices::X1, VectorIndices::X2, VectorIndices::X3, VectorIndices::X4, VectorIndices::X5, VectorIndices::X6,
-      VectorIndices::X7, VectorIndices::X8>(const PackedFloat8_256 &v) noexcept {
-    return v;
+      VectorIndices::X7, VectorIndices::X8>(const PackedFloat8_256 &values) noexcept {
+    return values;
   }
 
   template <>
   PackedFloat8_256 swizzle<
       VectorIndices::X1, VectorIndices::X1, VectorIndices::X2, VectorIndices::X2, VectorIndices::X5, VectorIndices::X5,
-      VectorIndices::X6, VectorIndices::X6>(const PackedFloat8_256 &v) noexcept {
-    return _mm256_unpacklo_ps(v, v);
+      VectorIndices::X6, VectorIndices::X6>(const PackedFloat8_256 &values) noexcept {
+    return _mm256_unpacklo_ps(values, values);
   }
 
   template <>
   PackedFloat8_256 swizzle<
       VectorIndices::X1, VectorIndices::X1, VectorIndices::X3, VectorIndices::X3, VectorIndices::X5, VectorIndices::X5,
-      VectorIndices::X7, VectorIndices::X7>(const PackedFloat8_256 &v) noexcept {
-    return _mm256_moveldup_ps(v);
+      VectorIndices::X7, VectorIndices::X7>(const PackedFloat8_256 &values) noexcept {
+    return _mm256_moveldup_ps(values);
   }
 
   template <>
   PackedFloat8_256 swizzle<
       VectorIndices::X1, VectorIndices::X2, VectorIndices::X3, VectorIndices::X4, VectorIndices::X1, VectorIndices::X2,
-      VectorIndices::X3, VectorIndices::X4>(const PackedFloat8_256 &v) noexcept {
-    return _mm256_permute2f128_ps(v, v, 0b00000000);
+      VectorIndices::X3, VectorIndices::X4>(const PackedFloat8_256 &values) noexcept {
+    return _mm256_permute2f128_ps(values, values, 0b00000000);
   }
 
   template <>
   PackedFloat8_256 swizzle<
       VectorIndices::X2, VectorIndices::X2, VectorIndices::X4, VectorIndices::X4, VectorIndices::X6, VectorIndices::X6,
-      VectorIndices::X8, VectorIndices::X8>(const PackedFloat8_256 &v) noexcept {
-    return _mm256_movehdup_ps(v);
+      VectorIndices::X8, VectorIndices::X8>(const PackedFloat8_256 &values) noexcept {
+    return _mm256_movehdup_ps(values);
   }
 
   template <>
   PackedFloat8_256 swizzle<
       VectorIndices::X3, VectorIndices::X3, VectorIndices::X4, VectorIndices::X4, VectorIndices::X7, VectorIndices::X7,
-      VectorIndices::X8, VectorIndices::X8>(const PackedFloat8_256 &v) noexcept {
-    return _mm256_unpackhi_ps(v, v);
+      VectorIndices::X8, VectorIndices::X8>(const PackedFloat8_256 &values) noexcept {
+    return _mm256_unpackhi_ps(values, values);
   }
 
   template <>
   PackedFloat8_256 swizzle<
       VectorIndices::X5, VectorIndices::X6, VectorIndices::X7, VectorIndices::X8, VectorIndices::X1, VectorIndices::X2,
-      VectorIndices::X3, VectorIndices::X4>(const PackedFloat8_256 &v) noexcept {
-    return _mm256_permute2f128_ps(v, v, 0b00000001);
+      VectorIndices::X3, VectorIndices::X4>(const PackedFloat8_256 &values) noexcept {
+    return _mm256_permute2f128_ps(values, values, 0b00000001);
   }
 
   template <>
   PackedFloat8_256 swizzle<
       VectorIndices::X5, VectorIndices::X6, VectorIndices::X7, VectorIndices::X8, VectorIndices::X5, VectorIndices::X6,
-      VectorIndices::X7, VectorIndices::X8>(const PackedFloat8_256 &v) noexcept {
-    return _mm256_permute2f128_ps(v, v, 0b00010001);
+      VectorIndices::X7, VectorIndices::X8>(const PackedFloat8_256 &values) noexcept {
+    return _mm256_permute2f128_ps(values, values, 0b00010001);
   }
 }

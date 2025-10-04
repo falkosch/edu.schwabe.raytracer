@@ -3,44 +3,51 @@
 namespace vectorization {
   template <>
   PackedFloat4_128
-  swizzle<VectorIndices::X, VectorIndices::Y, VectorIndices::Z, VectorIndices::W>(const PackedFloat4_128 &v) noexcept {
-    return v;
+  swizzle<VectorIndices::X, VectorIndices::Y, VectorIndices::Z, VectorIndices::W>(const PackedFloat4_128 &values
+  ) noexcept {
+    return values;
   }
 
   template <>
   PackedFloat4_128
-  swizzle<VectorIndices::X, VectorIndices::X, VectorIndices::Y, VectorIndices::Y>(const PackedFloat4_128 &v) noexcept {
-    return _mm_unpacklo_ps(v, v);
+  swizzle<VectorIndices::X, VectorIndices::X, VectorIndices::Y, VectorIndices::Y>(const PackedFloat4_128 &values
+  ) noexcept {
+    return _mm_unpacklo_ps(values, values);
   }
 
   template <>
   PackedFloat4_128
-  swizzle<VectorIndices::X, VectorIndices::X, VectorIndices::Z, VectorIndices::Z>(const PackedFloat4_128 &v) noexcept {
-    return _mm_moveldup_ps(v);
+  swizzle<VectorIndices::X, VectorIndices::X, VectorIndices::Z, VectorIndices::Z>(const PackedFloat4_128 &values
+  ) noexcept {
+    return _mm_moveldup_ps(values);
   }
 
   template <>
   PackedFloat4_128
-  swizzle<VectorIndices::X, VectorIndices::Y, VectorIndices::X, VectorIndices::Y>(const PackedFloat4_128 &v) noexcept {
-    return _mm_movelh_ps(v, v);
+  swizzle<VectorIndices::X, VectorIndices::Y, VectorIndices::X, VectorIndices::Y>(const PackedFloat4_128 &values
+  ) noexcept {
+    return _mm_movelh_ps(values, values);
   }
 
   template <>
   PackedFloat4_128
-  swizzle<VectorIndices::Y, VectorIndices::Y, VectorIndices::W, VectorIndices::W>(const PackedFloat4_128 &v) noexcept {
-    return _mm_movehdup_ps(v);
+  swizzle<VectorIndices::Y, VectorIndices::Y, VectorIndices::W, VectorIndices::W>(const PackedFloat4_128 &values
+  ) noexcept {
+    return _mm_movehdup_ps(values);
   }
 
   template <>
   PackedFloat4_128
-  swizzle<VectorIndices::Z, VectorIndices::Z, VectorIndices::W, VectorIndices::W>(const PackedFloat4_128 &v) noexcept {
-    return _mm_unpackhi_ps(v, v);
+  swizzle<VectorIndices::Z, VectorIndices::Z, VectorIndices::W, VectorIndices::W>(const PackedFloat4_128 &values
+  ) noexcept {
+    return _mm_unpackhi_ps(values, values);
   }
 
   template <>
   PackedFloat4_128
-  swizzle<VectorIndices::Z, VectorIndices::W, VectorIndices::Z, VectorIndices::W>(const PackedFloat4_128 &v) noexcept {
-    return _mm_movehl_ps(v, v);
+  swizzle<VectorIndices::Z, VectorIndices::W, VectorIndices::Z, VectorIndices::W>(const PackedFloat4_128 &values
+  ) noexcept {
+    return _mm_movehl_ps(values, values);
   }
 
   PackedFloat4_128 xxxx(const PackedFloat4_128 &values) noexcept {
