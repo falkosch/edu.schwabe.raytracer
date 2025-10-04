@@ -25,7 +25,7 @@ namespace raytracer {
     Float4 reflectanceCoefficient;
 
     // Light absorption weight in material
-    Float4 absorptionCoefficient;
+    Float4 fractionTransmitted;
 
     // Distance from ray-origin to scene-intersection
     Float viewDistance;

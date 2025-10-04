@@ -14,7 +14,7 @@ namespace raytracer {
 
     Float4 shininess;
 
-    Float4 absorptionCoefficient;
+    Float4 transmittance;
 
     Float4 refractionEta;
 
@@ -24,7 +24,7 @@ namespace raytracer {
 
     SurfaceShading(
         const Float4 &diffusion, const Float4 &reflectance, const Float4 &specular, const Float4 &shininess,
-        const Float4 &absorptionCoefficient, const Float4 &refractionEta, const Float4 &emittance
+        const Float4 &transmittanceIn, const Float4 &refractionEta, const Float4 &emittance
     );
   };
 }
