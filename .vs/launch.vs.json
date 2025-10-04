@@ -13,10 +13,11 @@
       ]
     },
     {
-      "type": "default",
+      "name": "raytracerui.exe (sources\\raytracerui\\raytracerui.exe)",
       "project": "CMakeLists.txt",
       "projectTarget": "raytracerui.exe (sources\\raytracerui\\raytracerui.exe)",
-      "name": "raytracerui.exe (sources\\raytracerui\\raytracerui.exe)"
+      "type": "default",
+      "currentDir": "${workspaceRoot}/data"
     }
   ]
 }

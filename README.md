@@ -11,6 +11,35 @@ SSE/AVX accelerated implementation of recursive raytracing (a.k.a. Whitted Raytr
 This is my private raytracing project for hobby and learning purposes only.
 
 
+## Prepare
+
+### Repository
+
+This repository uses another repository of mine (https://github.com/falkosch/cmake-modules) as a submodule for the cmake modules contained in `./cmake`.
+
+You can either clone this repository with the submodules using `git clone --recursive https://github.com/falkosch/edu.schwabe.raytracer.git` or alternatively run `git submodule update --init --recursive` if you cloned this repository without the `--recursive` parameter.
+
+### Prepare data folder
+
+See [instructions in data folder](./data/README.md).
+
+### Install dependencies
+
+If you open this repository as cmake project in Visual Studio, e.g. VS Community 2022,
+1. Install [vcpkg](https://vcpkg.io/en/getting-started).
+2. Add a `VCPKG_DIR` user environment variables pointing to the directory, which contains the `vcpkg.exe`.
+3. Add the same directory to the `PATH` environment variable as well.
+4. Use the `install-dependencies-with-vcpkg.bat` script to provide the required dependencies.
+
+With a local gcc setup, you can use the `./*.sh` scripts, which will take care of providing the dependencies. You need to have `gcc`, `cmake`, and `conan` installed.
+
+### Compile binary
+
+When using Visual Studio, have `vcpkg` installed as described above and in VS build the cmake project or run the `rayreacerui.exe (sources\raytracerui\raytracerui.exe)` target.
+
+With a local gcc setup, you can use `./build-with-local-cc.sh` or `./run-with-local-cc.sh` to build or run the executable.
+
+
 ## System Overview
 
 The application is curently parted into three sub projects representing, each representing one of the three layers/components/parts:
