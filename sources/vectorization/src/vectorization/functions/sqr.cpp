@@ -1,19 +1,19 @@
 #include "vectorization/functions/sqr.h"
 
 namespace vectorization {
-  const Float_32 sqr(const Float_32 v) noexcept {
-    return v * v;
+  Float_32 sqr(const Float_32 value) noexcept {
+    return value * value;
   }
 
-  const Float_64 sqr(const Float_64 v) noexcept {
-    return v * v;
+  Float_64 sqr(const Float_64 value) noexcept {
+    return value * value;
   }
 
-  const PackedFloat4_128 sqr(const PackedFloat4_128 &v) noexcept {
-    return _mm_mul_ps(v, v);
+  PackedFloat4_128 sqr(const PackedFloat4_128 &values) noexcept {
+    return _mm_mul_ps(values, values);
   }
 
-  const PackedFloat2_128 sqr(const PackedFloat2_128 &v) noexcept {
-    return _mm_mul_pd(v, v);
+  PackedFloat2_128 sqr(const PackedFloat2_128 &values) noexcept {
+    return _mm_mul_pd(values, values);
   }
 }

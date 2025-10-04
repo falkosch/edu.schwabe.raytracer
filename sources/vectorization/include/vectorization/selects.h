@@ -12,5 +12,5 @@
 #include "selects/selects_256d.h"
 #include "selects/selects_256i.h"
 #include "selects/selects_256s.h"
+#include "selects/selects_generic.h"
 #include "selects/selects_scalar.h"
-#include "selects/static_select.h"

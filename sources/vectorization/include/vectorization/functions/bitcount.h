@@ -3,37 +3,28 @@
 #include "vectorization/architecture.h"
 
 namespace vectorization {
-  const ASizeT bitCount(const bool v) noexcept;
+  ASizeT bitCount(bool value) noexcept;
 
-  const ASizeT bitCount(const Int_8 v) noexcept;
+  ASizeT bitCount(Int_8 value) noexcept;
+  ASizeT bitCount(UInt_8 value) noexcept;
 
-  const ASizeT bitCount(const UInt_8 v) noexcept;
+  ASizeT bitCount(Int_16 value) noexcept;
+  ASizeT bitCount(UInt_16 value) noexcept;
 
-  const ASizeT bitCount(const Int_16 v) noexcept;
+  ASizeT bitCount(Int_32 value) noexcept;
+  ASizeT bitCount(UInt_32 value) noexcept;
 
-  const ASizeT bitCount(const UInt_16 v) noexcept;
+  ASizeT bitCount(Int_64 value) noexcept;
+  ASizeT bitCount(UInt_64 value) noexcept;
 
-  const ASizeT bitCount(const Int_32 v) noexcept;
+  ASizeT bitCount(Float_32 value) noexcept;
+  ASizeT bitCount(Float_64 value) noexcept;
 
-  const ASizeT bitCount(const UInt_32 v) noexcept;
+  ASizeT bitCount(const PackedInts_128 &values) noexcept;
+  ASizeT bitCount(const PackedFloat2_128 &values) noexcept;
+  ASizeT bitCount(const PackedFloat4_128 &values) noexcept;
 
-  const ASizeT bitCount(const Int_64 v) noexcept;
-
-  const ASizeT bitCount(const UInt_64 v) noexcept;
-
-  const ASizeT bitCount(const Float_32 v) noexcept;
-
-  const ASizeT bitCount(const Float_64 c) noexcept;
-
-  const ASizeT bitCount(const PackedInts_128 &v) noexcept;
-
-  const ASizeT bitCount(const PackedFloat2_128 &v) noexcept;
-
-  const ASizeT bitCount(const PackedFloat4_128 &v) noexcept;
-
-  const ASizeT bitCount(const PackedInts_256 &v) noexcept;
-
-  const ASizeT bitCount(const PackedFloat8_256 &v) noexcept;
-
-  const ASizeT bitCount(const PackedFloat4_256 &v) noexcept;
+  ASizeT bitCount(const PackedInts_256 &values) noexcept;
+  ASizeT bitCount(const PackedFloat8_256 &values) noexcept;
+  ASizeT bitCount(const PackedFloat4_256 &values) noexcept;
 }

@@ -1,0 +1,8 @@
+{
+  "version": "0",
+  "name": "edu-schwabe-raytracer",
+  "dependencies": [
+    "catch2",
+    "glew"
+  ]
+}

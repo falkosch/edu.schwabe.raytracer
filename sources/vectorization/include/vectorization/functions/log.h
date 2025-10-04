@@ -3,7 +3,6 @@
 #include "vectorization/architecture.h"
 
 namespace vectorization {
-  const Float_32 log(const Float_32 v) noexcept;
-
-  const Float_64 log(const Float_64 v) noexcept;
+  Float_32 log(Float_32 value) noexcept;
+  Float_64 log(Float_64 value) noexcept;
 }

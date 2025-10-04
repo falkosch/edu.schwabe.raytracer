@@ -5,35 +5,35 @@
 #include "vectorization/selects.h"
 
 namespace vectorization {
-  const Int_8 abs(const Int_8 v) noexcept {
-    return select(v < Zero<Int_8>(), static_cast<Int_8>(-v), v);
+  Int_8 abs(const Int_8 value) noexcept {
+    return select(value < Zero<Int_8>(), static_cast<Int_8>(-value), value);
   }
 
-  const Int_16 abs(const Int_16 v) noexcept {
-    return select(v < Zero<Int_16>(), static_cast<Int_16>(-v), v);
+  Int_16 abs(const Int_16 value) noexcept {
+    return select(value < Zero<Int_16>(), static_cast<Int_16>(-value), value);
   }
 
-  const Int_32 abs(const Int_32 v) noexcept {
-    return std::abs(v);
+  Int_32 abs(const Int_32 value) noexcept {
+    return std::abs(value);
   }
 
-  const Int_64 abs(const Int_64 v) noexcept {
-    return std::llabs(v);
+  Int_64 abs(const Int_64 value) noexcept {
+    return std::llabs(value);
   }
 
-  const Float_32 abs(const Float_32 v) noexcept {
-    return x(abs(_mm_set_ss(v)));
+  Float_32 abs(const Float_32 value) noexcept {
+    return x(abs(_mm_set_ss(value)));
   }
 
-  const Float_64 abs(const Float_64 v) noexcept {
-    return x(abs(_mm_set_sd(v)));
+  Float_64 abs(const Float_64 value) noexcept {
+    return x(abs(_mm_set_sd(value)));
   }
 
-  const PackedFloat4_128 abs(const PackedFloat4_128 &v) noexcept {
-    return _mm_andnot_ps(NegativeZero<PackedFloat4_128>(), v);
+  PackedFloat4_128 abs(const PackedFloat4_128 &values) noexcept {
+    return _mm_andnot_ps(NegativeZero<PackedFloat4_128>(), values);
   }
 
-  const PackedFloat2_128 abs(const PackedFloat2_128 &v) noexcept {
-    return _mm_andnot_pd(NegativeZero<PackedFloat2_128>(), v);
+  PackedFloat2_128 abs(const PackedFloat2_128 &values) noexcept {
+    return _mm_andnot_pd(NegativeZero<PackedFloat2_128>(), values);
   }
 }

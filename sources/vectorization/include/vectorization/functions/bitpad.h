@@ -3,19 +3,15 @@
 #include "vectorization/architecture.h"
 
 namespace vectorization {
-  const Int_8 bitPad(const Int_8 unpadded, const Int_8 bitPadding) noexcept;
+  Int_8 bitPad(Int_8 value, Int_8 padding) noexcept;
+  UInt_8 bitPad(UInt_8 value, UInt_8 padding) noexcept;
 
-  const UInt_8 bitPad(const UInt_8 unpadded, const UInt_8 bitPadding) noexcept;
+  Int_16 bitPad(Int_16 value, Int_16 padding) noexcept;
+  UInt_16 bitPad(UInt_16 value, UInt_16 padding) noexcept;
 
-  const Int_16 bitPad(const Int_16 unpadded, const Int_16 bitPadding) noexcept;
+  Int_32 bitPad(Int_32 value, Int_32 padding) noexcept;
+  UInt_32 bitPad(UInt_32 value, UInt_32 padding) noexcept;
 
-  const UInt_16 bitPad(const UInt_16 unpadded, const UInt_16 bitPadding) noexcept;
-
-  const Int_32 bitPad(const Int_32 unpadded, const Int_32 bitPadding) noexcept;
-
-  const UInt_32 bitPad(const UInt_32 unpadded, const UInt_32 bitPadding) noexcept;
-
-  const Int_64 bitPad(const Int_64 unpadded, const Int_64 bitPadding) noexcept;
-
-  const UInt_64 bitPad(const UInt_64 unpadded, const UInt_64 bitPadding) noexcept;
+  Int_64 bitPad(Int_64 value, Int_64 padding) noexcept;
+  UInt_64 bitPad(UInt_64 value, UInt_64 padding) noexcept;
 }

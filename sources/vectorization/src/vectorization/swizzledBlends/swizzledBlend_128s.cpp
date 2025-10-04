@@ -2,7 +2,7 @@
 
 namespace vectorization {
   template <>
-  const PackedFloat4_128
+  PackedFloat4_128
   swizzledBlend<VectorIndices::X, VectorIndices::X, VectorIndices::Y, VectorIndices::Y, false, true, false, true>(
       const PackedFloat4_128 &a, const PackedFloat4_128 &b
   ) noexcept {
@@ -10,7 +10,7 @@ namespace vectorization {
   }
 
   template <>
-  const PackedFloat4_128
+  PackedFloat4_128
   swizzledBlend<VectorIndices::X, VectorIndices::X, VectorIndices::Y, VectorIndices::Y, true, false, true, false>(
       const PackedFloat4_128 &a, const PackedFloat4_128 &b
   ) noexcept {
@@ -23,7 +23,7 @@ namespace vectorization {
   }
 
   template <>
-  const PackedFloat4_128
+  PackedFloat4_128
   swizzledBlend<VectorIndices::X, VectorIndices::Y, VectorIndices::X, VectorIndices::Y, false, false, true, true>(
       const PackedFloat4_128 &a, const PackedFloat4_128 &b
   ) noexcept {
@@ -31,7 +31,7 @@ namespace vectorization {
   }
 
   template <>
-  const PackedFloat4_128
+  PackedFloat4_128
   swizzledBlend<VectorIndices::X, VectorIndices::Y, VectorIndices::X, VectorIndices::Y, true, true, false, false>(
       const PackedFloat4_128 &a, const PackedFloat4_128 &b
   ) noexcept {
@@ -44,7 +44,7 @@ namespace vectorization {
   }
 
   template <>
-  const PackedFloat4_128
+  PackedFloat4_128
   swizzledBlend<VectorIndices::Z, VectorIndices::Z, VectorIndices::W, VectorIndices::W, false, true, false, true>(
       const PackedFloat4_128 &a, const PackedFloat4_128 &b
   ) noexcept {
@@ -52,7 +52,7 @@ namespace vectorization {
   }
 
   template <>
-  const PackedFloat4_128
+  PackedFloat4_128
   swizzledBlend<VectorIndices::Z, VectorIndices::Z, VectorIndices::W, VectorIndices::W, true, false, true, false>(
       const PackedFloat4_128 &a, const PackedFloat4_128 &b
   ) noexcept {
@@ -65,7 +65,7 @@ namespace vectorization {
   }
 
   template <>
-  const PackedFloat4_128
+  PackedFloat4_128
   swizzledBlend<VectorIndices::Z, VectorIndices::W, VectorIndices::Z, VectorIndices::W, true, true, false, false>(
       const PackedFloat4_128 &a, const PackedFloat4_128 &b
   ) noexcept {
@@ -73,7 +73,7 @@ namespace vectorization {
   }
 
   template <>
-  const PackedFloat4_128
+  PackedFloat4_128
   swizzledBlend<VectorIndices::Z, VectorIndices::W, VectorIndices::Z, VectorIndices::W, false, false, true, true>(
       const PackedFloat4_128 &a, const PackedFloat4_128 &b
   ) noexcept {

@@ -4,28 +4,28 @@
 
 namespace vectorization {
   template <>
-  const Float_64 component<VectorIndices::X>(const PackedFloat2_128 &v) noexcept {
-    return _mm_cvtsd_f64(v);
+  Float_64 component<VectorIndices::X>(const PackedFloat2_128 &values) noexcept {
+    return _mm_cvtsd_f64(values);
   }
 
   template <>
-  const Float_64 component<VectorIndices::Y>(const PackedFloat2_128 &v) noexcept {
-    return component<VectorIndices::X>(yy(v));
+  Float_64 component<VectorIndices::Y>(const PackedFloat2_128 &values) noexcept {
+    return component<VectorIndices::X>(yy(values));
   }
 
-  const Float_64 x(const PackedFloat2_128 &v) noexcept {
-    return component<VectorIndices::X>(v);
+  Float_64 x(const PackedFloat2_128 &values) noexcept {
+    return component<VectorIndices::X>(values);
   }
 
-  const Float_64 y(const PackedFloat2_128 &v) noexcept {
-    return component<VectorIndices::Y>(v);
+  Float_64 y(const PackedFloat2_128 &values) noexcept {
+    return component<VectorIndices::Y>(values);
   }
 
-  const Float_64 x1(const PackedFloat2_128 &v) noexcept {
-    return component<VectorIndices::X1>(v);
+  Float_64 x1(const PackedFloat2_128 &values) noexcept {
+    return component<VectorIndices::X1>(values);
   }
 
-  const Float_64 x2(const PackedFloat2_128 &v) noexcept {
-    return component<VectorIndices::X2>(v);
+  Float_64 x2(const PackedFloat2_128 &values) noexcept {
+    return component<VectorIndices::X2>(values);
   }
 }

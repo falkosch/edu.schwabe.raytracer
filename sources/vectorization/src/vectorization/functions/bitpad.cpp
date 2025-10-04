@@ -1,35 +1,35 @@
 #include "vectorization/functions/bitPad.h"
 
 namespace vectorization {
-  const Int_8 bitPad(const Int_8 unpadded, const Int_8 bitPadding) noexcept {
-    return static_cast<Int_8>((bitPadding + unpadded) & ~bitPadding);
+  Int_8 bitPad(const Int_8 value, const Int_8 padding) noexcept {
+    return static_cast<Int_8>((padding + value) & ~padding);
   }
 
-  const UInt_8 bitPad(const UInt_8 unpadded, const UInt_8 bitPadding) noexcept {
-    return static_cast<UInt_8>((bitPadding + unpadded) & ~bitPadding);
+  UInt_8 bitPad(const UInt_8 value, const UInt_8 padding) noexcept {
+    return static_cast<UInt_8>((padding + value) & ~padding);
   }
 
-  const Int_16 bitPad(const Int_16 unpadded, const Int_16 bitPadding) noexcept {
-    return static_cast<Int_16>((bitPadding + unpadded) & ~bitPadding);
+  Int_16 bitPad(const Int_16 value, const Int_16 padding) noexcept {
+    return static_cast<Int_16>((padding + value) & ~padding);
   }
 
-  const UInt_16 bitPad(const UInt_16 unpadded, const UInt_16 bitPadding) noexcept {
-    return static_cast<UInt_16>((bitPadding + unpadded) & ~bitPadding);
+  UInt_16 bitPad(const UInt_16 value, const UInt_16 padding) noexcept {
+    return static_cast<UInt_16>((padding + value) & ~padding);
   }
 
-  const Int_32 bitPad(const Int_32 unpadded, const Int_32 bitPadding) noexcept {
-    return (bitPadding + unpadded) & ~bitPadding;
+  Int_32 bitPad(const Int_32 value, const Int_32 padding) noexcept {
+    return (padding + value) & ~padding;
   }
 
-  const UInt_32 bitPad(const UInt_32 unpadded, const UInt_32 bitPadding) noexcept {
-    return (bitPadding + unpadded) & ~bitPadding;
+  UInt_32 bitPad(const UInt_32 value, const UInt_32 padding) noexcept {
+    return (padding + value) & ~padding;
   }
 
-  const Int_64 bitPad(const Int_64 unpadded, const Int_64 bitPadding) noexcept {
-    return (bitPadding + unpadded) & ~bitPadding;
+  Int_64 bitPad(const Int_64 value, const Int_64 padding) noexcept {
+    return (padding + value) & ~padding;
   }
 
-  const UInt_64 bitPad(const UInt_64 unpadded, const UInt_64 bitPadding) noexcept {
-    return (bitPadding + unpadded) & ~bitPadding;
+  UInt_64 bitPad(const UInt_64 value, const UInt_64 padding) noexcept {
+    return (padding + value) & ~padding;
   }
 }

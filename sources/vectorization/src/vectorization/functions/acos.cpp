@@ -3,11 +3,11 @@
 #include <cmath>
 
 namespace vectorization {
-  const Float_32 acos(const Float_32 v) noexcept {
-    return std::acos(v);
+  Float_32 acos(const Float_32 value) noexcept {
+    return std::acos(value);
   }
 
-  const Float_64 acos(const Float_64 v) noexcept {
-    return std::acos(v);
+  Float_64 acos(const Float_64 value) noexcept {
+    return std::acos(value);
   }
 }

@@ -5,43 +5,43 @@
 #include "vectorization/constants.h"
 
 namespace vectorization {
-  const Int_8 modPad(const Int_8 unpadded, const Int_8 modPadding) noexcept {
-    const Int_32 overPadded = unpadded + modPadding - One<Int_32>();
-    return static_cast<Int_8>(overPadded - modulo(overPadded, static_cast<Int_32>(modPadding)));
+  Int_8 modPad(const Int_8 value, const Int_8 padding) noexcept {
+    const auto overPadded = value + padding - One<Int_32>();
+    return static_cast<Int_8>(overPadded - modulo(overPadded, static_cast<Int_32>(padding)));
   }
 
-  const UInt_8 modPad(const UInt_8 unpadded, const UInt_8 modPadding) noexcept {
-    const Int_32 overPadded = unpadded + modPadding - One<Int_32>();
-    return static_cast<UInt_8>(overPadded - modulo(overPadded, static_cast<Int_32>(modPadding)));
+  UInt_8 modPad(const UInt_8 value, const UInt_8 padding) noexcept {
+    const auto overPadded = value + padding - One<Int_32>();
+    return static_cast<UInt_8>(overPadded - modulo(overPadded, static_cast<Int_32>(padding)));
   }
 
-  const Int_16 modPad(const Int_16 unpadded, const Int_16 modPadding) noexcept {
-    const Int_32 overPadded = unpadded + modPadding - One<Int_32>();
-    return static_cast<Int_16>(overPadded - modulo(overPadded, static_cast<Int_32>(modPadding)));
+  Int_16 modPad(const Int_16 value, const Int_16 padding) noexcept {
+    auto overPadded = value + padding - One<Int_32>();
+    return static_cast<Int_16>(overPadded - modulo(overPadded, static_cast<Int_32>(padding)));
   }
 
-  const UInt_16 modPad(const UInt_16 unpadded, const UInt_16 modPadding) noexcept {
-    const Int_32 overPadded = unpadded + modPadding - One<Int_32>();
-    return static_cast<UInt_16>(overPadded - modulo(overPadded, static_cast<Int_32>(modPadding)));
+  UInt_16 modPad(const UInt_16 value, const UInt_16 padding) noexcept {
+    const auto overPadded = value + padding - One<Int_32>();
+    return static_cast<UInt_16>(overPadded - modulo(overPadded, static_cast<Int_32>(padding)));
   }
 
-  const Int_32 modPad(const Int_32 unpadded, const Int_32 modPadding) noexcept {
-    const Int_32 overPadded = unpadded + modPadding - One<Int_32>();
-    return overPadded - modulo(overPadded, modPadding);
+  Int_32 modPad(const Int_32 value, const Int_32 padding) noexcept {
+    const auto overPadded = value + padding - One<Int_32>();
+    return overPadded - modulo(overPadded, padding);
   }
 
-  const UInt_32 modPad(const UInt_32 unpadded, const UInt_32 modPadding) noexcept {
-    const UInt_32 overPadded = unpadded + modPadding - One<UInt_32>();
-    return overPadded - modulo(overPadded, modPadding);
+  UInt_32 modPad(const UInt_32 value, const UInt_32 padding) noexcept {
+    auto overPadded = value + padding - One<UInt_32>();
+    return overPadded - modulo(overPadded, padding);
   }
 
-  const Int_64 modPad(const Int_64 unpadded, const Int_64 modPadding) noexcept {
-    const Int_64 overPadded = unpadded + modPadding - One<Int_64>();
-    return overPadded - modulo(overPadded, modPadding);
+  Int_64 modPad(const Int_64 value, const Int_64 padding) noexcept {
+    const auto overPadded = value + padding - One<Int_64>();
+    return overPadded - modulo(overPadded, padding);
   }
 
-  const UInt_64 modPad(const UInt_64 unpadded, const UInt_64 modPadding) noexcept {
-    const UInt_64 overPadded = unpadded + modPadding - One<UInt_64>();
-    return overPadded - modulo(overPadded, modPadding);
+  UInt_64 modPad(const UInt_64 value, const UInt_64 padding) noexcept {
+    const auto overPadded = value + padding - One<UInt_64>();
+    return overPadded - modulo(overPadded, padding);
   }
 }

@@ -3,11 +3,11 @@
 #include <cmath>
 
 namespace vectorization {
-  const Float_32 log(const Float_32 v) noexcept {
-    return std::log(v);
+  Float_32 log(const Float_32 value) noexcept {
+    return std::log(value);
   }
 
-  const Float_64 log(const Float_64 v) noexcept {
-    return std::log(v);
+  Float_64 log(const Float_64 value) noexcept {
+    return std::log(value);
   }
 }

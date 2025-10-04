@@ -52,7 +52,7 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     endforeach ()
 
     add_compile_options(/arch:AVX2 /openmp /GS- /fp:fast /permissive- /Zc:twoPhase- /Zp16 /sdl- /Oi
-            /W4 /wd4514 /wd4710 /wd4711 /wd4820)
+            /W4 /wd4514 /wd4710 /wd4711 /wd4820 /wd4068)
 
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 

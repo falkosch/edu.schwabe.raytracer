@@ -3,11 +3,11 @@
 #include "vectorization/functions/log.h"
 
 namespace vectorization {
-  const Float_32 logN(const Float_32 v, const Float_32 logBase) noexcept {
-    return log(v) / log(logBase);
+  Float_32 logN(const Float_32 value, const Float_32 base) noexcept {
+    return log(value) / log(base);
   }
 
-  const Float_64 logN(const Float_64 v, const Float_64 logBase) noexcept {
-    return log(v) / log(logBase);
+  Float_64 logN(const Float_64 value, const Float_64 base) noexcept {
+    return log(value) / log(base);
   }
 }

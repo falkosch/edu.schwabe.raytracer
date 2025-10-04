@@ -24,74 +24,80 @@ namespace vectorization {
 
   void free(void *&data, const std::nothrow_t &nothrow) noexcept;
 
-  void *alloc(const std::size_t size) noexcept;
+  void *alloc(std::size_t size) noexcept;
 
-  void *alloc(const std::size_t size, const std::nothrow_t &nothrow) noexcept;
+  void *alloc(std::size_t size, const std::nothrow_t &nothrow) noexcept;
 
-  void *alloc(const std::size_t size, const std::align_val_t alignment) noexcept;
+  void *alloc(std::size_t size, std::align_val_t alignment) noexcept;
 
-  void *alloc(const std::size_t size, const std::align_val_t alignment, const std::nothrow_t &nothrow) noexcept;
+  void *alloc(std::size_t size, std::align_val_t alignment, const std::nothrow_t &nothrow) noexcept;
 
-  void *alloc(const std::size_t size, const std::size_t alignment) noexcept;
+  void *alloc(std::size_t size, std::size_t alignment) noexcept;
 
-  void *alloc(const std::size_t size, const std::size_t alignment, const std::nothrow_t &nothrow) noexcept;
+  void *alloc(std::size_t size, std::size_t alignment, const std::nothrow_t &nothrow) noexcept;
 
   template <class T>
   struct AlignedAllocator {
     // typedefs required by xmemory
-    typedef T value_type;
-    typedef T *pointer;
-    typedef std::size_t size_type;
-    typedef std::true_type is_always_equal;
+    using value_type = T;
+    using pointer = T *;
+    using size_type = std::size_t;
+    using is_always_equal = std::true_type;
 
-    AlignedAllocator<T>() noexcept {
+    AlignedAllocator<T>() noexcept = default;
+
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "google-explicit-constructor"
+    template <class U>
+    AlignedAllocator<T>(const AlignedAllocator<U> & /*unused*/) noexcept {
     }
+#pragma clang diagnostic pop
 
     template <class U>
-    AlignedAllocator<T>(const AlignedAllocator<U> &) noexcept {
-    }
-
-    template <class U>
-    const bool operator==(const AlignedAllocator<U> &) const {
+    bool operator==(const AlignedAllocator<U> & /*unused*/) const {
       return true;
     }
 
     template <class U>
-    const bool operator!=(const AlignedAllocator<U> &) const {
+    bool operator!=(const AlignedAllocator<U> & /*unused*/) const {
       return false;
     }
 
-    pointer const allocate(const size_type n) const {
-      if (n == 0) {
+    pointer allocate(const size_type arrayLength) const {
+      if (arrayLength == 0) {
         return nullptr;
       }
-      if (n > static_cast<size_type>(-1) / sizeof(T)) {
+      constexpr auto maxLength = static_cast<size_type>(-1) / sizeof(T);
+      if (arrayLength > maxLength) {
         throw std::bad_array_new_length();
       }
 
-      void *const pv = vectorization::alloc(sizeof(T) * n, __alignof(T));
+      void *allocated = vectorization::alloc(sizeof(T) * arrayLength, __alignof(T));
 
-      if (!pv) {
+      if (allocated == nullptr) {
         throw std::bad_alloc();
       }
 
-      return static_cast<pointer const>(pv);
+      return static_cast<pointer>(allocated);
     }
 
-    void deallocate(pointer const p, const size_type) const {
-      if (p) {
-        void *vp = reinterpret_cast<void *>(p);
+    void deallocate(pointer allocated, const size_type /*unused*/) const {
+      if (allocated != nullptr) {
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "cppcoreguidelines-pro-type-reinterpret-cast"
+        void *vp = reinterpret_cast<void *>(allocated);
         vectorization::free(vp);
+#pragma clang diagnostic pop
       }
     }
 
     // templated alloc
-    static pointer const allocElements(const size_type n, const size_type alignment) {
-      return static_cast<pointer const>(vectorization::alloc(sizeof(T) * n, alignment));
+    static pointer allocElements(const size_type arrayLength, const size_type alignment) {
+      return static_cast<pointer const>(vectorization::alloc(sizeof(T) * arrayLength, alignment));
     }
 
-    static pointer const allocElements(const size_type n) {
-      return allocElements(n, __alignof(T));
+    static pointer allocElements(const size_type arrayLength) {
+      return allocElements(arrayLength, __alignof(T));
     }
   };
 }

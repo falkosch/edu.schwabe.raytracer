@@ -3,11 +3,11 @@
 #include <cmath>
 
 namespace vectorization {
-  const Float_32 sin(const Float_32 v) noexcept {
-    return std::sin(v);
+  Float_32 sin(const Float_32 value) noexcept {
+    return std::sin(value);
   }
 
-  const Float_64 sin(const Float_64 v) noexcept {
-    return std::sin(v);
+  Float_64 sin(const Float_64 value) noexcept {
+    return std::sin(value);
   }
 }

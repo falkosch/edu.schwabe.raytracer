@@ -3,19 +3,19 @@
 #include "vectorization/functions/floor.h"
 
 namespace vectorization {
-  const Float_32 fract(const Float_32 v) noexcept {
-    return v - floor(v);
+  Float_32 fract(const Float_32 value) noexcept {
+    return value - floor(value);
   }
 
-  const Float_64 fract(const Float_64 v) noexcept {
-    return v - floor(v);
+  Float_64 fract(const Float_64 value) noexcept {
+    return value - floor(value);
   }
 
-  const PackedFloat4_128 fract(const PackedFloat4_128 &v) noexcept {
-    return _mm_sub_ps(v, floor(v));
+  PackedFloat4_128 fract(const PackedFloat4_128 &values) noexcept {
+    return _mm_sub_ps(values, floor(values));
   }
 
-  const PackedFloat2_128 fract(const PackedFloat2_128 &v) noexcept {
-    return _mm_sub_pd(v, floor(v));
+  PackedFloat2_128 fract(const PackedFloat2_128 &values) noexcept {
+    return _mm_sub_pd(values, floor(values));
   }
 }
