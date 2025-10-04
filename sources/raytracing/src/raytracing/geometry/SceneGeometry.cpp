@@ -27,7 +27,7 @@ namespace raytracer {
     }
   }
 
-  const Float SceneGeometry::findNearestIntersection(
+  Float SceneGeometry::findNearestIntersection(
       const RayCast &r, const SceneIntersection *const originIntersection, SceneIntersection &intersectionOut
   ) const {
     if (outOfReach(r, Zero<Float>())) {
@@ -46,7 +46,7 @@ namespace raytracer {
     return findNearestIntersection(infiniteSceneObjectsAsGeometryNodes, tr, originIntersection, intersectionOut);
   }
 
-  const Float SceneGeometry::findAnyIntersection(
+  Float SceneGeometry::findAnyIntersection(
       const RayCast &r, const SceneIntersection *const originIntersection, SceneIntersection &intersectionOut
   ) const {
     if (outOfReach(r, Zero<Float>())) {
@@ -76,15 +76,15 @@ namespace raytracer {
     intersectionOut.object = objectGeometry;
   }
 
-  const Float SceneGeometry::findNearestIntersection(
+  Float SceneGeometry::findNearestIntersection(
       const PGeometryNodeList &geometryNodes, const RayCast &r, const SceneIntersection *const originIntersection,
       SceneIntersection &intersectionOut
   ) const {
     // iterate through all SceneObjects
     RayCast tr = r;
 
-    for (auto it = geometryNodes.cbegin(); it != geometryNodes.cend(); ++it) {
-      const auto objectGeometry = static_cast<const ObjectGeometry *const>(*it);
+    for (auto geometryNode : geometryNodes) {
+      const auto objectGeometry = dynamic_cast<const ObjectGeometry *const>(geometryNode);
 
       // check for intersections
       const Float t = objectGeometry->findNearestIntersection(tr, originIntersection, intersectionOut);
@@ -98,13 +98,13 @@ namespace raytracer {
     return tr.maxDistance;
   }
 
-  const Float SceneGeometry::findAnyIntersection(
+  Float SceneGeometry::findAnyIntersection(
       const PGeometryNodeList &geometryNodes, const RayCast &r, const SceneIntersection *const originIntersection,
       SceneIntersection &intersectionOut
   ) const {
     // iterate through all SceneObjects
-    for (auto it = geometryNodes.cbegin(); it != geometryNodes.cend(); ++it) {
-      const auto objectGeometry = static_cast<const ObjectGeometry *const>(*it);
+    for (auto geometryNode : geometryNodes) {
+      const auto objectGeometry = dynamic_cast<const ObjectGeometry *const>(geometryNode);
 
       // check for intersections
       const Float t = objectGeometry->findAnyIntersection(r, originIntersection, intersectionOut);

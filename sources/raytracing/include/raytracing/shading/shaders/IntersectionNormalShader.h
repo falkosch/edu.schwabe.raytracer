@@ -9,10 +9,10 @@ namespace raytracer {
   public:
     IntersectionNormalShader();
 
-    virtual ~IntersectionNormalShader();
+    ~IntersectionNormalShader() override;
 
-    const Float4 sample(const ObjectShader &objectShader, const FacetIntersection &intersection) const;
+    Float4 sample(const ObjectShader &objectShader, const FacetIntersection &intersection) const override;
 
-    const Float4 operator()(const ObjectShader &objectShader, const FacetIntersection &intersection) const;
+    Float4 operator()(const ObjectShader &objectShader, const FacetIntersection &intersection) const override;
   };
 }

@@ -17,17 +17,17 @@ namespace raytracer {
 
     explicit SceneGeometry(const KDTreeTraverser<SceneIntersection> *const treeTraverser);
 
-    virtual ~SceneGeometry();
+    ~SceneGeometry() override;
 
     void clearSceneGraph();
 
-    const Float findNearestIntersection(
-        const RayCast &rayCast, const SceneIntersection *const originIntersection, SceneIntersection &intersectionOut
-    ) const;
+    Float findNearestIntersection(
+        const RayCast &rayCast, const SceneIntersection *originIntersection, SceneIntersection &intersectionOut
+    ) const override;
 
-    const Float findAnyIntersection(
-        const RayCast &rayCast, const SceneIntersection *const originIntersection, SceneIntersection &intersectionOut
-    ) const;
+    Float findAnyIntersection(
+        const RayCast &rayCast, const SceneIntersection *originIntersection, SceneIntersection &intersectionOut
+    ) const override;
 
     virtual void buildSceneGraph() = 0;
 
@@ -40,14 +40,14 @@ namespace raytracer {
 
     PGeometryNodeList infiniteSceneObjectsAsGeometryNodes;
 
-    const Float findNearestIntersection(
-        const PGeometryNodeList &geometryNodes, const RayCast &rayCast,
-        const SceneIntersection *const originIntersection, SceneIntersection &intersectionOut
-    ) const;
+    Float findNearestIntersection(
+        const PGeometryNodeList &geometryNodes, const RayCast &rayCast, const SceneIntersection *originIntersection,
+        SceneIntersection &intersectionOut
+    ) const override;
 
-    const Float findAnyIntersection(
-        const PGeometryNodeList &geometryNodes, const RayCast &rayCast,
-        const SceneIntersection *const originIntersection, SceneIntersection &intersectionOut
-    ) const;
+    Float findAnyIntersection(
+        const PGeometryNodeList &geometryNodes, const RayCast &rayCast, const SceneIntersection *originIntersection,
+        SceneIntersection &intersectionOut
+    ) const override;
   };
 }

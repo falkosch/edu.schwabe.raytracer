@@ -13,7 +13,7 @@ namespace raytracer {
     init();
   }
 
-  Bitmap::Bitmap(const Size2 &resolutionIn) : resolution(resolutionIn), stride(), data() {
+  Bitmap::Bitmap(const Size2 &resolution) : resolution(resolution), stride(), data() {
     init();
   }
 

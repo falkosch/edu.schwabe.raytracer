@@ -12,10 +12,10 @@ namespace raytracer {
   public:
     HDRImageShader(const HDRImage &image);
 
-    virtual ~HDRImageShader();
+    ~HDRImageShader() override;
 
-    const Float4 sample(const ObjectShader &objectShader, const FacetIntersection &intersection) const;
+    Float4 sample(const ObjectShader &objectShader, const FacetIntersection &intersection) const override;
 
-    const Float4 operator()(const ObjectShader &objectShader, const FacetIntersection &intersection) const;
+    Float4 operator()(const ObjectShader &objectShader, const FacetIntersection &intersection) const override;
   };
 }

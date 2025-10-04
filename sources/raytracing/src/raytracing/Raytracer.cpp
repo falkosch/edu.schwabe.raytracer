@@ -75,7 +75,7 @@ namespace raytracer {
     return static_cast<Int_64>(start.QuadPart);
   }
 
-  // Timing for each pixel: Read end-time from clock and calculate differences
+  // Timing for each pixel: Read end-time and calculate differences
   Float4 perPixelTiming(const Int_64 start) {
     LARGE_INTEGER stop;
     QueryPerformanceCounter(&stop);
@@ -154,19 +154,19 @@ namespace raytracer {
         cache.statistics.primaryRays += packedRaytraces.size();
 
         for (const auto &packedRaytrace : packedRaytraces) {
-          // Timing for each pixel: Read start-time from clock
+          // Timing for each pixel: Read start-time
           auto start = perPixelTiming();
 
           auto hit = trace(packedRaytrace.raytrace, cache);
           cache.statistics.missedPrimaryRays +=
               static_cast<ASizeT>(outOfReach(packedRaytrace.raytrace.rayCast, x(hit.depth)));
 
-          // Sample color into output
+          // Sample colour into output
           packets.samplePixel(packedRaytrace.outputPixel, hit.color);
 
           auto imagePtrIndex = packedRaytrace.outputPixel - cache.configuration.image->getData();
 
-          // Fill in depth information and store it in depthMap
+          // Fill depth information and store it in depthMap
           auto pixelDepthMask = x_yzw(Infinity<Float4>(), NegativeInfinity<Float4>());
           auto depth = packets.superSampledPixelDepth(RaytracerPackets::samplePixelDepth(pixelDepthMask, hit.depth));
           store(depth, cache.configuration.depthMap->getData() + imagePtrIndex);
@@ -231,7 +231,7 @@ namespace raytracer {
   IlluminatedIntersection Raytracer::trace(const Raytrace &raytrace, RaytracerCache &cache) {
     BRDFParameters brdf;
 
-    // Find nearest intersection
+    // Find the nearest intersection
     brdf.viewDistance = cache.configuration.sceneShader->findNearestIntersection(
         raytrace.rayCast, raytrace.originIntersection, brdf.intersection
     );
@@ -247,7 +247,7 @@ namespace raytracer {
     auto &objectShader = *dynamic_cast<const ObjectShader *const>(brdf.intersection.object);
     brdf.surface = objectShader(*cache.configuration.sceneShader, brdf.intersection);
 
-    // Sample lighting properties at intersection
+    // Sample lighting properties at the intersection
     brdf.lighting = cache.configuration.sceneShader->sampleLighting(
         raytrace, SceneShader::adaptedVisibilityCutoff(cache.configuration.visibilityCutoff, raytrace.visibilityIndex),
         brdf.surface.shininess, brdf.intersection, cache.shadowCache, cache.statistics
@@ -277,13 +277,13 @@ namespace raytracer {
   void Raytracer::traceReflection(
       const Raytrace &incidentRaytrace, const Float maxDistance, RaytracerCache &cache, BRDFParameters &brdf
   ) {
-    // would still be visible but tracing is not wanted anymore
+    // would still be visible but tracing is not wanted any more
     if (incidentRaytrace.traceDepth >= cache.configuration.maxTraceDepth || maxDistance <= Zero<Float>()) {
       brdf.lighting.reflected = Zero<Float4>();
       return;
     }
 
-    // does it still add to the visibility in the image
+    // check whether it would even make a difference in the image
     auto reflectionVisibilityIndex =
         incidentRaytrace.visibilityIndex * brdf.reflectanceCoefficient * max3v(brdf.surface.reflectance);
     if (x(reflectionVisibilityIndex) < cache.configuration.visibilityCutoff) {
@@ -313,7 +313,7 @@ namespace raytracer {
       const Raytrace &incidentRaytrace, const Float maxDistance, const bool leavingMaterial,
       const Float4 &transmittedDirection, RaytracerCache &cache, BRDFParameters &brdf
   ) {
-    // would still be visible but tracing is not wanted anymore, set transmitted to background
+    // would still be visible, but tracing is not wanted any more, set transmitted to the background
     if (incidentRaytrace.traceDepth >= cache.configuration.maxTraceDepth || maxDistance <= Zero<Float>()) {
       brdf.lighting.transmitted = Zero<Float4>();
       return;
@@ -331,7 +331,8 @@ namespace raytracer {
     }
     brdf.fractionTransmitted = fractionTransmitted;
 
-    // does it still add to the visibility in the image or is it total internal reflection (transmissionDirection = 0)
+    // check whether it would even make a difference in the image,
+    // or whether it is a total internal reflection (transmissionDirection = 0)
     auto transmissionVisibilityIndex =
         Float4(incidentRaytrace.visibilityIndex) * fractionTransmitted * (One<Float4>() - brdf.reflectanceCoefficient);
     if (x(transmissionVisibilityIndex) < cache.configuration.visibilityCutoff) {

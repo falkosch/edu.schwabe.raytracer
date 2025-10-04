@@ -19,11 +19,11 @@ namespace raytracer {
     virtual ~NoiseGeneratorMap() {
     }
 
-    const Float4 sample(const ObjectShader &objectShader, const FacetIntersection &intersection) const {
+     Float4 sample(const ObjectShader &objectShader, const FacetIntersection &intersection) const {
       return (*this)(objectShader, intersection);
     }
 
-    const Float4 operator()(const ObjectShader & /*objectShader*/, const FacetIntersection &intersection) const {
+     Float4 operator()(const ObjectShader & /*objectShader*/, const FacetIntersection &intersection) const {
       Float4 noise = Zero<Float4>();
       Float4 frequency = One<Float4>();
 

@@ -15,26 +15,26 @@ namespace raytracer {
 
     MeshGeometryNode();
 
-    explicit MeshGeometryNode(const ASizeT index, const Facet &facet);
+    explicit MeshGeometryNode(ASizeT index, const Facet &facet);
 
     // GeometryNode interface
 
-    const AxisAlignedBoundingBox includeInBounding(const AxisAlignedBoundingBox &aabb) const;
+    AxisAlignedBoundingBox includeInBounding(const AxisAlignedBoundingBox &aabb) const;
 
-    const bool overlaps(const AxisAlignedBoundingBox &aabb) const;
+    bool overlaps(const AxisAlignedBoundingBox &aabb) const override;
 
-    const Float getIndividualIntersectionCosts() const {
+    Float getIndividualIntersectionCosts() const override {
       return 79.1726f;
     }
 
     // Intersectable<RayCast, FacetIntersection> interface
 
-    const Float findNearestIntersection(
-        const RayCast &rayCast, const FacetIntersection *const originIntersection, FacetIntersection &intersectionOut
-    ) const;
+    Float findNearestIntersection(
+        const RayCast &rayCast, const FacetIntersection *originIntersection, FacetIntersection &intersectionOut
+    ) const override;
 
-    const Float findAnyIntersection(
-        const RayCast &rayCast, const FacetIntersection *const originIntersection, FacetIntersection &intersectionOut
-    ) const;
+    Float findAnyIntersection(
+        const RayCast &rayCast, const FacetIntersection *originIntersection, FacetIntersection &intersectionOut
+    ) const override;
   };
 }

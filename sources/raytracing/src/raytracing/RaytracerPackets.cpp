@@ -13,7 +13,7 @@ namespace raytracer {
 
   Size2 calculatePacketCounts(const Size2 &resolution, const Size2 &packetLength) {
     const auto packetCountXY = (resolution - One<Size2>()) / packetLength + One<Size2>();
-    // overwrite vertical packet count with the total packet count
+    // overwrite the vertical packet count with the total packet count
     return replaceY(packetCountXY, x(packetCountXY) * y(packetCountXY));
   }
 
@@ -38,7 +38,7 @@ namespace raytracer {
     ssNearBottomDir = nearBottomDir * ssInverseFactor;
     ssFarBottomDir = farBottomDir * ssInverseFactor;
 
-    // add an offset to top-left-point to correct sample-positioning
+    // add an offset to the top-left-point to correct sample-positioning
     nearTopLeft = configuration.camera->getVFNearTopLeft() + Half<Float4>() * (ssNearRightDir + ssNearBottomDir);
     farTopLeft = configuration.camera->getVFFarTopLeft() + Half<Float4>() * (ssFarRightDir + ssFarBottomDir);
 

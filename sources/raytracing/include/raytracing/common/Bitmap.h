@@ -10,7 +10,7 @@ namespace raytracer {
 
   // Bitmap with 8-bit-width red, green and blue color-channels but no alpha-channel.
   // The width of each scanline is padded to be a multiple of 4 bytes.
-  class Bitmap {
+  class Bitmap final {
   public:
     typedef struct _BitmapVectorType {
       static const ASizeT SIZE = VectorSizes::Z;
@@ -30,16 +30,16 @@ namespace raytracer {
   public:
     Bitmap();
 
-    Bitmap(const Size2 &resolution);
+    explicit Bitmap(const Size2 &resolution);
 
     template <typename ImageVectorType>
-    Bitmap(const Image<ImageVectorType> &image) : resolution(image.getResolution()), stride(), data() {
+    explicit Bitmap(const Image<ImageVectorType> &image) : resolution(image.getResolution()), stride(), data() {
       typedef VectorType::ValueType BitmapValueType;
       typedef std::numeric_limits<BitmapValueType> BitmapValueLimits;
 
       init();
-      const Int4 BMIN = Int4(convert<Int4::ValueType>(BitmapValueLimits::lowest()));
-      const Int4 BMAX = Int4(convert<Int4::ValueType>(BitmapValueLimits::max()));
+      const auto BMIN = Int4(convert<Int4::ValueType>(BitmapValueLimits::lowest()));
+      const auto BMAX = Int4(convert<Int4::ValueType>(BitmapValueLimits::max()));
       const ImageVectorType VMIN = convert<ImageVectorType>(BMIN);
       const ImageVectorType VMAX = convert<ImageVectorType>(BMAX);
       const int heighti = convert<int>(y(resolution));

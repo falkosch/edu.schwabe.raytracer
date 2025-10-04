@@ -12,17 +12,17 @@ namespace raytracer {
   // per worker thread cached raytracing information
   struct RaytracerPackets {
     Size2 packetCount;
-    // x: pixels per each line in packet
-    // y: total count of pixels in packet
+    // x: pixels per each line in a packet
+    // y: total count of pixels in a packet
     Size2 packetLength;
-    // count of super samples in pixel
+    // count of super samples in a pixel
     Size2 ssLength;
 
     // top left origin of camera planes
     Float4 nearTopLeft, farTopLeft;
-    // extends of the camera near plane
+    // extends of the camera's near-plane
     Float4 nearRightDir, farRightDir;
-    // extends of the camera far plane
+    // extends of the camera's far-plane
     Float4 nearBottomDir, farBottomDir;
     // extends in super sampling spaces
     Float4 ssNearRightDir, ssFarRightDir;
@@ -30,29 +30,29 @@ namespace raytracer {
     // super sample weight
     Float4 ssAvg;
 
-    RaytracerPackets(const RaytraceConfiguration &configuration);
+    explicit RaytracerPackets(const RaytraceConfiguration &configuration);
 
-    [[nodiscard]] int getPacketCount() const;
+    int getPacketCount() const;
 
-    [[nodiscard]] Size2 packetStartOf(int packet) const;
+    Size2 packetStartOf(int packet) const;
 
-    [[nodiscard]] Size2 packetStartOf(Size2::ValueType packet) const;
+    Size2 packetStartOf(Size2::ValueType packet) const;
 
-    [[nodiscard]] Size2 clampPacketLength(const Size2 &resolution, const Size2 &packetXYStart) const;
+    Size2 clampPacketLength(const Size2 &resolution, const Size2 &packetXYStart) const;
 
-    [[nodiscard]] Float4 pixelNearTopLeft(const Float4 &pixelCoordinates) const;
+    Float4 pixelNearTopLeft(const Float4 &pixelCoordinates) const;
 
-    [[nodiscard]] Float4 pixelFarTopLeft(const Float4 &pixelCoordinates) const;
+    Float4 pixelFarTopLeft(const Float4 &pixelCoordinates) const;
 
-    [[nodiscard]] Ray setupRayOfSampleInPixel(
+    Ray setupRayOfSampleInPixel(
         Size2::ValueType sample, const Float4 &pixelNearTopLeft, const Float4 &pixelFarTopLeft
     ) const;
 
     void samplePixel(Float4 *pixel, const Float4 &sample) const;
 
-    [[nodiscard]] Float4 superSampledPixelDepth(const Float4 &sampledDepth) const;
+    Float4 superSampledPixelDepth(const Float4 &sampledDepth) const;
 
-    [[nodiscard]] Size2::ValueType pixelSubSamplesCount() const;
+    Size2::ValueType pixelSubSamplesCount() const;
 
     static Size2 coordsOfPixel(Size2::ValueType pixelInPacket, const Size2 &packetStart, const Size2 &minPacketLength);
 

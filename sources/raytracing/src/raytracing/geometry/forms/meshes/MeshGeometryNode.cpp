@@ -2,7 +2,7 @@
 #include "../../../../stdafx.h"
 
 namespace raytracer {
-  const bool planeBoxOverlap(const Float4 &normal, const Float4 &vert, const Float4 &maxbox) {
+  bool planeBoxOverlap(const Float4 &normal, const Float4 &vert, const Float4 &maxbox) {
     const auto mask = normal > Zero<Float4>();
     const auto a = maxbox - vert;
     const auto b = -maxbox - vert;
@@ -13,7 +13,7 @@ namespace raytracer {
     return allTrue(vminSide & vmaxSide);
   }
 
-  const bool axisTest(
+  bool axisTest(
       const Float4 &edge, const Float4 &yzxBoxHalfSize, const Float4 &zxyBoxHalfSize, const Float4 &w00,
       const Float4 &w01, const Float4 &w10, const Float4 &w11
   ) {
@@ -26,7 +26,7 @@ namespace raytracer {
     return anyTrue3((min(p135, p246) > rad) | (max(p135, p246) < -rad));
   }
 
-  const bool triBoxOverlap(const AxisAlignedBoundingBox &aabb, const Facet &trianglePlanes) {
+  bool triBoxOverlap(const AxisAlignedBoundingBox &aabb, const Facet &trianglePlanes) {
     // based on Fast 3D Triangle-Box Overlap Testing by Tomas Akenine-Moller
     // https://fileadmin.cs.lth.se/cs/Personal/Tomas_Akenine-Moller/pubs/tribox.pdf
     // tests are in their SSE equivalent manner
@@ -53,7 +53,7 @@ namespace raytracer {
     // case 3: 9 SAT (separating axis theorem) tests
     // a_ij = cross(e_i, f_j) and i and j in {0, 1, 2},
     // where f0 = v1 - v0, f1 = v2 - v1 and f2 = v0 - v2
-    // and e_i are the axis aligned normals of the AABB, f.e. e_0 = (1, 0, 0)
+    // and e_i are the axis-aligned normals of the AABB, f.e. e_0 = (1, 0, 0)
 
     // outline of the test for i=j=0:
     // a_00 = e_0 * f_0 = (0, -f_0.z, f_0.y)
@@ -94,23 +94,22 @@ namespace raytracer {
 
   // GeometryNode interface
 
-  const AxisAlignedBoundingBox MeshGeometryNode::includeInBounding(const AxisAlignedBoundingBox &aabb) const {
+  AxisAlignedBoundingBox MeshGeometryNode::includeInBounding(const AxisAlignedBoundingBox &aabb) const {
     return extendBy(extendBy(extendBy(aabb, facet.v0), facet.v1), facet.v2);
   }
 
-  const bool MeshGeometryNode::overlaps(const AxisAlignedBoundingBox &aabb) const {
+  bool MeshGeometryNode::overlaps(const AxisAlignedBoundingBox &aabb) const {
     return triBoxOverlap(aabb, facet);
   }
 
   // Intersectable<RayCast, FacetIntersection> interface
 
-  const Float
-  MeshGeometryNode::findNearestIntersection(const RayCast &ray, const FacetIntersection *const, FacetIntersection &)
-      const {
+  Float MeshGeometryNode::
+      findNearestIntersection(const RayCast &ray, const FacetIntersection *const, FacetIntersection &) const {
     return ray.maxDistance;
   }
 
-  const Float
+  Float
   MeshGeometryNode::findAnyIntersection(const RayCast &ray, const FacetIntersection *const, FacetIntersection &) const {
     return ray.maxDistance;
   }

@@ -20,7 +20,7 @@ namespace raytracer {
 
   Plane::~Plane() = default;
 
-  const bool Plane::isInfinite() const {
+  bool Plane::isInfinite() const {
     return true;
   }
 
@@ -36,7 +36,7 @@ namespace raytracer {
     baseVectors.edge2 = cross3(normal, base0);
   }
 
-  const Float
+  Float
   computeFacetIntersection(const Float d, const RayCast &rayCast, const Plane &p, FacetIntersection &intersectionOut) {
     if (outOfReach(rayCast, d)) {
       return rayCast.maxDistance;
@@ -54,19 +54,19 @@ namespace raytracer {
     return d;
   }
 
-  const Float Plane::findNearestIntersection(
-      const RayCast &r, const FacetIntersection *const, FacetIntersection &intersectionOut
+  Float Plane::findNearestIntersection(
+      const RayCast &rayCast, const FacetIntersection *const, FacetIntersection &intersectionOut
   ) const {
     return computeFacetIntersection(
-        nearestIntersection(r, plane, reinterpret_cast<ASizeT>(this)), r, *this, intersectionOut
+        nearestIntersection(rayCast, plane, reinterpret_cast<ASizeT>(this)), rayCast, *this, intersectionOut
     );
   }
 
-  const Float Plane::findAnyIntersection(
-      const RayCast &r, const FacetIntersection *const, FacetIntersection &intersectionOut
+  Float Plane::findAnyIntersection(
+      const RayCast &rayCast, const FacetIntersection *const, FacetIntersection &intersectionOut
   ) const {
     return computeFacetIntersection(
-        nearestIntersection(r, plane, reinterpret_cast<ASizeT>(this)), r, *this, intersectionOut
+        nearestIntersection(rayCast, plane, reinterpret_cast<ASizeT>(this)), rayCast, *this, intersectionOut
     );
   }
 }

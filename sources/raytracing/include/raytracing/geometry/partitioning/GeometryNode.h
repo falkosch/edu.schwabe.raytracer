@@ -10,14 +10,15 @@ namespace raytracer {
   using namespace vectorization;
   using namespace primitives;
 
-  struct GeometryNode : public Intersectable<RayCast, FacetIntersection> {
-    virtual ~GeometryNode();
+  struct GeometryNode : Intersectable<RayCast, FacetIntersection> {
+    ~GeometryNode() override;
 
-    virtual const AxisAlignedBoundingBox includeInBounding(const AxisAlignedBoundingBox &aabb) const = 0;
+    virtual AxisAlignedBoundingBox includeInBounding(const AxisAlignedBoundingBox &aabb) const = 0;
 
-    virtual const bool overlaps(const AxisAlignedBoundingBox &aabb) const = 0;
+    virtual bool overlaps(const AxisAlignedBoundingBox &aabb) const = 0;
 
-    virtual const Float getIndividualIntersectionCosts() const = 0;
+    // benchmarked intersection costs in cpu cycles
+    virtual Float getIndividualIntersectionCosts() const = 0;
   };
 
   typedef std::vector<GeometryNode *, AlignedAllocator<GeometryNode *>> PGeometryNodeList;

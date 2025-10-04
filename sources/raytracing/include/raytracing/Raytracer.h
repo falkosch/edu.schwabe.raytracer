@@ -9,13 +9,13 @@
 namespace raytracer {
   using namespace vectorization;
 
-  class Raytracer {
+  class Raytracer final {
   public:
     Raytracer();
 
-    virtual ~Raytracer();
+    ~Raytracer();
 
-    [[nodiscard]] RaytraceConfiguration getRunning() const;
+    RaytraceConfiguration getRunning() const;
 
     void requestUpdate();
 
@@ -34,13 +34,12 @@ namespace raytracer {
 
     static IlluminatedIntersection trace(const Raytrace &raytrace, RaytracerCache &cache);
 
-    static void traceReflection(
-        const Raytrace &incidentRaytrace, const Float maxDistance, RaytracerCache &cache, BRDFParameters &brdf
-    );
+    static void
+    traceReflection(const Raytrace &incidentRaytrace, Float maxDistance, RaytracerCache &cache, BRDFParameters &brdf);
 
     static void traceTransmission(
-        const Raytrace &incidentRaytrace, const Float maxDistance, const bool leavingMaterial,
-        const Float4 &transmittedDirection, RaytracerCache &cache, BRDFParameters &brdf
+        const Raytrace &incidentRaytrace, Float maxDistance, bool leavingMaterial, const Float4 &transmittedDirection,
+        RaytracerCache &cache, BRDFParameters &brdf
     );
   };
 }

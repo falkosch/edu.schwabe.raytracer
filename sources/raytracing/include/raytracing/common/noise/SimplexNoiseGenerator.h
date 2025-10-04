@@ -7,30 +7,26 @@ namespace raytracer {
 
   class SimplexNoiseGenerator : public NoiseGenerator {
   public:
-    SimplexNoiseGenerator(const unsigned int seed);
+    SimplexNoiseGenerator(unsigned int seed);
 
-    virtual ~SimplexNoiseGenerator() {
+    ~SimplexNoiseGenerator() override {
     }
 
-    const Float noise(const Float v) const;
-
-    const Float noise(const Float4 &v) const;
-
-    const Float noise2(const Float4 &v) const;
-
-    const Float noise3(const Float4 &v) const;
-
-    const Float noise4(const Float4 &v) const;
+    Float noise(Float v) const override;
+    Float noise(const Float4 &v) const override;
+    Float noise2(const Float4 &v) const override;
+    Float noise3(const Float4 &v) const override;
+    Float noise4(const Float4 &v) const override;
 
   protected:
-    static const ASizeT N = 8, B = 256;
+    static constexpr ASizeT N = 8, B = 256;
 
     Int simplexGrid[N];
 
-    const Int simplex(const Int3 &ijk, const Int B) const;
+    Int simplex(const Int3 &ijk, Int B) const;
 
-    const Float K(const Int a, const Float3 &ijk, const Float3 &uvw, Float3 &A) const;
+    Float K(Int a, const Float3 &ijk, const Float3 &uvw, Float3 &A) const;
 
-    const Int shuffle(const Int3 &ijk) const;
+    Int shuffle(const Int3 &ijk) const;
   };
 }

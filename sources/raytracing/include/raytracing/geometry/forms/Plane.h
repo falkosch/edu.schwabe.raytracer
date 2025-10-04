@@ -7,35 +7,30 @@ namespace raytracer {
   using namespace primitives;
 
   class Plane : public Form {
-    void reconstructFacetEdgesFromPlaneEquation(const Float4 &planeEqu);
+    void reconstructFacetEdgesFromPlaneEquation(const Float4 &planeEquation);
 
   public:
     SplittingPlane plane;
-
     FacetEdges baseVectors;
 
     Plane();
-
     explicit Plane(const Float4 &planeEquation);
-
     explicit Plane(const Float4 &origin, const Float4 &normal);
-
     explicit Plane(const Float4 &origin, const FacetEdges &baseVectors);
 
-    virtual ~Plane();
+    ~Plane() override;
 
-    const bool isInfinite() const;
+    bool isInfinite() const override;
 
-    const Float findNearestIntersection(
-        const RayCast &rayCast, const FacetIntersection *const originIntersection, FacetIntersection &intersectionOut
-    ) const;
+    Float findNearestIntersection(
+        const RayCast &rayCast, const FacetIntersection *originIntersection, FacetIntersection &intersectionOut
+    ) const override;
 
-    const Float findAnyIntersection(
-        const RayCast &rayCast, const FacetIntersection *const originIntersection, FacetIntersection &intersectionOut
-    ) const;
+    Float findAnyIntersection(
+        const RayCast &rayCast, const FacetIntersection *originIntersection, FacetIntersection &intersectionOut
+    ) const override;
 
-    const Float getIndividualIntersectionCosts() const {
-      // benchmarked intersection costs in cycles
+    Float getIndividualIntersectionCosts() const override {
       return 18.5633f;
     }
   };

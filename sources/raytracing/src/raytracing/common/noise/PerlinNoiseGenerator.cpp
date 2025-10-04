@@ -37,7 +37,7 @@ namespace raytracer {
     for (ASizeT i = Zero<ASizeT>(); i < permutationsCount; ++i)
       std::swap(permutations[i], permutations[rand() % iPermutationsCount]);
 
-    // replicate values for upper table-part
+    // replicate values for the upper table-part
     for (ASizeT i = Zero<ASizeT>(); i < permutationsCountExtended - permutationsCount; ++i) {
       const ASizeT j = permutationsCount + i;
       permutations[j] = permutations[i];
@@ -48,8 +48,7 @@ namespace raytracer {
     }
   }
 
-  const Float4
-  PerlinNoiseGenerator::randomGradient(const Int4 &scale, const Int4 &offset, const Float4 &normalization) {
+  Float4 PerlinNoiseGenerator::randomGradient(const Int4 &scale, const Int4 &offset, const Float4 &normalization) {
     const auto t = Int4(rand(), rand(), rand(), rand());
     return convert<Float4>(t % scale - offset) * normalization;
   }
@@ -61,15 +60,15 @@ namespace raytracer {
     r = Float4(t, t - One<Float>());
   }
 
-  const Float4 PerlinNoiseGenerator::splineCurve(const Float4 &t) {
+  Float4 PerlinNoiseGenerator::splineCurve(const Float4 &t) {
     return t * t * (Float4(3) - t - t);
   }
 
-  const Float PerlinNoiseGenerator::noise(const Float4 &v) const {
+  Float PerlinNoiseGenerator::noise(const Float4 &v) const {
     return this->noise4(v);
   }
 
-  const Float PerlinNoiseGenerator::noise(const Float v) const {
+  Float PerlinNoiseGenerator::noise(const Float v) const {
     Int4 bx;
     Float4 rx;
     setup(v, bx, rx);
@@ -77,7 +76,7 @@ namespace raytracer {
     return mix(x(uv), y(uv), x(splineCurve(rx)));
   }
 
-  const Float PerlinNoiseGenerator::noise2(const Float4 &v) const {
+  Float PerlinNoiseGenerator::noise2(const Float4 &v) const {
     Int4 bx, by;
     Float4 rx, ry;
     setup(x(v), bx, rx);
@@ -93,7 +92,7 @@ namespace raytracer {
     return mix(a, b, y(s));
   }
 
-  const Float PerlinNoiseGenerator::noise3(const Float4 &v) const {
+  Float PerlinNoiseGenerator::noise3(const Float4 &v) const {
     Int4 bx, by, bz;
     Float4 rx, ry, rz;
     setup(x(v), bx, rx);
@@ -118,8 +117,8 @@ namespace raytracer {
     return mix(mix(a, b, y(s)), mix(c, d, y(s)), z(s));
   }
 
-  const Float PerlinNoiseGenerator::noise4(const Float4 &v) const {
-    Int4 bx, by, bz, bw;
+  Float PerlinNoiseGenerator::noise4(const Float4 &v) const {
+    Int4 bx, by, bz;
     Float4 rx, ry, rz, rw;
     setup(x(v), bx, rx);
     setup(y(v), by, ry);

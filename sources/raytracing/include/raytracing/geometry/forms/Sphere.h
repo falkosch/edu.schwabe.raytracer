@@ -6,29 +6,26 @@ namespace raytracer {
   using namespace vectorization;
   using namespace primitives;
 
-  struct Sphere : public Form {
+  struct Sphere : Form {
     BoundingSphere bounding;
 
     Sphere();
-
     explicit Sphere(const BoundingSphere &bounding);
+    explicit Sphere(const Float4 &center, Float radius);
 
-    explicit Sphere(const Float4 &center, const Float radius);
+    ~Sphere() override;
 
-    virtual ~Sphere();
+    AxisAlignedBoundingBox getBounding() const override;
 
-    const AxisAlignedBoundingBox getBounding() const;
+    Float findNearestIntersection(
+        const RayCast &rayCast, const FacetIntersection *originIntersection, FacetIntersection &intersectionOut
+    ) const override;
 
-    const Float findNearestIntersection(
-        const RayCast &rayCast, const FacetIntersection *const originIntersection, FacetIntersection &intersectionOut
-    ) const;
+    Float findAnyIntersection(
+        const RayCast &rayCast, const FacetIntersection *originIntersection, FacetIntersection &intersectionOut
+    ) const override;
 
-    const Float findAnyIntersection(
-        const RayCast &rayCast, const FacetIntersection *const originIntersection, FacetIntersection &intersectionOut
-    ) const;
-
-    const Float getIndividualIntersectionCosts() const {
-      // benchmarked intersection costs in cycles
+    Float getIndividualIntersectionCosts() const override {
       return 37.8098f;
     }
   };

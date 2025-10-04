@@ -6,20 +6,18 @@
 namespace raytracer {
   using namespace vectorization;
 
-  class EnvironmentShader : public Shader<SceneShader, Float4, Float4> {
+  class EnvironmentShader final : public Shader<SceneShader, Float4, Float4> {
     Size2 resolution;
-
     Float4 alignedSize;
-
     const HDRImage *environmentImage;
 
   public:
-    EnvironmentShader(const HDRImage &image);
+    explicit EnvironmentShader(const HDRImage &image);
 
-    virtual ~EnvironmentShader();
+    ~EnvironmentShader() override;
 
-    const Float4 sample(const SceneShader &sceneShader, const Float4 &rayDirection) const;
+    Float4 sample(const SceneShader &sceneShader, const Float4 &rayDirection) const override;
 
-    const Float4 operator()(const SceneShader &sceneShader, const Float4 &rayDirection) const;
+    Float4 operator()(const SceneShader &sceneShader, const Float4 &rayDirection) const override;
   };
 }

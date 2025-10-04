@@ -9,13 +9,13 @@ namespace raytracer {
   SceneShader::SceneShader() : SceneGeometry(), backgroundShader(), ambientLight(), lights() {
   }
 
-  SceneShader::SceneShader(const KDTreeTraverser<SceneIntersection> *const treeTraverserIn)
-      : SceneGeometry(treeTraverserIn), backgroundShader(), ambientLight(), lights() {
+  SceneShader::SceneShader(const KDTreeTraverser<SceneIntersection> *const treeTraverser)
+      : SceneGeometry(treeTraverser), backgroundShader(), ambientLight(), lights() {
   }
 
   SceneShader::~SceneShader() = default;
 
-  const SceneShader::BackgroundShader *const SceneShader::getBackgroundShader() const {
+  const SceneShader::BackgroundShader *SceneShader::getBackgroundShader() const {
     return backgroundShader;
   }
 
@@ -23,7 +23,7 @@ namespace raytracer {
     backgroundShader = value;
   }
 
-  const Float4 SceneShader::getAmbientLight() const {
+  Float4 SceneShader::getAmbientLight() const {
     return ambientLight;
   }
 
@@ -39,13 +39,13 @@ namespace raytracer {
     return lights;
   }
 
-  const Float4 SceneShader::sampleBackground(const Float4 &rayDirection) const {
+  Float4 SceneShader::sampleBackground(const Float4 &rayDirection) const {
     const Float4 t = backgroundShader->sample(*this, rayDirection);
     return t * wwww(t);
   }
 
   // Computes the lighting of a facet in the scene.
-  const LightShading
+  LightShading
   SceneShader::sample(const SceneShaderContainment &containment, const SceneIntersection &intersection) const {
     return sampleLighting(
         containment.incidentRay,
@@ -54,7 +54,7 @@ namespace raytracer {
     );
   }
 
-  const Float4 SceneShader::computeLitAreaFraction(
+  Float4 SceneShader::computeLitAreaFraction(
       const RayCast &shadowRay, const SceneIntersection &intersection, const ASizeT lightIndex,
       PerLightShadowCache::ShadowCacheType &shadowCache, StatisticsCookie &statistics
   ) const {
@@ -87,7 +87,7 @@ namespace raytracer {
     return One<Float4>();
   }
 
-  const LightShading SceneShader::sampleLighting(
+  LightShading SceneShader::sampleLighting(
       const Raytrace &incidentRay, const Float4 &adaptedVisibilityCutoffIn, const Float4 &shininess,
       const SceneIntersection &intersection, PerLightShadowCache::ShadowCacheType &shadowCache,
       StatisticsCookie &statistics
@@ -143,15 +143,15 @@ namespace raytracer {
     return lighting;
   }
 
-  const Float4 SceneShader::adaptedVisibilityCutoff(const Float visibilityCutoff, const Float visibilityIndex) {
+  Float4 SceneShader::adaptedVisibilityCutoff(const Float visibilityCutoff, const Float visibilityIndex) {
     return Float4(visibilityCutoff / visibilityIndex);
   }
 
-  const Float4 SceneShader::lambertDiffuseIntensity(const Float4 &lightDirection, const Float4 &normal) {
+  Float4 SceneShader::lambertDiffuseIntensity(const Float4 &lightDirection, const Float4 &normal) {
     return dotv(normal, lightDirection);
   }
 
-  const Float4 SceneShader::attenuateDiffuseIntensity(
+  Float4 SceneShader::attenuateDiffuseIntensity(
       const Float4 &attenuationFactors, const Float4 &lightDistance, const Float4 &diffuseIntensity
   ) {
     return diffuseIntensity
@@ -159,7 +159,7 @@ namespace raytracer {
               + lightDistance * (yyyy(attenuationFactors) + lightDistance * zzzz(attenuationFactors)));
   }
 
-  const Float4 SceneShader::phongSpecularIntensityPerReflectedIncident(
+  Float4 SceneShader::phongSpecularIntensityPerReflectedIncident(
       const Float4 &reflectedIncidentDirection, const Float4 &lightDirection, const Float4 &shininess
   ) {
     return pow3(max(dotv(lightDirection, reflectedIncidentDirection), Zero<Float4>()), shininess);

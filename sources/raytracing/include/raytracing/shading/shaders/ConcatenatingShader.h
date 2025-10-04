@@ -41,9 +41,7 @@ namespace raytracer {
 
   protected:
     ConcatenationFunctor concat;
-
     const LeftShader *left;
-
     const RightShader *right;
   };
 }

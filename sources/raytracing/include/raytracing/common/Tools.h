@@ -6,6 +6,6 @@ namespace raytracer {
   using namespace vectorization;
 
   struct Tools {
-    static const UInt_64 seed();
+    static UInt_64 seed();
   };
 }

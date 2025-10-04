@@ -14,22 +14,22 @@ namespace raytracer {
         : constant(constantIn), otherShader(&otherShaderIn) {
     }
 
-    virtual ~MultiplyByConstShader() {
+    ~MultiplyByConstShader() override {
     }
 
-    const OutputType sample(const ContainmentType &containment, const IntersectionType &intersection) const {
+    OutputType sample(const ContainmentType &containment, const IntersectionType &intersection) const override {
       return (*this)(containment, intersection);
     }
 
-    const OutputType operator()(const ContainmentType &containment, const IntersectionType &intersection) const {
+    OutputType operator()(const ContainmentType &containment, const IntersectionType &intersection) const override {
       return constant * (*otherShader)(containment, intersection);
     }
 
-    const OutputType &getConstant() const {
+    OutputType &getConstant() const {
       return constant;
     }
 
-    const OtherShader &getOtherShader() const {
+    OtherShader &getOtherShader() const {
       return *otherShader;
     }
   };

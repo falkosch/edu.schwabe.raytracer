@@ -16,11 +16,11 @@ namespace raytracer {
 
   Sphere::~Sphere() = default;
 
-  const AxisAlignedBoundingBox Sphere::getBounding() const {
+  AxisAlignedBoundingBox Sphere::getBounding() const {
     return primitives::bounding(bounding);
   }
 
-  const Float
+  Float
   computeFacetIntersection(const Float d, const RayCast &rayCast, const Sphere &s, FacetIntersection &intersectionOut) {
     if (outOfReach(rayCast, d)) {
       return rayCast.maxDistance;
@@ -37,7 +37,7 @@ namespace raytracer {
     return d;
   }
 
-  const Float Sphere::findNearestIntersection(
+  Float Sphere::findNearestIntersection(
       const RayCast &rayCast, const FacetIntersection *const, FacetIntersection &intersectionOut
   ) const {
     return computeFacetIntersection(
@@ -45,7 +45,7 @@ namespace raytracer {
     );
   }
 
-  const Float Sphere::findAnyIntersection(
+  Float Sphere::findAnyIntersection(
       const RayCast &rayCast, const FacetIntersection *const, FacetIntersection &intersectionOut
   ) const {
     return computeFacetIntersection(

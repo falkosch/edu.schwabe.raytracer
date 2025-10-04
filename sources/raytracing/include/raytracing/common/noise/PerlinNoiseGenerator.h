@@ -6,7 +6,7 @@ namespace raytracer {
   using namespace vectorization;
 
   class PerlinNoiseGenerator : public NoiseGenerator {
-    static const ASizeT DefaultPermutationsCount = static_cast<ASizeT>(256);
+    static constexpr ASizeT DefaultPermutationsCount = 256;
 
     Float4 *gradients1;
     Float4 *gradients2;
@@ -20,24 +20,20 @@ namespace raytracer {
 
     void setup(const Float &v, Int4 &b, Float4 &r) const;
 
-    static const Float4 randomGradient(const Int4 &scale, const Int4 &offset, const Float4 &normalization);
+    static Float4 randomGradient(const Int4 &scale, const Int4 &offset, const Float4 &normalization);
 
-    static const Float4 splineCurve(const Float4 &t);
+    static Float4 splineCurve(const Float4 &t);
 
   public:
-    PerlinNoiseGenerator(const UInt_64 seed);
+    PerlinNoiseGenerator(UInt_64 seed);
 
-    virtual ~PerlinNoiseGenerator() {
+    ~PerlinNoiseGenerator() override {
     }
 
-    const Float noise(const Float v) const;
-
-    const Float noise(const Float4 &v) const;
-
-    const Float noise2(const Float4 &v) const;
-
-    const Float noise3(const Float4 &v) const;
-
-    const Float noise4(const Float4 &v) const;
+    Float noise(Float v) const override;
+    Float noise(const Float4 &v) const override;
+    Float noise2(const Float4 &v) const override;
+    Float noise3(const Float4 &v) const override;
+    Float noise4(const Float4 &v) const override;
   };
 }

@@ -9,42 +9,40 @@ namespace raytracer {
 
   class SceneObject : public ObjectShader {
   public:
-    SceneObject(std::string id);
+    explicit SceneObject(std::string id);
 
-    virtual ~SceneObject();
+    ~SceneObject() override;
 
     const std::string &getId() const;
 
-    const Form *const getForm() const;
+    const Form *getForm() const;
 
-    void setForm(const Form *const value);
+    void setForm(const Form *value);
 
-    const Float findNearestIntersection(
-        const RayCast &rayCast, const FacetIntersection *const originIntersection, FacetIntersection &intersectionOut
-    ) const;
+    Float findNearestIntersection(
+        const RayCast &rayCast, const FacetIntersection *originIntersection, FacetIntersection &intersectionOut
+    ) const override;
 
-    const Float findAnyIntersection(
-        const RayCast &rayCast, const FacetIntersection *const originIntersection, FacetIntersection &intersectionOut
-    ) const;
+    Float findAnyIntersection(
+        const RayCast &rayCast, const FacetIntersection *originIntersection, FacetIntersection &intersectionOut
+    ) const override;
 
-    const Float getIndividualIntersectionCosts() const {
+    Float getIndividualIntersectionCosts() const override {
       return form ? form->getIndividualIntersectionCosts() : One<Float>();
     }
 
   protected:
     AxisAlignedBoundingBox bounding;
-
     const Form *form;
-
     std::string id;
 
-    void updateBounding();
+    void updateBounding() override;
 
-    const AxisAlignedBoundingBox includeInBounding(const AxisAlignedBoundingBox &aabb) const;
+    AxisAlignedBoundingBox includeInBounding(const AxisAlignedBoundingBox &aabb) const override;
 
-    const bool overlaps(const AxisAlignedBoundingBox &aabb) const;
+    bool overlaps(const AxisAlignedBoundingBox &aabb) const override;
 
-    const Float transformIntersection(
+    Float transformIntersection(
         const RayCast &rayCast, const FacetIntersection &facetIntersection, FacetIntersection &intersectionOut
     ) const;
   };

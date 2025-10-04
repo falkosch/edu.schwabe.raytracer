@@ -9,14 +9,14 @@ namespace raytracer {
 
   class Form : public GeometryNode {
   public:
-    virtual ~Form();
+    ~Form() override;
 
-    virtual const bool isInfinite() const;
+    virtual bool isInfinite() const;
 
-    virtual const AxisAlignedBoundingBox getBounding() const;
+    virtual AxisAlignedBoundingBox getBounding() const;
 
-    virtual const AxisAlignedBoundingBox includeInBounding(const AxisAlignedBoundingBox &aabb) const;
+    AxisAlignedBoundingBox includeInBounding(const AxisAlignedBoundingBox &aabb) const override;
 
-    virtual const bool overlaps(const AxisAlignedBoundingBox &aabb) const;
+    bool overlaps(const AxisAlignedBoundingBox &aabb) const override;
   };
 }

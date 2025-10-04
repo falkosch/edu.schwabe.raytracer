@@ -7,10 +7,9 @@ namespace raytracer {
     virtual ~Shader() {
     }
 
-    virtual const OutputType sample(const ContainmentType &containment, const IntersectionType &intersection) const = 0;
+    virtual OutputType sample(const ContainmentType &containment, const IntersectionType &intersection) const = 0;
 
-    virtual const OutputType
-    operator()(const ContainmentType &containment, const IntersectionType &intersection) const {
+    virtual OutputType operator()(const ContainmentType &containment, const IntersectionType &intersection) const {
       return sample(containment, intersection);
     }
   };

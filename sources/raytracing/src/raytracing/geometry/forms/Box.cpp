@@ -13,11 +13,11 @@ namespace raytracer {
 
   Box::~Box() = default;
 
-  const AxisAlignedBoundingBox Box::getBounding() const {
+  AxisAlignedBoundingBox Box::getBounding() const {
     return bounding;
   }
 
-  const Float
+  Float
   computeFacetIntersection(const Float d, const RayCast &rayCast, const Box &b, FacetIntersection &intersectionOut) {
     if (outOfReach(rayCast, d)) {
       return rayCast.maxDistance;
@@ -37,18 +37,19 @@ namespace raytracer {
     return d;
   }
 
-  const Float Box::findNearestIntersection(
-      const RayCast &r, const FacetIntersection *const, FacetIntersection &intersectionOut
+  Float Box::findNearestIntersection(
+      const RayCast &rayCast, const FacetIntersection *const, FacetIntersection &intersectionOut
   ) const {
     return computeFacetIntersection(
-        nearestIntersection(r, bounding, reinterpret_cast<ASizeT>(this)), r, *this, intersectionOut
+        nearestIntersection(rayCast, bounding, reinterpret_cast<ASizeT>(this)), rayCast, *this, intersectionOut
     );
   }
 
-  const Float
-  Box::findAnyIntersection(const RayCast &r, const FacetIntersection *const, FacetIntersection &intersectionOut) const {
+  Float Box::findAnyIntersection(
+      const RayCast &rayCast, const FacetIntersection *const, FacetIntersection &intersectionOut
+  ) const {
     return computeFacetIntersection(
-        nearestIntersection(r, bounding, reinterpret_cast<ASizeT>(this)), r, *this, intersectionOut
+        nearestIntersection(rayCast, bounding, reinterpret_cast<ASizeT>(this)), rayCast, *this, intersectionOut
     );
   }
 }

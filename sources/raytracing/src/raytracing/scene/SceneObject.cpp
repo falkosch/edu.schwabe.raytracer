@@ -14,7 +14,7 @@ namespace raytracer {
     return id;
   }
 
-  const Form *const SceneObject::getForm() const {
+  const Form *SceneObject::getForm() const {
     return form;
   }
 
@@ -29,15 +29,15 @@ namespace raytracer {
     }
   }
 
-  const AxisAlignedBoundingBox SceneObject::includeInBounding(const AxisAlignedBoundingBox &aabb) const {
+  AxisAlignedBoundingBox SceneObject::includeInBounding(const AxisAlignedBoundingBox &aabb) const {
     return extendBy(aabb, bounding);
   }
 
-  const bool SceneObject::overlaps(const AxisAlignedBoundingBox &aabb) const {
+  bool SceneObject::overlaps(const AxisAlignedBoundingBox &aabb) const {
     return primitives::overlaps(aabb, bounding);
   }
 
-  const Float SceneObject::transformIntersection(
+  Float SceneObject::transformIntersection(
       const RayCast &rayCast, const FacetIntersection &facetIntersection, FacetIntersection &intersectionOut
   ) const {
     // transform intersection point in msVertex to world-space
@@ -63,15 +63,15 @@ namespace raytracer {
     return x(wsDistance);
   }
 
-  const RayCast transformRayCastToObjectSpace(
+  RayCast transformRayCastToObjectSpace(
       const ASizeT objectOriginId, const RayCast &rayCast, const FacetIntersection *const originIntersection,
       const Float44 &transposeInverseModelMatrix
   ) {
     if (originIntersection && x(rayCast.originIds) == objectOriginId) {
       RayCast originatedRayCast = toObjectSpace(rayCast, transposeInverseModelMatrix, originIntersection->msVertex);
 
-      // avoid self occlusion when intersection is to be tested originated at former intersection
-      // when direction has not significantly moved away from surface
+      // avoid self-occlusion when intersection is to be tested originated at the former intersection
+      // when a direction has not significantly moved away from the surface
       const Float4 surfaceNormal = originIntersection->msSurfaceNormal;
       const Float4 orientation = dotv(
           originatedRayCast.ray.direction,
@@ -100,7 +100,7 @@ namespace raytracer {
   // Note, the ray.direction is transformed from world-space to object-space.
   // Here it's important to preserve the "P + t*d" (more precisely the t)
   // relation, so we won't normalize the object-space direction.
-  const Float SceneObject::findNearestIntersection(
+  Float SceneObject::findNearestIntersection(
       const RayCast &r, const FacetIntersection *const originIntersection, FacetIntersection &intersectionOut
   ) const {
     // check for intersections with the Form
@@ -116,7 +116,7 @@ namespace raytracer {
     return transformIntersection(r, osIntersectionOut, intersectionOut);
   }
 
-  const Float SceneObject::findAnyIntersection(
+  Float SceneObject::findAnyIntersection(
       const RayCast &r, const FacetIntersection *const originIntersection, FacetIntersection &intersectionOut
   ) const {
     // check for intersections with the Form

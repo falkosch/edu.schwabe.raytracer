@@ -10,7 +10,7 @@ namespace raytracer {
 
   ObjectShader::~ObjectShader() = default;
 
-  const ObjectShader::MaterialShader *const ObjectShader::getDiffusionShader() const {
+  const ObjectShader::MaterialShader *ObjectShader::getDiffusionShader() const {
     return diffusionShader;
   }
 
@@ -18,7 +18,7 @@ namespace raytracer {
     diffusionShader = value;
   }
 
-  const ObjectShader::MaterialShader *const ObjectShader::getReflectanceShader() const {
+  const ObjectShader::MaterialShader *ObjectShader::getReflectanceShader() const {
     return reflectanceShader;
   }
 
@@ -26,7 +26,7 @@ namespace raytracer {
     reflectanceShader = value;
   }
 
-  const ObjectShader::MaterialShader *const ObjectShader::getSpecularShader() const {
+  const ObjectShader::MaterialShader *ObjectShader::getSpecularShader() const {
     return specularShader;
   }
 
@@ -34,7 +34,7 @@ namespace raytracer {
     specularShader = value;
   }
 
-  const ObjectShader::MaterialShader *const ObjectShader::getShininessShader() const {
+  const ObjectShader::MaterialShader *ObjectShader::getShininessShader() const {
     return shininessShader;
   }
 
@@ -42,7 +42,7 @@ namespace raytracer {
     shininessShader = value;
   }
 
-  const ObjectShader::MaterialShader *const ObjectShader::getTransmittanceShader() const {
+  const ObjectShader::MaterialShader *ObjectShader::getTransmittanceShader() const {
     return transmittanceShader;
   }
 
@@ -50,7 +50,7 @@ namespace raytracer {
     transmittanceShader = value;
   }
 
-  const ObjectShader::MaterialShader *const ObjectShader::getRefractionEtaShader() const {
+  const ObjectShader::MaterialShader *ObjectShader::getRefractionEtaShader() const {
     return refractionEtaShader;
   }
 
@@ -58,7 +58,7 @@ namespace raytracer {
     refractionEtaShader = value;
   }
 
-  const ObjectShader::MaterialShader *const ObjectShader::getEmittanceShader() const {
+  const ObjectShader::MaterialShader *ObjectShader::getEmittanceShader() const {
     return emittanceShader;
   }
 
@@ -97,14 +97,14 @@ namespace raytracer {
     );
   }
 
-  const Float4 sampleRaw(
+  Float4 sampleRaw(
       const ObjectShader &objectShader, const ObjectShader::MaterialShader &shader,
       const SceneIntersection &intersection
   ) {
     return shader(objectShader, intersection);
   }
 
-  const Float4 sampleMultiplyW(
+  Float4 sampleMultiplyW(
       const ObjectShader &objectShader, const ObjectShader::MaterialShader &shader,
       const SceneIntersection &intersection
   ) {
@@ -112,13 +112,13 @@ namespace raytracer {
     return t * wwww(t);
   }
 
-  const SurfaceShading ObjectShader::sample(const SceneShader &, const SceneIntersection &intersection) const {
-    return SurfaceShading(
-        sampleMultiplyW(*this, *diffusionShader, intersection),
-        sampleMultiplyW(*this, *reflectanceShader, intersection), sampleMultiplyW(*this, *specularShader, intersection),
-        sampleMultiplyW(*this, *shininessShader, intersection),
-        sampleMultiplyW(*this, *transmittanceShader, intersection),
-        sampleRaw(*this, *refractionEtaShader, intersection), sampleMultiplyW(*this, *emittanceShader, intersection)
-    );
+  SurfaceShading ObjectShader::sample(const SceneShader &, const SceneIntersection &intersection) const {
+    return {sampleMultiplyW(*this, *diffusionShader, intersection),
+            sampleMultiplyW(*this, *reflectanceShader, intersection),
+            sampleMultiplyW(*this, *specularShader, intersection),
+            sampleMultiplyW(*this, *shininessShader, intersection),
+            sampleMultiplyW(*this, *transmittanceShader, intersection),
+            sampleRaw(*this, *refractionEtaShader, intersection),
+            sampleMultiplyW(*this, *emittanceShader, intersection)};
   }
 }

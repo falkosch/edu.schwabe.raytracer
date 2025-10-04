@@ -23,8 +23,7 @@ namespace raytracer {
     Raytrace();
 
     explicit Raytrace(
-        const RayCast &rayCast, const SceneIntersection *const originIntersection, const ASizeT traceDepth,
-        const Float visibilityIndex
+        const RayCast &rayCast, const SceneIntersection *originIntersection, ASizeT traceDepth, Float visibilityIndex
     );
   };
 }

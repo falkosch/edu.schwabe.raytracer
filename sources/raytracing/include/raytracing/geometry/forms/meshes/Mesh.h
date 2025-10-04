@@ -9,59 +9,59 @@ namespace raytracer {
   using namespace vectorization;
   using namespace primitives;
 
-  struct Mesh : public Form, GeometryNodesTraverser<FacetIntersection> {
+  struct Mesh final : Form, GeometryNodesTraverser<FacetIntersection> {
     Mesh();
 
-    explicit Mesh(const KDTreeTraverser<FacetIntersection> *const traverser, const KDTreeBalancer *const balancer);
+    explicit Mesh(const KDTreeTraverser<FacetIntersection> *traverser, const KDTreeBalancer *balancer);
 
-    virtual ~Mesh();
+    ~Mesh() override;
 
     // Form interface
 
-    const AxisAlignedBoundingBox getBounding() const;
+    AxisAlignedBoundingBox getBounding() const override;
 
-    const Float findNearestIntersection(
+    Float findNearestIntersection(
         const RayCast &rayCast, const FacetIntersection *const originIntersection, FacetIntersection &intersectionOut
-    ) const;
+    ) const override;
 
-    const Float findAnyIntersection(
+    Float findAnyIntersection(
         const RayCast &rayCast, const FacetIntersection *const originIntersection, FacetIntersection &intersectionOut
-    ) const;
+    ) const override;
 
-    const Float getIndividualIntersectionCosts() const {
+    Float getIndividualIntersectionCosts() const override {
       // benchmarked intersection costs in cycles
       return 19.027224f;
     }
 
     // GeometryNodesTraverser interface
 
-    const Float findNearestIntersection(
-        const PGeometryNodeList &geometryNodes, const RayCast &rayCast,
-        const FacetIntersection *const originIntersection, FacetIntersection &intersectionOut
-    ) const;
+    Float findNearestIntersection(
+        const PGeometryNodeList &geometryNodes, const RayCast &rayCast, const FacetIntersection *originIntersection,
+        FacetIntersection &intersectionOut
+    ) const override;
 
-    const Float findAnyIntersection(
-        const PGeometryNodeList &geometryNodes, const RayCast &rayCast,
-        const FacetIntersection *const originIntersection, FacetIntersection &intersectionOut
-    ) const;
+    Float findAnyIntersection(
+        const PGeometryNodeList &geometryNodes, const RayCast &rayCast, const FacetIntersection *originIntersection,
+        FacetIntersection &intersectionOut
+    ) const override;
 
     // Builders and test methods
 
-    static Mesh *const buildCubeMesh();
+    static Mesh *buildCubeMesh();
 
-    static Mesh *const buildPlaneMesh();
+    static Mesh *buildPlaneMesh();
 
-    static Mesh *const buildTriangleMesh();
+    static Mesh *buildTriangleMesh();
 
-    static Mesh *const loadFromOffFile(
-        const std::string &filename, const bool flipNormals, const KDTreeTraverser<FacetIntersection> *const traverser,
-        const KDTreeBalancer *const balancer
+    static Mesh *loadFromOffFile(
+        const std::string &filename, bool flipNormals, const KDTreeTraverser<FacetIntersection> *traverser,
+        const KDTreeBalancer *balancer
     );
 
   protected:
     AxisAlignedBoundingBox bounding;
 
-    // each has size equal to the count of vertices
+    // each has a size equal to the count of vertices
     std::vector<Float4> vertices; // raw
     std::vector<Float4> vertexNormals;
 
@@ -73,7 +73,7 @@ namespace raytracer {
     std::vector<FacetNormals> smoothNormals;
     // intermediate for Havel intersection test
     std::vector<FacetNormals> planeNormals;
-    // intermediate for Moeller intersection test
+    // intermediate for Möller intersection test
     std::vector<FacetEdges> facetEdges;
 
     PGeometryNodeList nodes;

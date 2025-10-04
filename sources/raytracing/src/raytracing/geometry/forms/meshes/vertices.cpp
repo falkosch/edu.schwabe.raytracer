@@ -2,7 +2,7 @@
 #include "../../../../stdafx.h"
 
 namespace raytracer {
-  const AxisAlignedBoundingBox computeBounding(const std::vector<Float4> &vertices) noexcept {
+  AxisAlignedBoundingBox computeBounding(const std::vector<Float4> &vertices) noexcept {
     auto allBounding = AxisAlignedBoundingBox();
 
 #pragma omp parallel
@@ -15,13 +15,15 @@ namespace raytracer {
       }
 
 #pragma omp critical
-      { allBounding = extendBy(allBounding, bounding); }
+      {
+        allBounding = extendBy(allBounding, bounding);
+      }
     }
 
     return allBounding;
   }
 
-  const AxisAlignedBoundingBox computeStandardMesh(std::vector<Float4> &vertices) noexcept {
+  AxisAlignedBoundingBox computeStandardMesh(std::vector<Float4> &vertices) noexcept {
     const auto bounds = computeBounding(vertices);
     const auto translation = center(bounds);
     const auto verticesExtents = extents(bounds);

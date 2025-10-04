@@ -2,8 +2,6 @@
 
 #include "../geometry/ObjectGeometry.h"
 
-#include "LightInfo.h"
-
 #include <vector>
 
 namespace raytracer {
@@ -14,10 +12,10 @@ namespace raytracer {
   struct PerLightShadowCache {
     typedef std::vector<PerLightShadowCache, AlignedAllocator<PerLightShadowCache>> ShadowCacheType;
 
-    // the facet, that has shadowed this light source last time.
+    // the facet that has shadowed this light source last time.
     const Intersectable<RayCast, FacetIntersection> *lastShadowedByFacet;
 
-    // the object, that has shadowed this light source last time.
+    // the object that has shadowed this light source last time.
     const ObjectGeometry *lastShadowedByObject;
 
     PerLightShadowCache();

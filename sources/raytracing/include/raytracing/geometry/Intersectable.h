@@ -10,12 +10,12 @@ namespace raytracer {
     virtual ~Intersectable() {
     }
 
-    virtual const Float findNearestIntersection(
-        const RayType &ray, const IntersectionType *const originIntersection, IntersectionType &intersectionOut
+    virtual Float findNearestIntersection(
+        const RayType &ray, const IntersectionType *originIntersection, IntersectionType &intersectionOut
     ) const = 0;
 
-    virtual const Float findAnyIntersection(
-        const RayType &ray, const IntersectionType *const originIntersection, IntersectionType &intersectionOut
+    virtual Float findAnyIntersection(
+        const RayType &ray, const IntersectionType *originIntersection, IntersectionType &intersectionOut
     ) const = 0;
   };
 }

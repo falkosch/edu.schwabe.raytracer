@@ -30,11 +30,11 @@ namespace raytracer {
     delete balancer;
   }
 
-  const AxisAlignedBoundingBox Mesh::getBounding() const {
+  AxisAlignedBoundingBox Mesh::getBounding() const {
     return bounding;
   }
 
-  const Float Mesh::findNearestIntersection(
+  Float Mesh::findNearestIntersection(
       const RayCast &rayCast, const FacetIntersection *const originIntersection, FacetIntersection &intersectionOut
   ) const {
     if (graph) {
@@ -43,7 +43,7 @@ namespace raytracer {
     return findNearestIntersection(nodes, rayCast, originIntersection, intersectionOut);
   }
 
-  const Float Mesh::findAnyIntersection(
+  Float Mesh::findAnyIntersection(
       const RayCast &rayCast, const FacetIntersection *const originIntersection, FacetIntersection &intersectionOut
   ) const {
     if (graph) {
@@ -52,7 +52,7 @@ namespace raytracer {
     return findAnyIntersection(nodes, rayCast, originIntersection, intersectionOut);
   }
 
-  const Float Mesh::findNearestIntersection(
+  Float Mesh::findNearestIntersection(
       const PGeometryNodeList &geometryNodes, const RayCast &rayCast, const FacetIntersection *const originIntersection,
       FacetIntersection &intersectionOut
   ) const {
@@ -69,7 +69,7 @@ namespace raytracer {
         continue;
       }
 
-      const auto meshNode = static_cast<const MeshGeometryNode *const>(node);
+      const auto meshNode = dynamic_cast<const MeshGeometryNode *const>(node);
       const auto index = meshNode->index;
 
       auto determinant = dot3v(flatNormals[index], rayCast.ray.direction);
@@ -80,12 +80,8 @@ namespace raytracer {
         continue;
       }
 
-      // auto facetTexCoordsAndDistance = nearestIntersectionMoeller(
-      //     facets[index].v0,
-      //     facetEdges[index],
-      //     rayCast.ray,
-      //     nearestTexCoordsAndDistance
-      //);
+      // auto facetTexCoordsAndDistance =
+      //     nearestIntersectionMoeller(facets[index].v0, facetEdges[index], rayCast.ray, nearestTexCoordsAndDistance);
       auto facetTexCoordsAndDistance =
           nearestIntersectionHavel(planeNormals[index], rayCast, zzzz(nearestTexCoordsAndDistance));
 
@@ -102,7 +98,7 @@ namespace raytracer {
   }
 
   // Finds any intersection of a Ray within a geometry.
-  const Float Mesh::findAnyIntersection(
+  Float Mesh::findAnyIntersection(
       const PGeometryNodeList &geometryNodes, const RayCast &rayCast, const FacetIntersection *const originIntersection,
       FacetIntersection &intersectionOut
   ) const {
@@ -118,7 +114,7 @@ namespace raytracer {
         continue;
       }
 
-      const auto meshNode = static_cast<const MeshGeometryNode *const>(node);
+      const auto meshNode = dynamic_cast<const MeshGeometryNode *const>(node);
       const auto index = meshNode->index;
 
       auto determinant = dot3v(flatNormals[index], rayCast.ray.direction);
@@ -129,15 +125,11 @@ namespace raytracer {
         continue;
       }
 
-      // auto facetTexCoordsAndDistance = nearestIntersectionMoeller(
-      //     facets[index].v0,
-      //     facetEdges[index],
-      //     rayCast.ray,
-      //     maxDistance
-      //);
+      // auto facetTexCoordsAndDistance =
+      //     nearestIntersectionMoeller(facets[index].v0, facetEdges[index], rayCast.ray, maxDistance);
       auto facetTexCoordsAndDistance = nearestIntersectionHavel(planeNormals[index], rayCast, zzzz(maxDistance));
 
-      // is distance in t more near than the distance in preserved d
+      // check whether the distance in t is nearer than the distance in preserved d
       if (z(facetTexCoordsAndDistance < maxDistance)) {
         return computeFacetIntersection(
             index, facetTexCoordsAndDistance, rayCast, texCoords, flatNormals, smoothNormals, nodes, intersectionOut
@@ -148,7 +140,7 @@ namespace raytracer {
     return rayCast.maxDistance;
   }
 
-  Mesh *const Mesh::buildCubeMesh() {
+  Mesh *Mesh::buildCubeMesh() {
     const auto mesh = new Mesh();
 
     mesh->vertices.reserve(8);
@@ -190,7 +182,7 @@ namespace raytracer {
     return mesh;
   }
 
-  Mesh *const Mesh::buildPlaneMesh() {
+  Mesh *Mesh::buildPlaneMesh() {
     const auto mesh = new Mesh();
 
     mesh->vertices.reserve(4);
@@ -212,7 +204,7 @@ namespace raytracer {
     return mesh;
   }
 
-  Mesh *const Mesh::buildTriangleMesh() {
+  Mesh *Mesh::buildTriangleMesh() {
     const auto mesh = new Mesh();
 
     mesh->vertices.reserve(3);
@@ -231,7 +223,7 @@ namespace raytracer {
     return mesh;
   }
 
-  const bool readMeshFileContent(std::ifstream file, std::string &stringOut) {
+  bool readMeshFileContent(std::ifstream file, std::string &stringOut) {
     if (file.is_open()) {
       stringOut = std::string{std::istreambuf_iterator<char>(file), std::istreambuf_iterator<char>()};
       file.close();
@@ -247,7 +239,7 @@ namespace raytracer {
     }
   }
 
-  const bool readAndCheckHeaderInOFF(std::istringstream &fileStream, std::string &line) {
+  bool readAndCheckHeaderInOFF(std::istringstream &fileStream, std::string &line) {
     while (std::getline(fileStream, line)) {
       if (line == "OFF" || line == "OFF\r") {
         return true;
@@ -256,7 +248,7 @@ namespace raytracer {
     return false;
   }
 
-  Mesh *const Mesh::loadFromOffFile(
+  Mesh *Mesh::loadFromOffFile(
       const std::string &filename, const bool flipNormals, const KDTreeTraverser<FacetIntersection> *const traverser,
       const KDTreeBalancer *const balancer
   ) {
@@ -282,7 +274,7 @@ namespace raytracer {
 
     readNextNonEmptyLineInOFF(fileStream, line);
 
-    // read number of vertices and faces
+    // read the number of vertices and faces
     ASizeT verticesCount, facetsCount;
     std::istringstream{line} >> verticesCount >> facetsCount;
     assert(verticesCount > 0);
