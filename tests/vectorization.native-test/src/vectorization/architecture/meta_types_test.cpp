@@ -77,297 +77,197 @@ namespace vectorization::test {
     TEST_METHOD(definesPackedTypesForInt_8) {
       typedef Int_8 TypeUnderTest;
 
-      Assert::IsTrue(
-          std::is_void<PackedTypes<TypeUnderTest, 8>::Type>::value, L"Bad packed type definition", LINE_INFO()
-      );
+      Assert::IsTrue(std::is_void_v<PackedTypes<TypeUnderTest, 8>::Type>, L"Bad packed type definition", LINE_INFO());
 
       Assert::AreEqual(
           ASizeT{16}, PackedTypes<TypeUnderTest, 16>::Elements, L"Bad packed type definition", LINE_INFO()
       );
-      Assert::IsFalse(
-          std::is_void<PackedTypes<TypeUnderTest, 16>::Type>::value, L"Bad packed type definition", LINE_INFO()
-      );
+      Assert::IsFalse(std::is_void_v<PackedTypes<TypeUnderTest, 16>::Type>, L"Bad packed type definition", LINE_INFO());
 
       Assert::AreEqual(
           ASizeT{32}, PackedTypes<TypeUnderTest, 32>::Elements, L"Bad packed type definition", LINE_INFO()
       );
-      Assert::IsFalse(
-          std::is_void<PackedTypes<TypeUnderTest, 32>::Type>::value, L"Bad packed type definition", LINE_INFO()
-      );
+      Assert::IsFalse(std::is_void_v<PackedTypes<TypeUnderTest, 32>::Type>, L"Bad packed type definition", LINE_INFO());
 
       Assert::AreEqual(
           ASizeT{64}, PackedTypes<TypeUnderTest, 64>::Elements, L"Bad packed type definition", LINE_INFO()
       );
-      Assert::IsFalse(
-          std::is_void<PackedTypes<TypeUnderTest, 64>::Type>::value, L"Bad packed type definition", LINE_INFO()
-      );
+      Assert::IsFalse(std::is_void_v<PackedTypes<TypeUnderTest, 64>::Type>, L"Bad packed type definition", LINE_INFO());
 
-      Assert::IsTrue(
-          std::is_void<PackedTypes<TypeUnderTest, 128>::Type>::value, L"Bad packed type definition", LINE_INFO()
-      );
+      Assert::IsTrue(std::is_void_v<PackedTypes<TypeUnderTest, 128>::Type>, L"Bad packed type definition", LINE_INFO());
     }
 
     TEST_METHOD(definesPackedTypesForInt_16) {
       typedef Int_16 TypeUnderTest;
 
-      Assert::IsTrue(
-          std::is_void<PackedTypes<TypeUnderTest, 4>::Type>::value, L"Bad packed type definition", LINE_INFO()
-      );
+      Assert::IsTrue(std::is_void_v<PackedTypes<TypeUnderTest, 4>::Type>, L"Bad packed type definition", LINE_INFO());
 
       Assert::AreEqual(ASizeT{8}, PackedTypes<TypeUnderTest, 8>::Elements, L"Bad packed type definition", LINE_INFO());
-      Assert::IsFalse(
-          std::is_void<PackedTypes<TypeUnderTest, 8>::Type>::value, L"Bad packed type definition", LINE_INFO()
-      );
+      Assert::IsFalse(std::is_void_v<PackedTypes<TypeUnderTest, 8>::Type>, L"Bad packed type definition", LINE_INFO());
 
       Assert::AreEqual(
           ASizeT{16}, PackedTypes<TypeUnderTest, 16>::Elements, L"Bad packed type definition", LINE_INFO()
       );
-      Assert::IsFalse(
-          std::is_void<PackedTypes<TypeUnderTest, 16>::Type>::value, L"Bad packed type definition", LINE_INFO()
-      );
+      Assert::IsFalse(std::is_void_v<PackedTypes<TypeUnderTest, 16>::Type>, L"Bad packed type definition", LINE_INFO());
 
       Assert::AreEqual(
           ASizeT{32}, PackedTypes<TypeUnderTest, 32>::Elements, L"Bad packed type definition", LINE_INFO()
       );
-      Assert::IsFalse(
-          std::is_void<PackedTypes<TypeUnderTest, 32>::Type>::value, L"Bad packed type definition", LINE_INFO()
-      );
+      Assert::IsFalse(std::is_void_v<PackedTypes<TypeUnderTest, 32>::Type>, L"Bad packed type definition", LINE_INFO());
 
-      Assert::IsTrue(
-          std::is_void<PackedTypes<TypeUnderTest, 64>::Type>::value, L"Bad packed type definition", LINE_INFO()
-      );
+      Assert::IsTrue(std::is_void_v<PackedTypes<TypeUnderTest, 64>::Type>, L"Bad packed type definition", LINE_INFO());
     }
 
     TEST_METHOD(definesPackedTypesForInt_32) {
       typedef Int_32 TypeUnderTest;
 
-      Assert::IsTrue(
-          std::is_void<PackedTypes<TypeUnderTest, 2>::Type>::value, L"Bad packed type definition", LINE_INFO()
-      );
+      Assert::IsTrue(std::is_void_v<PackedTypes<TypeUnderTest, 2>::Type>, L"Bad packed type definition", LINE_INFO());
 
       Assert::AreEqual(ASizeT{4}, PackedTypes<TypeUnderTest, 4>::Elements, L"Bad packed type definition", LINE_INFO());
-      Assert::IsFalse(
-          std::is_void<PackedTypes<TypeUnderTest, 4>::Type>::value, L"Bad packed type definition", LINE_INFO()
-      );
+      Assert::IsFalse(std::is_void_v<PackedTypes<TypeUnderTest, 4>::Type>, L"Bad packed type definition", LINE_INFO());
 
       Assert::AreEqual(ASizeT{8}, PackedTypes<TypeUnderTest, 8>::Elements, L"Bad packed type definition", LINE_INFO());
-      Assert::IsFalse(
-          std::is_void<PackedTypes<TypeUnderTest, 8>::Type>::value, L"Bad packed type definition", LINE_INFO()
-      );
+      Assert::IsFalse(std::is_void_v<PackedTypes<TypeUnderTest, 8>::Type>, L"Bad packed type definition", LINE_INFO());
 
       Assert::AreEqual(
           ASizeT{16}, PackedTypes<TypeUnderTest, 16>::Elements, L"Bad packed type definition", LINE_INFO()
       );
-      Assert::IsFalse(
-          std::is_void<PackedTypes<TypeUnderTest, 16>::Type>::value, L"Bad packed type definition", LINE_INFO()
-      );
+      Assert::IsFalse(std::is_void_v<PackedTypes<TypeUnderTest, 16>::Type>, L"Bad packed type definition", LINE_INFO());
 
-      Assert::IsTrue(
-          std::is_void<PackedTypes<TypeUnderTest, 32>::Type>::value, L"Bad packed type definition", LINE_INFO()
-      );
+      Assert::IsTrue(std::is_void_v<PackedTypes<TypeUnderTest, 32>::Type>, L"Bad packed type definition", LINE_INFO());
     }
 
     TEST_METHOD(definesPackedTypesForInt_64) {
       typedef Int_64 TypeUnderTest;
 
-      Assert::IsTrue(
-          std::is_void<PackedTypes<TypeUnderTest, 1>::Type>::value, L"Bad packed type definition", LINE_INFO()
-      );
+      Assert::IsTrue(std::is_void_v<PackedTypes<TypeUnderTest, 1>::Type>, L"Bad packed type definition", LINE_INFO());
 
       Assert::AreEqual(ASizeT{2}, PackedTypes<TypeUnderTest, 2>::Elements, L"Bad packed type definition", LINE_INFO());
-      Assert::IsFalse(
-          std::is_void<PackedTypes<TypeUnderTest, 2>::Type>::value, L"Bad packed type definition", LINE_INFO()
-      );
+      Assert::IsFalse(std::is_void_v<PackedTypes<TypeUnderTest, 2>::Type>, L"Bad packed type definition", LINE_INFO());
 
       Assert::AreEqual(ASizeT{4}, PackedTypes<TypeUnderTest, 4>::Elements, L"Bad packed type definition", LINE_INFO());
-      Assert::IsFalse(
-          std::is_void<PackedTypes<TypeUnderTest, 4>::Type>::value, L"Bad packed type definition", LINE_INFO()
-      );
+      Assert::IsFalse(std::is_void_v<PackedTypes<TypeUnderTest, 4>::Type>, L"Bad packed type definition", LINE_INFO());
 
       Assert::AreEqual(ASizeT{8}, PackedTypes<TypeUnderTest, 8>::Elements, L"Bad packed type definition", LINE_INFO());
-      Assert::IsFalse(
-          std::is_void<PackedTypes<TypeUnderTest, 8>::Type>::value, L"Bad packed type definition", LINE_INFO()
-      );
+      Assert::IsFalse(std::is_void_v<PackedTypes<TypeUnderTest, 8>::Type>, L"Bad packed type definition", LINE_INFO());
 
-      Assert::IsTrue(
-          std::is_void<PackedTypes<TypeUnderTest, 16>::Type>::value, L"Bad packed type definition", LINE_INFO()
-      );
+      Assert::IsTrue(std::is_void_v<PackedTypes<TypeUnderTest, 16>::Type>, L"Bad packed type definition", LINE_INFO());
     }
 
     TEST_METHOD(definesPackedTypesForUInt_8) {
       typedef UInt_8 TypeUnderTest;
 
-      Assert::IsTrue(
-          std::is_void<PackedTypes<TypeUnderTest, 8>::Type>::value, L"Bad packed type definition", LINE_INFO()
-      );
+      Assert::IsTrue(std::is_void_v<PackedTypes<TypeUnderTest, 8>::Type>, L"Bad packed type definition", LINE_INFO());
 
       Assert::AreEqual(
           ASizeT{16}, PackedTypes<TypeUnderTest, 16>::Elements, L"Bad packed type definition", LINE_INFO()
       );
-      Assert::IsFalse(
-          std::is_void<PackedTypes<TypeUnderTest, 16>::Type>::value, L"Bad packed type definition", LINE_INFO()
-      );
+      Assert::IsFalse(std::is_void_v<PackedTypes<TypeUnderTest, 16>::Type>, L"Bad packed type definition", LINE_INFO());
 
       Assert::AreEqual(
           ASizeT{32}, PackedTypes<TypeUnderTest, 32>::Elements, L"Bad packed type definition", LINE_INFO()
       );
-      Assert::IsFalse(
-          std::is_void<PackedTypes<TypeUnderTest, 32>::Type>::value, L"Bad packed type definition", LINE_INFO()
-      );
+      Assert::IsFalse(std::is_void_v<PackedTypes<TypeUnderTest, 32>::Type>, L"Bad packed type definition", LINE_INFO());
 
       Assert::AreEqual(
           ASizeT{64}, PackedTypes<TypeUnderTest, 64>::Elements, L"Bad packed type definition", LINE_INFO()
       );
-      Assert::IsFalse(
-          std::is_void<PackedTypes<TypeUnderTest, 64>::Type>::value, L"Bad packed type definition", LINE_INFO()
-      );
+      Assert::IsFalse(std::is_void_v<PackedTypes<TypeUnderTest, 64>::Type>, L"Bad packed type definition", LINE_INFO());
 
-      Assert::IsTrue(
-          std::is_void<PackedTypes<TypeUnderTest, 128>::Type>::value, L"Bad packed type definition", LINE_INFO()
-      );
+      Assert::IsTrue(std::is_void_v<PackedTypes<TypeUnderTest, 128>::Type>, L"Bad packed type definition", LINE_INFO());
     }
 
     TEST_METHOD(definesPackedTypesForUInt_16) {
       typedef UInt_16 TypeUnderTest;
 
-      Assert::IsTrue(
-          std::is_void<PackedTypes<TypeUnderTest, 4>::Type>::value, L"Bad packed type definition", LINE_INFO()
-      );
+      Assert::IsTrue(std::is_void_v<PackedTypes<TypeUnderTest, 4>::Type>, L"Bad packed type definition", LINE_INFO());
 
       Assert::AreEqual(ASizeT{8}, PackedTypes<TypeUnderTest, 8>::Elements, L"Bad packed type definition", LINE_INFO());
-      Assert::IsFalse(
-          std::is_void<PackedTypes<TypeUnderTest, 8>::Type>::value, L"Bad packed type definition", LINE_INFO()
-      );
+      Assert::IsFalse(std::is_void_v<PackedTypes<TypeUnderTest, 8>::Type>, L"Bad packed type definition", LINE_INFO());
 
       Assert::AreEqual(
           ASizeT{16}, PackedTypes<TypeUnderTest, 16>::Elements, L"Bad packed type definition", LINE_INFO()
       );
-      Assert::IsFalse(
-          std::is_void<PackedTypes<TypeUnderTest, 16>::Type>::value, L"Bad packed type definition", LINE_INFO()
-      );
+      Assert::IsFalse(std::is_void_v<PackedTypes<TypeUnderTest, 16>::Type>, L"Bad packed type definition", LINE_INFO());
 
       Assert::AreEqual(
           ASizeT{32}, PackedTypes<TypeUnderTest, 32>::Elements, L"Bad packed type definition", LINE_INFO()
       );
-      Assert::IsFalse(
-          std::is_void<PackedTypes<TypeUnderTest, 32>::Type>::value, L"Bad packed type definition", LINE_INFO()
-      );
+      Assert::IsFalse(std::is_void_v<PackedTypes<TypeUnderTest, 32>::Type>, L"Bad packed type definition", LINE_INFO());
 
-      Assert::IsTrue(
-          std::is_void<PackedTypes<TypeUnderTest, 64>::Type>::value, L"Bad packed type definition", LINE_INFO()
-      );
+      Assert::IsTrue(std::is_void_v<PackedTypes<TypeUnderTest, 64>::Type>, L"Bad packed type definition", LINE_INFO());
     }
 
     TEST_METHOD(definesPackedTypesForUInt_32) {
       typedef UInt_32 TypeUnderTest;
 
-      Assert::IsTrue(
-          std::is_void<PackedTypes<TypeUnderTest, 2>::Type>::value, L"Bad packed type definition", LINE_INFO()
-      );
+      Assert::IsTrue(std::is_void_v<PackedTypes<TypeUnderTest, 2>::Type>, L"Bad packed type definition", LINE_INFO());
 
       Assert::AreEqual(ASizeT{4}, PackedTypes<TypeUnderTest, 4>::Elements, L"Bad packed type definition", LINE_INFO());
-      Assert::IsFalse(
-          std::is_void<PackedTypes<TypeUnderTest, 4>::Type>::value, L"Bad packed type definition", LINE_INFO()
-      );
+      Assert::IsFalse(std::is_void_v<PackedTypes<TypeUnderTest, 4>::Type>, L"Bad packed type definition", LINE_INFO());
 
       Assert::AreEqual(ASizeT{8}, PackedTypes<TypeUnderTest, 8>::Elements, L"Bad packed type definition", LINE_INFO());
-      Assert::IsFalse(
-          std::is_void<PackedTypes<TypeUnderTest, 8>::Type>::value, L"Bad packed type definition", LINE_INFO()
-      );
+      Assert::IsFalse(std::is_void_v<PackedTypes<TypeUnderTest, 8>::Type>, L"Bad packed type definition", LINE_INFO());
 
       Assert::AreEqual(
           ASizeT{16}, PackedTypes<TypeUnderTest, 16>::Elements, L"Bad packed type definition", LINE_INFO()
       );
-      Assert::IsFalse(
-          std::is_void<PackedTypes<TypeUnderTest, 16>::Type>::value, L"Bad packed type definition", LINE_INFO()
-      );
+      Assert::IsFalse(std::is_void_v<PackedTypes<TypeUnderTest, 16>::Type>, L"Bad packed type definition", LINE_INFO());
 
-      Assert::IsTrue(
-          std::is_void<PackedTypes<TypeUnderTest, 32>::Type>::value, L"Bad packed type definition", LINE_INFO()
-      );
+      Assert::IsTrue(std::is_void_v<PackedTypes<TypeUnderTest, 32>::Type>, L"Bad packed type definition", LINE_INFO());
     }
 
     TEST_METHOD(definesPackedTypesForUInt_64) {
       typedef UInt_64 TypeUnderTest;
 
-      Assert::IsTrue(
-          std::is_void<PackedTypes<TypeUnderTest, 1>::Type>::value, L"Bad packed type definition", LINE_INFO()
-      );
+      Assert::IsTrue(std::is_void_v<PackedTypes<TypeUnderTest, 1>::Type>, L"Bad packed type definition", LINE_INFO());
 
       Assert::AreEqual(ASizeT{2}, PackedTypes<TypeUnderTest, 2>::Elements, L"Bad packed type definition", LINE_INFO());
-      Assert::IsFalse(
-          std::is_void<PackedTypes<TypeUnderTest, 2>::Type>::value, L"Bad packed type definition", LINE_INFO()
-      );
+      Assert::IsFalse(std::is_void_v<PackedTypes<TypeUnderTest, 2>::Type>, L"Bad packed type definition", LINE_INFO());
 
       Assert::AreEqual(ASizeT{4}, PackedTypes<TypeUnderTest, 4>::Elements, L"Bad packed type definition", LINE_INFO());
-      Assert::IsFalse(
-          std::is_void<PackedTypes<TypeUnderTest, 4>::Type>::value, L"Bad packed type definition", LINE_INFO()
-      );
+      Assert::IsFalse(std::is_void_v<PackedTypes<TypeUnderTest, 4>::Type>, L"Bad packed type definition", LINE_INFO());
 
       Assert::AreEqual(ASizeT{8}, PackedTypes<TypeUnderTest, 8>::Elements, L"Bad packed type definition", LINE_INFO());
-      Assert::IsFalse(
-          std::is_void<PackedTypes<TypeUnderTest, 8>::Type>::value, L"Bad packed type definition", LINE_INFO()
-      );
+      Assert::IsFalse(std::is_void_v<PackedTypes<TypeUnderTest, 8>::Type>, L"Bad packed type definition", LINE_INFO());
 
-      Assert::IsTrue(
-          std::is_void<PackedTypes<TypeUnderTest, 16>::Type>::value, L"Bad packed type definition", LINE_INFO()
-      );
+      Assert::IsTrue(std::is_void_v<PackedTypes<TypeUnderTest, 16>::Type>, L"Bad packed type definition", LINE_INFO());
     }
 
     TEST_METHOD(definesPackedTypesForFloat_32) {
       typedef Float_32 TypeUnderTest;
 
-      Assert::IsTrue(
-          std::is_void<PackedTypes<TypeUnderTest, 2>::Type>::value, L"Bad packed type definition", LINE_INFO()
-      );
+      Assert::IsTrue(std::is_void_v<PackedTypes<TypeUnderTest, 2>::Type>, L"Bad packed type definition", LINE_INFO());
 
       Assert::AreEqual(ASizeT{4}, PackedTypes<TypeUnderTest, 4>::Elements, L"Bad packed type definition", LINE_INFO());
-      Assert::IsFalse(
-          std::is_void<PackedTypes<TypeUnderTest, 4>::Type>::value, L"Bad packed type definition", LINE_INFO()
-      );
+      Assert::IsFalse(std::is_void_v<PackedTypes<TypeUnderTest, 4>::Type>, L"Bad packed type definition", LINE_INFO());
 
       Assert::AreEqual(ASizeT{8}, PackedTypes<TypeUnderTest, 8>::Elements, L"Bad packed type definition", LINE_INFO());
-      Assert::IsFalse(
-          std::is_void<PackedTypes<TypeUnderTest, 8>::Type>::value, L"Bad packed type definition", LINE_INFO()
-      );
+      Assert::IsFalse(std::is_void_v<PackedTypes<TypeUnderTest, 8>::Type>, L"Bad packed type definition", LINE_INFO());
 
       Assert::AreEqual(
           ASizeT{16}, PackedTypes<TypeUnderTest, 16>::Elements, L"Bad packed type definition", LINE_INFO()
       );
-      Assert::IsFalse(
-          std::is_void<PackedTypes<TypeUnderTest, 16>::Type>::value, L"Bad packed type definition", LINE_INFO()
-      );
+      Assert::IsFalse(std::is_void_v<PackedTypes<TypeUnderTest, 16>::Type>, L"Bad packed type definition", LINE_INFO());
 
-      Assert::IsTrue(
-          std::is_void<PackedTypes<TypeUnderTest, 32>::Type>::value, L"Bad packed type definition", LINE_INFO()
-      );
+      Assert::IsTrue(std::is_void_v<PackedTypes<TypeUnderTest, 32>::Type>, L"Bad packed type definition", LINE_INFO());
     }
 
     TEST_METHOD(definesPackedTypesForFloat_64) {
       typedef Float_64 TypeUnderTest;
 
-      Assert::IsTrue(
-          std::is_void<PackedTypes<TypeUnderTest, 1>::Type>::value, L"Bad packed type definition", LINE_INFO()
-      );
+      Assert::IsTrue(std::is_void_v<PackedTypes<TypeUnderTest, 1>::Type>, L"Bad packed type definition", LINE_INFO());
 
       Assert::AreEqual(ASizeT{2}, PackedTypes<TypeUnderTest, 2>::Elements, L"Bad packed type definition", LINE_INFO());
-      Assert::IsFalse(
-          std::is_void<PackedTypes<TypeUnderTest, 2>::Type>::value, L"Bad packed type definition", LINE_INFO()
-      );
+      Assert::IsFalse(std::is_void_v<PackedTypes<TypeUnderTest, 2>::Type>, L"Bad packed type definition", LINE_INFO());
 
       Assert::AreEqual(ASizeT{4}, PackedTypes<TypeUnderTest, 4>::Elements, L"Bad packed type definition", LINE_INFO());
-      Assert::IsFalse(
-          std::is_void<PackedTypes<TypeUnderTest, 4>::Type>::value, L"Bad packed type definition", LINE_INFO()
-      );
+      Assert::IsFalse(std::is_void_v<PackedTypes<TypeUnderTest, 4>::Type>, L"Bad packed type definition", LINE_INFO());
 
       Assert::AreEqual(ASizeT{8}, PackedTypes<TypeUnderTest, 8>::Elements, L"Bad packed type definition", LINE_INFO());
-      Assert::IsFalse(
-          std::is_void<PackedTypes<TypeUnderTest, 8>::Type>::value, L"Bad packed type definition", LINE_INFO()
-      );
+      Assert::IsFalse(std::is_void_v<PackedTypes<TypeUnderTest, 8>::Type>, L"Bad packed type definition", LINE_INFO());
 
-      Assert::IsTrue(
-          std::is_void<PackedTypes<TypeUnderTest, 16>::Type>::value, L"Bad packed type definition", LINE_INFO()
-      );
+      Assert::IsTrue(std::is_void_v<PackedTypes<TypeUnderTest, 16>::Type>, L"Bad packed type definition", LINE_INFO());
     }
   };
 }

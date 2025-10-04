@@ -13,32 +13,32 @@ namespace vectorization {
   const PackedFloat8_256 DegreeToRadian_PackedFloat8_256 = _mm256_set1_ps(Float_32{DEGREE_TO_RADIAN});
 
   template <>
-  const Float_32 DegreeToRadian<Float_32>() noexcept {
+  Float_32 DegreeToRadian<Float_32>() noexcept {
     return x(DegreeToRadian<PackedFloat4_128>());
   }
 
   template <>
-  const Float_64 DegreeToRadian<Float_64>() noexcept {
+  Float_64 DegreeToRadian<Float_64>() noexcept {
     return x(DegreeToRadian<PackedFloat2_128>());
   }
 
   template <>
-  const PackedFloat2_128 DegreeToRadian<PackedFloat2_128>() noexcept {
+  PackedFloat2_128 DegreeToRadian<PackedFloat2_128>() noexcept {
     return DegreeToRadian_PackedFloat2_128;
   }
 
   template <>
-  const PackedFloat4_128 DegreeToRadian<PackedFloat4_128>() noexcept {
+  PackedFloat4_128 DegreeToRadian<PackedFloat4_128>() noexcept {
     return DegreeToRadian_PackedFloat4_128;
   }
 
   template <>
-  const PackedFloat4_256 DegreeToRadian<PackedFloat4_256>() noexcept {
+  PackedFloat4_256 DegreeToRadian<PackedFloat4_256>() noexcept {
     return DegreeToRadian_PackedFloat4_256;
   }
 
   template <>
-  const PackedFloat8_256 DegreeToRadian<PackedFloat8_256>() noexcept {
+  PackedFloat8_256 DegreeToRadian<PackedFloat8_256>() noexcept {
     return DegreeToRadian_PackedFloat8_256;
   }
 }

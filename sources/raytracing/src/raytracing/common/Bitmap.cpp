@@ -41,7 +41,7 @@ namespace raytracer {
   }
 
   const BITMAPINFO Bitmap::getBITMAPINFO() const {
-    BITMAPINFO sysBitmapInfo{
+    const BITMAPINFO sysBitmapInfo{
         {
             // bmiHeader
             DWORD{sizeof(BITMAPINFOHEADER)},                                       // biSize
@@ -65,14 +65,14 @@ namespace raytracer {
   }
 
   const BITMAP Bitmap::getBITMAP() const {
-    BITMAPINFO bitmapInfo = this->getBITMAPINFO();
-    BITMAP sysBitmap{
+    const auto [bmiHeader, bmiColors] = this->getBITMAPINFO();
+    const BITMAP sysBitmap{
         LONG{0},                         // bmType
-        bitmapInfo.bmiHeader.biWidth,    // bmWidth
-        bitmapInfo.bmiHeader.biHeight,   // bmHeight
+        bmiHeader.biWidth,               // bmWidth
+        bmiHeader.biHeight,              // bmHeight
         static_cast<LONG>(this->stride), // bmWidthBytes
-        bitmapInfo.bmiHeader.biPlanes,   // bmPlanes
-        bitmapInfo.bmiHeader.biBitCount, // bmBitsPixel
+        bmiHeader.biPlanes,              // bmPlanes
+        bmiHeader.biBitCount,            // bmBitsPixel
         static_cast<LPVOID>(this->data)  // bmBits
     };
     return sysBitmap;
@@ -108,7 +108,7 @@ namespace raytracer {
     Size2 resolution;
     std::stringstream(dimensions) >> resolution[VectorIndices::X] >> resolution[VectorIndices::Y];
 
-    Bitmap *loaded = new Bitmap(resolution);
+    auto loaded = new Bitmap(resolution);
 
     std::string max;
     getline(file, max);
@@ -117,18 +117,16 @@ namespace raytracer {
 
     // grab all the image data in one fell swoop.
     const ASizeT rawStride = VectorType::SIZE * x(resolution);
-    std::vector<char, AlignedAllocator<char>> raw =
-        std::vector<char, AlignedAllocator<char>>(rawStride * y(resolution));
-    file.read(&raw[Zero<ASizeT>()], std::streamsize(raw.size()));
+    auto raw = std::vector<char, AlignedAllocator<char>>(rawStride * y(resolution));
+    file.read(&raw[Zero<ASizeT>()], static_cast<std::streamsize>(raw.size()));
     file.close();
 
-    typedef VectorType::ValueType BitmapValueType;
-    typedef std::numeric_limits<BitmapValueType> BitmapValueLimits;
-
+    using BitmapValueType = VectorType::ValueType;
+    using BitmapValueLimits = std::numeric_limits<BitmapValueType>;
     constexpr BitmapValueType scaleMin = BitmapValueLimits::lowest();
     constexpr BitmapValueType scaleMax = BitmapValueLimits::max();
-    const Int4 scale = Int4((scaleMax - scaleMin) / convert<Int4::ValueType>(static_cast<UInt_64>(rawMaxValue)));
-    const Int4 scaleOffset = Int4(-convert<Int4::ValueType>(scaleMin));
+    const auto scale = Int4((scaleMax - scaleMin) / convert<Int4::ValueType>(static_cast<UInt_64>(rawMaxValue)));
+    const auto scaleOffset = Int4(-convert<Int4::ValueType>(scaleMin));
     const int heighti = convert<int>(y(resolution));
 
 #pragma omp parallel for
@@ -138,8 +136,8 @@ namespace raytracer {
 
       for (ASizeT j = VectorIndices::X; j < rawStride; j += VectorType::SIZE) {
         const char *const rawData = &raw[scanlineRaw + j];
-        const Int4 texel = (Int4(
-                                static_cast<BitmapValueType>(*(rawData)), static_cast<BitmapValueType>(*(rawData + 1)),
+        const auto texel = (Int4(
+                                static_cast<BitmapValueType>(*rawData), static_cast<BitmapValueType>(*(rawData + 1)),
                                 static_cast<BitmapValueType>(*(rawData + 2))
                             )
                             + scaleOffset)
@@ -187,16 +185,16 @@ namespace raytracer {
       return;
     }
 
-    BITMAPINFO bitmapInfo = getBITMAPINFO();
+    const auto [bmiHeader, bmiColors] = getBITMAPINFO();
     BITMAPFILEHEADER bmfh;
     bmfh.bfType = static_cast<WORD>(0x4d42); // == "BM"
     bmfh.bfReserved1 = bmfh.bfReserved2 = Zero<WORD>();
-    bmfh.bfOffBits = static_cast<DWORD>(sizeof(BITMAPFILEHEADER)) + bitmapInfo.bmiHeader.biSize;
-    bmfh.bfSize = bmfh.bfOffBits + bitmapInfo.bmiHeader.biSizeImage;
+    bmfh.bfOffBits = static_cast<DWORD>(sizeof(BITMAPFILEHEADER)) + bmiHeader.biSize;
+    bmfh.bfSize = bmfh.bfOffBits + bmiHeader.biSizeImage;
 
     writeObject<BITMAPFILEHEADER, sizeof(BITMAPFILEHEADER)>(file, bmfh);
-    writeVariadicObject<BITMAPINFOHEADER>(file, bitmapInfo.bmiHeader, bitmapInfo.bmiHeader.biSize);
-    writeVariadicData<UInt_8>(file, this->data, bitmapInfo.bmiHeader.biSizeImage);
+    writeVariadicObject<BITMAPINFOHEADER>(file, bmiHeader, bmiHeader.biSize);
+    writeVariadicData<UInt_8>(file, this->data, bmiHeader.biSizeImage);
 
     file.flush();
     file.close();

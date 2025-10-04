@@ -4,10 +4,10 @@ namespace vectorization::test {
   TEST_CLASS(Select128sTest) {
   public:
     TEST_METHOD(selectsOneOfTwoPackedFloat4_128WithBoolConditionMask) {
-      std::array<Float_32, VectorSizes::W> givenTruthy{1.0f, 2.0f, 3.0f, 4.0f};
-      auto givenTruthyPack = _mm_load_ps(givenTruthy.data());
-      std::array<Float_32, VectorSizes::W> givenFalsy{5.0f, 6.0f, 7.0f, 8.0f};
-      auto givenFalsyPack = _mm_load_ps(givenFalsy.data());
+      constexpr std::array givenTruthy{1.0f, 2.0f, 3.0f, 4.0f};
+      const auto givenTruthyPack = _mm_load_ps(givenTruthy.data());
+      constexpr std::array givenFalsy{5.0f, 6.0f, 7.0f, 8.0f};
+      const auto givenFalsyPack = _mm_load_ps(givenFalsy.data());
       std::array<Float_32, VectorSizes::W> actual{};
 
       {
@@ -22,10 +22,10 @@ namespace vectorization::test {
     }
 
     TEST_METHOD(selectsComponentsOfTwoPackedFloat4_128WithPackedInts_128ConditionMask) {
-      std::array<Float_32, VectorSizes::W> givenTruthy{1.0f, 2.0f, 3.0f, 4.0f};
-      auto givenTruthyPack = _mm_load_ps(givenTruthy.data());
-      std::array<Float_32, VectorSizes::W> givenFalsy{5.0f, 6.0f, 7.0f, 8.0f};
-      auto givenFalsyPack = _mm_load_ps(givenFalsy.data());
+      constexpr std::array givenTruthy{1.0f, 2.0f, 3.0f, 4.0f};
+      const auto givenTruthyPack = _mm_load_ps(givenTruthy.data());
+      constexpr std::array givenFalsy{5.0f, 6.0f, 7.0f, 8.0f};
+      const auto givenFalsyPack = _mm_load_ps(givenFalsy.data());
       std::array<Float_32, VectorSizes::W> actual{};
 
       {
@@ -40,10 +40,10 @@ namespace vectorization::test {
     }
 
     TEST_METHOD(selectsComponentsOfTwoPackedFloat4_128WithPackedFloat4_128ConditionMask) {
-      std::array<Float_32, VectorSizes::W> givenTruthy{1.0f, 2.0f, 3.0f, 4.0f};
-      auto givenTruthyPack = _mm_load_ps(givenTruthy.data());
-      std::array<Float_32, VectorSizes::W> givenFalsy{5.0f, 6.0f, 7.0f, 8.0f};
-      auto givenFalsyPack = _mm_load_ps(givenFalsy.data());
+      constexpr std::array givenTruthy{1.0f, 2.0f, 3.0f, 4.0f};
+      const auto givenTruthyPack = _mm_load_ps(givenTruthy.data());
+      constexpr std::array givenFalsy{5.0f, 6.0f, 7.0f, 8.0f};
+      const auto givenFalsyPack = _mm_load_ps(givenFalsy.data());
       std::array<Float_32, VectorSizes::W> actual{};
 
       {

@@ -4,13 +4,13 @@ namespace vectorization::test {
   TEST_CLASS(MaskXTest) {
   public:
     TEST_METHOD(returnsPackedFloat2_128Mask) {
-      auto actual = MaskX<PackedFloat2_128>();
+      const auto actual = MaskX<PackedFloat2_128>();
       Assert::AreEqual(ASizeT{128}, bitCount(swizzle<VectorIndices::X, VectorIndices::X>(actual)));
       Assert::AreEqual(ASizeT{0}, bitCount(swizzle<VectorIndices::Y, VectorIndices::Y>(actual)));
     }
 
     TEST_METHOD(returnsPackedFloat4_128Mask) {
-      auto actual = MaskX<PackedFloat4_128>();
+      const auto actual = MaskX<PackedFloat4_128>();
       Assert::AreEqual(
           ASizeT{128}, bitCount(swizzle<VectorIndices::X, VectorIndices::X, VectorIndices::X, VectorIndices::X>(actual))
       );
@@ -20,7 +20,7 @@ namespace vectorization::test {
     }
 
     TEST_METHOD(returnsPackedFloat8_256Mask) {
-      auto actual = MaskX<PackedFloat8_256>();
+      const auto actual = MaskX<PackedFloat8_256>();
       Assert::AreEqual(
           ASizeT{256}, bitCount(swizzle<VectorIndices::X, VectorIndices::X, VectorIndices::X, VectorIndices::X>(actual))
       );
@@ -30,7 +30,7 @@ namespace vectorization::test {
     }
 
     TEST_METHOD(returnsPackedFloat4_256Mask) {
-      auto actual = MaskX<PackedFloat4_256>();
+      const auto actual = MaskX<PackedFloat4_256>();
       Assert::AreEqual(
           ASizeT{256}, bitCount(swizzle<VectorIndices::X, VectorIndices::X, VectorIndices::X, VectorIndices::X>(actual))
       );

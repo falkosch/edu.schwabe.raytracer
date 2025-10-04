@@ -4,7 +4,7 @@ namespace vectorization::test {
   TEST_CLASS(MemoryTest) {
   public:
     static void testAlignedAllocation(const std::size_t expectedAlignment, void *&actualPtr) {
-      auto actualAddress = reinterpret_cast<std::size_t>(actualPtr);
+      const auto actualAddress = reinterpret_cast<std::size_t>(actualPtr);
       Assert::AreNotEqual(std::size_t{0}, actualAddress, L"invalid allocation", LINE_INFO());
       Assert::AreEqual(std::size_t{0}, actualAddress % expectedAlignment, L"allocation is not aligned", LINE_INFO());
 
@@ -17,7 +17,7 @@ namespace vectorization::test {
     static void testAlignedAllocation(const std::size_t expectedAlignment) {
       auto dummyAllocation = vectorization::alloc(1);
       auto actualPtr = vectorization::alloc(1, expectedAlignment);
-      MemoryTest::testAlignedAllocation(expectedAlignment, actualPtr);
+      testAlignedAllocation(expectedAlignment, actualPtr);
       vectorization::free(dummyAllocation);
     }
 
@@ -38,36 +38,36 @@ namespace vectorization::test {
     TEST_METHOD(alignedAllocWithoutAlignmentParameter) {
       auto dummyAllocation = vectorization::alloc(1);
       auto actualPtr = vectorization::alloc(1);
-      MemoryTest::testAlignedAllocation(Alignments::Best, actualPtr);
+      testAlignedAllocation(Alignments::Best, actualPtr);
       vectorization::free(dummyAllocation);
     }
 
     TEST_METHOD(alignedAllocWithSizeAndX86Alignment) {
-      MemoryTest::testAlignedAllocation(Alignments::X86);
+      testAlignedAllocation(Alignments::X86);
     }
 
     TEST_METHOD(alignedAllocWithSizeAndMMAlignment) {
-      MemoryTest::testAlignedAllocation(Alignments::MM);
+      testAlignedAllocation(Alignments::MM);
     }
 
     TEST_METHOD(alignedAllocWithSizeAndXMMAlignment) {
-      MemoryTest::testAlignedAllocation(Alignments::XMM);
+      testAlignedAllocation(Alignments::XMM);
     }
 
     TEST_METHOD(alignedAllocWithSizeAndYMMAlignment) {
-      MemoryTest::testAlignedAllocation(Alignments::YMM);
+      testAlignedAllocation(Alignments::YMM);
     }
 
     TEST_METHOD(alignedAllocWithSizeAndZMMAlignment) {
-      MemoryTest::testAlignedAllocation(Alignments::ZMM);
+      testAlignedAllocation(Alignments::ZMM);
     }
 
     TEST_METHOD(alignedAllocWithSizeAndARCHAlignment) {
-      MemoryTest::testAlignedAllocation(Alignments::ARCH);
+      testAlignedAllocation(Alignments::ARCH);
     }
 
     TEST_METHOD(alignedAllocWithSizeAndBestAlignment) {
-      MemoryTest::testAlignedAllocation(Alignments::Best);
+      testAlignedAllocation(Alignments::Best);
     }
   };
 }

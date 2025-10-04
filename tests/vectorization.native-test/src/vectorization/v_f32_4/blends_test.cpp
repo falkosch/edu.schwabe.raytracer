@@ -4,18 +4,18 @@ namespace vectorization::test {
   TEST_CLASS(v_f32_4_BlendsTest) {
   public:
     TEST_METHOD(genericallyBlendsIdentities) {
-      v_f32_4 givenOnBitNotSet{1.0f, 2.0f, 3.0f, 4.0f};
-      v_f32_4 givenOnBitSet{5.0f, 6.0f, 7.0f, 8.0f};
+      const v_f32_4 givenOnBitNotSet{1.0f, 2.0f, 3.0f, 4.0f};
+      const v_f32_4 givenOnBitSet{5.0f, 6.0f, 7.0f, 8.0f};
 
       {
-        v_f32_4 expected{x(givenOnBitNotSet), y(givenOnBitNotSet), z(givenOnBitNotSet), w(givenOnBitNotSet)};
-        auto actual = blend<false, false, false, false>(givenOnBitNotSet, givenOnBitSet);
+        const v_f32_4 expected{x(givenOnBitNotSet), y(givenOnBitNotSet), z(givenOnBitNotSet), w(givenOnBitNotSet)};
+        const auto actual = blend<false, false, false, false>(givenOnBitNotSet, givenOnBitSet);
         Assert::IsTrue(allTrue(expected == actual), L"blend value mismatch", LINE_INFO());
       }
 
       {
-        v_f32_4 expected{x(givenOnBitSet), y(givenOnBitSet), z(givenOnBitSet), w(givenOnBitSet)};
-        auto actual = blend<true, true, true, true>(givenOnBitNotSet, givenOnBitSet);
+        const v_f32_4 expected{x(givenOnBitSet), y(givenOnBitSet), z(givenOnBitSet), w(givenOnBitSet)};
+        const auto actual = blend<true, true, true, true>(givenOnBitNotSet, givenOnBitSet);
         Assert::IsTrue(allTrue(expected == actual), L"blend value mismatch", LINE_INFO());
       }
     }
@@ -108,14 +108,11 @@ namespace vectorization::test {
     }
 
     TEST_METHOD(hasShortFormsForBlends) {
-      v_f32_4 givenOnBitNotSet{1.0f, 2.0f, 3.0f, 4.0f};
-      v_f32_4 givenOnBitSet{5.0f, 6.0f, 7.0f, 8.0f};
-
-      {
-        v_f32_4 expected{x(givenOnBitNotSet), y(givenOnBitSet), z(givenOnBitSet), w(givenOnBitSet)};
-        auto actual = x_yzw(givenOnBitNotSet, givenOnBitSet);
-        Assert::IsTrue(allTrue(expected == actual), L"blend value mismatch", LINE_INFO());
-      }
+      const v_f32_4 givenOnBitNotSet{1.0f, 2.0f, 3.0f, 4.0f};
+      const v_f32_4 givenOnBitSet{5.0f, 6.0f, 7.0f, 8.0f};
+      const v_f32_4 expected{x(givenOnBitNotSet), y(givenOnBitSet), z(givenOnBitSet), w(givenOnBitSet)};
+      const auto actual = x_yzw(givenOnBitNotSet, givenOnBitSet);
+      Assert::IsTrue(allTrue(expected == actual), L"blend value mismatch", LINE_INFO());
     }
 
     TEST_METHOD(variadicBlendsTwoFloat4_32WithFloat4_32BitMask) {

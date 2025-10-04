@@ -4,10 +4,10 @@ namespace vectorization::test {
   TEST_CLASS(Select256sTest) {
   public:
     TEST_METHOD(selectsOneOfTwoPackedFloat8_256WithBoolConditionMask) {
-      std::array<Float_32, VectorSizes::X8> givenTruthy{1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f};
-      auto givenTruthyPack = _mm256_load_ps(givenTruthy.data());
-      std::array<Float_32, VectorSizes::X8> givenFalsy{9.0f, 10.0f, 11.0f, 12.0f, 13.0f, 14.0f, 15.0f, 16.0f};
-      auto givenFalsyPack = _mm256_load_ps(givenFalsy.data());
+      constexpr std::array givenTruthy{1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f};
+      const auto givenTruthyPack = _mm256_load_ps(givenTruthy.data());
+      constexpr std::array givenFalsy{9.0f, 10.0f, 11.0f, 12.0f, 13.0f, 14.0f, 15.0f, 16.0f};
+      const auto givenFalsyPack = _mm256_load_ps(givenFalsy.data());
       std::array<Float_32, VectorSizes::X8> actual{};
 
       {
@@ -22,10 +22,10 @@ namespace vectorization::test {
     }
 
     TEST_METHOD(selectsComponentsOfTwoPackedFloat8_256WithPackedInts_256ConditionMask) {
-      std::array<Float_32, VectorSizes::X8> givenTruthy{1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f};
-      auto givenTruthyPack = _mm256_load_ps(givenTruthy.data());
-      std::array<Float_32, VectorSizes::X8> givenFalsy{9.0f, 10.0f, 11.0f, 12.0f, 13.0f, 14.0f, 15.0f, 16.0f};
-      auto givenFalsyPack = _mm256_load_ps(givenFalsy.data());
+      constexpr std::array givenTruthy{1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f};
+      const auto givenTruthyPack = _mm256_load_ps(givenTruthy.data());
+      constexpr std::array givenFalsy{9.0f, 10.0f, 11.0f, 12.0f, 13.0f, 14.0f, 15.0f, 16.0f};
+      const auto givenFalsyPack = _mm256_load_ps(givenFalsy.data());
       std::array<Float_32, VectorSizes::X8> actual{};
 
       {
@@ -40,10 +40,10 @@ namespace vectorization::test {
     }
 
     TEST_METHOD(selectsComponentsOfTwoPackedFloat8_256WithPackedFloat8_256ConditionMask) {
-      std::array<Float_32, VectorSizes::X8> givenTruthy{1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f};
-      auto givenTruthyPack = _mm256_load_ps(givenTruthy.data());
-      std::array<Float_32, VectorSizes::X8> givenFalsy{9.0f, 10.0f, 11.0f, 12.0f, 13.0f, 14.0f, 15.0f, 16.0f};
-      auto givenFalsyPack = _mm256_load_ps(givenFalsy.data());
+      constexpr std::array givenTruthy{1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f};
+      const auto givenTruthyPack = _mm256_load_ps(givenTruthy.data());
+      constexpr std::array givenFalsy{9.0f, 10.0f, 11.0f, 12.0f, 13.0f, 14.0f, 15.0f, 16.0f};
+      const auto givenFalsyPack = _mm256_load_ps(givenFalsy.data());
       std::array<Float_32, VectorSizes::X8> actual{};
 
       {

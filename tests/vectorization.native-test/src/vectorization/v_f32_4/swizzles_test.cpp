@@ -4,17 +4,17 @@ namespace vectorization::test {
   TEST_CLASS(v_f32_4_SwizzlesTest) {
   public:
     TEST_METHOD(genericallySwizzlesIdentityAndItsReverse) {
-      auto given = StandardSample::ofVectorType<v_f32_4>();
+      const auto given = StandardSample::ofVectorType<v_f32_4>();
 
       {
-        v_f32_4 expected{x(given), y(given), z(given), w(given)};
-        auto actual = swizzle<VectorIndices::X, VectorIndices::Y, VectorIndices::Z, VectorIndices::W>(given);
+        const v_f32_4 expected{x(given), y(given), z(given), w(given)};
+        const auto actual = swizzle<VectorIndices::X, VectorIndices::Y, VectorIndices::Z, VectorIndices::W>(given);
         Assert::IsTrue(allTrue(expected == actual), L"swizzle value mismatch", LINE_INFO());
       }
 
       {
-        v_f32_4 expected{w(given), z(given), y(given), x(given)};
-        auto actual = swizzle<VectorIndices::W, VectorIndices::Z, VectorIndices::Y, VectorIndices::X>(given);
+        const v_f32_4 expected{w(given), z(given), y(given), x(given)};
+        const auto actual = swizzle<VectorIndices::W, VectorIndices::Z, VectorIndices::Y, VectorIndices::X>(given);
         Assert::IsTrue(allTrue(expected == actual), L"swizzle value mismatch", LINE_INFO());
       }
     }
@@ -208,23 +208,23 @@ namespace vectorization::test {
     }
 
     TEST_METHOD(hasShortFormsForSwizzlesOfWFirst) {
-      auto given = StandardSample::ofVectorType<v_f32_4>();
+      const auto given = StandardSample::ofVectorType<v_f32_4>();
 
       {
-        v_f32_4 expected{w(given), w(given), w(given), w(given)};
-        auto actual = wwww(given);
+        const v_f32_4 expected{w(given), w(given), w(given), w(given)};
+        const auto actual = wwww(given);
         Assert::IsTrue(allTrue(expected == actual), L"swizzle value mismatch", LINE_INFO());
       }
 
       {
-        v_f32_4 expected{w(given), x(given), y(given), z(given)};
-        auto actual = wxyz(given);
+        const v_f32_4 expected{w(given), x(given), y(given), z(given)};
+        const auto actual = wxyz(given);
         Assert::IsTrue(allTrue(expected == actual), L"swizzle value mismatch", LINE_INFO());
       }
 
       {
-        v_f32_4 expected{w(given), z(given), y(given), x(given)};
-        auto actual = wzyx(given);
+        const v_f32_4 expected{w(given), z(given), y(given), x(given)};
+        const auto actual = wzyx(given);
         Assert::IsTrue(allTrue(expected == actual), L"swizzle value mismatch", LINE_INFO());
       }
     }

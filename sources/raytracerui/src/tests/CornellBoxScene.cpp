@@ -6,7 +6,7 @@
 namespace raytracerui {
 
   auto ceiling() {
-    auto sceneObject = new SceneObject("ceiling, black");
+    const auto sceneObject = new SceneObject("ceiling, black");
     sceneObject->setForm(new Box());
     sceneObject->scale(Float3(1.0f, 0.001f, 1.0f));
     sceneObject->translate(Float3(0.0f, 1.0f, 0.0f));
@@ -23,7 +23,7 @@ namespace raytracerui {
   }
 
   auto floor() {
-    auto sceneObject = new SceneObject("floor, white");
+    const auto sceneObject = new SceneObject("floor, white");
     sceneObject->setForm(new Box());
     sceneObject->scale(Float3(1.0f, 0.001f, 1.0f));
     sceneObject->translate(Float3(0.0f, -1.0f, 0.0f));
@@ -40,7 +40,7 @@ namespace raytracerui {
   }
 
   auto backWall() {
-    auto sceneObject = new SceneObject("back wall, white");
+    const auto sceneObject = new SceneObject("back wall, white");
     sceneObject->setForm(new Box());
     sceneObject->scale(Float3(1.0f, 1.0f, 0.001f));
     sceneObject->translate(Float3(0.0f, 0.0f, -1.0f));
@@ -57,7 +57,7 @@ namespace raytracerui {
   }
 
   auto rightWall() {
-    auto sceneObject = new SceneObject("right wall, green");
+    const auto sceneObject = new SceneObject("right wall, green");
     sceneObject->setForm(new Box());
     sceneObject->scale(Float3(0.001f, 1.0f, 1.0f));
     sceneObject->translate(Float3(1.0f, 0.0f, 0.0f));
@@ -74,7 +74,7 @@ namespace raytracerui {
   }
 
   auto leftWall() {
-    auto sceneObject = new SceneObject("left wall, red");
+    const auto sceneObject = new SceneObject("left wall, red");
     sceneObject->setForm(new Box());
     sceneObject->scale(Float3(0.001f, 1.0f, 1.0f));
     sceneObject->translate(Float3(-1.0f, 0.0f, 0.0f));
@@ -91,7 +91,7 @@ namespace raytracerui {
   }
 
   auto smallSphere() {
-    auto sceneObject = new SceneObject("small sphere");
+    const auto sceneObject = new SceneObject("small sphere");
     sceneObject->setForm(new Sphere());
     sceneObject->scale(Float3(0.35f, 0.35f, 0.35f));
     sceneObject->translate(Float3(0.35f, -0.64f, 0.35f));
@@ -108,7 +108,7 @@ namespace raytracerui {
   }
 
   auto largeBox() {
-    auto sceneObject = new SceneObject("large box");
+    const auto sceneObject = new SceneObject("large box");
     sceneObject->setForm(new Box());
     sceneObject->scale(Float3(0.35f, 0.60f, 0.35f));
     sceneObject->rotate(Float3(0.0f, 20.0f, 0.0f));
@@ -126,7 +126,7 @@ namespace raytracerui {
   }
 
   auto meshAboveLargeBox(Resources &resources) {
-    auto sceneObject = new SceneObject("mesh object");
+    const auto sceneObject = new SceneObject("mesh object");
     sceneObject->setForm(resources.getMesh("teapot"));
     sceneObject->scale(Float3(0.3f, 0.3f, 0.3f));
     sceneObject->rotate(Float3(0.0f, 0.0f, 0.0f));
@@ -149,7 +149,7 @@ namespace raytracerui {
     scene.setBackgroundShader(new ConstShader<SceneShader, Float4, Float4>(Float4(1.0f, 1.0f, 1.0f, 0.0f)));
     scene.setAmbientLight(Float4(0.0f, 0.0f, 0.0f, 0.0f));
 
-    auto light = new LightInfo();
+    const auto light = new LightInfo();
     light->position = Float4(0.0f, 0.98f, 0.0f, 1.0f);
     light->emittance = Float4(1.0f, 0.9f, 0.8f, 1.0f);
     light->glare = Float4(4.0f, 4.0f, 4.0f, 1.0f);

@@ -3,7 +3,7 @@
 
 namespace raytracer {
   Size2 calculateSuperSamplingLengths(const Size2::ValueType superSamplingFactor) {
-    auto superSamplingLength = superSamplingFactor + One<Size2::ValueType>();
+    const auto superSamplingLength = superSamplingFactor + One<Size2::ValueType>();
     return Size2(superSamplingLength, superSamplingLength * superSamplingLength);
   }
 
@@ -12,13 +12,13 @@ namespace raytracer {
   }
 
   Size2 calculatePacketCounts(const Size2 &resolution, const Size2 &packetLength) {
-    auto packetCountXY = (resolution - One<Size2>()) / packetLength + One<Size2>();
+    const auto packetCountXY = (resolution - One<Size2>()) / packetLength + One<Size2>();
     // overwrite vertical packet count with the total packet count
     return replaceY(packetCountXY, x(packetCountXY) * y(packetCountXY));
   }
 
   RaytracerPackets::RaytracerPackets(const RaytraceConfiguration &configuration) {
-    auto inverseResolution = reciprocal(convert<Float4>(configuration.resolution));
+    const auto inverseResolution = reciprocal(convert<Float4>(configuration.resolution));
 
     // x-increments
     nearRightDir = configuration.camera->getVFNearRightDirection() * xxxx(inverseResolution);
@@ -31,7 +31,7 @@ namespace raytracer {
     // Super-sampling anti-aliasing parameters
     ssLength = calculateSuperSamplingLengths(configuration.superSamplingFactor);
 
-    auto ssInverseFactor = Float4(reciprocal(static_cast<Float>(x(ssLength))));
+    const auto ssInverseFactor = Float4(reciprocal(static_cast<Float>(x(ssLength))));
     ssAvg = ssInverseFactor * ssInverseFactor;
     ssNearRightDir = nearRightDir * ssInverseFactor;
     ssFarRightDir = farRightDir * ssInverseFactor;
@@ -56,13 +56,13 @@ namespace raytracer {
   }
 
   Size2 RaytracerPackets::packetStartOf(const Size2::ValueType packet) const {
-    auto count = x(packetCount);
+    const auto count = x(packetCount);
     return Size2((packet % count) * x(packetLength), (packet / count) * y(packetLength));
   }
 
   Size2 RaytracerPackets::clampPacketLength(const Size2 &resolution, const Size2 &packetXYStart) const {
     // clamp packet length
-    auto minPacketLength = min(packetLength, resolution - packetXYStart);
+    const auto minPacketLength = min(packetLength, resolution - packetXYStart);
     // overwrite vertical packet length with the total packet length
     return replaceY(minPacketLength, x(minPacketLength) * y(minPacketLength));
   }
@@ -82,9 +82,9 @@ namespace raytracer {
   Ray RaytracerPackets::setupRayOfSampleInPixel(
       const Size2::ValueType sample, const Float4 &pixelNearTopLeft, const Float4 &pixelFarTopLeft
   ) const {
-    auto xSSLength = x(ssLength);
-    auto sampleCoords = convert<Float4>(Size2(sample % xSSLength, sample / xSSLength));
-    auto origin = pixelNearTopLeft + ssNearRightDir * xxxx(sampleCoords) + ssNearBottomDir * yyyy(sampleCoords);
+    const auto xSSLength = x(ssLength);
+    const auto sampleCoords = convert<Float4>(Size2(sample % xSSLength, sample / xSSLength));
+    const auto origin = pixelNearTopLeft + ssNearRightDir * xxxx(sampleCoords) + ssNearBottomDir * yyyy(sampleCoords);
     return Ray(
         origin,
         normalize(pixelFarTopLeft - origin + ssFarRightDir * xxxx(sampleCoords) + ssFarBottomDir * yyyy(sampleCoords))
@@ -106,7 +106,7 @@ namespace raytracer {
   Size2 RaytracerPackets::coordsOfPixel(
       const Size2::ValueType pixelInPacket, const Size2 &packetStart, const Size2 &minPacketLength
   ) {
-    auto xMinPacketLength = x(minPacketLength);
+    const auto xMinPacketLength = x(minPacketLength);
     return packetStart + Size2(pixelInPacket % xMinPacketLength, pixelInPacket / xMinPacketLength);
   }
 

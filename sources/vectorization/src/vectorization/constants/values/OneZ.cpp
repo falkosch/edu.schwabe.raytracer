@@ -7,7 +7,7 @@
 
 namespace vectorization {
   template <>
-  const PackedFloat4_128 OneZ<PackedFloat4_128>() noexcept {
+  PackedFloat4_128 OneZ<PackedFloat4_128>() noexcept {
     return _mm_castsi128_ps(_mm_srli_si128(
         _mm_slli_si128(_mm_castps_si128(One<PackedFloat4_128>()), VectorSizes::Z * sizeof(Float_32)),
         VectorSizes::X * sizeof(Float_32)
@@ -15,12 +15,12 @@ namespace vectorization {
   }
 
   template <>
-  const PackedFloat4_256 OneZ<PackedFloat4_256>() noexcept {
+  PackedFloat4_256 OneZ<PackedFloat4_256>() noexcept {
     return blend<false, false, true, false>(Zero<PackedFloat4_256>(), One<PackedFloat4_256>());
   }
 
   template <>
-  const PackedFloat8_256 OneZ<PackedFloat8_256>() noexcept {
+  PackedFloat8_256 OneZ<PackedFloat8_256>() noexcept {
     return blend<false, false, true, false>(Zero<PackedFloat8_256>(), One<PackedFloat8_256>());
   }
 }

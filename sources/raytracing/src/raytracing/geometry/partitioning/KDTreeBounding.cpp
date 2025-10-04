@@ -12,11 +12,11 @@ namespace raytracer {
 
   const AxisAlignedBoundingBox KDTreeBounding::findMinimumBoundingOfGeometry(const PGeometryNodeList &geometry) {
     const int geometrySize = static_cast<int>(geometry.size());
-    AxisAlignedBoundingBox bounding = AxisAlignedBoundingBox();
+    auto bounding = AxisAlignedBoundingBox();
 
 #pragma omp parallel if (geometrySize >= 64)
     {
-      AxisAlignedBoundingBox t = AxisAlignedBoundingBox();
+      auto t = AxisAlignedBoundingBox();
 
 #pragma omp for nowait
       for (int i = Zero<int>(); i < geometrySize; ++i) {

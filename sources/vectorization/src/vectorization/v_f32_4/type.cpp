@@ -7,48 +7,46 @@
 #include <cstring>
 
 namespace vectorization {
-  v_f32_4::v_f32_4() noexcept : components(Zero<v_f32_4::PackedType>()) {
+  v_f32_4::v_f32_4() noexcept : components(Zero<PackedType>()) {
   }
 
-  v_f32_4::v_f32_4(const v_f32_4::PackedType &v) noexcept : components(v) {
+  v_f32_4::v_f32_4(const PackedType &v) noexcept : components(v) {
   }
 
-  v_f32_4::v_f32_4(const v_f32_4::ValueType v) noexcept : components(_mm_set_ps1(v)) {
+  v_f32_4::v_f32_4(const ValueType v) noexcept : components(_mm_set_ps1(v)) {
   }
 
-  v_f32_4::v_f32_4(const v_f32_4::ValueType x, const v_f32_4::ValueType y) noexcept
-      : components(_mm_set_ps(Zero<v_f32_4::ValueType>(), Zero<v_f32_4::ValueType>(), y, x)) {
+  v_f32_4::v_f32_4(const ValueType x, const ValueType y) noexcept
+      : components(_mm_set_ps(Zero<ValueType>(), Zero<ValueType>(), y, x)) {
   }
 
-  v_f32_4::v_f32_4(const v_f32_4::ValueType x, const v_f32_4::ValueType y, const v_f32_4::ValueType z) noexcept
-      : components(_mm_set_ps(Zero<v_f32_4::ValueType>(), z, y, x)) {
+  v_f32_4::v_f32_4(const ValueType x, const ValueType y, const ValueType z) noexcept
+      : components(_mm_set_ps(Zero<ValueType>(), z, y, x)) {
   }
 
-  v_f32_4::v_f32_4(
-      const v_f32_4::ValueType x, const v_f32_4::ValueType y, const v_f32_4::ValueType z, const v_f32_4::ValueType w
-  ) noexcept
+  v_f32_4::v_f32_4(const ValueType x, const ValueType y, const ValueType z, const ValueType w) noexcept
       : components(_mm_set_ps(w, z, y, x)) {
   }
 
-  v_f32_4::v_f32_4(const v_f32_4::PackedType *const v) noexcept : components() {
-    std::memcpy(&(this->components), v, sizeof(v_f32_4::PackedType));
+  v_f32_4::v_f32_4(const PackedType *const v) noexcept : components() {
+    std::memcpy(&(this->components), v, sizeof(PackedType));
   }
 
-  v_f32_4::v_f32_4(const v_f32_4::VectorType *const v) noexcept : components() {
-    std::memcpy(&(this->components), &(v->components), sizeof(v_f32_4::PackedType));
+  v_f32_4::v_f32_4(const VectorType *const v) noexcept : components() {
+    std::memcpy(&(this->components), &(v->components), sizeof(PackedType));
   }
 
-  v_f32_4::v_f32_4(const v_f32_4::ValueType *const v) noexcept : components(_mm_load_ps(v)) {
+  v_f32_4::v_f32_4(const ValueType *const v) noexcept : components(_mm_load_ps(v)) {
   }
 
-  v_f32_4 &v_f32_4::operator=(const v_f32_4::PackedType &v) noexcept {
+  v_f32_4 &v_f32_4::operator=(const PackedType &v) noexcept {
     components = v;
     return *this;
   }
 
   const v_f32_4::ValueType &v_f32_4::operator[](const ASizeT index) const noexcept {
     assert(index < SIZE);
-    return reinterpret_cast<const v_f32_4::ValueType *const>(&(this->components))[index];
+    return reinterpret_cast<const ValueType *const>(&(this->components))[index];
   }
 
   void store(const v_f32_4 &src, v_f32_4 *const dst) noexcept {

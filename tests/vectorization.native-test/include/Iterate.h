@@ -12,8 +12,8 @@ namespace vectorization::test {
   struct Iterate {
     template <ASizeT exclusiveEnd>
     static void toExclusiveEnd(
-        std::function<void(const ASizeT index, std::wstring)> test,
-        std::function<std::ostream &(std::ostream &)> writeMessage
+        const std::function<void(ASizeT index, std::wstring)> &test,
+        const std::function<std::ostream &(std::ostream &)> &writeMessage
     ) {
       staticFor<VectorIndices::X, exclusiveEnd>([&](auto i) {
         test(i, MessageFormat::forIndex(i, writeMessage));
@@ -21,14 +21,14 @@ namespace vectorization::test {
     }
 
     template <ASizeT exclusiveEnd>
-    static void toExclusiveEnd(std::function<void(const ASizeT index, std::wstring)> test) {
+    static void toExclusiveEnd(const std::function<void(ASizeT index, std::wstring)> &test) {
       Iterate::toExclusiveEnd<exclusiveEnd>(test, [&](auto &stream) -> auto & {
         return stream;
       });
     }
 
     template <ASizeT exclusiveEnd>
-    static void toExclusiveEnd(std::function<void(const ASizeT index, std::wstring)> test, std::string message) {
+    static void toExclusiveEnd(const std::function<void(ASizeT index, std::wstring)> &test, std::string message) {
       Iterate::toExclusiveEnd<exclusiveEnd>(test, [&](auto &stream) -> auto & {
         return stream << " --- " << message;
       });

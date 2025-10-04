@@ -4,7 +4,7 @@ namespace vectorization::test {
   TEST_CLASS(v_f32_4_FunctionsTrigonometryTest) {
   public:
     TEST_METHOD(computesLog) {
-      auto test = StandardSample::importantFloatConstants<v_f32_4::ValueType>();
+      const auto test = StandardSample::importantFloatConstants<v_f32_4::ValueType>();
 
       auto matchers = {Compare::equalsOrdered<v_f32_4>, // Zero
                        Compare::equalsOrdered<v_f32_4>,      Compare::nearEqualsRelative<v_f32_4>,
@@ -42,7 +42,7 @@ namespace vectorization::test {
 
       auto matcher = matchers.begin();
       for (auto i = Zero<ASizeT>(); i < test.size(); ++i, ++matcher) {
-        auto testValue = test.at(i);
+        const auto testValue = test.at(i);
         auto testVector = v_f32_4(testValue);
         auto actual = vectorization::log(testVector);
         auto expected = v_f32_4(std::log(testValue));
@@ -54,7 +54,7 @@ namespace vectorization::test {
     }
 
     TEST_METHOD(computesExp) {
-      auto test = StandardSample::importantFloatConstants<v_f32_4::ValueType>();
+      const auto test = StandardSample::importantFloatConstants<v_f32_4::ValueType>();
 
       auto matchers = {Compare::nearEqualsRelative<v_f32_4>, // Zero
                        Compare::nearEqualsRelative<v_f32_4>, Compare::nearEqualsRelative<v_f32_4>,
@@ -92,7 +92,7 @@ namespace vectorization::test {
 
       auto matcher = matchers.begin();
       for (auto i = Zero<ASizeT>(); i < test.size(); ++i, ++matcher) {
-        auto testValue = test.at(i);
+        const auto testValue = test.at(i);
         auto actual = vectorization::exp(v_f32_4(testValue));
         auto expected = v_f32_4(std::exp(testValue));
         auto match = (*matcher)(actual, expected);

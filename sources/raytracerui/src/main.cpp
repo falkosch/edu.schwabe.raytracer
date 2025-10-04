@@ -19,35 +19,35 @@
 // MAX_TRACE_DEPTH >= 969 causes stack overflows
 // MAX_TRACE_DEPTH > 31 for most scenes has no significant visual change anymore
 #ifdef NDEBUG
-const ASizeT FAST_PREVIEW_SIZE = 512;
-const ASizeT MAX_TRACE_DEPTH = 31;
+constexpr ASizeT FAST_PREVIEW_SIZE = 512;
+constexpr ASizeT MAX_TRACE_DEPTH = 31;
 #else
 const ASizeT FAST_PREVIEW_SIZE = 64;
 const ASizeT MAX_TRACE_DEPTH = 0;
 #endif
 
-const Float PERSPECTIVE_FOV = 45.f;
+constexpr Float PERSPECTIVE_FOV = 45.f;
 
-const Float2 PERSPECTIVE_Z_PLANES = Float2(0.01f, 2.0f);
+const auto PERSPECTIVE_Z_PLANES = Float2(0.01f, 2.0f);
 
-const Float2 PERSPECTIVE_Z_PLANE_EXTENDS = Float2(2.0f);
+const auto PERSPECTIVE_Z_PLANE_EXTENDS = Float2(2.0f);
 
-const Float3 CAMERA_INIT_TRANSLATION = Float3(0.0f, 0.0f, -3.2f);
+const auto CAMERA_INIT_TRANSLATION = Float3(0.0f, 0.0f, -3.2f);
 
 // x => x * x * screen-pixels == image-pixels
-const Float SAMPLING_FACTOR = 1.0f;
+constexpr Float SAMPLING_FACTOR = 1.0f;
 
 // n => (n+1)x(n+1) samples/image-pixel
-const ASizeT SUPER_SAMPLING_FACTOR = 0;
+constexpr ASizeT SUPER_SAMPLING_FACTOR = 0;
 
-const Float MAX_DISTANCE = std::numeric_limits<Float>::max();
+constexpr Float MAX_DISTANCE = std::numeric_limits<Float>::max();
 
-const Int CULLING_ORIENTATION = -1;
+constexpr Int CULLING_ORIENTATION = -1;
 
 const Float VISIBILITY_CUTOFF = reciprocal(512.0f);
 
 // n => (n+1)x(n+1) image-pixels/packet
-const ASizeT RAY_PACKET_SIZE = 15;
+constexpr ASizeT RAY_PACKET_SIZE = 15;
 
 namespace raytracerui {
   LRESULT runRaytracerUI() {

@@ -30,13 +30,13 @@ namespace raytracer {
 
 #pragma omp parallel for
     for (int yi = Zero<int>(); yi < heighti; ++yi) {
-      const ASizeT y = static_cast<ASizeT>(yi);
+      const auto y = static_cast<ASizeT>(yi);
       const ASizeT scanlineIn = y * stride;
       const ASizeT scanlineOut = y * width;
 
       for (ASizeT x = Zero<ASizeT>(); x < width; ++x) {
         const ASizeT indexIn = scanlineIn + x * Bitmap::VectorType::SIZE;
-        const Int4 texel =
+        const auto texel =
             Int4(bitmap[indexIn + Zero<ASizeT>()], bitmap[indexIn + One<ASizeT>()], bitmap[indexIn + Two<ASizeT>()]);
         data[scanlineOut + x] = (replaceW(convert<Float4>(texel), W) + OFFSET) * RSCALE;
       }
@@ -70,9 +70,8 @@ namespace raytracer {
     return resolution;
   }
 
-  const void HDRImage::minMax(
-      VectorType &min, VectorType &max, HDRImage::SelectorFunction minSelector, HDRImage::SelectorFunction maxSelector
-  ) const {
+  const void
+  HDRImage::minMax(VectorType &min, VectorType &max, SelectorFunction minSelector, SelectorFunction maxSelector) const {
     const int count = static_cast<int>(x(resolution) * y(resolution));
 
 #pragma omp parallel
@@ -103,8 +102,8 @@ namespace raytracer {
       }
     };
 
-    VectorType Imin = VectorType(std::numeric_limits<VectorType::ValueType>::max());
-    VectorType Imax = VectorType(); // zero
+    auto Imin = VectorType(std::numeric_limits<VectorType::ValueType>::max());
+    auto Imax = VectorType(); // zero
     minMax(Imin, Imax, &Selectors::min, &Selectors::max);
 
     // find scaling of the image from range [0, |Imax|] to [0, 1]
@@ -115,7 +114,7 @@ namespace raytracer {
 
     // find base of logarithmic scaling
     const VectorType::ValueType minLength = max(length3(Imin), epsilon);
-    const VectorType base = VectorType(maxLength / minLength);
+    const auto base = VectorType(maxLength / minLength);
 
     // compress the image with a logarithmic model
     const int count = static_cast<int>(x(resolution) * y(resolution));
@@ -137,8 +136,8 @@ namespace raytracer {
       }
     };
 
-    VectorType min = VectorType(std::numeric_limits<VectorType::ValueType>::max());
-    VectorType max = VectorType(std::numeric_limits<VectorType::ValueType>::lowest());
+    auto min = VectorType(std::numeric_limits<VectorType::ValueType>::max());
+    auto max = VectorType(std::numeric_limits<VectorType::ValueType>::lowest());
     const int count = static_cast<int>(x(resolution) * y(resolution));
     minMax(min, max, &Selectors::min, &Selectors::max);
 

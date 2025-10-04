@@ -16,7 +16,7 @@
 
 namespace raytracer {
   Resources::Resources() : meshes(), textures(), revertedNormalsCheckList() {
-    Mesh *basicMesh = new Mesh();
+    auto basicMesh = new Mesh();
     basicMesh->buildTriangleMesh();
     meshes["triangle"] = basicMesh;
 
@@ -74,10 +74,10 @@ namespace raytracer {
         const Bitmap *const loadedBitmap = Bitmap::loadPPM(file);
         assert(loadedBitmap);
 
-        HDRImage *const image = new HDRImage(*loadedBitmap);
+        const auto image = new HDRImage(*loadedBitmap);
         textures[file] = image;
 
-        delete (loadedBitmap);
+        delete loadedBitmap;
         return image;
       }
     }

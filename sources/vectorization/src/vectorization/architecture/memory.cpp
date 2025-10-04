@@ -15,23 +15,23 @@ namespace vectorization {
   }
 
   void *alloc(const std::size_t size) noexcept {
-    return vectorization::alloc(size, Alignments::Best, std::nothrow_t());
+    return alloc(size, Alignments::Best, std::nothrow_t());
   }
 
   void *alloc(const std::size_t size, const std::nothrow_t &nothrow) noexcept {
-    return vectorization::alloc(size, Alignments::Best, nothrow);
+    return alloc(size, Alignments::Best, nothrow);
   }
 
   void *alloc(const std::size_t size, const std::align_val_t alignment) noexcept {
-    return vectorization::alloc(size, static_cast<std::size_t>(alignment), std::nothrow_t());
+    return alloc(size, static_cast<std::size_t>(alignment), std::nothrow_t());
   }
 
   void *alloc(const std::size_t size, const std::align_val_t alignment, const std::nothrow_t &nothrow) noexcept {
-    return vectorization::alloc(size, static_cast<std::size_t>(alignment), nothrow);
+    return alloc(size, static_cast<std::size_t>(alignment), nothrow);
   }
 
   void *alloc(const std::size_t size, const std::size_t alignment) noexcept {
-    return vectorization::alloc(size, alignment, std::nothrow_t());
+    return alloc(size, alignment, std::nothrow_t());
   }
 
   void *alloc(const std::size_t size, const std::size_t alignment, const std::nothrow_t & /* nothrow */) noexcept {

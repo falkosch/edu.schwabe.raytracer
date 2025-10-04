@@ -20,7 +20,7 @@ namespace raytracer {
           return accSum + SamplingKDTreeBalancer::geometryNodeMaximumPredicate(*geometryNode)[maxAxis];
         });
 
-    return SamplingKDTreeBalancer::sampleSplittingPlane(
+    return sampleSplittingPlane(
         maxAxis, bounding.minimum, boundingExtents, Float4(sum / static_cast<Float>(geometry.size()))
     );
   }

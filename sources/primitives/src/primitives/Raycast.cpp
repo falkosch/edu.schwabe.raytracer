@@ -9,7 +9,7 @@ namespace primitives {
   }
 
   RayCast::RayCast(
-      const Ray &rayIn, const Float4::VectorBoolType &cullingMaskIn, const Size2 &originIdsIn, Float maxDistanceIn
+      const Ray &rayIn, const Float4::VectorBoolType &cullingMaskIn, const Size2 &originIdsIn, const Float maxDistanceIn
   ) noexcept
       : ray(rayIn), cullingMask(cullingMaskIn), originIds(originIdsIn), maxDistance(maxDistanceIn) {
   }
@@ -56,30 +56,30 @@ namespace primitives {
     return backfaceCulled(r) ? NegativeOne<Int>() : One<Int>();
   }
 
-  Float4::VectorBoolType cullingOrientationToMask(Int cullingOrientation) noexcept {
+  Float4::VectorBoolType cullingOrientationToMask(const Int cullingOrientation) noexcept {
     return convert<Float4::VectorBoolType>(
         cullingOrientation<Zero<Float4::BoolType>(), cullingOrientation> Zero<Float4::BoolType>()
     );
   }
 
-  bool selfOcclusion(const RayCast &r, Size2::ValueType toCheckId) noexcept {
+  bool selfOcclusion(const RayCast &r, const Size2::ValueType toCheckId) noexcept {
     return y(r.originIds) == toCheckId;
   }
 
-  bool selfOcclusion(const RayCast &r, Size2::ValueType toCheckId, Float t, Float epsilon) noexcept {
+  bool selfOcclusion(const RayCast &r, const Size2::ValueType toCheckId, const Float t, const Float epsilon) noexcept {
     return selfOcclusion(r, toCheckId) & (t <= epsilon);
   }
 
-  bool selfOcclusion(const RayCast &r, Size2::ValueType toCheckId, Float t) noexcept {
+  bool selfOcclusion(const RayCast &r, const Size2::ValueType toCheckId, const Float t) noexcept {
     return selfOcclusion(r, toCheckId, t, Epsilon<Float>());
   }
 
-  bool outOfReach(const RayCast &r, Float t) noexcept {
+  bool outOfReach(const RayCast &r, const Float t) noexcept {
     return anyTrue(outOfReach(r, Float4(t)));
   }
 
   Float4::VectorBoolType outOfReach(const RayCast &r, const Float4 &t) noexcept {
-    auto rMaxDistanceV = Float4(r.maxDistance);
+    const auto rMaxDistanceV = Float4(r.maxDistance);
     // t == NaN or (r.maxDistance != NaN and t >= r.maxDistance)
     return isNaN(t) | andnot(isNaN(rMaxDistanceV), t >= rMaxDistanceV);
   }

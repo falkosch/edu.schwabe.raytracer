@@ -8,7 +8,7 @@ namespace raytracerui {
   // Ray-AxisAlignedBoundingBox overlaps test
   ARCH_NOINLINE bool benchmarkAABBOverlaps(const std::array<RayCast, 4> &rayCasts, const ASizeT iterations) {
     auto boundingBox1 = AxisAlignedBoundingBox(Float4(-1.f, -1.f, -1.f, 1.f), Float4(2.f, 1.f, 1.f, 1.f));
-    auto boundingBox2 = AxisAlignedBoundingBox(Float4(-1.f, -1.f, 1.f, 1.f), Float4(1.f, 1.f, 2.f, 1.f));
+    const auto boundingBox2 = AxisAlignedBoundingBox(Float4(-1.f, -1.f, 1.f, 1.f), Float4(1.f, 1.f, 2.f, 1.f));
 
     auto dummy = Float4::VectorBoolType();
     for (auto i{VectorIndices::X}; i < iterations; ++i) {
@@ -90,20 +90,20 @@ namespace raytracerui {
     QueryPerformanceCounter(&startTime);
     stopTime.QuadPart = startTime.QuadPart + (frequency.QuadPart << 2);
 
-    auto start = __rdtsc();
-    for (; startTime.QuadPart < stopTime.QuadPart;) {
+    const auto start = __rdtsc();
+    while (startTime.QuadPart < stopTime.QuadPart) {
       QueryPerformanceCounter(&startTime);
     }
-    auto stop = __rdtsc();
+    const auto stop = __rdtsc();
 
-    auto cpuClockFrequency = (stop - start) >> 2;
+    const auto cpuClockFrequency = (stop - start) >> 2;
     std::cout << frequency.QuadPart << " " << cpuClockFrequency << std::endl;
     return cpuClockFrequency;
   }
 
   void runBenchmarks() {
     benchmarkCPUClockFrequency();
-    const ASizeT iterations{100000000};
+    constexpr ASizeT iterations{100000000};
     auto timeFactor = reciprocal(Float_64{4 * iterations});
 
     const std::array<RayCast, 4> rayCasts = {
@@ -126,7 +126,7 @@ namespace raytracerui {
     };
 
     auto benchmark = [&rayCasts, &timeFactor](auto benchmarkScope, auto name) {
-      auto start = __rdtsc();
+      const auto start = __rdtsc();
       auto dummy = benchmarkScope(rayCasts, iterations);
       auto cycles = static_cast<Float_64>(__rdtsc() - start) * timeFactor;
       std::cout << name << ": ret=" << dummy << " cycles=" << cycles << std::endl;
@@ -140,7 +140,7 @@ namespace raytracerui {
   }
 
   void Benchmarks::operator()() const {
-    auto thisProcess = GetCurrentProcess();
+    const auto thisProcess = GetCurrentProcess();
     DWORD_PTR originalAffinityMask{}, t{};
     GetProcessAffinityMask(thisProcess, &originalAffinityMask, &t);
     SetProcessAffinityMask(thisProcess, 0);

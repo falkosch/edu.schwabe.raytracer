@@ -4,9 +4,9 @@ namespace vectorization::test {
   TEST_CLASS(ReplaceComponent256dTest) {
   public:
     TEST_METHOD(replacesComponent) {
-      auto expectedReplacement = 5.0;
-      auto given = StandardSample::ofArrayType<Float_64, VectorSizes::W>();
-      auto givenPack = _mm256_load_pd(given.data());
+      constexpr auto expectedReplacement = 5.0;
+      const auto given = StandardSample::ofArrayType<Float_64, VectorSizes::W>();
+      const auto givenPack = _mm256_load_pd(given.data());
       std::array<Float_64, VectorSizes::W> expected{};
       std::array<Float_64, VectorSizes::W> actual{};
 
@@ -40,9 +40,9 @@ namespace vectorization::test {
     }
 
     TEST_METHOD(replacesXYZW) {
-      auto expectedReplacement = 5.0;
-      auto given = StandardSample::ofArrayType<Float_64, VectorSizes::W>();
-      auto givenPack = _mm256_load_pd(given.data());
+      constexpr auto expectedReplacement = 5.0;
+      const auto given = StandardSample::ofArrayType<Float_64, VectorSizes::W>();
+      const auto givenPack = _mm256_load_pd(given.data());
       std::array<Float_64, VectorSizes::W> expected{};
       std::array<Float_64, VectorSizes::W> actual{};
 
@@ -76,9 +76,9 @@ namespace vectorization::test {
     }
 
     TEST_METHOD(replacesXi) {
-      auto expectedReplacement = 5.0;
-      auto given = StandardSample::ofArrayType<Float_64, VectorSizes::X4>();
-      auto givenPack = _mm256_load_pd(given.data());
+      constexpr auto expectedReplacement = 5.0;
+      const auto given = StandardSample::ofArrayType<Float_64, VectorSizes::X4>();
+      const auto givenPack = _mm256_load_pd(given.data());
       std::array<Float_64, VectorSizes::X4> expected{};
       std::array<Float_64, VectorSizes::X4> actual{};
 
@@ -120,10 +120,10 @@ namespace vectorization::test {
     }
 
     TEST_METHOD(replacesComponentPackedFloat4_256AtIndex) {
-      auto givenReplacement = 5.0;
-      auto givenReplacementPack = _mm256_set1_pd(givenReplacement);
-      auto given = StandardSample::ofArrayType<Float_64, VectorSizes::W>();
-      auto givenPack = _mm256_load_pd(given.data());
+      constexpr auto givenReplacement = 5.0;
+      const auto givenReplacementPack = _mm256_set1_pd(givenReplacement);
+      const auto given = StandardSample::ofArrayType<Float_64, VectorSizes::W>();
+      const auto givenPack = _mm256_load_pd(given.data());
       std::array<Float_64, VectorSizes::W> expected{};
       std::array<Float_64, VectorSizes::W> actual{};
 
@@ -162,9 +162,9 @@ namespace vectorization::test {
     }
 
     TEST_METHOD(replacesComponentFloat_64AtIndex) {
-      auto givenReplacement = 5.0;
-      auto given = StandardSample::ofArrayType<Float_64, VectorSizes::W>();
-      auto givenPack = _mm256_load_pd(given.data());
+      constexpr auto givenReplacement = 5.0;
+      const auto given = StandardSample::ofArrayType<Float_64, VectorSizes::W>();
+      const auto givenPack = _mm256_load_pd(given.data());
       std::array<Float_64, VectorSizes::W> expected{};
       std::array<Float_64, VectorSizes::W> actual{};
 

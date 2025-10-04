@@ -4,14 +4,14 @@ namespace vectorization::test {
   TEST_CLASS(SwizzledBlends128sTest) {
   public:
     TEST_METHOD(genericallySwizzleBlendsIdentity) {
-      std::array<Float_32, VectorSizes::W> givenOnBitNotSet{1.0f, 2.0f, 3.0f, 4.0f};
-      auto givenOnBitNotSetPack = _mm_load_ps(givenOnBitNotSet.data());
-      std::array<Float_32, VectorSizes::W> givenOnBitSet{5.0f, 6.0f, 7.0f, 8.0f};
-      auto givenOnBitSetPack = _mm_load_ps(givenOnBitSet.data());
+      constexpr std::array givenOnBitNotSet{1.0f, 2.0f, 3.0f, 4.0f};
+      const auto givenOnBitNotSetPack = _mm_load_ps(givenOnBitNotSet.data());
+      constexpr std::array givenOnBitSet{5.0f, 6.0f, 7.0f, 8.0f};
+      const auto givenOnBitSetPack = _mm_load_ps(givenOnBitSet.data());
       std::array<Float_32, VectorSizes::W> actual{};
 
       {
-        std::array<Float_32, VectorSizes::W> expected{
+        constexpr std::array expected{
             givenOnBitNotSet.at(VectorIndices::X), givenOnBitNotSet.at(VectorIndices::Y),
             givenOnBitNotSet.at(VectorIndices::Z), givenOnBitNotSet.at(VectorIndices::W)
         };
@@ -26,7 +26,7 @@ namespace vectorization::test {
       }
 
       {
-        std::array<Float_32, VectorSizes::W> expected{
+        constexpr std::array expected{
             givenOnBitSet.at(VectorIndices::X), givenOnBitSet.at(VectorIndices::Y), givenOnBitSet.at(VectorIndices::Z),
             givenOnBitSet.at(VectorIndices::W)
         };
@@ -42,14 +42,14 @@ namespace vectorization::test {
     }
 
     TEST_METHOD(genericallySwizzleBlendsBroadcast) {
-      std::array<Float_32, VectorSizes::W> givenOnBitNotSet{1.0f, 2.0f, 3.0f, 4.0f};
-      auto givenOnBitNotSetPack = _mm_load_ps(givenOnBitNotSet.data());
-      std::array<Float_32, VectorSizes::W> givenOnBitSet{5.0f, 6.0f, 7.0f, 8.0f};
-      auto givenOnBitSetPack = _mm_load_ps(givenOnBitSet.data());
+      constexpr std::array givenOnBitNotSet{1.0f, 2.0f, 3.0f, 4.0f};
+      const auto givenOnBitNotSetPack = _mm_load_ps(givenOnBitNotSet.data());
+      constexpr std::array givenOnBitSet{5.0f, 6.0f, 7.0f, 8.0f};
+      const auto givenOnBitSetPack = _mm_load_ps(givenOnBitSet.data());
       std::array<Float_32, VectorSizes::W> actual{};
 
       {
-        std::array<Float_32, VectorSizes::W> expected{
+        constexpr std::array expected{
             givenOnBitNotSet.at(VectorIndices::X), givenOnBitNotSet.at(VectorIndices::X),
             givenOnBitNotSet.at(VectorIndices::X), givenOnBitNotSet.at(VectorIndices::X)
         };
@@ -64,7 +64,7 @@ namespace vectorization::test {
       }
 
       {
-        std::array<Float_32, VectorSizes::W> expected{
+        constexpr std::array expected{
             givenOnBitSet.at(VectorIndices::X), givenOnBitSet.at(VectorIndices::X), givenOnBitSet.at(VectorIndices::X),
             givenOnBitSet.at(VectorIndices::X)
         };
@@ -79,7 +79,7 @@ namespace vectorization::test {
       }
 
       {
-        std::array<Float_32, VectorSizes::W> expected{
+        constexpr std::array expected{
             givenOnBitNotSet.at(VectorIndices::Y), givenOnBitSet.at(VectorIndices::Y),
             givenOnBitNotSet.at(VectorIndices::Y), givenOnBitSet.at(VectorIndices::Y)
         };
@@ -94,7 +94,7 @@ namespace vectorization::test {
       }
 
       {
-        std::array<Float_32, VectorSizes::W> expected{
+        constexpr std::array expected{
             givenOnBitSet.at(VectorIndices::Y), givenOnBitNotSet.at(VectorIndices::Y),
             givenOnBitSet.at(VectorIndices::Y), givenOnBitNotSet.at(VectorIndices::Y)
         };
@@ -110,14 +110,14 @@ namespace vectorization::test {
     }
 
     TEST_METHOD(genericallySwizzleBlendsAny) {
-      std::array<Float_32, VectorSizes::W> givenOnBitNotSet{1.0f, 2.0f, 3.0f, 4.0f};
-      auto givenOnBitNotSetPack = _mm_load_ps(givenOnBitNotSet.data());
-      std::array<Float_32, VectorSizes::W> givenOnBitSet{5.0f, 6.0f, 7.0f, 8.0f};
-      auto givenOnBitSetPack = _mm_load_ps(givenOnBitSet.data());
+      constexpr std::array givenOnBitNotSet{1.0f, 2.0f, 3.0f, 4.0f};
+      const auto givenOnBitNotSetPack = _mm_load_ps(givenOnBitNotSet.data());
+      constexpr std::array givenOnBitSet{5.0f, 6.0f, 7.0f, 8.0f};
+      const auto givenOnBitSetPack = _mm_load_ps(givenOnBitSet.data());
       std::array<Float_32, VectorSizes::W> actual{};
 
       {
-        std::array<Float_32, VectorSizes::W> expected{
+        constexpr std::array expected{
             givenOnBitNotSet.at(VectorIndices::X), givenOnBitSet.at(VectorIndices::W),
             givenOnBitSet.at(VectorIndices::Z), givenOnBitNotSet.at(VectorIndices::Y)
         };
@@ -132,7 +132,7 @@ namespace vectorization::test {
       }
 
       {
-        std::array<Float_32, VectorSizes::W> expected{
+        constexpr std::array expected{
             givenOnBitSet.at(VectorIndices::Y), givenOnBitSet.at(VectorIndices::X), givenOnBitSet.at(VectorIndices::W),
             givenOnBitNotSet.at(VectorIndices::Z)
         };

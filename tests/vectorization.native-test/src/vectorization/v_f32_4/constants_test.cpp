@@ -12,7 +12,7 @@ namespace vectorization::test {
     }
 
     TEST_METHOD(hasMaskX) {
-      auto actual = MaskX<v_f32_4>().components;
+      const auto actual = MaskX<v_f32_4>().components;
       Assert::AreEqual(
           ASizeT{128},
           bitCount(swizzle<VectorIndices::X, VectorIndices::X, VectorIndices::X, VectorIndices::X>(actual)),
@@ -25,7 +25,7 @@ namespace vectorization::test {
     }
 
     TEST_METHOD(hasMaskXY) {
-      auto actual = MaskXY<v_f32_4>().components;
+      const auto actual = MaskXY<v_f32_4>().components;
       Assert::AreEqual(
           ASizeT{128},
           bitCount(swizzle<VectorIndices::X, VectorIndices::Y, VectorIndices::X, VectorIndices::Y>(actual)),
@@ -38,7 +38,7 @@ namespace vectorization::test {
     }
 
     TEST_METHOD(hasMaskXYZ) {
-      auto actual = MaskXYZ<v_f32_4>().components;
+      const auto actual = MaskXYZ<v_f32_4>().components;
       Assert::AreEqual(
           ASizeT{128},
           bitCount(swizzle<VectorIndices::X, VectorIndices::Y, VectorIndices::Z, VectorIndices::Z>(actual)),
@@ -55,7 +55,7 @@ namespace vectorization::test {
     }
 
     TEST_METHOD(hasMaskY) {
-      auto actual = MaskY<v_f32_4>().components;
+      const auto actual = MaskY<v_f32_4>().components;
       Assert::AreEqual(
           ASizeT{128},
           bitCount(swizzle<VectorIndices::Y, VectorIndices::Y, VectorIndices::Y, VectorIndices::Y>(actual)),
@@ -68,7 +68,7 @@ namespace vectorization::test {
     }
 
     TEST_METHOD(hasMaskYZ) {
-      auto actual = MaskYZ<v_f32_4>().components;
+      const auto actual = MaskYZ<v_f32_4>().components;
       Assert::AreEqual(
           ASizeT{128},
           bitCount(swizzle<VectorIndices::Y, VectorIndices::Z, VectorIndices::Y, VectorIndices::Z>(actual)),
@@ -81,7 +81,7 @@ namespace vectorization::test {
     }
 
     TEST_METHOD(hasMaskYZW) {
-      auto actual = MaskYZW<v_f32_4>().components;
+      const auto actual = MaskYZW<v_f32_4>().components;
       Assert::AreEqual(
           ASizeT{128},
           bitCount(swizzle<VectorIndices::Y, VectorIndices::Z, VectorIndices::W, VectorIndices::W>(actual)),
@@ -94,7 +94,7 @@ namespace vectorization::test {
     }
 
     TEST_METHOD(hasMaskZ) {
-      auto actual = MaskZ<v_f32_4>().components;
+      const auto actual = MaskZ<v_f32_4>().components;
       Assert::AreEqual(
           ASizeT{128},
           bitCount(swizzle<VectorIndices::Z, VectorIndices::Z, VectorIndices::Z, VectorIndices::Z>(actual)),
@@ -107,7 +107,7 @@ namespace vectorization::test {
     }
 
     TEST_METHOD(hasMaskZW) {
-      auto actual = MaskZW<v_f32_4>().components;
+      const auto actual = MaskZW<v_f32_4>().components;
       Assert::AreEqual(
           ASizeT{128},
           bitCount(swizzle<VectorIndices::Z, VectorIndices::W, VectorIndices::Z, VectorIndices::W>(actual)),
@@ -120,7 +120,7 @@ namespace vectorization::test {
     }
 
     TEST_METHOD(hasMaskW) {
-      auto actual = MaskW<v_f32_4>().components;
+      const auto actual = MaskW<v_f32_4>().components;
       Assert::AreEqual(
           ASizeT{128},
           bitCount(swizzle<VectorIndices::W, VectorIndices::W, VectorIndices::W, VectorIndices::W>(actual)),
@@ -183,28 +183,28 @@ namespace vectorization::test {
     }
 
     TEST_METHOD(hasOneX) {
-      v_f32_4 expected{
+      const v_f32_4 expected{
           One<v_f32_4::ValueType>(), Zero<v_f32_4::ValueType>(), Zero<v_f32_4::ValueType>(), Zero<v_f32_4::ValueType>()
       };
       Assert::IsTrue(allTrue(expected == OneX<v_f32_4>()));
     }
 
     TEST_METHOD(hasOneY) {
-      v_f32_4 expected{
+      const v_f32_4 expected{
           Zero<v_f32_4::ValueType>(), One<v_f32_4::ValueType>(), Zero<v_f32_4::ValueType>(), Zero<v_f32_4::ValueType>()
       };
       Assert::IsTrue(allTrue(expected == OneY<v_f32_4>()));
     }
 
     TEST_METHOD(hasOneZ) {
-      v_f32_4 expected{
+      const v_f32_4 expected{
           Zero<v_f32_4::ValueType>(), Zero<v_f32_4::ValueType>(), One<v_f32_4::ValueType>(), Zero<v_f32_4::ValueType>()
       };
       Assert::IsTrue(allTrue(expected == OneZ<v_f32_4>()));
     }
 
     TEST_METHOD(hasOneW) {
-      v_f32_4 expected{
+      const v_f32_4 expected{
           Zero<v_f32_4::ValueType>(), Zero<v_f32_4::ValueType>(), Zero<v_f32_4::ValueType>(), One<v_f32_4::ValueType>()
       };
       Assert::IsTrue(allTrue(expected == OneW<v_f32_4>()));

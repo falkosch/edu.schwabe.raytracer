@@ -4,14 +4,14 @@ namespace vectorization::test {
   TEST_CLASS(SwizzledBlends2x2_256dTest) {
   public:
     TEST_METHOD(genericallySwizzleBlendsIdentityAndItsReverse) {
-      std::array<Float_64, VectorSizes::W> givenOnBitNotSet{1.0, 2.0, 3.0, 4.0};
-      auto givenOnBitNotSetPack = _mm256_load_pd(givenOnBitNotSet.data());
-      std::array<Float_64, VectorSizes::W> givenOnBitSet{5.0, 6.0, 7.0, 8.0};
-      auto givenOnBitSetPack = _mm256_load_pd(givenOnBitSet.data());
+      constexpr std::array givenOnBitNotSet{1.0, 2.0, 3.0, 4.0};
+      const auto givenOnBitNotSetPack = _mm256_load_pd(givenOnBitNotSet.data());
+      constexpr std::array givenOnBitSet{5.0, 6.0, 7.0, 8.0};
+      const auto givenOnBitSetPack = _mm256_load_pd(givenOnBitSet.data());
       std::array<Float_64, VectorSizes::W> actual{};
 
       {
-        std::array<Float_64, VectorSizes::W> expected{
+        constexpr std::array expected{
             givenOnBitNotSet.at(VectorIndices::X), givenOnBitNotSet.at(VectorIndices::Y),
             givenOnBitSet.at(VectorIndices::Z), givenOnBitSet.at(VectorIndices::W)
         };
@@ -24,7 +24,7 @@ namespace vectorization::test {
       }
 
       {
-        std::array<Float_64, VectorSizes::W> expected{
+        constexpr std::array expected{
             givenOnBitNotSet.at(VectorIndices::W), givenOnBitNotSet.at(VectorIndices::Z),
             givenOnBitSet.at(VectorIndices::Y), givenOnBitSet.at(VectorIndices::X)
         };
@@ -38,14 +38,14 @@ namespace vectorization::test {
     }
 
     TEST_METHOD(genericallySwizzleBlendsBroadcast) {
-      std::array<Float_64, VectorSizes::W> givenOnBitNotSet{1.0, 2.0, 3.0, 4.0};
-      auto givenOnBitNotSetPack = _mm256_load_pd(givenOnBitNotSet.data());
-      std::array<Float_64, VectorSizes::W> givenOnBitSet{5.0, 6.0, 7.0, 8.0};
-      auto givenOnBitSetPack = _mm256_load_pd(givenOnBitSet.data());
+      constexpr std::array givenOnBitNotSet{1.0, 2.0, 3.0, 4.0};
+      const auto givenOnBitNotSetPack = _mm256_load_pd(givenOnBitNotSet.data());
+      constexpr std::array givenOnBitSet{5.0, 6.0, 7.0, 8.0};
+      const auto givenOnBitSetPack = _mm256_load_pd(givenOnBitSet.data());
       std::array<Float_64, VectorSizes::W> actual{};
 
       {
-        std::array<Float_64, VectorSizes::W> expected{
+        constexpr std::array expected{
             givenOnBitNotSet.at(VectorIndices::X), givenOnBitNotSet.at(VectorIndices::X),
             givenOnBitSet.at(VectorIndices::X), givenOnBitSet.at(VectorIndices::X)
         };
@@ -58,7 +58,7 @@ namespace vectorization::test {
       }
 
       {
-        std::array<Float_64, VectorSizes::W> expected{
+        constexpr std::array expected{
             givenOnBitNotSet.at(VectorIndices::Y), givenOnBitNotSet.at(VectorIndices::Y),
             givenOnBitSet.at(VectorIndices::Y), givenOnBitSet.at(VectorIndices::Y)
         };
@@ -71,7 +71,7 @@ namespace vectorization::test {
       }
 
       {
-        std::array<Float_64, VectorSizes::W> expected{
+        constexpr std::array expected{
             givenOnBitNotSet.at(VectorIndices::Z), givenOnBitNotSet.at(VectorIndices::Z),
             givenOnBitSet.at(VectorIndices::Z), givenOnBitSet.at(VectorIndices::Z)
         };
@@ -84,7 +84,7 @@ namespace vectorization::test {
       }
 
       {
-        std::array<Float_64, VectorSizes::W> expected{
+        constexpr std::array expected{
             givenOnBitNotSet.at(VectorIndices::W), givenOnBitNotSet.at(VectorIndices::W),
             givenOnBitSet.at(VectorIndices::W), givenOnBitSet.at(VectorIndices::W)
         };
@@ -98,14 +98,14 @@ namespace vectorization::test {
     }
 
     TEST_METHOD(hasShortFormsForSwizzleBlends) {
-      std::array<Float_64, VectorSizes::W> givenOnBitNotSet{1.0, 2.0, 3.0, 4.0};
-      auto givenOnBitNotSetPack = _mm256_load_pd(givenOnBitNotSet.data());
-      std::array<Float_64, VectorSizes::W> givenOnBitSet{5.0, 6.0, 7.0, 8.0};
-      auto givenOnBitSetPack = _mm256_load_pd(givenOnBitSet.data());
+      constexpr std::array givenOnBitNotSet{1.0, 2.0, 3.0, 4.0};
+      const auto givenOnBitNotSetPack = _mm256_load_pd(givenOnBitNotSet.data());
+      constexpr std::array givenOnBitSet{5.0, 6.0, 7.0, 8.0};
+      const auto givenOnBitSetPack = _mm256_load_pd(givenOnBitSet.data());
       std::array<Float_64, VectorSizes::W> actual{};
 
       {
-        std::array<Float_64, VectorSizes::W> expected{
+        constexpr std::array expected{
             givenOnBitNotSet.at(VectorIndices::X), givenOnBitNotSet.at(VectorIndices::X),
             givenOnBitSet.at(VectorIndices::X), givenOnBitSet.at(VectorIndices::X)
         };
@@ -114,7 +114,7 @@ namespace vectorization::test {
       }
 
       {
-        std::array<Float_64, VectorSizes::W> expected{
+        constexpr std::array expected{
             givenOnBitNotSet.at(VectorIndices::X), givenOnBitNotSet.at(VectorIndices::X),
             givenOnBitSet.at(VectorIndices::Y), givenOnBitSet.at(VectorIndices::Y)
         };
@@ -123,7 +123,7 @@ namespace vectorization::test {
       }
 
       {
-        std::array<Float_64, VectorSizes::W> expected{
+        constexpr std::array expected{
             givenOnBitNotSet.at(VectorIndices::X), givenOnBitNotSet.at(VectorIndices::Y),
             givenOnBitSet.at(VectorIndices::X), givenOnBitSet.at(VectorIndices::Y)
         };
@@ -132,7 +132,7 @@ namespace vectorization::test {
       }
 
       {
-        std::array<Float_64, VectorSizes::W> expected{
+        constexpr std::array expected{
             givenOnBitNotSet.at(VectorIndices::X), givenOnBitNotSet.at(VectorIndices::Y),
             givenOnBitSet.at(VectorIndices::Z), givenOnBitSet.at(VectorIndices::W)
         };
@@ -141,7 +141,7 @@ namespace vectorization::test {
       }
 
       {
-        std::array<Float_64, VectorSizes::W> expected{
+        constexpr std::array expected{
             givenOnBitNotSet.at(VectorIndices::X), givenOnBitNotSet.at(VectorIndices::Z),
             givenOnBitSet.at(VectorIndices::X), givenOnBitSet.at(VectorIndices::Z)
         };
@@ -150,7 +150,7 @@ namespace vectorization::test {
       }
 
       {
-        std::array<Float_64, VectorSizes::W> expected{
+        constexpr std::array expected{
             givenOnBitNotSet.at(VectorIndices::Y), givenOnBitNotSet.at(VectorIndices::X),
             givenOnBitSet.at(VectorIndices::X), givenOnBitSet.at(VectorIndices::Y)
         };
@@ -159,7 +159,7 @@ namespace vectorization::test {
       }
 
       {
-        std::array<Float_64, VectorSizes::W> expected{
+        constexpr std::array expected{
             givenOnBitNotSet.at(VectorIndices::Y), givenOnBitNotSet.at(VectorIndices::Y),
             givenOnBitSet.at(VectorIndices::Y), givenOnBitSet.at(VectorIndices::Y)
         };
@@ -168,7 +168,7 @@ namespace vectorization::test {
       }
 
       {
-        std::array<Float_64, VectorSizes::W> expected{
+        constexpr std::array expected{
             givenOnBitNotSet.at(VectorIndices::Y), givenOnBitNotSet.at(VectorIndices::W),
             givenOnBitSet.at(VectorIndices::Y), givenOnBitSet.at(VectorIndices::W)
         };
@@ -177,7 +177,7 @@ namespace vectorization::test {
       }
 
       {
-        std::array<Float_64, VectorSizes::W> expected{
+        constexpr std::array expected{
             givenOnBitNotSet.at(VectorIndices::Z), givenOnBitNotSet.at(VectorIndices::Z),
             givenOnBitSet.at(VectorIndices::Y), givenOnBitSet.at(VectorIndices::Y)
         };
@@ -186,7 +186,7 @@ namespace vectorization::test {
       }
 
       {
-        std::array<Float_64, VectorSizes::W> expected{
+        constexpr std::array expected{
             givenOnBitNotSet.at(VectorIndices::Z), givenOnBitNotSet.at(VectorIndices::Z),
             givenOnBitSet.at(VectorIndices::Z), givenOnBitSet.at(VectorIndices::Z)
         };
@@ -195,7 +195,7 @@ namespace vectorization::test {
       }
 
       {
-        std::array<Float_64, VectorSizes::W> expected{
+        constexpr std::array expected{
             givenOnBitNotSet.at(VectorIndices::Z), givenOnBitNotSet.at(VectorIndices::W),
             givenOnBitSet.at(VectorIndices::Z), givenOnBitSet.at(VectorIndices::W)
         };
@@ -204,7 +204,7 @@ namespace vectorization::test {
       }
 
       {
-        std::array<Float_64, VectorSizes::W> expected{
+        constexpr std::array expected{
             givenOnBitNotSet.at(VectorIndices::W), givenOnBitNotSet.at(VectorIndices::W),
             givenOnBitSet.at(VectorIndices::W), givenOnBitSet.at(VectorIndices::W)
         };

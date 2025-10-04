@@ -24,7 +24,7 @@ namespace raytracer {
     // remember the best split and its associated costs
     // initialize it with the mid-point and assume worst costs for it
     Float bestCost = std::numeric_limits<Float>::max();
-    KDTreePlane bestPlane = KDTreePlane(Half<Float>(), maxAxis);
+    auto bestPlane = KDTreePlane(Half<Float>(), maxAxis);
 
     // approximate a good splitting plane by searching through fixed iterations,
     // but if geometry-list is too small, switch over to a brute-force approach

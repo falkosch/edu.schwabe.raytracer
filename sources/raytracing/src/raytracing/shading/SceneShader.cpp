@@ -61,8 +61,7 @@ namespace raytracer {
     SceneIntersection shadowNearest = intersection;
 
     // Shadow caching: test last known occluding object second
-    const ObjectGeometry *const lastShadowedByObject = shadowCache[lightIndex].lastShadowedByObject;
-    if (lastShadowedByObject) {
+    if (const auto lastShadowedByObject = shadowCache[lightIndex].lastShadowedByObject) {
       statistics.objectShadowRays += One<ASizeT>();
       if (!outOfReach(shadowRay, lastShadowedByObject->findAnyIntersection(shadowRay, &intersection, shadowNearest))) {
         // Update shadow caching info, maybe intersection node changed
@@ -94,14 +93,14 @@ namespace raytracer {
       StatisticsCookie &statistics
   ) const {
 #ifndef DISABLE_SHADOWING
-    RayCast shadowRay = RayCast(
+    auto shadowRay = RayCast(
         Ray(intersection.vertex), incidentRay.rayCast.cullingMask,
         Size2(reinterpret_cast<ASizeT>(intersection.object), reinterpret_cast<ASizeT>(intersection.node)), Zero<Float>()
     );
 #endif
 
-    LightShading lighting = LightShading(ambientLight);
-    for (LightsCollection::const_iterator it = lights.cbegin(); it != lights.cend(); ++it) {
+    auto lighting = LightShading(ambientLight);
+    for (auto it = lights.cbegin(); it != lights.cend(); ++it) {
       // ray with the direction from the facet to the light
       const LightInfo &light = **it;
       const Float4 lightDirection = light.position - intersection.vertex;

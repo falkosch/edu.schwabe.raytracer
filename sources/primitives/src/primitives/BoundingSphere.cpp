@@ -6,29 +6,30 @@ namespace primitives {
   BoundingSphere::BoundingSphere() noexcept : centerRadius(OneW<Float4>()) {
   }
 
-  BoundingSphere::BoundingSphere(const Float4 &center, Float radius) noexcept : centerRadius(replaceW(center, radius)) {
+  BoundingSphere::BoundingSphere(const Float4 &center, const Float radius) noexcept
+      : centerRadius(replaceW(center, radius)) {
   }
 
   AxisAlignedBoundingBox bounding(const BoundingSphere &b) noexcept {
-    auto radius = wwww(b.centerRadius);
+    const auto radius = wwww(b.centerRadius);
     return AxisAlignedBoundingBox(oneW(b.centerRadius - radius), oneW(b.centerRadius + radius));
   }
 
   inline Float4 computeSphereIntersectionCoefficients(const Ray &r, const BoundingSphere &b) noexcept {
     // geometric method from Real-Time Rendering 3: http://books.google.de/books?id=V1k1V9Ra1FoC&pg=PA741
-    auto sqrRadius = wwww(b.centerRadius * b.centerRadius);
-    auto vl = zeroW(b.centerRadius - r.origin);
-    auto s = dotv(vl, r.direction);
-    auto ll = dotv(vl, vl);
-    auto sqrM = ll - s * s;
+    const auto sqrRadius = wwww(b.centerRadius * b.centerRadius);
+    const auto vl = zeroW(b.centerRadius - r.origin);
+    const auto s = dotv(vl, r.direction);
+    const auto ll = dotv(vl, vl);
+    const auto sqrM = ll - s * s;
     if ((isNegative(s) & x(ll > sqrRadius)) | x(sqrM > sqrRadius)) {
       return NegativeInfinity<Float4>();
     }
 
-    auto q = sqrt(sqrRadius - sqrM);
+    const auto q = sqrt(sqrRadius - sqrM);
     // d.x = d.z = s - q;
     // d.y = d.w = s + q;
-    auto d = subadd(s, q);
+    const auto d = subadd(s, q);
     return blend<false, true, false, true>(min(d, yyww(d)), max(xxzz(d), d));
   }
 
@@ -40,16 +41,16 @@ namespace primitives {
     return c < Zero<Float4>();
   }
 
-  bool overlaps(const RayCast &r, const BoundingSphere &b) noexcept {
-    auto coefficients = computeSphereIntersectionCoefficients(r.ray, b);
-    auto check = testSphereIntersectionCoefficients(coefficients);
+  bool overlaps(const RayCast &rayCast, const BoundingSphere &by) noexcept {
+    const auto coefficients = computeSphereIntersectionCoefficients(rayCast.ray, by);
+    const auto check = testSphereIntersectionCoefficients(coefficients);
     // overlaps if coefficients.y >= 0 and (coefficients.x < 0 or ray reaches front of sphere)
-    return !!x(andnot(andnot(check, outOfReach(r, coefficients)), !yyyy(check)));
+    return !!x(andnot(andnot(check, outOfReach(rayCast, coefficients)), !yyyy(check)));
   }
 
-  Float nearestIntersection(const RayCast &rayCast, const BoundingSphere &b, Size2::ValueType originId) noexcept {
-    auto coefficients = computeSphereIntersectionCoefficients(rayCast.ray, b);
-    auto check = testSphereIntersectionCoefficients(coefficients);
+  Float nearestIntersection(const RayCast &rayCast, const BoundingSphere &b, const Size2::ValueType originId) noexcept {
+    const auto coefficients = computeSphereIntersectionCoefficients(rayCast.ray, b);
+    const auto check = testSphereIntersectionCoefficients(coefficients);
 
     // rayCast starts behind sphere
     if (y(check)) {
@@ -57,12 +58,12 @@ namespace primitives {
     }
 
     // reject t.y if backface culled
-    auto ty = yyww(coefficients);
-    auto selfOccludedY = convert<Float4::VectorBoolType>(selfOcclusion(rayCast, originId, x(ty)));
-    auto tt = blendMasked(ty, Float4(rayCast.maxDistance), selfOccludedY | backfaceCulledv(rayCast));
+    const auto ty = yyww(coefficients);
+    const auto selfOccludedY = convert<Float4::VectorBoolType>(selfOcclusion(rayCast, originId, x(ty)));
+    const auto tt = blendMasked(ty, Float4(rayCast.maxDistance), selfOccludedY | backfaceCulledv(rayCast));
 
     // reject t.x if frontfaceCulled or overlaps or selfOccluded
-    auto selfOccludedX = convert<Float4::VectorBoolType>(selfOcclusion(rayCast, originId, x(coefficients)));
+    const auto selfOccludedX = convert<Float4::VectorBoolType>(selfOcclusion(rayCast, originId, x(coefficients)));
     return x(blendMasked(coefficients, tt, selfOccludedX | frontfaceCulledv(rayCast)));
   }
 }

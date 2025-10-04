@@ -9,7 +9,7 @@ namespace raytracerui {
     TestResources::setup(resources);
     TestLightScene::setup(scene, resources);
 
-    auto vacuum2vacuum = RefractionIndices::refractionEta(RefractionIndices::Vacuum, RefractionIndices::Vacuum);
+    const auto vacuum2vacuum = RefractionIndices::refractionEta(RefractionIndices::Vacuum, RefractionIndices::Vacuum);
 
     SceneObject *sceneObject;
 

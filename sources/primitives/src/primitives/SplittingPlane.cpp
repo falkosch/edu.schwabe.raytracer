@@ -25,8 +25,8 @@ namespace primitives {
   // z = -ray dot normal
   // w = ray dot normal
   inline Float4 computePlaneIntersectionCoefficients(const Ray &r, const SplittingPlane &p) noexcept {
-    auto orientation = dot3v(r.direction, p.normalDistance);
-    auto signedDistance = dotv(r.origin, p.normalDistance) / orientation;
+    const auto orientation = dot3v(r.direction, p.normalDistance);
+    const auto signedDistance = dotv(r.origin, p.normalDistance) / orientation;
     return x_yzw(signedDistance, orientation) ^ SIGN_MASK;
   }
 
@@ -39,24 +39,24 @@ namespace primitives {
   }
 
   bool overlaps(const AxisAlignedBoundingBox &a, const SplittingPlane &p) noexcept {
-    auto notNegative = p.normalDistance >= Zero<Float4>();
-    auto selmin = oneW(blendMasked(a.maximum, a.minimum, notNegative));
-    auto selmax = oneW(blendMasked(a.minimum, a.maximum, notNegative));
+    const auto notNegative = p.normalDistance >= Zero<Float4>();
+    const auto selmin = oneW(blendMasked(a.maximum, a.minimum, notNegative));
+    const auto selmax = oneW(blendMasked(a.minimum, a.maximum, notNegative));
     return isNegative(dotv(p.normalDistance, selmin)) & !isNegative(dotv(p.normalDistance, selmax));
   }
 
   bool overlaps(const RayCast &r, const SplittingPlane &p) noexcept {
-    auto coefficients = computePlaneIntersectionCoefficients(r.ray, p);
-    auto check = testPlaneIntersectionCoefficients(coefficients);
+    const auto coefficients = computePlaneIntersectionCoefficients(r.ray, p);
+    const auto check = testPlaneIntersectionCoefficients(coefficients);
     if (x(check | (zwzw(check) & backfaceCulledv(r)) | (yyyy(check) & frontfaceCulledv(r)))) {
       return false;
     }
     return !outOfReach(r, x(coefficients));
   }
 
-  Float nearestIntersection(const RayCast &r, const SplittingPlane &p, Size2::ValueType originId) noexcept {
-    auto coefficients = computePlaneIntersectionCoefficients(r.ray, p);
-    auto check = testPlaneIntersectionCoefficients(coefficients);
+  Float nearestIntersection(const RayCast &r, const SplittingPlane &p, const Size2::ValueType originId) noexcept {
+    const auto coefficients = computePlaneIntersectionCoefficients(r.ray, p);
+    const auto check = testPlaneIntersectionCoefficients(coefficients);
     if (x(check | (zwzw(check) & backfaceCulledv(r)) | (yyyy(check) & frontfaceCulledv(r)))) {
       return r.maxDistance;
     }

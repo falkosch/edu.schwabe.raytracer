@@ -31,15 +31,15 @@ namespace primitives {
   Float4 nearestIntersectionHavel(
       const FacetNormals &planeNormals, const RayCast &rayCast, const Float4 &maxDistance
   ) noexcept {
-    auto determinant = dot3v(planeNormals.v0, rayCast.ray.direction);
-    auto determinantT = -dotv(planeNormals.v0, rayCast.ray.origin);
+    const auto determinant = dot3v(planeNormals.v0, rayCast.ray.direction);
+    const auto determinantT = -dotv(planeNormals.v0, rayCast.ray.origin);
 
     if (!isNegative(determinantT ^ (determinant * maxDistance - determinantT))) {
-      auto determinantP = rayCast.ray.origin * determinant + rayCast.ray.direction * determinantT;
-      auto determinantU = dotv(determinantP, planeNormals.v1);
+      const auto determinantP = rayCast.ray.origin * determinant + rayCast.ray.direction * determinantT;
+      const auto determinantU = dotv(determinantP, planeNormals.v1);
 
       if (!isNegative(determinantU ^ (determinant - determinantU))) {
-        auto determinantV = dotv(determinantP, planeNormals.v2);
+        const auto determinantV = dotv(determinantP, planeNormals.v2);
 
         if (!isNegative(determinantV ^ (determinant - (determinantU + determinantV)))) {
           return xz_xz(xy_xy(determinantU, determinantV), determinantT) / determinant;

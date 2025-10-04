@@ -11,7 +11,7 @@ namespace raytracer {
 
 #pragma omp parallel for
     for (auto i = int{0}; i < static_cast<int>(facetIndices.size()); i++) {
-      auto index = static_cast<ASizeT>(i);
+      const auto index = static_cast<ASizeT>(i);
       auto &indices = facetIndices[index];
       facets[index] = Facet{vertices[x(indices)], vertices[y(indices)], vertices[z(indices)]};
     }
@@ -100,7 +100,7 @@ namespace raytracer {
 
 #pragma omp parallel for
     for (auto i = int{0}; i < static_cast<int>(facets.size()); i++) {
-      auto index = static_cast<ASizeT>(i);
+      const auto index = static_cast<ASizeT>(i);
       nodes[index] = new MeshGeometryNode{index, facets[index]};
     }
 
@@ -115,14 +115,14 @@ namespace raytracer {
       const std::vector<FacetTexCoords4> &texCoords, const std::vector<Float4> &flatNormals,
       const std::vector<FacetNormals> &smoothNormals, const PGeometryNodeList &nodes, FacetIntersection &intersectionOut
   ) noexcept {
-    auto distance = zzzz(uvAndDistance);
+    const auto distance = zzzz(uvAndDistance);
 
     // missed intersections do not require any computations
     if (anyTrue(outOfReach(rayCast, distance))) {
       return rayCast.maxDistance;
     }
 
-    auto vertex = rayCast.ray.origin + distance * rayCast.ray.direction;
+    const auto vertex = rayCast.ray.origin + distance * rayCast.ray.direction;
     intersectionOut.msVertex = vertex;
     intersectionOut.vertex = vertex;
 

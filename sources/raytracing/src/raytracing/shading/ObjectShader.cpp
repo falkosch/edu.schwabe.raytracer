@@ -14,7 +14,7 @@ namespace raytracer {
     return diffusionShader;
   }
 
-  void ObjectShader::setDiffusionShader(const ObjectShader::MaterialShader *const value) {
+  void ObjectShader::setDiffusionShader(const MaterialShader *const value) {
     diffusionShader = value;
   }
 
@@ -22,7 +22,7 @@ namespace raytracer {
     return reflectanceShader;
   }
 
-  void ObjectShader::setReflectanceShader(const ObjectShader::MaterialShader *const value) {
+  void ObjectShader::setReflectanceShader(const MaterialShader *const value) {
     reflectanceShader = value;
   }
 
@@ -30,7 +30,7 @@ namespace raytracer {
     return specularShader;
   }
 
-  void ObjectShader::setSpecularShader(const ObjectShader::MaterialShader *const value) {
+  void ObjectShader::setSpecularShader(const MaterialShader *const value) {
     specularShader = value;
   }
 
@@ -38,7 +38,7 @@ namespace raytracer {
     return shininessShader;
   }
 
-  void ObjectShader::setShininessShader(const ObjectShader::MaterialShader *const value) {
+  void ObjectShader::setShininessShader(const MaterialShader *const value) {
     shininessShader = value;
   }
 
@@ -46,7 +46,7 @@ namespace raytracer {
     return transmittanceShader;
   }
 
-  void ObjectShader::setTransmittanceShader(const ObjectShader::MaterialShader *const value) {
+  void ObjectShader::setTransmittanceShader(const MaterialShader *const value) {
     transmittanceShader = value;
   }
 
@@ -54,7 +54,7 @@ namespace raytracer {
     return refractionEtaShader;
   }
 
-  void ObjectShader::setRefractionEtaShader(const ObjectShader::MaterialShader *const value) {
+  void ObjectShader::setRefractionEtaShader(const MaterialShader *const value) {
     refractionEtaShader = value;
   }
 
@@ -62,7 +62,7 @@ namespace raytracer {
     return emittanceShader;
   }
 
-  void ObjectShader::setEmittanceShader(const ObjectShader::MaterialShader *const value) {
+  void ObjectShader::setEmittanceShader(const MaterialShader *const value) {
     emittanceShader = value;
   }
 

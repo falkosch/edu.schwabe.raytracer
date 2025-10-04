@@ -42,9 +42,8 @@ namespace vectorization {
     // #endif
   }
 
-  m_f32_4x4::ColumnVectorType
-  operator*(const m_f32_4x4::ColumnVectorType &vector, const m_f32_4x4 &matrix) noexcept {
-    return (xxxx(vector) * matrix.row0 + yyyy(vector) * matrix.row1)
-           + (zzzz(vector) * matrix.row2 + wwww(vector) * matrix.row3);
+  m_f32_4x4::ColumnVectorType operator*(const m_f32_4x4::ColumnVectorType &vector, const m_f32_4x4 &matrix) noexcept {
+    return xxxx(vector) * matrix.row0 + yyyy(vector) * matrix.row1 + zzzz(vector) * matrix.row2
+           + wwww(vector) * matrix.row3;
   }
 }

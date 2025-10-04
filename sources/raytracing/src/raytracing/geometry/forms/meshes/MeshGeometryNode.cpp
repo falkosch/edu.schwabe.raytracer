@@ -3,13 +3,13 @@
 
 namespace raytracer {
   const bool planeBoxOverlap(const Float4 &normal, const Float4 &vert, const Float4 &maxbox) {
-    auto mask = (normal > Zero<Float4>());
-    auto a = maxbox - vert;
-    auto b = -maxbox - vert;
-    auto vmin = blendMasked(a, b, mask);
-    auto vmax = blendMasked(b, a, mask);
-    auto vminSide = dot3v(normal, vmin) <= Zero<Float4>();
-    auto vmaxSide = dot3v(normal, vmax) >= Zero<Float4>();
+    const auto mask = normal > Zero<Float4>();
+    const auto a = maxbox - vert;
+    const auto b = -maxbox - vert;
+    const auto vmin = blendMasked(a, b, mask);
+    const auto vmax = blendMasked(b, a, mask);
+    const auto vminSide = dot3v(normal, vmin) <= Zero<Float4>();
+    const auto vmaxSide = dot3v(normal, vmax) >= Zero<Float4>();
     return allTrue(vminSide & vmaxSide);
   }
 
@@ -17,12 +17,12 @@ namespace raytracer {
       const Float4 &edge, const Float4 &yzxBoxHalfSize, const Float4 &zxyBoxHalfSize, const Float4 &w00,
       const Float4 &w01, const Float4 &w10, const Float4 &w11
   ) {
-    auto fe = abs(edge);
-    auto rad = zxyw(fe) * yzxBoxHalfSize + yzxw(fe) * zxyBoxHalfSize;
-    auto zxyE = zxyw(edge);
-    auto yzxE = yzxw(edge);
-    auto p135 = zxyE * w00 - yzxE * w01;
-    auto p246 = zxyE * w10 - yzxE * w11;
+    const auto fe = abs(edge);
+    const auto rad = zxyw(fe) * yzxBoxHalfSize + yzxw(fe) * zxyBoxHalfSize;
+    const auto zxyE = zxyw(edge);
+    const auto yzxE = yzxw(edge);
+    const auto p135 = zxyE * w00 - yzxE * w01;
+    const auto p246 = zxyE * w10 - yzxE * w11;
     return anyTrue3((min(p135, p246) > rad) | (max(p135, p246) < -rad));
   }
 

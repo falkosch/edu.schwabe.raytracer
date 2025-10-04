@@ -4,7 +4,7 @@ namespace vectorization::test {
   TEST_CLASS(MaskWTest) {
   public:
     TEST_METHOD(returnsPackedFloat4_128Mask) {
-      auto actual = MaskW<PackedFloat4_128>();
+      const auto actual = MaskW<PackedFloat4_128>();
       Assert::AreEqual(
           ASizeT{128}, bitCount(swizzle<VectorIndices::W, VectorIndices::W, VectorIndices::W, VectorIndices::W>(actual))
       );
@@ -14,7 +14,7 @@ namespace vectorization::test {
     }
 
     TEST_METHOD(returnsPackedFloat8_256Mask) {
-      auto actual = MaskW<PackedFloat8_256>();
+      const auto actual = MaskW<PackedFloat8_256>();
       Assert::AreEqual(
           ASizeT{256}, bitCount(swizzle<VectorIndices::W, VectorIndices::W, VectorIndices::W, VectorIndices::W>(actual))
       );
@@ -24,7 +24,7 @@ namespace vectorization::test {
     }
 
     TEST_METHOD(returnsPackedFloat4_256Mask) {
-      auto actual = MaskW<PackedFloat4_256>();
+      const auto actual = MaskW<PackedFloat4_256>();
       Assert::AreEqual(
           ASizeT{256}, bitCount(swizzle<VectorIndices::W, VectorIndices::W, VectorIndices::W, VectorIndices::W>(actual))
       );

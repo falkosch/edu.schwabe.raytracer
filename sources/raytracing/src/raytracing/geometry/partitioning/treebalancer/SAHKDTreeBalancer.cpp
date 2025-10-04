@@ -10,12 +10,12 @@ namespace raytracer {
       KDTreePlane &bestPlane
   ) const {
     const Float splitCoordOnAxis = position[axis];
-    const KDTreePlane splitPlane = SamplingKDTreeBalancer::sampleSplittingPlane(axis, parentBounding, position);
+    const KDTreePlane splitPlane = sampleSplittingPlane(axis, parentBounding, position);
 
     AxisAlignedBoundingBox leftBounding, rightBounding;
     KDTreeBounding::split(splitPlane, parentBounding, leftBounding, rightBounding);
 
-    PGeometryNodeList leftGeometry = PGeometryNodeList();
+    auto leftGeometry = PGeometryNodeList();
     std::copy_if(geometry.cbegin(), geometry.cend(), std::back_inserter(leftGeometry), [=](auto geometryNode) {
       return SAHKDTreeBalancer::geometryNodeBounding(*geometryNode).minimum[axis] <= splitCoordOnAxis;
     });
@@ -25,7 +25,7 @@ namespace raytracer {
       return;
     }
 
-    PGeometryNodeList rightGeometry = PGeometryNodeList();
+    auto rightGeometry = PGeometryNodeList();
     std::copy_if(geometry.cbegin(), geometry.cend(), std::back_inserter(rightGeometry), [=](auto geometryNode) {
       return SAHKDTreeBalancer::geometryNodeBounding(*geometryNode).maximum[axis] >= splitCoordOnAxis;
     });

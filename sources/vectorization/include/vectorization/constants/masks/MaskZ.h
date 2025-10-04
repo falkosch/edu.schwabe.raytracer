@@ -4,14 +4,14 @@
 
 namespace vectorization {
   template <typename V>
-  const V MaskZ() noexcept;
+  V MaskZ() noexcept;
 
   template <>
-  const PackedFloat4_128 MaskZ<PackedFloat4_128>() noexcept;
+  PackedFloat4_128 MaskZ<PackedFloat4_128>() noexcept;
 
   template <>
-  const PackedFloat8_256 MaskZ<PackedFloat8_256>() noexcept;
+  PackedFloat8_256 MaskZ<PackedFloat8_256>() noexcept;
 
   template <>
-  const PackedFloat4_256 MaskZ<PackedFloat4_256>() noexcept;
+  PackedFloat4_256 MaskZ<PackedFloat4_256>() noexcept;
 }

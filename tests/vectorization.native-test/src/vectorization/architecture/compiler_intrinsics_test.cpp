@@ -64,27 +64,27 @@ namespace vectorization::test {
     }
 
     TEST_METHOD(hasSignedTypes) {
-      Assert::IsTrue(std::is_signed<Int_8>::value, L"type should be signed", LINE_INFO());
-      Assert::IsTrue(std::is_signed<Int_16>::value, L"type should be signed", LINE_INFO());
-      Assert::IsTrue(std::is_signed<Int_32>::value, L"type should be signed", LINE_INFO());
-      Assert::IsTrue(std::is_signed<Int_64>::value, L"type should be signed", LINE_INFO());
+      Assert::IsTrue(std::is_signed_v<Int_8>, L"type should be signed", LINE_INFO());
+      Assert::IsTrue(std::is_signed_v<Int_16>, L"type should be signed", LINE_INFO());
+      Assert::IsTrue(std::is_signed_v<Int_32>, L"type should be signed", LINE_INFO());
+      Assert::IsTrue(std::is_signed_v<Int_64>, L"type should be signed", LINE_INFO());
 
-      Assert::IsTrue(std::is_signed<Float_32>::value, L"type should be signed", LINE_INFO());
-      Assert::IsTrue(std::is_signed<Float_64>::value, L"type should be signed", LINE_INFO());
+      Assert::IsTrue(std::is_signed_v<Float_32>, L"type should be signed", LINE_INFO());
+      Assert::IsTrue(std::is_signed_v<Float_64>, L"type should be signed", LINE_INFO());
 
-      Assert::IsTrue(std::is_signed<Bool_8>::value, L"type should be signed", LINE_INFO());
-      Assert::IsTrue(std::is_signed<Bool_16>::value, L"type should be signed", LINE_INFO());
-      Assert::IsTrue(std::is_signed<Bool_32>::value, L"type should be signed", LINE_INFO());
-      Assert::IsTrue(std::is_signed<Bool_64>::value, L"type should be signed", LINE_INFO());
+      Assert::IsTrue(std::is_signed_v<Bool_8>, L"type should be signed", LINE_INFO());
+      Assert::IsTrue(std::is_signed_v<Bool_16>, L"type should be signed", LINE_INFO());
+      Assert::IsTrue(std::is_signed_v<Bool_32>, L"type should be signed", LINE_INFO());
+      Assert::IsTrue(std::is_signed_v<Bool_64>, L"type should be signed", LINE_INFO());
     }
 
     TEST_METHOD(hasUnsignedTypes) {
-      Assert::IsFalse(std::is_signed<ASizeT>::value, L"type shouldn't be signed", LINE_INFO());
+      Assert::IsFalse(std::is_signed_v<ASizeT>, L"type shouldn't be signed", LINE_INFO());
 
-      Assert::IsFalse(std::is_signed<UInt_8>::value, L"type shouldn't be signed", LINE_INFO());
-      Assert::IsFalse(std::is_signed<UInt_16>::value, L"type shouldn't be signed", LINE_INFO());
-      Assert::IsFalse(std::is_signed<UInt_32>::value, L"type shouldn't be signed", LINE_INFO());
-      Assert::IsFalse(std::is_signed<UInt_64>::value, L"type shouldn't be signed", LINE_INFO());
+      Assert::IsFalse(std::is_signed_v<UInt_8>, L"type shouldn't be signed", LINE_INFO());
+      Assert::IsFalse(std::is_signed_v<UInt_16>, L"type shouldn't be signed", LINE_INFO());
+      Assert::IsFalse(std::is_signed_v<UInt_32>, L"type shouldn't be signed", LINE_INFO());
+      Assert::IsFalse(std::is_signed_v<UInt_64>, L"type shouldn't be signed", LINE_INFO());
     }
 
     TEST_METHOD(generatesMasksForInt4_32) {
@@ -106,9 +106,9 @@ namespace vectorization::test {
     }
 
     TEST_METHOD(convertsPackedUInt_32ToFloat32) {
-      std::array<UInt_32, VectorSizes::W> given{0, 1, 2, 3};
-      auto givenPacked = _mm_load_si128(given.data());
-      std::array<Float_32, VectorSizes::W> expected{0.0f, 1.0f, 2.0f, 3.0f};
+      constexpr std::array<UInt_32, VectorSizes::W> given{0, 1, 2, 3};
+      const auto givenPacked = _mm_load_si128(given.data());
+      constexpr std::array expected{0.0f, 1.0f, 2.0f, 3.0f};
 
       std::array<Float_32, VectorSizes::W> actual{};
       _mm_store_ps(actual.data(), vectorization::_mm_cvtepu32_ps(givenPacked));

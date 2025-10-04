@@ -63,19 +63,19 @@ namespace raytracer {
     auto nearestTexCoordsAndDistance = Float4{rayCast.maxDistance};
     ASizeT nearestIndex{0};
 
-    for (auto node : geometryNodes) {
+    for (const auto node : geometryNodes) {
       // avoid self occlusion
       if (originIntersection && originIntersection->node == node) {
         continue;
       }
 
-      auto meshNode = static_cast<const MeshGeometryNode *const>(node);
-      auto index = meshNode->index;
+      const auto meshNode = static_cast<const MeshGeometryNode *const>(node);
+      const auto index = meshNode->index;
 
       auto determinant = dot3v(flatNormals[index], rayCast.ray.direction);
-      auto frontfaced = isNegative(determinant);
-      auto culledBack = (!frontfaced) & backfaceCulled(rayCast);
-      auto culledFront = (!!frontfaced) & frontfaceCulled(rayCast);
+      const auto frontfaced = isNegative(determinant);
+      const auto culledBack = (!frontfaced) & backfaceCulled(rayCast);
+      const auto culledFront = (!!frontfaced) & frontfaceCulled(rayCast);
       if (culledBack | culledFront) {
         continue;
       }
@@ -110,21 +110,21 @@ namespace raytracer {
       return rayCast.maxDistance;
     }
 
-    const Float4 maxDistance = Float4(rayCast.maxDistance);
+    const auto maxDistance = Float4(rayCast.maxDistance);
 
-    for (auto node : geometryNodes) {
+    for (const auto node : geometryNodes) {
       // avoid self occlusion
       if (originIntersection && originIntersection->node == node) {
         continue;
       }
 
-      auto meshNode = static_cast<const MeshGeometryNode *const>(node);
-      auto index = meshNode->index;
+      const auto meshNode = static_cast<const MeshGeometryNode *const>(node);
+      const auto index = meshNode->index;
 
       auto determinant = dot3v(flatNormals[index], rayCast.ray.direction);
-      auto frontfaced = isNegative(determinant);
-      auto culledBack = (!frontfaced) & backfaceCulled(rayCast);
-      auto culledFront = (!!frontfaced) & frontfaceCulled(rayCast);
+      const auto frontfaced = isNegative(determinant);
+      const auto culledBack = (!frontfaced) & backfaceCulled(rayCast);
+      const auto culledFront = (!!frontfaced) & frontfaceCulled(rayCast);
       if (culledBack | culledFront) {
         continue;
       }
@@ -149,7 +149,7 @@ namespace raytracer {
   }
 
   Mesh *const Mesh::buildCubeMesh() {
-    auto mesh = new Mesh();
+    const auto mesh = new Mesh();
 
     mesh->vertices.reserve(8);
     mesh->vertices.push_back(Float4(-1.0f, -1.0f, -1.0f, 1.0f));
@@ -191,7 +191,7 @@ namespace raytracer {
   }
 
   Mesh *const Mesh::buildPlaneMesh() {
-    auto mesh = new Mesh();
+    const auto mesh = new Mesh();
 
     mesh->vertices.reserve(4);
     mesh->vertices.push_back(Float4{-1.0f, -1.0f, 0.0f, 1.0f});
@@ -213,7 +213,7 @@ namespace raytracer {
   }
 
   Mesh *const Mesh::buildTriangleMesh() {
-    auto mesh = new Mesh();
+    const auto mesh = new Mesh();
 
     mesh->vertices.reserve(3);
     mesh->vertices.push_back(Float4{-0.5f, 0.0f, 0.0f, 1.0f});

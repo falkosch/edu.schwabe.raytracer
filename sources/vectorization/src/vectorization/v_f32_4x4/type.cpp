@@ -17,7 +17,7 @@ namespace vectorization {
   }
 
   // broadcasting aos vector into its soa vectors
-  v_f32_4x4::v_f32_4x4(const AOSVectorType &aos) noexcept : soaX(), soaY(), soaZ(), soaW() {
+  v_f32_4x4::v_f32_4x4(const AOSVectorType &aos) noexcept {
     const auto pairXYXY = xyxy(aos);
     const auto pairZWZW = zwzw(aos);
     soaX = xxzz(pairXYXY);

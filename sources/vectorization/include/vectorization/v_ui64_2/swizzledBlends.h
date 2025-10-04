@@ -7,7 +7,7 @@
 namespace vectorization {
   // generic swizzled blend
   template <ASizeT X, ASizeT Y, bool SelectX, bool SelectY>
-  inline v_ui64_2 swizzledBlend(const v_ui64_2 &a, const v_ui64_2 &b) noexcept {
+  v_ui64_2 swizzledBlend(const v_ui64_2 &a, const v_ui64_2 &b) noexcept {
     return blend<SelectX, SelectY>(swizzle<X, Y>(a), swizzle<X, Y>(b));
   }
 
@@ -52,13 +52,13 @@ namespace vectorization {
 
   // generic swizzle with variadic mask for blend
   template <ASizeT X, ASizeT Y>
-  inline v_ui64_2 swizzledBlendMasked(const v_ui64_2 &a, const v_ui64_2 &b, const v_ui64_2 &mask) noexcept {
+  v_ui64_2 swizzledBlendMasked(const v_ui64_2 &a, const v_ui64_2 &b, const v_ui64_2 &mask) noexcept {
     return blendMasked(swizzle<X, Y>(a), swizzle<X, Y>(b), mask);
   }
 
   // passthrough
   template <>
-  inline v_ui64_2 swizzledBlendMasked<VectorIndices::X, VectorIndices::Y>(
+  v_ui64_2 swizzledBlendMasked<VectorIndices::X, VectorIndices::Y>(
       const v_ui64_2 &a, const v_ui64_2 &b, const v_ui64_2 &mask
   ) noexcept;
 }

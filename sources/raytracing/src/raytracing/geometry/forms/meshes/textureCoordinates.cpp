@@ -10,7 +10,7 @@ namespace raytracer {
 
 #pragma omp parallel for
     for (auto i = int{0}; i < static_cast<int>(facetIndices.size()); i++) {
-      auto index = static_cast<ASizeT>(i);
+      const auto index = static_cast<ASizeT>(i);
       auto &facet = facets[index];
       texCoords[index] = FacetTexCoords4{
           Float4{dot(facet.v0, sPlane), dot(facet.v0, tPlane)}, Float4{dot(facet.v1, sPlane), dot(facet.v1, tPlane)},

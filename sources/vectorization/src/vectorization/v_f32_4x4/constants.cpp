@@ -4,7 +4,7 @@
 
 namespace vectorization {
   template <>
-  const v_f32_4x4 Zero<v_f32_4x4>() noexcept {
+  v_f32_4x4 Zero<v_f32_4x4>() noexcept {
     return v_f32_4x4(Zero<v_f32_4x4::PackedType>());
   }
 }

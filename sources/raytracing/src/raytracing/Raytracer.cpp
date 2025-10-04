@@ -45,8 +45,8 @@ namespace raytracer {
     trace();
     QueryPerformanceCounter(&stop);
 
-    auto timeDuration = static_cast<Int_64>(stop.QuadPart - start.QuadPart);
-    auto timeFrequency = static_cast<Int_64>(frequency.QuadPart);
+    const auto timeDuration = static_cast<Int_64>(stop.QuadPart - start.QuadPart);
+    const auto timeFrequency = static_cast<Int_64>(frequency.QuadPart);
     std::cout << "Duration: " << convert<Float_64>(timeDuration) / convert<Float_64>(timeFrequency) << "s" << std::endl;
   }
 
@@ -57,7 +57,7 @@ namespace raytracer {
 
     runId += 1;
 
-    auto samplingResolution =
+    const auto samplingResolution =
         max(One<Size2>(), convert<Size2>(convert<Float4>(parameters.resolution) * parameters.samplingFactor));
 
     // build raytrace configuration
@@ -79,7 +79,7 @@ namespace raytracer {
   Float4 perPixelTiming(const Int_64 start) {
     LARGE_INTEGER stop;
     QueryPerformanceCounter(&stop);
-    auto timeStop = static_cast<Int_64>(stop.QuadPart);
+    const auto timeStop = static_cast<Int_64>(stop.QuadPart);
     return Float4(vectorization::log(convert<Float4::ValueType>(timeStop - start + Int_64{1})));
   }
 
@@ -183,7 +183,7 @@ namespace raytracer {
       }
     }
 
-    auto hasFinished = (running.runId == runId);
+    auto hasFinished = running.runId == runId;
     running.state = hasFinished;
     if (hasFinished) {
       running.timingMap->normalizeEachChannel();
@@ -220,7 +220,7 @@ namespace raytracer {
 
   Float4 fresnelReflectance(const bool totalInternalReflection, const Float4 &negNdotI, const Float4 &eta) {
     // entering less dense material and TIR is the case
-    auto enteringLessDense = !!isNegative(wwww(eta) - zzzz(eta));
+    const auto enteringLessDense = !!isNegative(wwww(eta) - zzzz(eta));
     if (totalInternalReflection & enteringLessDense) {
       return One<Float4>();
     }
@@ -254,20 +254,20 @@ namespace raytracer {
     );
 
     // Whitted raytracing part, reflection and transmission
-    auto transmittedDirection = refract(
+    const auto transmittedDirection = refract(
         raytrace.rayCast.cullingMask, raytrace.rayCast.ray.direction, brdf.intersection.smoothedNormal,
         brdf.intersection.smoothedNdotI, brdf.surface.refractionEta
     );
-    auto leavingMaterial = frontfaceCulled(raytrace.rayCast)
-                           | (notCulled(raytrace.rayCast) && isNegative(-brdf.intersection.smoothedNdotI));
-    auto totalInternalReflection = allTrue3(!transmittedDirection);
+    const auto leavingMaterial = frontfaceCulled(raytrace.rayCast)
+                                 | (notCulled(raytrace.rayCast) && isNegative(-brdf.intersection.smoothedNdotI));
+    const auto totalInternalReflection = allTrue3(!transmittedDirection);
     brdf.reflectanceCoefficient = fresnelReflectance(
         totalInternalReflection,
         select(leavingMaterial, brdf.intersection.smoothedNdotI, -brdf.intersection.smoothedNdotI),
         select(leavingMaterial, yxwz(brdf.surface.refractionEta), brdf.surface.refractionEta)
     );
 
-    auto maxDistance = raytrace.rayCast.maxDistance - brdf.viewDistance;
+    const auto maxDistance = raytrace.rayCast.maxDistance - brdf.viewDistance;
     traceReflection(raytrace, maxDistance, cache, brdf);
     traceTransmission(raytrace, maxDistance, leavingMaterial, transmittedDirection, cache, brdf);
 
@@ -364,17 +364,17 @@ namespace raytracer {
 
   Float4 Raytracer::applyBRDF(const BRDFParameters &brdf) {
     // https://en.wikipedia.org/wiki/Phong_reflection_model
-    auto ambient = brdf.surface.diffusion * brdf.lighting.ambient;
-    auto diffuse = brdf.surface.diffusion * brdf.lighting.diffuse;
-    auto specularReflection = brdf.surface.specular * brdf.lighting.specular;
-    auto phong = ambient + diffuse + specularReflection;
+    const auto ambient = brdf.surface.diffusion * brdf.lighting.ambient;
+    const auto diffuse = brdf.surface.diffusion * brdf.lighting.diffuse;
+    const auto specularReflection = brdf.surface.specular * brdf.lighting.specular;
+    const auto phong = ambient + diffuse + specularReflection;
 
     // Transmittance model: Absorption coefficient/Beer-Lambert-law
     // http://tog.acm.org/resources/RTNews/html/rtnv10n1.html#art3
     // http://en.wikipedia.org/wiki/Absorption_coefficient
     // http://en.wikipedia.org/wiki/Beer%E2%80%93Lambert_law
-    auto reflection = brdf.surface.reflectance * brdf.lighting.reflected;
-    auto transmitted = brdf.fractionTransmitted * brdf.lighting.transmitted;
+    const auto reflection = brdf.surface.reflectance * brdf.lighting.reflected;
+    const auto transmitted = brdf.fractionTransmitted * brdf.lighting.transmitted;
 
     return brdf.surface.emittance + phong + mix(transmitted, reflection, brdf.reflectanceCoefficient);
   }

@@ -4,12 +4,12 @@ namespace vectorization::test {
   TEST_CLASS(Swizzle128dTest) {
   public:
     TEST_METHOD(genericallySwizzlesIdentityAndItsReverse) {
-      auto given = StandardSample::ofArrayType<Float_64, VectorSizes::Y>();
-      auto givenPack = _mm_load_pd(given.data());
+      const auto given = StandardSample::ofArrayType<Float_64, VectorSizes::Y>();
+      const auto givenPack = _mm_load_pd(given.data());
       std::array<Float_64, VectorSizes::Y> actual{};
 
       {
-        std::array<Float_64, VectorSizes::Y> expected{
+        const std::array expected{
             given.at(VectorIndices::X),
             given.at(VectorIndices::Y),
         };
@@ -18,7 +18,7 @@ namespace vectorization::test {
       }
 
       {
-        std::array<Float_64, VectorSizes::Y> expected{
+        const std::array expected{
             given.at(VectorIndices::Y),
             given.at(VectorIndices::X),
         };
@@ -28,12 +28,12 @@ namespace vectorization::test {
     }
 
     TEST_METHOD(genericallySwizzlesBroadcast) {
-      auto given = StandardSample::ofArrayType<Float_64, VectorSizes::Y>();
-      auto givenPack = _mm_load_pd(given.data());
+      const auto given = StandardSample::ofArrayType<Float_64, VectorSizes::Y>();
+      const auto givenPack = _mm_load_pd(given.data());
       std::array<Float_64, VectorSizes::Y> actual{};
 
       {
-        std::array<Float_64, VectorSizes::Y> expected{
+        const std::array expected{
             given.at(VectorIndices::X),
             given.at(VectorIndices::X),
         };
@@ -42,7 +42,7 @@ namespace vectorization::test {
       }
 
       {
-        std::array<Float_64, VectorSizes::Y> expected{
+        const std::array expected{
             given.at(VectorIndices::Y),
             given.at(VectorIndices::Y),
         };
@@ -52,12 +52,12 @@ namespace vectorization::test {
     }
 
     TEST_METHOD(hasShortFormsForSwizzles) {
-      auto given = StandardSample::ofArrayType<Float_64, VectorSizes::Y>();
-      auto givenPack = _mm_load_pd(given.data());
+      const auto given = StandardSample::ofArrayType<Float_64, VectorSizes::Y>();
+      const auto givenPack = _mm_load_pd(given.data());
       std::array<Float_64, VectorSizes::Y> actual{};
 
       {
-        std::array<Float_64, VectorSizes::Y> expected{
+        const std::array expected{
             given.at(VectorIndices::X),
             given.at(VectorIndices::X),
         };
@@ -66,7 +66,7 @@ namespace vectorization::test {
       }
 
       {
-        std::array<Float_64, VectorSizes::Y> expected{
+        const std::array expected{
             given.at(VectorIndices::Y),
             given.at(VectorIndices::X),
         };
@@ -75,7 +75,7 @@ namespace vectorization::test {
       }
 
       {
-        std::array<Float_64, VectorSizes::Y> expected{
+        const std::array expected{
             given.at(VectorIndices::Y),
             given.at(VectorIndices::Y),
         };

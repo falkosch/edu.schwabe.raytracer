@@ -14,15 +14,15 @@ namespace raytracer {
           const {
     const Float4 boundingExtents = extents(bounding);
     const ASizeT maxAxis = argmax3(boundingExtents);
-    const PGeometryNodeList sortedGeometry = SamplingKDTreeBalancer::geometrySortByMinimum(maxAxis, geometry);
+    const PGeometryNodeList sortedGeometry = geometrySortByMinimum(maxAxis, geometry);
     const ASizeT geometrySize = sortedGeometry.size();
     assert(geometrySize > 1);
 
     if (geometrySize & One<ASizeT>()) {
       // list-size isn't even, median is at "geometrySize / 2 + 1"
-      return SamplingKDTreeBalancer::sampleSplittingPlane(
+      return sampleSplittingPlane(
           maxAxis, bounding.minimum, boundingExtents,
-          SamplingKDTreeBalancer::geometryNodeMinimumPredicate(*sortedGeometry[(geometrySize >> 1) + One<ASizeT>()])
+          geometryNodeMinimumPredicate(*sortedGeometry[(geometrySize >> 1) + One<ASizeT>()])
       );
     }
 
@@ -30,9 +30,9 @@ namespace raytracer {
     const ASizeT geometrySizeHalf = geometrySize >> 1;
     const Float4 medianCoords =
         Half<Float>()
-        * (SamplingKDTreeBalancer::geometryNodeMinimumPredicate(*sortedGeometry[geometrySizeHalf])
-           + SamplingKDTreeBalancer::geometryNodeMinimumPredicate(*sortedGeometry[geometrySizeHalf + One<ASizeT>()]));
+        * (geometryNodeMinimumPredicate(*sortedGeometry[geometrySizeHalf])
+           + geometryNodeMinimumPredicate(*sortedGeometry[geometrySizeHalf + One<ASizeT>()]));
 
-    return SamplingKDTreeBalancer::sampleSplittingPlane(maxAxis, bounding.minimum, boundingExtents, medianCoords);
+    return sampleSplittingPlane(maxAxis, bounding.minimum, boundingExtents, medianCoords);
   }
 }

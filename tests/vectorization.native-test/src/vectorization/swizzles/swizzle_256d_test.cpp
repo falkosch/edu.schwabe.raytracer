@@ -4,12 +4,12 @@ namespace vectorization::test {
   TEST_CLASS(Swizzle256dTest) {
   public:
     TEST_METHOD(genericallySwizzlesIdentityAndItsReverse) {
-      auto given = StandardSample::ofArrayType<Float_64, VectorSizes::W>();
-      auto givenPack = _mm256_load_pd(given.data());
+      const auto given = StandardSample::ofArrayType<Float_64, VectorSizes::W>();
+      const auto givenPack = _mm256_load_pd(given.data());
       std::array<Float_64, VectorSizes::W> actual{};
 
       {
-        std::array<Float_64, VectorSizes::W> expected{
+        const std::array expected{
             given.at(VectorIndices::X), given.at(VectorIndices::Y), given.at(VectorIndices::Z),
             given.at(VectorIndices::W)
         };
@@ -20,7 +20,7 @@ namespace vectorization::test {
       }
 
       {
-        std::array<Float_64, VectorSizes::W> expected{
+        const std::array expected{
             given.at(VectorIndices::W), given.at(VectorIndices::Z), given.at(VectorIndices::Y),
             given.at(VectorIndices::X)
         };
@@ -32,12 +32,12 @@ namespace vectorization::test {
     }
 
     TEST_METHOD(genericallySwizzlesBroadcast) {
-      auto given = StandardSample::ofArrayType<Float_64, VectorSizes::W>();
-      auto givenPack = _mm256_load_pd(given.data());
+      const auto given = StandardSample::ofArrayType<Float_64, VectorSizes::W>();
+      const auto givenPack = _mm256_load_pd(given.data());
       std::array<Float_64, VectorSizes::W> actual{};
 
       {
-        std::array<Float_64, VectorSizes::W> expected{
+        const std::array expected{
             given.at(VectorIndices::X), given.at(VectorIndices::X), given.at(VectorIndices::X),
             given.at(VectorIndices::X)
         };
@@ -48,7 +48,7 @@ namespace vectorization::test {
       }
 
       {
-        std::array<Float_64, VectorSizes::W> expected{
+        const std::array expected{
             given.at(VectorIndices::Y), given.at(VectorIndices::Y), given.at(VectorIndices::Y),
             given.at(VectorIndices::Y)
         };
@@ -59,7 +59,7 @@ namespace vectorization::test {
       }
 
       {
-        std::array<Float_64, VectorSizes::W> expected{
+        const std::array expected{
             given.at(VectorIndices::Z), given.at(VectorIndices::Z), given.at(VectorIndices::Z),
             given.at(VectorIndices::Z)
         };
@@ -70,7 +70,7 @@ namespace vectorization::test {
       }
 
       {
-        std::array<Float_64, VectorSizes::W> expected{
+        const std::array expected{
             given.at(VectorIndices::W), given.at(VectorIndices::W), given.at(VectorIndices::W),
             given.at(VectorIndices::W)
         };
@@ -82,12 +82,12 @@ namespace vectorization::test {
     }
 
     TEST_METHOD(genericallySwizzlesDuplicateForms) {
-      auto given = StandardSample::ofArrayType<Float_64, VectorSizes::W>();
-      auto givenPack = _mm256_load_pd(given.data());
+      const auto given = StandardSample::ofArrayType<Float_64, VectorSizes::W>();
+      const auto givenPack = _mm256_load_pd(given.data());
       std::array<Float_64, VectorSizes::W> actual{};
 
       {
-        std::array<Float_64, VectorSizes::W> expected{
+        const std::array expected{
             given.at(VectorIndices::X), given.at(VectorIndices::X), given.at(VectorIndices::Y),
             given.at(VectorIndices::Y)
         };
@@ -98,7 +98,7 @@ namespace vectorization::test {
       }
 
       {
-        std::array<Float_64, VectorSizes::W> expected{
+        const std::array expected{
             given.at(VectorIndices::X), given.at(VectorIndices::X), given.at(VectorIndices::Z),
             given.at(VectorIndices::Z)
         };
@@ -109,7 +109,7 @@ namespace vectorization::test {
       }
 
       {
-        std::array<Float_64, VectorSizes::W> expected{
+        const std::array expected{
             given.at(VectorIndices::X), given.at(VectorIndices::Y), given.at(VectorIndices::X),
             given.at(VectorIndices::Y)
         };
@@ -120,7 +120,7 @@ namespace vectorization::test {
       }
 
       {
-        std::array<Float_64, VectorSizes::W> expected{
+        const std::array expected{
             given.at(VectorIndices::Y), given.at(VectorIndices::Y), given.at(VectorIndices::W),
             given.at(VectorIndices::W)
         };
@@ -131,7 +131,7 @@ namespace vectorization::test {
       }
 
       {
-        std::array<Float_64, VectorSizes::W> expected{
+        const std::array expected{
             given.at(VectorIndices::Z), given.at(VectorIndices::Z), given.at(VectorIndices::W),
             given.at(VectorIndices::W)
         };
@@ -142,7 +142,7 @@ namespace vectorization::test {
       }
 
       {
-        std::array<Float_64, VectorSizes::W> expected{
+        const std::array expected{
             given.at(VectorIndices::Z), given.at(VectorIndices::W), given.at(VectorIndices::Z),
             given.at(VectorIndices::W)
         };
@@ -154,12 +154,12 @@ namespace vectorization::test {
     }
 
     TEST_METHOD(hasShortFormsForSwizzlesOfXFirst) {
-      auto given = StandardSample::ofArrayType<Float_64, VectorSizes::W>();
-      auto givenPack = _mm256_load_pd(given.data());
+      const auto given = StandardSample::ofArrayType<Float_64, VectorSizes::W>();
+      const auto givenPack = _mm256_load_pd(given.data());
       std::array<Float_64, VectorSizes::W> actual{};
 
       {
-        std::array<Float_64, VectorSizes::W> expected{
+        const std::array expected{
             given.at(VectorIndices::X), given.at(VectorIndices::X), given.at(VectorIndices::X),
             given.at(VectorIndices::X)
         };
@@ -168,7 +168,7 @@ namespace vectorization::test {
       }
 
       {
-        std::array<Float_64, VectorSizes::W> expected{
+        const std::array expected{
             given.at(VectorIndices::X), given.at(VectorIndices::X), given.at(VectorIndices::X),
             given.at(VectorIndices::Z)
         };
@@ -177,7 +177,7 @@ namespace vectorization::test {
       }
 
       {
-        std::array<Float_64, VectorSizes::W> expected{
+        const std::array expected{
             given.at(VectorIndices::X), given.at(VectorIndices::X), given.at(VectorIndices::Y),
             given.at(VectorIndices::Y)
         };
@@ -186,7 +186,7 @@ namespace vectorization::test {
       }
 
       {
-        std::array<Float_64, VectorSizes::W> expected{
+        const std::array expected{
             given.at(VectorIndices::X), given.at(VectorIndices::X), given.at(VectorIndices::Z),
             given.at(VectorIndices::Z)
         };
@@ -195,7 +195,7 @@ namespace vectorization::test {
       }
 
       {
-        std::array<Float_64, VectorSizes::W> expected{
+        const std::array expected{
             given.at(VectorIndices::X), given.at(VectorIndices::Y), given.at(VectorIndices::X),
             given.at(VectorIndices::Y)
         };
@@ -204,7 +204,7 @@ namespace vectorization::test {
       }
 
       {
-        std::array<Float_64, VectorSizes::W> expected{
+        const std::array expected{
             given.at(VectorIndices::X), given.at(VectorIndices::Z), given.at(VectorIndices::Z),
             given.at(VectorIndices::Z)
         };
@@ -214,12 +214,12 @@ namespace vectorization::test {
     }
 
     TEST_METHOD(hasShortFormsForSwizzlesOfYFirst) {
-      auto given = StandardSample::ofArrayType<Float_64, VectorSizes::W>();
-      auto givenPack = _mm256_load_pd(given.data());
+      const auto given = StandardSample::ofArrayType<Float_64, VectorSizes::W>();
+      const auto givenPack = _mm256_load_pd(given.data());
       std::array<Float_64, VectorSizes::W> actual{};
 
       {
-        std::array<Float_64, VectorSizes::W> expected{
+        const std::array expected{
             given.at(VectorIndices::Y), given.at(VectorIndices::Y), given.at(VectorIndices::Y),
             given.at(VectorIndices::Y)
         };
@@ -228,7 +228,7 @@ namespace vectorization::test {
       }
 
       {
-        std::array<Float_64, VectorSizes::W> expected{
+        const std::array expected{
             given.at(VectorIndices::Y), given.at(VectorIndices::X), given.at(VectorIndices::X),
             given.at(VectorIndices::Y)
         };
@@ -237,7 +237,7 @@ namespace vectorization::test {
       }
 
       {
-        std::array<Float_64, VectorSizes::W> expected{
+        const std::array expected{
             given.at(VectorIndices::Y), given.at(VectorIndices::X), given.at(VectorIndices::W),
             given.at(VectorIndices::Z)
         };
@@ -246,7 +246,7 @@ namespace vectorization::test {
       }
 
       {
-        std::array<Float_64, VectorSizes::W> expected{
+        const std::array expected{
             given.at(VectorIndices::Y), given.at(VectorIndices::Y), given.at(VectorIndices::W),
             given.at(VectorIndices::W)
         };
@@ -255,7 +255,7 @@ namespace vectorization::test {
       }
 
       {
-        std::array<Float_64, VectorSizes::W> expected{
+        const std::array expected{
             given.at(VectorIndices::Y), given.at(VectorIndices::Z), given.at(VectorIndices::X),
             given.at(VectorIndices::W)
         };
@@ -264,7 +264,7 @@ namespace vectorization::test {
       }
 
       {
-        std::array<Float_64, VectorSizes::W> expected{
+        const std::array expected{
             given.at(VectorIndices::Y), given.at(VectorIndices::Z), given.at(VectorIndices::W),
             given.at(VectorIndices::X)
         };
@@ -274,12 +274,12 @@ namespace vectorization::test {
     }
 
     TEST_METHOD(hasShortFormsForSwizzlesOfZFirst) {
-      auto given = StandardSample::ofArrayType<Float_64, VectorSizes::W>();
-      auto givenPack = _mm256_load_pd(given.data());
+      const auto given = StandardSample::ofArrayType<Float_64, VectorSizes::W>();
+      const auto givenPack = _mm256_load_pd(given.data());
       std::array<Float_64, VectorSizes::W> actual{};
 
       {
-        std::array<Float_64, VectorSizes::W> expected{
+        const std::array expected{
             given.at(VectorIndices::Z), given.at(VectorIndices::Z), given.at(VectorIndices::Z),
             given.at(VectorIndices::Z)
         };
@@ -288,7 +288,7 @@ namespace vectorization::test {
       }
 
       {
-        std::array<Float_64, VectorSizes::W> expected{
+        const std::array expected{
             given.at(VectorIndices::Z), given.at(VectorIndices::X), given.at(VectorIndices::Y),
             given.at(VectorIndices::W)
         };
@@ -297,7 +297,7 @@ namespace vectorization::test {
       }
 
       {
-        std::array<Float_64, VectorSizes::W> expected{
+        const std::array expected{
             given.at(VectorIndices::Z), given.at(VectorIndices::Z), given.at(VectorIndices::Y),
             given.at(VectorIndices::Y)
         };
@@ -306,7 +306,7 @@ namespace vectorization::test {
       }
 
       {
-        std::array<Float_64, VectorSizes::W> expected{
+        const std::array expected{
             given.at(VectorIndices::Z), given.at(VectorIndices::Z), given.at(VectorIndices::W),
             given.at(VectorIndices::W)
         };
@@ -315,7 +315,7 @@ namespace vectorization::test {
       }
 
       {
-        std::array<Float_64, VectorSizes::W> expected{
+        const std::array expected{
             given.at(VectorIndices::Z), given.at(VectorIndices::W), given.at(VectorIndices::X),
             given.at(VectorIndices::Y)
         };
@@ -324,7 +324,7 @@ namespace vectorization::test {
       }
 
       {
-        std::array<Float_64, VectorSizes::W> expected{
+        const std::array expected{
             given.at(VectorIndices::Z), given.at(VectorIndices::W), given.at(VectorIndices::Z),
             given.at(VectorIndices::W)
         };
@@ -334,12 +334,12 @@ namespace vectorization::test {
     }
 
     TEST_METHOD(hasShortFormsForSwizzlesOfWFirst) {
-      auto given = StandardSample::ofArrayType<Float_64, VectorSizes::W>();
-      auto givenPack = _mm256_load_pd(given.data());
+      const auto given = StandardSample::ofArrayType<Float_64, VectorSizes::W>();
+      const auto givenPack = _mm256_load_pd(given.data());
       std::array<Float_64, VectorSizes::W> actual{};
 
       {
-        std::array<Float_64, VectorSizes::W> expected{
+        const std::array expected{
             given.at(VectorIndices::W), given.at(VectorIndices::W), given.at(VectorIndices::W),
             given.at(VectorIndices::W)
         };
@@ -348,7 +348,7 @@ namespace vectorization::test {
       }
 
       {
-        std::array<Float_64, VectorSizes::W> expected{
+        const std::array expected{
             given.at(VectorIndices::W), given.at(VectorIndices::X), given.at(VectorIndices::Y),
             given.at(VectorIndices::Z)
         };
@@ -357,7 +357,7 @@ namespace vectorization::test {
       }
 
       {
-        std::array<Float_64, VectorSizes::W> expected{
+        const std::array expected{
             given.at(VectorIndices::W), given.at(VectorIndices::Z), given.at(VectorIndices::Y),
             given.at(VectorIndices::X)
         };

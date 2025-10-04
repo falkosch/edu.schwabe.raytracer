@@ -35,7 +35,7 @@ namespace primitives {
   }
 
   Float surfaceArea(const AxisAlignedBoundingBox & /* box */, const Float4 &extents) noexcept {
-    auto t = zzyy(extents) * yxxy(extents);
+    const auto t = zzyy(extents) * yxxy(extents);
     return horizontalSum3(t + t);
   }
 
@@ -80,7 +80,7 @@ namespace primitives {
 
   AxisAlignedBoundingBox transform(const AxisAlignedBoundingBox &box, const Float44 &by) noexcept {
     // Take care of translation first
-    auto t = yw_yw(
+    const auto t = yw_yw(
         zw_zw(row<VectorIndices::X>(by), row<VectorIndices::Y>(by)), zw_zw(row<VectorIndices::Z>(by), One<Float4>())
     );
 
@@ -134,9 +134,9 @@ namespace primitives {
 
   Float4::VectorBoolType
   overlaps(const RayCast &rayCast, const AxisAlignedBoundingBox &a, const AxisAlignedBoundingBox &b) noexcept {
-    auto c = computeBoxIntersectionCoefficients(rayCast.ray, a, b);
-    auto cYW = yyww(c);
-    auto cXZ = xxzz(c);
+    const auto c = computeBoxIntersectionCoefficients(rayCast.ray, a, b);
+    const auto cYW = yyww(c);
+    const auto cXZ = xxzz(c);
     // overlaps if
     // 1. (c.y >= c.x, c.w >= c.z) and
     // 2. (c.y >= 0, c.w >= 0) and
@@ -148,14 +148,14 @@ namespace primitives {
   // The near distance t0 is set to "t.x". The far distance t1 is set "t.y". "t.z" and "t.w" will be set to zero.
   inline Float4 computeBoxIntersectionCoefficients(const Ray &ray, const AxisAlignedBoundingBox &box) noexcept {
     // based on: "A Cross-Platform Framework for Interactive Ray Tracing", Geimer and Müller.
-    auto pMin = (box.minimum - ray.origin) * ray.reciprocalDirection;
-    auto pMax = (box.maximum - ray.origin) * ray.reciprocalDirection;
-    auto vMin = min(pMin, pMax);
-    auto vMax = max(pMin, pMax);
-    auto vXYx2 = xy_xy(vMin, vMax);
-    auto vXZx2 = xz_xz(vMin, vMax);
-    auto hMinXXYZx2 = min(vXYx2, vXZx2);
-    auto hMaxXXYZx2 = max(vXYx2, vXZx2);
+    const auto pMin = (box.minimum - ray.origin) * ray.reciprocalDirection;
+    const auto pMax = (box.maximum - ray.origin) * ray.reciprocalDirection;
+    const auto vMin = min(pMin, pMax);
+    const auto vMax = max(pMin, pMax);
+    const auto vXYx2 = xy_xy(vMin, vMax);
+    const auto vXZx2 = xz_xz(vMin, vMax);
+    const auto hMinXXYZx2 = min(vXYx2, vXZx2);
+    const auto hMaxXXYZx2 = max(vXYx2, vXZx2);
     // x = t0, y = t1, z = w = 0
     return xz_xz(xy_zw(max(hMaxXXYZx2, yyww(hMaxXXYZx2)), min(hMinXXYZx2, yyww(hMinXXYZx2))), Zero<Float4>());
   }
@@ -170,8 +170,8 @@ namespace primitives {
   }
 
   bool overlaps(const RayCast &rayCast, const AxisAlignedBoundingBox &box) noexcept {
-    auto c = computeBoxIntersectionCoefficients(rayCast.ray, box);
-    auto check = testBoxIntersectionCoefficients(c);
+    const auto c = computeBoxIntersectionCoefficients(rayCast.ray, box);
+    const auto check = testBoxIntersectionCoefficients(c);
 
     // no hit when t.y < t.x or t.y < 0
     if (y(check | wwww(check))) {
@@ -183,10 +183,11 @@ namespace primitives {
     return !x(andnot(zzww(check), outOfReach(rayCast, c)));
   }
 
-  Float
-  nearestIntersection(const RayCast &rayCast, const AxisAlignedBoundingBox &box, Size2::ValueType originId) noexcept {
-    auto c = computeBoxIntersectionCoefficients(rayCast.ray, box);
-    auto check = testBoxIntersectionCoefficients(c);
+  Float nearestIntersection(
+      const RayCast &rayCast, const AxisAlignedBoundingBox &box, const Size2::ValueType originId
+  ) noexcept {
+    const auto c = computeBoxIntersectionCoefficients(rayCast.ray, box);
+    const auto check = testBoxIntersectionCoefficients(c);
 
     // no hit when c.y < c.x or c.y < 0
     if (y(check | wwww(check))) {
@@ -194,10 +195,10 @@ namespace primitives {
     }
 
     // reject c.y if backface culled
-    auto tt = blendMasked(yyww(c), Float4(rayCast.maxDistance), backfaceCulledv(rayCast));
+    const auto tt = blendMasked(yyww(c), Float4(rayCast.maxDistance), backfaceCulledv(rayCast));
 
     // reject c.x if c.x < 0 or selfOccluded or frontfaceCulled
-    auto selfOccluded = convert<Float4::VectorBoolType>(selfOcclusion(rayCast, originId));
+    const auto selfOccluded = convert<Float4::VectorBoolType>(selfOcclusion(rayCast, originId));
     return x(blendMasked(c, tt, zwzw(check) | selfOccluded | frontfaceCulledv(rayCast)));
   }
 }

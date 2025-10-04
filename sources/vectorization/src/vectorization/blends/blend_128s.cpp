@@ -25,20 +25,14 @@ namespace vectorization {
 
   template <>
   PackedFloat4_128 blend<true, false, false, false>(const PackedFloat4_128 &a, const PackedFloat4_128 &b) noexcept {
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "ArgumentSelectionDefects"
     // argument order is indeed (b, a)
     return blend<false, true, true, true>(b, a);
-#pragma clang diagnostic pop
   }
 
   template <>
   PackedFloat4_128 blend<true, true, false, false>(const PackedFloat4_128 &a, const PackedFloat4_128 &b) noexcept {
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "ArgumentSelectionDefects"
     // argument order is indeed (b, a)
     return blend<false, false, true, true>(b, a);
-#pragma clang diagnostic pop
   }
 
   PackedFloat4_128 x_yzw(const PackedFloat4_128 &a, const PackedFloat4_128 &b) noexcept {

@@ -14,12 +14,9 @@ namespace vectorization {
   swizzledBlend<VectorIndices::X, VectorIndices::X, VectorIndices::Y, VectorIndices::Y, true, false, true, false>(
       const PackedFloat4_128 &a, const PackedFloat4_128 &b
   ) noexcept {
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "ArgumentSelectionDefects"
     // argument order is indeed (b, a)
     return swizzledBlend<
         VectorIndices::X, VectorIndices::X, VectorIndices::Y, VectorIndices::Y, false, true, false, true>(b, a);
-#pragma clang diagnostic pop
   }
 
   template <>
@@ -35,12 +32,9 @@ namespace vectorization {
   swizzledBlend<VectorIndices::X, VectorIndices::Y, VectorIndices::X, VectorIndices::Y, true, true, false, false>(
       const PackedFloat4_128 &a, const PackedFloat4_128 &b
   ) noexcept {
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "ArgumentSelectionDefects"
     // argument order is indeed (b, a)
     return swizzledBlend<
         VectorIndices::X, VectorIndices::Y, VectorIndices::X, VectorIndices::Y, false, false, true, true>(b, a);
-#pragma clang diagnostic pop
   }
 
   template <>
@@ -56,12 +50,9 @@ namespace vectorization {
   swizzledBlend<VectorIndices::Z, VectorIndices::Z, VectorIndices::W, VectorIndices::W, true, false, true, false>(
       const PackedFloat4_128 &a, const PackedFloat4_128 &b
   ) noexcept {
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "ArgumentSelectionDefects"
     // argument order is indeed (b, a)
     return swizzledBlend<
         VectorIndices::Z, VectorIndices::Z, VectorIndices::W, VectorIndices::W, false, true, false, true>(b, a);
-#pragma clang diagnostic pop
   }
 
   template <>
@@ -77,11 +68,8 @@ namespace vectorization {
   swizzledBlend<VectorIndices::Z, VectorIndices::W, VectorIndices::Z, VectorIndices::W, false, false, true, true>(
       const PackedFloat4_128 &a, const PackedFloat4_128 &b
   ) noexcept {
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "ArgumentSelectionDefects"
     // argument order is indeed (b, a)
     return swizzledBlend<
         VectorIndices::Z, VectorIndices::W, VectorIndices::Z, VectorIndices::W, true, true, false, false>(b, a);
-#pragma clang diagnostic pop
   }
 }

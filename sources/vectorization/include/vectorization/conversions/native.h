@@ -4,131 +4,131 @@
 
 namespace vectorization {
   template <typename U>
-  const U convert(const bool) noexcept;
+  U convert(bool) noexcept;
 
   template <typename U>
-  const U convert(const bool, const bool) noexcept;
+  U convert(bool, bool) noexcept;
 
   template <typename U>
-  const U convert(const Int_32 v) noexcept;
+  U convert(Int_32 v) noexcept;
 
   template <>
-  const Int_8 convert<Int_8>(const Int_32 v) noexcept;
+  Int_8 convert<Int_8>(Int_32 v) noexcept;
 
   template <>
-  const UInt_8 convert<UInt_8>(const Int_32 v) noexcept;
+  UInt_8 convert<UInt_8>(Int_32 v) noexcept;
 
   template <>
-  const Int_16 convert<Int_16>(const Int_32 v) noexcept;
+  Int_16 convert<Int_16>(Int_32 v) noexcept;
 
   template <>
-  const UInt_16 convert<UInt_16>(const Int_32 v) noexcept;
+  UInt_16 convert<UInt_16>(Int_32 v) noexcept;
 
   template <>
-  const Int_32 convert<Int_32>(const Int_32 v) noexcept;
+  Int_32 convert<Int_32>(Int_32 v) noexcept;
 
   template <>
-  const UInt_32 convert<UInt_32>(const Int_32 v) noexcept;
+  UInt_32 convert<UInt_32>(Int_32 v) noexcept;
 
   template <>
-  const Int_64 convert<Int_64>(const Int_32 v) noexcept;
+  Int_64 convert<Int_64>(Int_32 v) noexcept;
 
   template <>
-  const UInt_64 convert<UInt_64>(const Int_32 v) noexcept;
+  UInt_64 convert<UInt_64>(Int_32 v) noexcept;
 
   template <>
-  const Float_32 convert<Float_32>(const Int_32 v) noexcept;
+  Float_32 convert<Float_32>(Int_32 v) noexcept;
 
   template <>
-  const Float_64 convert<Float_64>(const Int_32 v) noexcept;
+  Float_64 convert<Float_64>(Int_32 v) noexcept;
 
   template <typename U>
-  const U convert(const UInt_32 v) noexcept;
+  U convert(UInt_32 v) noexcept;
 
   template <>
-  const Int_32 convert<Int_32>(const UInt_32 v) noexcept;
+  Int_32 convert<Int_32>(UInt_32 v) noexcept;
 
   template <>
-  const Int_64 convert<Int_64>(const UInt_32 v) noexcept;
+  Int_64 convert<Int_64>(UInt_32 v) noexcept;
 
   template <>
-  const UInt_64 convert<UInt_64>(const UInt_32 v) noexcept;
+  UInt_64 convert<UInt_64>(UInt_32 v) noexcept;
 
   template <>
-  const Float_32 convert<Float_32>(const UInt_32 v) noexcept;
+  Float_32 convert<Float_32>(UInt_32 v) noexcept;
 
   template <>
-  const Float_64 convert<Float_64>(const UInt_32 v) noexcept;
+  Float_64 convert<Float_64>(UInt_32 v) noexcept;
 
   template <typename U>
-  const U convert(const Int_64 v) noexcept;
+  U convert(Int_64 v) noexcept;
 
   template <>
-  const Int_32 convert<Int_32>(const Int_64 v) noexcept;
+  Int_32 convert<Int_32>(Int_64 v) noexcept;
 
   template <>
-  const UInt_32 convert<UInt_32>(const Int_64 v) noexcept;
+  UInt_32 convert<UInt_32>(Int_64 v) noexcept;
 
   template <>
-  const UInt_64 convert<UInt_64>(const Int_64 v) noexcept;
+  UInt_64 convert<UInt_64>(Int_64 v) noexcept;
 
   template <>
-  const Float_32 convert<Float_32>(const Int_64 v) noexcept;
+  Float_32 convert<Float_32>(Int_64 v) noexcept;
 
   template <>
-  const Float_64 convert<Float_64>(const Int_64 v) noexcept;
+  Float_64 convert<Float_64>(Int_64 v) noexcept;
 
   template <typename U>
-  const U convert(const UInt_64 v) noexcept;
+  U convert(UInt_64 v) noexcept;
 
   template <>
-  const Int_32 convert<Int_32>(const UInt_64 v) noexcept;
+  Int_32 convert<Int_32>(UInt_64 v) noexcept;
 
   template <>
-  const UInt_32 convert<UInt_32>(const UInt_64 v) noexcept;
+  UInt_32 convert<UInt_32>(UInt_64 v) noexcept;
 
   template <>
-  const Int_64 convert<Int_64>(const UInt_64 v) noexcept;
+  Int_64 convert<Int_64>(UInt_64 v) noexcept;
 
   template <>
-  const Float_32 convert<Float_32>(const UInt_64 v) noexcept;
+  Float_32 convert<Float_32>(UInt_64 v) noexcept;
 
   template <>
-  const Float_64 convert<Float_64>(const UInt_64 v) noexcept;
+  Float_64 convert<Float_64>(UInt_64 v) noexcept;
 
   template <typename U>
-  const U convert(const Float_32 v) noexcept;
+  U convert(Float_32 v) noexcept;
 
   template <>
-  const Int_32 convert<Int_32>(const Float_32 v) noexcept;
+  Int_32 convert<Int_32>(Float_32 v) noexcept;
 
   template <>
-  const UInt_32 convert<UInt_32>(const Float_32 v) noexcept;
+  UInt_32 convert<UInt_32>(Float_32 v) noexcept;
 
   template <>
-  const Int_64 convert<Int_64>(const Float_32 v) noexcept;
+  Int_64 convert<Int_64>(Float_32 v) noexcept;
 
   template <>
-  const UInt_64 convert<UInt_64>(const Float_32 v) noexcept;
+  UInt_64 convert<UInt_64>(Float_32 v) noexcept;
 
   template <>
-  const Float_64 convert<Float_64>(const Float_32 v) noexcept;
+  Float_64 convert<Float_64>(Float_32 v) noexcept;
 
   template <typename U>
-  const U convert(const Float_64 v) noexcept;
+  U convert(Float_64 v) noexcept;
 
   template <>
-  const Int_32 convert<Int_32>(const Float_64 v) noexcept;
+  Int_32 convert<Int_32>(Float_64 v) noexcept;
 
   template <>
-  const UInt_32 convert<UInt_32>(const Float_64 v) noexcept;
+  UInt_32 convert<UInt_32>(Float_64 v) noexcept;
 
   template <>
-  const Int_64 convert<Int_64>(const Float_64 v) noexcept;
+  Int_64 convert<Int_64>(Float_64 v) noexcept;
 
   template <>
-  const UInt_64 convert<UInt_64>(const Float_64 v) noexcept;
+  UInt_64 convert<UInt_64>(Float_64 v) noexcept;
 
   template <>
-  const Float_32 convert<Float_32>(const Float_64 v) noexcept;
+  Float_32 convert<Float_32>(Float_64 v) noexcept;
 }

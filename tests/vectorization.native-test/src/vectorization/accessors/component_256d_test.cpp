@@ -4,11 +4,11 @@ namespace vectorization::test {
   TEST_CLASS(Component256dTest) {
   public:
     TEST_METHOD(readsComponent) {
-      auto expectedComponents = StandardSample::ofArrayType<Float_64, VectorSizes::W>();
-      auto givenPack = _mm256_load_pd(expectedComponents.data());
+      const auto expectedComponents = StandardSample::ofArrayType<Float_64, VectorSizes::W>();
+      const auto givenPack = _mm256_load_pd(expectedComponents.data());
 
       {
-        std::array<Float_64, VectorSizes::W> actual{
+        const std::array actual{
             component<VectorIndices::X>(givenPack), component<VectorIndices::Y>(givenPack),
             component<VectorIndices::Z>(givenPack), component<VectorIndices::W>(givenPack)
         };
@@ -16,7 +16,7 @@ namespace vectorization::test {
       }
 
       {
-        std::array<Float_64, VectorSizes::W> actual{
+        const std::array actual{
             component<VectorIndices::W>(givenPack), component<VectorIndices::X>(givenPack),
             component<VectorIndices::Y>(givenPack), component<VectorIndices::Z>(givenPack)
         };
@@ -25,31 +25,31 @@ namespace vectorization::test {
     }
 
     TEST_METHOD(readsXYZW) {
-      auto expectedComponents = StandardSample::ofArrayType<Float_64, VectorSizes::W>();
-      auto givenPack = _mm256_load_pd(expectedComponents.data());
+      const auto expectedComponents = StandardSample::ofArrayType<Float_64, VectorSizes::W>();
+      const auto givenPack = _mm256_load_pd(expectedComponents.data());
 
       {
-        std::array<Float_64, VectorSizes::W> actual{x(givenPack), y(givenPack), z(givenPack), w(givenPack)};
+        const std::array actual{x(givenPack), y(givenPack), z(givenPack), w(givenPack)};
         Assert::AreEqual(expectedComponents, actual, L"component value mismatch", LINE_INFO());
       }
 
       {
-        std::array<Float_64, VectorSizes::W> actual{w(givenPack), x(givenPack), y(givenPack), z(givenPack)};
+        const std::array actual{w(givenPack), x(givenPack), y(givenPack), z(givenPack)};
         Assert::AreNotEqual(expectedComponents, actual, L"wrong component match", LINE_INFO());
       }
     }
 
     TEST_METHOD(readsXi) {
-      auto expectedComponents = StandardSample::ofArrayType<Float_64, VectorSizes::W>();
-      auto givenPack = _mm256_load_pd(expectedComponents.data());
+      const auto expectedComponents = StandardSample::ofArrayType<Float_64, VectorSizes::W>();
+      const auto givenPack = _mm256_load_pd(expectedComponents.data());
 
       {
-        std::array<Float_64, VectorSizes::W> actual{x1(givenPack), x2(givenPack), x3(givenPack), x4(givenPack)};
+        const std::array actual{x1(givenPack), x2(givenPack), x3(givenPack), x4(givenPack)};
         Assert::AreEqual(expectedComponents, actual, L"component value mismatch", LINE_INFO());
       }
 
       {
-        std::array<Float_64, VectorSizes::W> actual{x4(givenPack), x1(givenPack), x2(givenPack), x3(givenPack)};
+        const std::array actual{x4(givenPack), x1(givenPack), x2(givenPack), x3(givenPack)};
         Assert::AreNotEqual(expectedComponents, actual, L"wrong component match", LINE_INFO());
       }
     }

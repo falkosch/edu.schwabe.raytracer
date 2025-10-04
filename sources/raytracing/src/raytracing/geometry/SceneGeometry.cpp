@@ -14,7 +14,7 @@ namespace raytracer {
   SceneGeometry::~SceneGeometry() {
     clearSceneGraph();
     if (treeTraverser) {
-      delete (treeTraverser);
+      delete treeTraverser;
     }
     finiteSceneObjectsAsGeometryNodes.clear();
     infiniteSceneObjectsAsGeometryNodes.clear();
@@ -83,8 +83,8 @@ namespace raytracer {
     // iterate through all SceneObjects
     RayCast tr = r;
 
-    for (PGeometryNodeList::const_iterator it = geometryNodes.cbegin(); it != geometryNodes.cend(); ++it) {
-      const ObjectGeometry *const objectGeometry = static_cast<const ObjectGeometry *const>(*it);
+    for (auto it = geometryNodes.cbegin(); it != geometryNodes.cend(); ++it) {
+      const auto objectGeometry = static_cast<const ObjectGeometry *const>(*it);
 
       // check for intersections
       const Float t = objectGeometry->findNearestIntersection(tr, originIntersection, intersectionOut);
@@ -103,8 +103,8 @@ namespace raytracer {
       SceneIntersection &intersectionOut
   ) const {
     // iterate through all SceneObjects
-    for (PGeometryNodeList::const_iterator it = geometryNodes.cbegin(); it != geometryNodes.cend(); ++it) {
-      const ObjectGeometry *const objectGeometry = static_cast<const ObjectGeometry *const>(*it);
+    for (auto it = geometryNodes.cbegin(); it != geometryNodes.cend(); ++it) {
+      const auto objectGeometry = static_cast<const ObjectGeometry *const>(*it);
 
       // check for intersections
       const Float t = objectGeometry->findAnyIntersection(r, originIntersection, intersectionOut);

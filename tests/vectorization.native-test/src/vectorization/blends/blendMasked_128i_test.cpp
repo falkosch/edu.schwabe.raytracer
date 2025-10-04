@@ -54,22 +54,22 @@ namespace vectorization::test {
     }
 
     TEST_METHOD(variadicBlendsTwoBool_128WithBool_128BitMask) {
-      auto givenOnBitNotSet = MaskNone<PackedInts_128>();
-      auto givenOnBitSet = MaskAll<PackedInts_128>();
+      const auto givenOnBitNotSet = MaskNone<PackedInts_128>();
+      const auto givenOnBitSet = MaskAll<PackedInts_128>();
 
       {
-        auto expected = givenOnBitNotSet;
-        auto actual = blendMasked(givenOnBitNotSet, givenOnBitSet, MaskNone<PackedInts_128>());
-        auto matchExpected = _mm_cmpeq_epi32(expected, actual);
+        const auto expected = givenOnBitNotSet;
+        const auto actual = blendMasked(givenOnBitNotSet, givenOnBitSet, MaskNone<PackedInts_128>());
+        const auto matchExpected = _mm_cmpeq_epi32(expected, actual);
         Assert::AreEqual(
             1, _mm_testc_si128(matchExpected, MaskAll<PackedInts_128>()), L"blend masked value mismatch", LINE_INFO()
         );
       }
 
       {
-        auto expected = givenOnBitSet;
-        auto actual = blendMasked(givenOnBitNotSet, givenOnBitSet, MaskAll<PackedInts_128>());
-        auto matchExpected = _mm_cmpeq_epi32(expected, actual);
+        const auto expected = givenOnBitSet;
+        const auto actual = blendMasked(givenOnBitNotSet, givenOnBitSet, MaskAll<PackedInts_128>());
+        const auto matchExpected = _mm_cmpeq_epi32(expected, actual);
         Assert::AreEqual(
             1, _mm_testc_si128(matchExpected, MaskAll<PackedInts_128>()), L"blend masked value mismatch", LINE_INFO()
         );

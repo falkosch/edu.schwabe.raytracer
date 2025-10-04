@@ -4,9 +4,9 @@ namespace vectorization::test {
   TEST_CLASS(ReplaceComponent256sTest) {
   public:
     TEST_METHOD(replacesComponent) {
-      auto expectedReplacement = 5.0f;
-      auto given = StandardSample::ofArrayType<Float_32, VectorSizes::X8>();
-      auto givenPack = _mm256_load_ps(given.data());
+      constexpr auto expectedReplacement = 5.0f;
+      const auto given = StandardSample::ofArrayType<Float_32, VectorSizes::X8>();
+      const auto givenPack = _mm256_load_ps(given.data());
       std::array<Float_32, VectorSizes::X8> expected{};
       std::array<Float_32, VectorSizes::X8> actual{};
 
@@ -84,9 +84,9 @@ namespace vectorization::test {
     }
 
     TEST_METHOD(replacesXYZW) {
-      auto expectedReplacement = 5.0f;
-      auto given = StandardSample::ofArrayType<Float_32, VectorSizes::X8>();
-      auto givenPack = _mm256_load_ps(given.data());
+      constexpr auto expectedReplacement = 5.0f;
+      const auto given = StandardSample::ofArrayType<Float_32, VectorSizes::X8>();
+      const auto givenPack = _mm256_load_ps(given.data());
       std::array<Float_32, VectorSizes::X8> expected{};
       std::array<Float_32, VectorSizes::X8> actual{};
 
@@ -120,9 +120,9 @@ namespace vectorization::test {
     }
 
     TEST_METHOD(replacesXi) {
-      auto expectedReplacement = 5.0f;
-      auto given = StandardSample::ofArrayType<Float_32, VectorSizes::X8>();
-      auto givenPack = _mm256_load_ps(given.data());
+      constexpr auto expectedReplacement = 5.0f;
+      const auto given = StandardSample::ofArrayType<Float_32, VectorSizes::X8>();
+      const auto givenPack = _mm256_load_ps(given.data());
       std::array<Float_32, VectorSizes::X8> expected{};
       std::array<Float_32, VectorSizes::X8> actual{};
 
@@ -200,10 +200,10 @@ namespace vectorization::test {
     }
 
     TEST_METHOD(replacesComponentPackedFloat8_256AtIndex) {
-      auto givenReplacement = 5.0f;
-      auto givenReplacementPack = _mm256_set1_ps(givenReplacement);
-      auto given = StandardSample::ofArrayType<Float_32, VectorSizes::X8>();
-      auto givenPack = _mm256_load_ps(given.data());
+      constexpr auto givenReplacement = 5.0f;
+      const auto givenReplacementPack = _mm256_set1_ps(givenReplacement);
+      const auto given = StandardSample::ofArrayType<Float_32, VectorSizes::X8>();
+      const auto givenPack = _mm256_load_ps(given.data());
       std::array<Float_32, VectorSizes::X8> expected{};
       std::array<Float_32, VectorSizes::X8> actual{};
 
@@ -270,9 +270,9 @@ namespace vectorization::test {
     }
 
     TEST_METHOD(replacesComponentFloat_32AtIndex) {
-      auto givenReplacement = 5.0f;
-      auto given = StandardSample::ofArrayType<Float_32, VectorSizes::X8>();
-      auto givenPack = _mm256_load_ps(given.data());
+      constexpr auto givenReplacement = 5.0f;
+      const auto given = StandardSample::ofArrayType<Float_32, VectorSizes::X8>();
+      const auto givenPack = _mm256_load_ps(given.data());
       std::array<Float_32, VectorSizes::X8> expected{};
       std::array<Float_32, VectorSizes::X8> actual{};
 

@@ -11,32 +11,32 @@ namespace vectorization {
   const PackedFloat8_256 SelfOcclusionEpsilon_PackedFloat8_256 = _mm256_set1_ps(Float_32{SELF_OCCLUSION_EPSILON});
 
   template <>
-  const Float_32 SelfOcclusionEpsilon<Float_32>() noexcept {
+  Float_32 SelfOcclusionEpsilon<Float_32>() noexcept {
     return x(SelfOcclusionEpsilon<PackedFloat4_128>());
   }
 
   template <>
-  const Float_64 SelfOcclusionEpsilon<Float_64>() noexcept {
+  Float_64 SelfOcclusionEpsilon<Float_64>() noexcept {
     return x(SelfOcclusionEpsilon<PackedFloat2_128>());
   }
 
   template <>
-  const PackedFloat2_128 SelfOcclusionEpsilon<PackedFloat2_128>() noexcept {
+  PackedFloat2_128 SelfOcclusionEpsilon<PackedFloat2_128>() noexcept {
     return SelfOcclusionEpsilon_PackedFloat2_128;
   }
 
   template <>
-  const PackedFloat4_128 SelfOcclusionEpsilon<PackedFloat4_128>() noexcept {
+  PackedFloat4_128 SelfOcclusionEpsilon<PackedFloat4_128>() noexcept {
     return SelfOcclusionEpsilon_PackedFloat4_128;
   }
 
   template <>
-  const PackedFloat4_256 SelfOcclusionEpsilon<PackedFloat4_256>() noexcept {
+  PackedFloat4_256 SelfOcclusionEpsilon<PackedFloat4_256>() noexcept {
     return SelfOcclusionEpsilon_PackedFloat4_256;
   }
 
   template <>
-  const PackedFloat8_256 SelfOcclusionEpsilon<PackedFloat8_256>() noexcept {
+  PackedFloat8_256 SelfOcclusionEpsilon<PackedFloat8_256>() noexcept {
     return SelfOcclusionEpsilon_PackedFloat8_256;
   }
 }

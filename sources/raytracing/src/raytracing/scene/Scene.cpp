@@ -34,8 +34,7 @@ namespace raytracer {
     clearSceneGraph();
     finiteSceneObjectsAsGeometryNodes.clear();
     infiniteSceneObjectsAsGeometryNodes.clear();
-    for (SceneList::iterator it = sceneObjects.begin(); it != sceneObjects.end(); ++it) {
-      SceneObject *const sceneObject = *it;
+    for (const auto sceneObject : sceneObjects) {
       if (sceneObject->getForm()->isInfinite()) {
         infiniteSceneObjectsAsGeometryNodes.push_back(sceneObject);
       } else {

@@ -14,7 +14,7 @@ namespace raytracerui {
   WNDCLASSEX WindowsRaytracerUI::windowClass{
       sizeof(WNDCLASSEX),
       CS_OWNDC | CS_HREDRAW | CS_VREDRAW,
-      WindowsRaytracerUI::DelegatingWndProc,
+      DelegatingWndProc,
       0,
       0,
       nullptr,
@@ -78,7 +78,7 @@ namespace raytracerui {
     reshape(Int2(rect.right, rect.bottom) - Int2(rect.left, rect.top));
   }
 
-  void WindowsRaytracerUI::triggerRaytracing(bool fastPreview) {
+  void WindowsRaytracerUI::triggerRaytracing(const bool fastPreview) {
     RaytracerUI::triggerRaytracing(fastPreview);
     InvalidateRect(hWnd, nullptr, false);
   }
@@ -89,20 +89,20 @@ namespace raytracerui {
     if (output) {
       // output->saveAsBMP("output.bmp");
 
-      auto bitmapInfo = output->getBITMAPINFO();
-      auto bitmap = output->getBITMAP();
+      const auto bitmapInfo = output->getBITMAPINFO();
+      const auto [bmType, bmWidth, bmHeight, bmWidthBytes, bmPlanes, bmBitsPixel, bmBits] = output->getBITMAP();
 
       PAINTSTRUCT psPaint{};
-      auto hdc = BeginPaint(hWnd, &psPaint);
+      const auto hdc = BeginPaint(hWnd, &psPaint);
       StretchDIBits(
-          hdc, int{}, int{}, x(screenSize), y(screenSize), int{}, int{}, bitmap.bmWidth, bitmap.bmHeight, bitmap.bmBits,
-          &bitmapInfo, DIB_RGB_COLORS, SRCCOPY
+          hdc, int{}, int{}, x(screenSize), y(screenSize), int{}, int{}, bmWidth, bmHeight, bmBits, &bitmapInfo,
+          DIB_RGB_COLORS, SRCCOPY
       );
       EndPaint(hWnd, &psPaint);
     }
   }
 
-  void WindowsRaytracerUI::keyPressed(WPARAM wParam) {
+  void WindowsRaytracerUI::keyPressed(const WPARAM wParam) {
     switch (wParam) {
     case 'Q':
       parameters.cullingOrientation = ((parameters.cullingOrientation + 2) % 3) - 1;
@@ -182,7 +182,7 @@ namespace raytracerui {
     triggerRaytracing(true);
   }
 
-  void WindowsRaytracerUI::mousePressed(MouseButtons button, ButtonStates state, const Int2 &position) {
+  void WindowsRaytracerUI::mousePressed(const MouseButtons button, const ButtonStates state, const Int2 &position) {
     previousMousePosition = position;
 
     switch (button) {
@@ -219,7 +219,7 @@ namespace raytracerui {
   }
 
   void WindowsRaytracerUI::mouseDragged(const Int2 &position) {
-    auto delta = convert<Float2>(position - previousMousePosition);
+    const auto delta = convert<Float2>(position - previousMousePosition);
     previousMousePosition = position;
 
     switch (activeDrag) {
@@ -244,17 +244,17 @@ namespace raytracerui {
       break;
 
     case DragTypes::Light: {
-      auto &lights = parameters.sceneShader->getLights();
-      auto lastLight = lights.back();
+      const auto &lights = parameters.sceneShader->getLights();
+      const auto lastLight = lights.back();
       lastLight->position += Float4(0.0f, 0.0f, x(delta) - y(delta)) * MOUSE_SENSITIVITY;
       triggerRaytracing(true);
       break;
     }
 
     case DragTypes::Object: {
-      auto scene = dynamic_cast<Scene *const>(parameters.sceneShader);
-      auto &sceneObjects = scene->getSceneObjects();
-      auto lastSceneObject = sceneObjects.back();
+      const auto scene = dynamic_cast<Scene *const>(parameters.sceneShader);
+      const auto &sceneObjects = scene->getSceneObjects();
+      const auto lastSceneObject = sceneObjects.back();
       lastSceneObject->translate(Float3(0.0f, 0.0f, x(delta) - y(delta)) * MOUSE_SENSITIVITY);
       triggerRaytracing(true);
       break;
@@ -266,7 +266,7 @@ namespace raytracerui {
     }
   }
 
-  LRESULT WindowsRaytracerUI::WndProc(UINT message, WPARAM wParam, LPARAM lParam) {
+  LRESULT WindowsRaytracerUI::WndProc(const UINT message, const WPARAM wParam, const LPARAM lParam) {
     switch (message) {
     case WM_CLOSE:
       PostQuitMessage(0);
@@ -314,8 +314,9 @@ namespace raytracerui {
     return LRESULT{0};
   }
 
-  LRESULT CALLBACK WindowsRaytracerUI::DelegatingWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
-    auto targetedUIIterator = createUIs.find(hWnd);
+  LRESULT CALLBACK
+  WindowsRaytracerUI::DelegatingWndProc(const HWND hWnd, const UINT msg, const WPARAM wParam, const LPARAM lParam) {
+    const auto targetedUIIterator = createUIs.find(hWnd);
     if (targetedUIIterator != createUIs.end()) {
       return targetedUIIterator->second->WndProc(msg, wParam, lParam);
     }

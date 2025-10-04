@@ -4,10 +4,10 @@ namespace vectorization::test {
   TEST_CLASS(Select128dTest) {
   public:
     TEST_METHOD(selectsOneOfTwoPackedFloat2_128WithBoolConditionMask) {
-      std::array<Float_64, VectorSizes::Y> givenTruthy{1.0, 2.0};
-      auto givenTruthyPack = _mm_load_pd(givenTruthy.data());
-      std::array<Float_64, VectorSizes::Y> givenFalsy{3.0, 4.0};
-      auto givenFalsyPack = _mm_load_pd(givenFalsy.data());
+      constexpr std::array givenTruthy{1.0, 2.0};
+      const auto givenTruthyPack = _mm_load_pd(givenTruthy.data());
+      constexpr std::array givenFalsy{3.0, 4.0};
+      const auto givenFalsyPack = _mm_load_pd(givenFalsy.data());
       std::array<Float_64, VectorSizes::Y> actual{};
 
       {
@@ -22,10 +22,10 @@ namespace vectorization::test {
     }
 
     TEST_METHOD(selectsComponentsOfTwoPackedFloat2_128WithPackedInts_128ConditionMask) {
-      std::array<Float_64, VectorSizes::Y> givenTruthy{1.0, 2.0};
-      auto givenTruthyPack = _mm_load_pd(givenTruthy.data());
-      std::array<Float_64, VectorSizes::Y> givenFalsy{3.0, 4.0};
-      auto givenFalsyPack = _mm_load_pd(givenFalsy.data());
+      constexpr std::array givenTruthy{1.0, 2.0};
+      const auto givenTruthyPack = _mm_load_pd(givenTruthy.data());
+      constexpr std::array givenFalsy{3.0, 4.0};
+      const auto givenFalsyPack = _mm_load_pd(givenFalsy.data());
       std::array<Float_64, VectorSizes::Y> actual{};
 
       {
@@ -40,10 +40,10 @@ namespace vectorization::test {
     }
 
     TEST_METHOD(selectsComponentsOfTwoPackedFloat2_128WithPackedFloat2_128ConditionMask) {
-      std::array<Float_64, VectorSizes::Y> givenTruthy{1.0, 2.0};
-      auto givenTruthyPack = _mm_load_pd(givenTruthy.data());
-      std::array<Float_64, VectorSizes::Y> givenFalsy{3.0, 4.0};
-      auto givenFalsyPack = _mm_load_pd(givenFalsy.data());
+      constexpr std::array givenTruthy{1.0, 2.0};
+      const auto givenTruthyPack = _mm_load_pd(givenTruthy.data());
+      constexpr std::array givenFalsy{3.0, 4.0};
+      const auto givenFalsyPack = _mm_load_pd(givenFalsy.data());
       std::array<Float_64, VectorSizes::Y> actual{};
 
       {

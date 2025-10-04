@@ -12,11 +12,8 @@ namespace vectorization {
   PackedFloat2_128 swizzledBlend<VectorIndices::X, VectorIndices::X, true, true>(
       const PackedFloat2_128 &a, const PackedFloat2_128 &b
   ) noexcept {
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "ArgumentSelectionDefects"
     // argument order is indeed (b, a)
     return swizzledBlend<VectorIndices::X, VectorIndices::X, false, false>(b, a);
-#pragma clang diagnostic pop
   }
 
   template <>
@@ -30,11 +27,8 @@ namespace vectorization {
   PackedFloat2_128 swizzledBlend<VectorIndices::X, VectorIndices::X, true, false>(
       const PackedFloat2_128 &a, const PackedFloat2_128 &b
   ) noexcept {
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "ArgumentSelectionDefects"
     // argument order is indeed (b, a)
     return swizzledBlend<VectorIndices::X, VectorIndices::X, false, true>(b, a);
-#pragma clang diagnostic pop
   }
 
   template <>
@@ -48,11 +42,8 @@ namespace vectorization {
   PackedFloat2_128 swizzledBlend<VectorIndices::Y, VectorIndices::Y, true, false>(
       const PackedFloat2_128 &a, const PackedFloat2_128 &b
   ) noexcept {
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "ArgumentSelectionDefects"
     // argument order is indeed (b, a)
     return swizzledBlend<VectorIndices::Y, VectorIndices::Y, false, true>(b, a);
-#pragma clang diagnostic pop
   }
 
   template <>
@@ -73,21 +64,15 @@ namespace vectorization {
   PackedFloat2_128 swizzledBlend<VectorIndices::Y, VectorIndices::X, true, false>(
       const PackedFloat2_128 &a, const PackedFloat2_128 &b
   ) noexcept {
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "ArgumentSelectionDefects"
     // argument order is indeed (b, a)
     return swizzledBlend<VectorIndices::Y, VectorIndices::X, false, true>(b, a);
-#pragma clang diagnostic pop
   }
 
   template <>
   PackedFloat2_128 swizzledBlend<VectorIndices::Y, VectorIndices::X, true, true>(
       const PackedFloat2_128 &a, const PackedFloat2_128 &b
   ) noexcept {
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "ArgumentSelectionDefects"
     // argument order is indeed (b, a)
     return swizzledBlend<VectorIndices::Y, VectorIndices::X, false, false>(b, a);
-#pragma clang diagnostic pop
   }
 }

@@ -10,9 +10,9 @@ namespace raytracer {
         iPermutationsCountS1(static_cast<Int>(DefaultPermutationsCount - One<ASizeT>())),
         fPermutationsCount(static_cast<Float>(DefaultPermutationsCount)) {
     srand(static_cast<UInt_32>(seed));
-    const Int4 permutationsOffset = Int4(iPermutationsCount);
+    const auto permutationsOffset = Int4(iPermutationsCount);
     const Int4 permutationsScale = permutationsOffset + permutationsOffset;
-    const Float4 permutationsNormalization = Float4(reciprocal(fPermutationsCount));
+    const auto permutationsNormalization = Float4(reciprocal(fPermutationsCount));
 
     // Initialize memory blocks
     const ASizeT permutationsCountExtended = permutationsCount + permutationsCount + Two<ASizeT>();
@@ -50,7 +50,7 @@ namespace raytracer {
 
   const Float4
   PerlinNoiseGenerator::randomGradient(const Int4 &scale, const Int4 &offset, const Float4 &normalization) {
-    const Int4 t = Int4(rand(), rand(), rand(), rand());
+    const auto t = Int4(rand(), rand(), rand(), rand());
     return convert<Float4>(t % scale - offset) * normalization;
   }
 
@@ -82,9 +82,9 @@ namespace raytracer {
     Float4 rx, ry;
     setup(x(v), bx, rx);
     setup(y(v), by, ry);
-    const Int4 ij = Int4(permutations[x(bx)], permutations[y(bx)]);
-    const Int4 b0 = Int4(permutations[x(ij) + x(by)], permutations[x(ij) + y(by)]);
-    const Int4 b1 = Int4(permutations[y(ij) + x(by)], permutations[y(ij) + y(by)]);
+    const auto ij = Int4(permutations[x(bx)], permutations[y(bx)]);
+    const auto b0 = Int4(permutations[x(ij) + x(by)], permutations[x(ij) + y(by)]);
+    const auto b1 = Int4(permutations[y(ij) + x(by)], permutations[y(ij) + y(by)]);
     const Float4 s = splineCurve(Float4(x(rx), x(ry)));
     const Float a =
         mix(dot3(Float4(x(rx), x(ry)), gradients2[x(b0)]), dot3(Float4(y(rx), x(ry)), gradients2[x(b1)]), x(s));
@@ -99,9 +99,9 @@ namespace raytracer {
     setup(x(v), bx, rx);
     setup(y(v), by, ry);
     setup(z(v), bz, rz);
-    const Int4 ij = Int4(permutations[x(bx)], permutations[y(bx)]);
-    const Int4 b0 = Int4(permutations[x(ij) + x(by)], permutations[x(ij) + y(by)]);
-    const Int4 b1 = Int4(permutations[y(ij) + x(by)], permutations[y(ij) + y(by)]);
+    const auto ij = Int4(permutations[x(bx)], permutations[y(bx)]);
+    const auto b0 = Int4(permutations[x(ij) + x(by)], permutations[x(ij) + y(by)]);
+    const auto b1 = Int4(permutations[y(ij) + x(by)], permutations[y(ij) + y(by)]);
     const Float4 s = splineCurve(Float4(x(rx), x(ry), x(rz)));
     const Float a =
         mix(dot3(Float4(x(rx), x(ry), x(rz)), gradients3[x(b0) + x(bz)]),
@@ -125,9 +125,9 @@ namespace raytracer {
     setup(y(v), by, ry);
     setup(z(v), bz, rz);
     setup(w(v), bz, rz);
-    const Int4 ij = Int4(permutations[x(bx)], permutations[y(bx)]);
-    const Int4 b0 = Int4(permutations[x(ij) + x(by)], permutations[x(ij) + y(by)]);
-    const Int4 b1 = Int4(permutations[y(ij) + x(by)], permutations[y(ij) + y(by)]);
+    const auto ij = Int4(permutations[x(bx)], permutations[y(bx)]);
+    const auto b0 = Int4(permutations[x(ij) + x(by)], permutations[x(ij) + y(by)]);
+    const auto b1 = Int4(permutations[y(ij) + x(by)], permutations[y(ij) + y(by)]);
     const Float4 s = splineCurve(Float4(x(rx), x(ry), x(rz), x(rw)));
     const Float a =
         mix(dot(Float4(x(rx), x(ry), x(rz), One<Float>()), gradients4[x(b0) + x(bz)]),

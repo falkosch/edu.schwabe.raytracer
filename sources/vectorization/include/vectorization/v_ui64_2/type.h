@@ -5,11 +5,7 @@
 #include "vectorization/architecture.h"
 
 namespace vectorization {
-  /**
-   * packed SSE-vector of two uint64 scalars
-   */
   struct v_ui64_2 {
-    // Metas
     static constexpr ASizeT SIZE = VectorSizes::Y;
     using ValueType = UInt_64;
     using BoolType = ValueType;

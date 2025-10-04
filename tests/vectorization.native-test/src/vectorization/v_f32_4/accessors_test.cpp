@@ -4,10 +4,10 @@ namespace vectorization::test {
   TEST_CLASS(v_f32_4_AccessorsTest) {
   public:
     TEST_METHOD(readsComponent) {
-      auto given = StandardSample::ofVectorType<v_f32_4>();
+      const auto given = StandardSample::ofVectorType<v_f32_4>();
 
       {
-        v_f32_4 actual{
+        const v_f32_4 actual{
             component<VectorIndices::X>(given), component<VectorIndices::Y>(given), component<VectorIndices::Z>(given),
             component<VectorIndices::W>(given)
         };
@@ -15,7 +15,7 @@ namespace vectorization::test {
       }
 
       {
-        v_f32_4 actual{
+        const v_f32_4 actual{
             component<VectorIndices::W>(given), component<VectorIndices::X>(given), component<VectorIndices::Y>(given),
             component<VectorIndices::Z>(given)
         };
@@ -24,29 +24,29 @@ namespace vectorization::test {
     }
 
     TEST_METHOD(readsXYZW) {
-      auto given = StandardSample::ofVectorType<v_f32_4>();
+      const auto given = StandardSample::ofVectorType<v_f32_4>();
 
       {
-        v_f32_4 actual{x(given), y(given), z(given), w(given)};
+        const v_f32_4 actual{x(given), y(given), z(given), w(given)};
         Assert::IsTrue(allTrue(given == actual), L"component value mismatch", LINE_INFO());
       }
 
       {
-        v_f32_4 actual{w(given), x(given), y(given), z(given)};
+        const v_f32_4 actual{w(given), x(given), y(given), z(given)};
         Assert::IsTrue(allTrue(given != actual), L"wrong component match", LINE_INFO());
       }
     }
 
     TEST_METHOD(readsXi) {
-      auto given = StandardSample::ofVectorType<v_f32_4>();
+      const auto given = StandardSample::ofVectorType<v_f32_4>();
 
       {
-        v_f32_4 actual{x1(given), x2(given), x3(given), x4(given)};
+        const v_f32_4 actual{x1(given), x2(given), x3(given), x4(given)};
         Assert::IsTrue(allTrue(given == actual), L"component value mismatch", LINE_INFO());
       }
 
       {
-        v_f32_4 actual{x4(given), x1(given), x2(given), x3(given)};
+        const v_f32_4 actual{x4(given), x1(given), x2(given), x3(given)};
         Assert::IsTrue(allTrue(given != actual), L"wrong component match", LINE_INFO());
       }
     }

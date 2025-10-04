@@ -22,15 +22,15 @@ namespace raytracer {
   }
 
   const AxisAlignedBoundingBox computeStandardMesh(std::vector<Float4> &vertices) noexcept {
-    auto bounds = computeBounding(vertices);
-    auto translation = center(bounds);
-    auto verticesExtents = extents(bounds);
-    auto scale =
+    const auto bounds = computeBounding(vertices);
+    const auto translation = center(bounds);
+    const auto verticesExtents = extents(bounds);
+    const auto scale =
         reciprocal(min3v(blendMasked(verticesExtents, max3v(verticesExtents), verticesExtents == Zero<Float4>())));
 
 #pragma omp parallel for
     for (auto i = int{0}; i < static_cast<int>(vertices.size()); i++) {
-      auto index = static_cast<ASizeT>(i);
+      const auto index = static_cast<ASizeT>(i);
       vertices[index] = replaceW((vertices[index] - translation) * scale, One<Float>());
     }
 
