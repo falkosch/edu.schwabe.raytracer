@@ -18,6 +18,13 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: true
+      - run: python -m pip install conan
+      - run: |
+          conan profile detect
+          conan profile show -pr default
+      - run: |
+          chmod +x install-dependencies-with-conan.sh
+          CONAN_ADD_ARGS="-c tools.system.package_manager:mode=install -c tools.system.package_manager:sudo=true" ./install-dependencies-with-conan.sh
       - run: |
           chmod +x build-with-local-cc.sh 
           ./build-with-local-cc.sh

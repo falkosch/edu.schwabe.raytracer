@@ -20,9 +20,9 @@ CONAN=${CONAN:-$(command -v conan)}
 mkdir -p ${CONAN_DEP_INSTALL_DIR}
 rm -rf ${CONAN_DEP_INSTALL_DIR}/*
 
-CONAN_ADD_ARGS="${CONAN_ADD_ARGS:- --setting arch=${CONAN_ARCH_TYPE}}"
-
-conan install . \
-    --install-folder ${CONAN_DEP_INSTALL_DIR} \
+${CONAN} install . \
+    --profile:build build/conan-profiles/windows-x64 \
+    --settings:build arch=${CONAN_ARCH_TYPE} \
+    --output-folder ${CONAN_DEP_INSTALL_DIR} \
     --build missing \
     ${CONAN_ADD_ARGS}
