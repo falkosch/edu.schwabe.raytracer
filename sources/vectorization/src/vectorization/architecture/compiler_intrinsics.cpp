@@ -14,11 +14,17 @@ namespace vectorization {
   }
 
   PackedFloat4_128 _mm_cvtepu32_ps(const PackedInts_128 &values) noexcept {
-    // see https://stackoverflow.com/a/34067907
-    // v2 = v / 2
-    const auto half = _mm_srli_epi32(values, 1);
-    // ret = v - (v / 2)
-    return _mm_add_ps(_mm_cvtepi32_ps(half), _mm_cvtepi32_ps(_mm_sub_epi32(values, half)));
+    // Generate sign bit mask (0x80000000) without literals: all-ones shifted left by 31.
+    const auto allOnes = _mm_cmpeq_epi32(_mm_setzero_si128(), _mm_setzero_si128());
+    const auto highBit = _mm_slli_epi32(allOnes, 31);
+    // Clear the high bit so the lower 31 bits fit in signed int32 range for exact conversion.
+    const auto low31 = _mm_andnot_si128(highBit, values);
+    // Derive 2^31 as float: convert signed 0x80000000 (-2147483648) then strip sign bit.
+    const auto highBitFloat = _mm_andnot_ps(_mm_castsi128_ps(highBit), _mm_cvtepi32_ps(highBit));
+    // Build a mask for elements that had the high bit set.
+    const auto hadHighBit = _mm_castsi128_ps(_mm_cmpeq_epi32(_mm_and_si128(values, highBit), highBit));
+    // Convert lower 31 bits and conditionally add 2^31 for elements that had it set.
+    return _mm_add_ps(_mm_cvtepi32_ps(low31), _mm_and_ps(hadHighBit, highBitFloat));
   }
 
   Int_64 _mm_popcnt_u64(const UInt_64 value) noexcept {
