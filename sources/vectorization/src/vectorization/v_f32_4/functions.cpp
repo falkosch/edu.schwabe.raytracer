@@ -1,6 +1,8 @@
 #include "vectorization/v_f32_4/functions.h"
 
 #include "vectorization/v_f32_4/accessors.h"
+
+#include <cassert>
 #include "vectorization/v_f32_4/blends.h"
 #include "vectorization/v_f32_4/constants.h"
 #include "vectorization/v_f32_4/operators.h"
@@ -152,6 +154,7 @@ namespace vectorization {
   //{ normalize()
 
   v_f32_4 normalize(const v_f32_4 &v) noexcept {
+    assert(dot(v, v) > Zero<v_f32_4::ValueType>() && "normalize of zero-length vector");
 #ifdef VECTORIZATION_APPROXIMATIONS
     return v * rlengthv(v);
 #else
@@ -160,6 +163,7 @@ namespace vectorization {
   }
 
   v_f32_4 normalize3(const v_f32_4 &v) noexcept {
+    assert(dot3(v, v) > Zero<v_f32_4::ValueType>() && "normalize3 of zero-length vector");
 #ifdef VECTORIZATION_APPROXIMATIONS
     return zeroW(v * rlength3v(v));
 #else

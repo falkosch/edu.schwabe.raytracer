@@ -2,36 +2,46 @@
 
 #include "vectorization/accessors.h"
 
+#include <cassert>
+
 namespace vectorization {
   Int_8 divide(const Int_8 a, const Int_8 b) noexcept {
+    assert(b != 0 && "integer division by zero");
     return static_cast<Int_8>(a / b);
   }
 
   UInt_8 divide(const UInt_8 a, const UInt_8 b) noexcept {
+    assert(b != 0 && "integer division by zero");
     return static_cast<UInt_8>(a / b);
   }
 
   Int_16 divide(const Int_16 a, const Int_16 b) noexcept {
+    assert(b != 0 && "integer division by zero");
     return static_cast<Int_16>(a / b);
   }
 
   UInt_16 divide(const UInt_16 a, const UInt_16 b) noexcept {
+    assert(b != 0 && "integer division by zero");
     return static_cast<UInt_16>(a / b);
   }
 
   Int_32 divide(const Int_32 a, const Int_32 b) noexcept {
+    assert(b != 0 && "integer division by zero");
     return a / b;
   }
 
   UInt_32 divide(const UInt_32 a, const UInt_32 b) noexcept {
+    assert(b != 0 && "integer division by zero");
     return a / b;
   }
 
   Int_64 divide(const Int_64 a, const Int_64 b) noexcept {
+    assert(b != 0 && "integer division by zero");
     return a / b;
   }
 
   UInt_64 divide(const UInt_64 a, const UInt_64 b) noexcept {
+    assert(b != 0 && "integer division by zero");
     return a / b;
   }
 

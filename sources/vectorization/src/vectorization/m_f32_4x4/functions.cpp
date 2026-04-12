@@ -2,6 +2,8 @@
 
 #include "vectorization/functions.h"
 
+#include <cassert>
+
 namespace vectorization {
   m_f32_4x4 inverse(const m_f32_4x4 &invertible) noexcept {
     const auto SIGN_MASKR =
@@ -33,7 +35,9 @@ namespace vectorization {
     const auto i2 = v1 * f3 - v0 * f1 - v3 * f5;
     const auto i3 = v0 * f2 - v1 * f4 + v2 * f5;
 
-    const auto d = reciprocal(dotv(invertible.row0, xz_xz(xy_xy(i0, i1), xy_xy(i2, i3)))) ^ SIGN_MASKR;
+    const auto detv = dotv(invertible.row0, xz_xz(xy_xy(i0, i1), xy_xy(i2, i3)));
+    assert(x(detv) != Zero<m_f32_4x4::ValueType>() && "inverse of singular matrix");
+    const auto d = reciprocal(detv) ^ SIGN_MASKR;
     return m_f32_4x4(i0 * d, i1 * d, i2 * d, i3 * d);
   }
 
@@ -68,7 +72,8 @@ namespace vectorization {
     const auto cosinus = cos(angleInRadian);
     const auto sinus = sin(angleInRadian);
     const auto rot = m_f32_4x4::RowVectorType(cosinus, sinus, -sinus);
-    const auto normal = oneW(normalize(rotationAxis));
+    assert(dot3(rotationAxis, rotationAxis) > Zero<m_f32_4x4::ValueType>() && "rotate with zero-length axis");
+    const auto normal = oneW(normalize3(rotationAxis));
     const auto temp = (One<m_f32_4x4::RowVectorType>() - xxxx(rot)) * normal;
 
     const auto tx = xxxx(temp) * normal + rot * wzyx(normal);
