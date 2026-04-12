@@ -2,9 +2,8 @@
 
 #include "vectorization/architecture.h"
 
-#define C_PI 3.1415926535897932384626433832795
-
 namespace vectorization {
+  constexpr Float_64 C_PI = 3.1415926535897932384626433832795;
   template <typename T>
   T Pi() noexcept;
 

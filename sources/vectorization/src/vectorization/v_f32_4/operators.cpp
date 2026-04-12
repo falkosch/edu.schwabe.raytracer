@@ -16,7 +16,8 @@ namespace vectorization {
   }
 
   v_f32_4::VectorBoolType operator!(const v_f32_4 &v) noexcept {
-    return _mm_cmpeq_epi32(Zero<v_f32_4::VectorBoolType::PackedType>(), _mm_castps_si128(v.components));
+    // Use float comparison so -0.0 == +0.0 (IEEE-754 compliant)
+    return _mm_castps_si128(_mm_cmpeq_ps(v.components, Zero<v_f32_4::PackedType>()));
   }
 
   v_f32_4 operator+(const v_f32_4 &a, const v_f32_4 &b) noexcept {
