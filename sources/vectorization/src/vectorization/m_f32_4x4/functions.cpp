@@ -74,7 +74,11 @@ namespace vectorization {
     const auto rot = m_f32_4x4::RowVectorType(cosinus, sinus, -sinus);
     assert(dot3(rotationAxis, rotationAxis) > Zero<m_f32_4x4::ValueType>() && "rotate with zero-length axis");
     const auto normal = oneW(normalize3(rotationAxis));
-    const auto temp = (One<m_f32_4x4::RowVectorType>() - xxxx(rot)) * normal;
+    // Use 2*sin^2(theta/2) instead of 1-cos(theta) to avoid catastrophic cancellation for small angles,
+    // since 1-cos(theta) loses precision when cos(theta) is close to 1 (identity: 1-cos(t) = 2*sin^2(t/2)).
+    const auto sinHalf = sin(angleInRadian * Half<m_f32_4x4::ValueType>());
+    const auto oneMinusCos = Two<m_f32_4x4::ValueType>() * sinHalf * sinHalf;
+    const auto temp = m_f32_4x4::RowVectorType(oneMinusCos) * normal;
 
     // tx/ty/tz are the columns of the 3x3 rotation matrix R.
     const auto tx = xxxx(temp) * normal + rot * wzyx(normal);
