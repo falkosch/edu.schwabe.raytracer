@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-SSE/AVX-vectorized Whitted-style raytracer written in C++20. Windows-only UI (Win32 API + OpenGL). Educational/hobby
+SSE/AVX-vectorized Whitted-style raytracer written in C++23. Windows-only UI (Win32 API + OpenGL). Educational/hobby
 project. Uses OpenMP for parallelization. Key compiler flags: `/arch:AVX2 /fp:fast` (MSVC), `-march=native` (GCC).
 
 ## Build Commands
@@ -73,7 +73,7 @@ TestLight. Configuration constants defined in main.cpp (FAST_PREVIEW_SIZE, MAX_T
 - Tests live in `tests/vectorization.native-test/` — covers all vectorization operations
 - **Windows/VS**: Uses MS CppUnitTest (`<CppUnitTest.h>`). Tests build as a shared library (.dll) for VS Test Explorer.
   Uses `TEST_CLASS(NameTest)` / `TEST_METHOD(camelCaseAction)` macros, assertions via `Assert::AreEqual()` etc.
-- **Linux/GCC**: Uses Catch2. Tests build as executables, run via `test-with-local-cc.sh` or `ctest`
+- **Linux/GCC**: Uses Catch2. Tests build as executables, run via `ctest`
 - Test file naming mirrors source: `component_128d.cpp` → `component_128d_test.cpp`
 
 ### Regression Tests
@@ -102,12 +102,6 @@ Duration: 0.116185s
 - Linting: `.clang-tidy` (clang-diagnostic-*, clang-analyzer-*)
 - Compiler warnings: `/W4` (MSVC), `-Wall -Wextra -pedantic` (GCC)
 - Defines always set: `UNICODE`, `_UNICODE`, `WIN32_LEAN_AND_MEAN`, `NOMINMAX`
-
-## CI
-
-- **GitHub Actions** (`.github/workflows/build-and-release.yml`): Ubuntu runner, Conan deps, GCC cross-compile, uploads
-  release artifacts
-- **Jenkins** (`Jenkinsfile`): Docker-based, includes SonarQube analysis and quality gate
 
 ## Data
 
