@@ -19,6 +19,11 @@ namespace vectorization {
     explicit v_ui32_4(ValueType x, ValueType y) noexcept;
     explicit v_ui32_4(ValueType x, ValueType y, ValueType z) noexcept;
     explicit v_ui32_4(ValueType x, ValueType y, ValueType z, ValueType w) noexcept;
+    explicit v_ui32_4(const PackedType *vector) noexcept;
+    explicit v_ui32_4(const VectorType *vector) noexcept;
+
+    /// @brief Constructs from a 16-byte aligned unsigned int array.
+    explicit v_ui32_4(const ValueType *values) noexcept;
 
     v_ui32_4 &operator=(const PackedType &vector) noexcept;
 

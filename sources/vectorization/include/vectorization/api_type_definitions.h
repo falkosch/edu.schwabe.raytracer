@@ -10,117 +10,117 @@
 #include "m_f32_4x4.h"
 
 namespace vectorization {
-  typedef v_i32_4 Int1_8;
-  typedef v_i32_4 Int2_8;
-  typedef v_i32_4 Int3_8;
-  typedef v_i32_4 Int4_8;
+  using Int1_8 = v_i32_4;
+  using Int2_8 = v_i32_4;
+  using Int3_8 = v_i32_4;
+  using Int4_8 = v_i32_4;
 
-  typedef v_ui32_4 UInt1_8;
-  typedef v_ui32_4 UInt2_8;
-  typedef v_ui32_4 UInt3_8;
-  typedef v_ui32_4 UInt4_8;
+  using UInt1_8 = v_ui32_4;
+  using UInt2_8 = v_ui32_4;
+  using UInt3_8 = v_ui32_4;
+  using UInt4_8 = v_ui32_4;
 
-  typedef v_i32_4 Int1_16;
-  typedef v_i32_4 Int2_16;
-  typedef v_i32_4 Int3_16;
-  typedef v_i32_4 Int4_16;
+  using Int1_16 = v_i32_4;
+  using Int2_16 = v_i32_4;
+  using Int3_16 = v_i32_4;
+  using Int4_16 = v_i32_4;
 
-  typedef v_ui32_4 UInt1_16;
-  typedef v_ui32_4 UInt2_16;
-  typedef v_ui32_4 UInt3_16;
-  typedef v_ui32_4 UInt4_16;
+  using UInt1_16 = v_ui32_4;
+  using UInt2_16 = v_ui32_4;
+  using UInt3_16 = v_ui32_4;
+  using UInt4_16 = v_ui32_4;
 
-  typedef v_i32_4 Int1_32;
-  typedef v_i32_4 Int2_32;
-  typedef v_i32_4 Int3_32;
-  typedef v_i32_4 Int4_32;
+  using Int1_32 = v_i32_4;
+  using Int2_32 = v_i32_4;
+  using Int3_32 = v_i32_4;
+  using Int4_32 = v_i32_4;
 
-  typedef v_ui32_4 UInt1_32;
-  typedef v_ui32_4 UInt2_32;
-  typedef v_ui32_4 UInt3_32;
-  typedef v_ui32_4 UInt4_32;
+  using UInt1_32 = v_ui32_4;
+  using UInt2_32 = v_ui32_4;
+  using UInt3_32 = v_ui32_4;
+  using UInt4_32 = v_ui32_4;
 
-  // typedef v_i64_2 Int1_64;
-  // typedef v_i64_2 Int2_64;
+  // using Int1_64 = v_i64_2;
+  // using Int2_64 = v_i64_2;
 
-  typedef v_ui64_2 UInt1_64;
-  typedef v_ui64_2 UInt2_64;
+  using UInt1_64 = v_ui64_2;
+  using UInt2_64 = v_ui64_2;
 
-  typedef v_f32_4 Float1_32;
-  typedef v_f32_4 Float2_32;
-  typedef v_f32_4 Float3_32;
-  typedef v_f32_4 Float4_32;
+  using Float1_32 = v_f32_4;
+  using Float2_32 = v_f32_4;
+  using Float3_32 = v_f32_4;
+  using Float4_32 = v_f32_4;
 
-  // typedef v_f64_2 Float1_64;
-  // typedef v_f64_2 Float2_64;
+  // using Float1_64 = v_f64_2;
+  // using Float2_64 = v_f64_2;
 
   // Architecture dependent size vector type
 
 #ifdef ARCH_X64
-  typedef UInt1_64 Size1;
-  typedef UInt2_64 Size2;
-  // typedef UInt3_64 Size3;
-  // typedef UInt4_64 Size4;
+  using Size1 = UInt1_64;
+  using Size2 = UInt2_64;
+  // using Size3 = UInt3_64;
+  // using Size4 = UInt4_64;
 #else
-  typedef UInt1_32 Size1;
-  typedef UInt2_32 Size2;
-  typedef UInt3_32 Size3;
-  typedef UInt4_32 Size4;
+  using Size1 = UInt1_32;
+  using Size2 = UInt2_32;
+  using Size3 = UInt3_32;
+  using Size4 = UInt4_32;
 #endif
 
   // Shortcuts for the default precision vectors
 
 #ifdef VECTORIZATION_HIGH_PRECISION
 
-  typedef Int_64 Int;
-  typedef UInt_64 UInt;
-  typedef Bool_64 Bool;
-  typedef Float_64 Float;
+  using Int = Int_64;
+  using UInt = UInt_64;
+  using Bool = Bool_64;
+  using Float = Float_64;
 
-  typedef Int1_64 Int1;
-  typedef Int2_64 Int2;
-  typedef Int3_64 Int3;
-  typedef Int4_64 Int4;
+  using Int1 = Int1_64;
+  using Int2 = Int2_64;
+  using Int3 = Int3_64;
+  using Int4 = Int4_64;
 
-  typedef UInt1_64 UInt1;
-  typedef UInt2_64 UInt2;
-  typedef UInt3_64 UInt3;
-  typedef UInt4_64 UInt4;
+  using UInt1 = UInt1_64;
+  using UInt2 = UInt2_64;
+  using UInt3 = UInt3_64;
+  using UInt4 = UInt4_64;
 
-  typedef Float1_64 Float1;
-  typedef Float2_64 Float2;
-  typedef Float3_64 Float3;
-  typedef Float4_64 Float4;
+  using Float1 = Float1_64;
+  using Float2 = Float2_64;
+  using Float3 = Float3_64;
+  using Float4 = Float4_64;
 
-  typedef m_ui64_4x4 UInt44;
-  typedef m_i64_4x4 Int44;
-  typedef m_f64_4x4 Float44;
+  using UInt44 = m_ui64_4x4;
+  using Int44 = m_i64_4x4;
+  using Float44 = m_f64_4x4;
 
 #else
 
-  typedef Int_32 Int;
-  typedef UInt_32 UInt;
-  typedef Bool_32 Bool;
-  typedef Float_32 Float;
+  using Int = Int_32;
+  using UInt = UInt_32;
+  using Bool = Bool_32;
+  using Float = Float_32;
 
-  typedef Int1_32 Int1;
-  typedef Int2_32 Int2;
-  typedef Int3_32 Int3;
-  typedef Int4_32 Int4;
+  using Int1 = Int1_32;
+  using Int2 = Int2_32;
+  using Int3 = Int3_32;
+  using Int4 = Int4_32;
 
-  typedef UInt1_32 UInt1;
-  typedef UInt2_32 UInt2;
-  typedef UInt3_32 UInt3;
-  typedef UInt4_32 UInt4;
+  using UInt1 = UInt1_32;
+  using UInt2 = UInt2_32;
+  using UInt3 = UInt3_32;
+  using UInt4 = UInt4_32;
 
-  typedef Float1_32 Float1;
-  typedef Float2_32 Float2;
-  typedef Float3_32 Float3;
-  typedef Float4_32 Float4;
+  using Float1 = Float1_32;
+  using Float2 = Float2_32;
+  using Float3 = Float3_32;
+  using Float4 = Float4_32;
 
-  // typedef m_ui32_4x4 UInt44;
-  // typedef m_i32_4x4 Int44;
-  typedef m_f32_4x4 Float44;
+  // using UInt44 = m_ui32_4x4;
+  // using Int44 = m_i32_4x4;
+  using Float44 = m_f32_4x4;
 
 #endif
 }

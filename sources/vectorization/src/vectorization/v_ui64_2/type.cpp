@@ -5,6 +5,7 @@
 #endif
 
 #include <cassert>
+#include <cstring>
 
 namespace vectorization {
   v_ui64_2::v_ui64_2() noexcept : components(Zero<PackedType>()) {
@@ -32,8 +33,20 @@ namespace vectorization {
   }
 #endif
 
-  v_ui64_2 &v_ui64_2::operator=(const PackedType &packed) noexcept {
-    components = packed;
+  v_ui64_2::v_ui64_2(const PackedType *const vector) noexcept : components() {
+    std::memcpy(&this->components, vector, sizeof(PackedType));
+  }
+
+  v_ui64_2::v_ui64_2(const VectorType *const vector) noexcept : components() {
+    std::memcpy(&this->components, &vector->components, sizeof(PackedType));
+  }
+
+  v_ui64_2::v_ui64_2(const ValueType *const values) noexcept
+      : components(_mm_load_si128(reinterpret_cast<const PackedType *>(values))) {
+  }
+
+  v_ui64_2 &v_ui64_2::operator=(const PackedType &vector) noexcept {
+    components = vector;
     return *this;
   }
 

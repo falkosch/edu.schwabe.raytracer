@@ -1,6 +1,7 @@
 #include "vectorization/v_ui32_4.h"
 
 #include <cassert>
+#include <cstring>
 
 namespace vectorization {
   v_ui32_4::v_ui32_4() noexcept : components(Zero<PackedType>()) {
@@ -24,6 +25,18 @@ namespace vectorization {
       const ValueType x, const ValueType y, const ValueType z, const ValueType w
   ) noexcept
       : components(_mm_set_epi32(static_cast<int>(w), static_cast<int>(z), static_cast<int>(y), static_cast<int>(x))) {
+  }
+
+  v_ui32_4::v_ui32_4(const PackedType *const vector) noexcept : components() {
+    std::memcpy(&this->components, vector, sizeof(PackedType));
+  }
+
+  v_ui32_4::v_ui32_4(const VectorType *const vector) noexcept : components() {
+    std::memcpy(&this->components, &vector->components, sizeof(PackedType));
+  }
+
+  v_ui32_4::v_ui32_4(const ValueType *const values) noexcept
+      : components(_mm_load_si128(reinterpret_cast<const PackedType *>(values))) {
   }
 
   v_ui32_4 &v_ui32_4::operator=(const PackedType &vector) noexcept {

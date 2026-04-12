@@ -6,37 +6,32 @@
 
 namespace vectorization {
   struct v_f32_4 {
-    // Metas
     static constexpr ASizeT SIZE = VectorSizes::W;
-    typedef Float_32 ValueType;
-    typedef v_i32_4::ValueType BoolType;
-    typedef v_f32_4 VectorType;
-    typedef v_i32_4 VectorBoolType;
-    typedef PackedTypes<ValueType, SIZE>::Type PackedType;
+    using ValueType = Float_32;
+    using BoolType = v_i32_4::ValueType;
+    using VectorType = v_f32_4;
+    using VectorBoolType = v_i32_4;
+    using PackedType = PackedTypes<ValueType, SIZE>::Type;
 
-    // the actual data
     PackedType components;
 
     v_f32_4() noexcept;
-
-    v_f32_4(const PackedType &v) noexcept;
-
-    explicit v_f32_4(ValueType v) noexcept;
-
+    v_f32_4(const PackedType &vector) noexcept;
+    explicit v_f32_4(ValueType scalar) noexcept;
     explicit v_f32_4(ValueType x, ValueType y) noexcept;
-
     explicit v_f32_4(ValueType x, ValueType y, ValueType z) noexcept;
-
     explicit v_f32_4(ValueType x, ValueType y, ValueType z, ValueType w) noexcept;
+    explicit v_f32_4(const PackedType *vector) noexcept;
+    explicit v_f32_4(const VectorType *vector) noexcept;
 
-    explicit v_f32_4(const PackedType *v) noexcept;
+    /// @brief Constructs from a 16-byte aligned float array.
+    explicit v_f32_4(const ValueType *values) noexcept;
 
-    explicit v_f32_4(const VectorType *v) noexcept;
+    VectorType &operator=(const PackedType &vector) noexcept;
 
-    explicit v_f32_4(const ValueType *v) noexcept;
-
-    VectorType &operator=(const PackedType &v) noexcept;
-
+    ValueType &operator[](int index) noexcept;
+    const ValueType &operator[](int index) const noexcept;
+    ValueType &operator[](ASizeT index) noexcept;
     const ValueType &operator[](ASizeT index) const noexcept;
   };
 

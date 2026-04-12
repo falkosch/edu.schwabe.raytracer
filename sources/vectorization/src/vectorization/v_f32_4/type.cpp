@@ -9,10 +9,10 @@ namespace vectorization {
   v_f32_4::v_f32_4() noexcept : components(Zero<PackedType>()) {
   }
 
-  v_f32_4::v_f32_4(const PackedType &v) noexcept : components(v) {
+  v_f32_4::v_f32_4(const PackedType &vector) noexcept : components(vector) {
   }
 
-  v_f32_4::v_f32_4(const ValueType v) noexcept : components(_mm_set_ps1(v)) {
+  v_f32_4::v_f32_4(const ValueType scalar) noexcept : components(_mm_set_ps1(scalar)) {
   }
 
   v_f32_4::v_f32_4(const ValueType x, const ValueType y) noexcept
@@ -27,25 +27,40 @@ namespace vectorization {
       : components(_mm_set_ps(w, z, y, x)) {
   }
 
-  v_f32_4::v_f32_4(const PackedType *const v) noexcept : components() {
-    std::memcpy(&this->components, v, sizeof(PackedType));
+  v_f32_4::v_f32_4(const PackedType *const vector) noexcept : components() {
+    std::memcpy(&this->components, vector, sizeof(PackedType));
   }
 
-  v_f32_4::v_f32_4(const VectorType *const v) noexcept : components() {
-    std::memcpy(&this->components, &v->components, sizeof(PackedType));
+  v_f32_4::v_f32_4(const VectorType *const vector) noexcept : components() {
+    std::memcpy(&this->components, &vector->components, sizeof(PackedType));
   }
 
-  v_f32_4::v_f32_4(const ValueType *const v) noexcept : components(_mm_load_ps(v)) {
+  v_f32_4::v_f32_4(const ValueType *const values) noexcept : components(_mm_load_ps(values)) {
   }
 
-  v_f32_4 &v_f32_4::operator=(const PackedType &v) noexcept {
-    components = v;
+  v_f32_4 &v_f32_4::operator=(const PackedType &vector) noexcept {
+    components = vector;
     return *this;
+  }
+
+  v_f32_4::ValueType &v_f32_4::operator[](const int index) noexcept {
+    assert(static_cast<int>(VectorIndices::X) <= index && static_cast<ASizeT>(index) < SIZE);
+    return reinterpret_cast<ValueType *const>(this)[index];
+  }
+
+  const v_f32_4::ValueType &v_f32_4::operator[](const int index) const noexcept {
+    assert(static_cast<int>(VectorIndices::X) <= index && static_cast<ASizeT>(index) < SIZE);
+    return reinterpret_cast<const ValueType *const>(this)[index];
+  }
+
+  v_f32_4::ValueType &v_f32_4::operator[](const ASizeT index) noexcept {
+    assert(index < SIZE);
+    return reinterpret_cast<ValueType *const>(this)[index];
   }
 
   const v_f32_4::ValueType &v_f32_4::operator[](const ASizeT index) const noexcept {
     assert(index < SIZE);
-    return reinterpret_cast<const ValueType *>(&this->components)[index];
+    return reinterpret_cast<const ValueType *const>(this)[index];
   }
 
   void store(const v_f32_4 &src, v_f32_4 *const dst) noexcept {

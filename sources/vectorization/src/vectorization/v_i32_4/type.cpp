@@ -1,16 +1,17 @@
 #include "vectorization/v_i32_4.h"
 
 #include <cassert>
+#include <cstring>
 #include <limits>
 
 namespace vectorization {
   v_i32_4::v_i32_4() noexcept : components(Zero<PackedType>()) {
   }
 
-  v_i32_4::v_i32_4(const PackedType &v) noexcept : components(v) {
+  v_i32_4::v_i32_4(const PackedType &vector) noexcept : components(vector) {
   }
 
-  v_i32_4::v_i32_4(const ValueType s) noexcept : components(_mm_set1_epi32(s)) {
+  v_i32_4::v_i32_4(const ValueType scalar) noexcept : components(_mm_set1_epi32(scalar)) {
   }
 
   v_i32_4::v_i32_4(const ValueType x, const ValueType y) noexcept
@@ -25,8 +26,20 @@ namespace vectorization {
       : components(_mm_set_epi32(w, z, y, x)) {
   }
 
-  v_i32_4 &v_i32_4::operator=(const PackedType &v) noexcept {
-    components = v;
+  v_i32_4::v_i32_4(const PackedType *const vector) noexcept : components() {
+    std::memcpy(&this->components, vector, sizeof(PackedType));
+  }
+
+  v_i32_4::v_i32_4(const VectorType *const vector) noexcept : components() {
+    std::memcpy(&this->components, &vector->components, sizeof(PackedType));
+  }
+
+  v_i32_4::v_i32_4(const ValueType *const values) noexcept
+      : components(_mm_load_si128(reinterpret_cast<const PackedType *>(values))) {
+  }
+
+  v_i32_4 &v_i32_4::operator=(const PackedType &vector) noexcept {
+    components = vector;
     return *this;
   }
 
