@@ -7,6 +7,48 @@
 
 namespace vectorization::test {
   struct StandardSample {
+    // Float constants suitable for exp/log testing: excludes edge cases (zero, infinity,
+    // max/lowest, NaN) where the vectorized sse_mathfun implementation intentionally
+    // deviates from std::exp/std::log. Those edge cases are tested separately.
+    static constexpr ASizeT TranscendentalFloatConstantsSize = 28;
+
+    template <typename T>
+    static std::array<T, TranscendentalFloatConstantsSize> transcendentalFloatConstants() {
+      return {
+          Half<T>(),
+          -Half<T>(),
+          One<T>(),
+          NegativeOne<T>(),
+          OneHalf<T>(),
+          -OneHalf<T>(),
+
+          Two<T>(),
+          NegativeTwo<T>(),
+          Pi<T>(),
+          -Pi<T>(),
+          ReciprocalPi<T>(),
+          -ReciprocalPi<T>(),
+          DegreeToRadian<T>(),
+          -DegreeToRadian<T>(),
+
+          RadianToDegree<T>(),
+          -RadianToDegree<T>(),
+          RadianToUniform<T>(),
+          -RadianToUniform<T>(),
+          Sin45<T>(),
+          -Sin45<T>(),
+
+          Epsilon<T>(),
+          -Epsilon<T>(),
+          SelfOcclusionEpsilon<T>(),
+          -SelfOcclusionEpsilon<T>(),
+          std::numeric_limits<T>::min(),
+          -std::numeric_limits<T>::min(),
+          std::numeric_limits<T>::epsilon(),
+          -std::numeric_limits<T>::epsilon(),
+      };
+    }
+
     static constexpr ASizeT ImportantFloatConstantsSize = 39;
 
     template <typename T>
