@@ -221,9 +221,12 @@ namespace vectorization {
     const v_f32_4 sinSqrPhiT = eta * eta - etaNdotI * etaNdotI;
     const v_f32_4 cosSqrPhiT = One<v_f32_4>() - sinSqrPhiT;
 
-    // Branchless: compute refraction and blend with zero for total internal reflection
-    const v_f32_4 refracted = eta * incident - (etaNdotI + sqrt(max(cosSqrPhiT, Zero<v_f32_4>()))) * normal;
-    return select(cosSqrPhiT, Zero<v_f32_4>(), refracted);
+    if (isNegative(cosSqrPhiT)) {
+      // Total internal reflection
+      return Zero<v_f32_4>();
+    }
+
+    return eta * incident - (etaNdotI + sqrt(cosSqrPhiT)) * normal;
   }
 
   v_f32_4 refractEta(const v_f32_4 &incident, const v_f32_4 &normal, const v_f32_4 &eta) noexcept {
