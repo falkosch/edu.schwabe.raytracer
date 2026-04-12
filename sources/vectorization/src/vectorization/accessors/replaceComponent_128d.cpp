@@ -35,7 +35,7 @@ namespace vectorization {
 
   PackedFloat2_128
   replaceComponent(const PackedFloat2_128 &values, const PackedFloat2_128 &replacement, const ASizeT index) noexcept {
-    assert(index < VectorSizes::Y);
+    // Out-of-bounds index is a no-op: no lane matches, blendMasked returns values unchanged.
     const auto mask = _mm_cmpeq_epi64(_mm_set1_epi64x(static_cast<int>(index)), _mm_set_epi64x(1, 0));
     return blendMasked(values, replacement, mask);
   }

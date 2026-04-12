@@ -10,9 +10,7 @@ namespace vectorization {
   T benchmarkMachineEpsilon() noexcept {
     T f = One<T>();
     T e = f;
-    // volatile prevents /fp:fast from optimizing away the rounding in the comparison.
-    volatile T sum;
-    while (sum = f + One<T>(), sum != One<T>()) {
+    while (f + One<T>() != One<T>()) {
       e = f;
       f *= Half<T>();
     }
