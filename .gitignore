@@ -1,5 +1,2 @@
-.vs/*
-!.vs/launch.vs.json
-
 cmake-build-*/
-vcpkg_installed/
+build/
