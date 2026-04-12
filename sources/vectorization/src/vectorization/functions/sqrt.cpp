@@ -9,7 +9,7 @@ namespace vectorization {
   }
 
   Float_64 sqrt(const Float_64 value) noexcept {
-    return x(_mm_sqrt_sd(_mm_set_sd(value), Zero<PackedFloat2_128>()));
+    return x(_mm_sqrt_sd(Zero<PackedFloat2_128>(), _mm_set_sd(value)));
   }
 
   PackedFloat4_128 sqrt(const PackedFloat4_128 &values) noexcept {
