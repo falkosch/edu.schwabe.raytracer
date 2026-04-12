@@ -32,7 +32,6 @@ If you open this repository as a cmake project in Visual Studio, e.g. VS Communi
 1. Install [vcpkg](https://vcpkg.io/en/getting-started).
 2. Add a `VCPKG_DIR` environment variable pointing to the directory, which contains the `vcpkg.exe`.
 3. Add the same directory to the `PATH` environment variable as well.
-4. Run `vcpkg install` to let vcpkg install the required dependencies to `./vcpkg_installed`.
 
 With a local gcc setup, you can use the `./*.sh` scripts, which will take care of providing the dependencies. You need
 to have `gcc`, `cmake`, and `conan` installed.
