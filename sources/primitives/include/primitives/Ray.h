@@ -15,7 +15,7 @@ namespace primitives {
     explicit Ray(const Float4 &origin) noexcept;
     explicit Ray(const Float4 &origin, const Float4 &direction) noexcept;
 
-    void setDirection(const Float4 &direction) noexcept;
+    void setDirection(const Float4 &value) noexcept;
   };
 
   Ray replaceDirection(const Ray &ray, const Float4 &value) noexcept;

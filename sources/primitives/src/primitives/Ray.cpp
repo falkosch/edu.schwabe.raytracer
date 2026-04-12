@@ -12,9 +12,9 @@ namespace primitives {
       : origin(origin), direction(direction), reciprocalDirection(zeroW(reciprocal(direction))) {
   }
 
-  void Ray::setDirection(const Float4 &direction) noexcept {
-    this->direction = direction;
-    reciprocalDirection = zeroW(reciprocal(direction));
+  void Ray::setDirection(const Float4 &value) noexcept {
+    this->direction = value;
+    reciprocalDirection = zeroW(reciprocal(value));
   }
 
   Ray replaceDirection(const Ray &ray, const Float4 &value) noexcept {
