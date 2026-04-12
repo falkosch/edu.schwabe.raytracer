@@ -60,7 +60,7 @@ namespace vectorization {
 
   template <>
   v_i32_4 OneW<v_i32_4>() noexcept {
-    return _mm_srli_si128(One<v_i32_4>().components, VectorSizes::Z * sizeof(v_i32_4::ValueType));
+    return _mm_slli_si128(One<v_i32_4>().components, VectorSizes::Z * sizeof(v_i32_4::ValueType));
   }
 
   template <>

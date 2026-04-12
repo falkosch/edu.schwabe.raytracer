@@ -27,6 +27,8 @@ set(SOURCES
         src/vectorization/blends/blend_masked_256i_test.cpp
         src/vectorization/blends/blend_masked_256s_test.cpp
         src/vectorization/blends/blend_masked_scalar_test.cpp
+        src/vectorization/blends/blend_128d_special_values_test.cpp
+        src/vectorization/blends/blend_128s_special_values_test.cpp
         src/vectorization/constants/masks/mask_all_test.cpp
         src/vectorization/constants/masks/mask_none_test.cpp
         src/vectorization/constants/masks/mask_w_test.cpp
@@ -71,6 +73,9 @@ set(SOURCES
         src/vectorization/selects/select_256i_test.cpp
         src/vectorization/selects/select_256s_test.cpp
         src/vectorization/selects/select_scalar_test.cpp
+        src/vectorization/selects/select_128d_special_values_test.cpp
+        src/vectorization/selects/select_128s_special_values_test.cpp
+        src/vectorization/selects/select_scalar_special_values_test.cpp
         src/vectorization/swizzled_blends/swizzled_blend_128d_test.cpp
         src/vectorization/swizzled_blends/swizzled_blend_128s_test.cpp
         src/vectorization/swizzled_blends/swizzled_blend_1x1_128d_test.cpp
@@ -83,6 +88,30 @@ set(SOURCES
         src/vectorization/swizzles/swizzle_128s_test.cpp
         src/vectorization/swizzles/swizzle_256d_test.cpp
         src/vectorization/swizzles/swizzle_256s_test.cpp
+        src/vectorization/v_i32_4/accessors_test.cpp
+        src/vectorization/v_i32_4/blends_test.cpp
+        src/vectorization/v_i32_4/constants_test.cpp
+        src/vectorization/v_i32_4/functions_test.cpp
+        src/vectorization/v_i32_4/operators_test.cpp
+        src/vectorization/v_i32_4/selects_test.cpp
+        src/vectorization/v_i32_4/swizzles_test.cpp
+        src/vectorization/v_i32_4/type_test.cpp
+        src/vectorization/v_ui32_4/accessors_test.cpp
+        src/vectorization/v_ui32_4/blends_test.cpp
+        src/vectorization/v_ui32_4/constants_test.cpp
+        src/vectorization/v_ui32_4/functions_test.cpp
+        src/vectorization/v_ui32_4/operators_test.cpp
+        src/vectorization/v_ui32_4/selects_test.cpp
+        src/vectorization/v_ui32_4/swizzles_test.cpp
+        src/vectorization/v_ui32_4/type_test.cpp
+        src/vectorization/v_ui64_2/accessors_test.cpp
+        src/vectorization/v_ui64_2/blends_test.cpp
+        src/vectorization/v_ui64_2/constants_test.cpp
+        src/vectorization/v_ui64_2/functions_test.cpp
+        src/vectorization/v_ui64_2/operators_test.cpp
+        src/vectorization/v_ui64_2/selects_test.cpp
+        src/vectorization/v_ui64_2/swizzles_test.cpp
+        src/vectorization/v_ui64_2/type_test.cpp
         src/vectorization/v_f32_4/accessors_test.cpp
         src/vectorization/v_f32_4/blends_test.cpp
         src/vectorization/v_f32_4/constants_test.cpp
@@ -93,6 +122,7 @@ set(SOURCES
         src/vectorization/v_f32_4/selects_test.cpp
         src/vectorization/v_f32_4/swizzled_blends_test.cpp
         src/vectorization/v_f32_4/swizzles_test.cpp
+        src/vectorization/v_f32_4/special_values_test.cpp
         src/vectorization/v_f32_4/type_test.cpp
 )
 
