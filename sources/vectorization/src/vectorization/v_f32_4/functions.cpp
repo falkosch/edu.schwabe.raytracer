@@ -368,8 +368,8 @@ namespace vectorization {
   }
 
   ASizeT argmin3(const v_f32_4 &v) noexcept {
-    typedef v_f32_4::VectorBoolType VBT;
-    typedef v_f32_4::BoolType BT;
+    using VBT = v_f32_4::VectorBoolType;
+    using BT = v_f32_4::BoolType;
     const VBT mask = xyxy(v) < zzyy(v);
     const VBT argXY = blendMasked(
         VBT(static_cast<BT>(VectorIndices::Z)),
@@ -380,8 +380,8 @@ namespace vectorization {
   }
 
   ASizeT argmax3(const v_f32_4 &v) noexcept {
-    typedef v_f32_4::VectorBoolType VBT;
-    typedef v_f32_4::BoolType BT;
+    using VBT = v_f32_4::VectorBoolType;
+    using BT = v_f32_4::BoolType;
     const VBT mask = xyxy(v) > zzyy(v);
     const VBT argXY = blendMasked(
         VBT(static_cast<BT>(VectorIndices::Z)),

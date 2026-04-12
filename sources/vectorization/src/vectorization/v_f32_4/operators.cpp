@@ -60,11 +60,11 @@ namespace vectorization {
   }
 
   v_f32_4 operator/(const v_f32_4 &a, const v_f32_4::ValueType &b) noexcept {
-    return a / v_f32_4(b);
+    return divide(a.components, _mm_set_ps1(b));
   }
 
   v_f32_4 operator/(const v_f32_4::ValueType &a, const v_f32_4 &b) noexcept {
-    return v_f32_4(a) / b;
+    return divide(_mm_set_ps1(a), b.components);
   }
 
   v_f32_4 operator%(const v_f32_4 &a, const v_f32_4 &b) noexcept {

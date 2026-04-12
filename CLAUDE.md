@@ -4,14 +4,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-SSE/AVX-vectorized Whitted-style raytracer written in C++. Windows-only UI (Win32 API + OpenGL). Educational/hobby
-project.
+SSE/AVX-vectorized Whitted-style raytracer written in C++20. Windows-only UI (Win32 API + OpenGL). Educational/hobby
+project. Uses OpenMP for parallelization. Key compiler flags: `/arch:AVX2 /fp:fast` (MSVC), `-march=native` (GCC).
 
 ## Build Commands
 
 ### Windows (Visual Studio)
 
-Open with Visual Studio using CMake integration (CMakeSettings.json provided). Dependencies via vcpkg (Catch2, GLEW).
+Open with Visual Studio using CMake integration (CMakeSettings.json provided). Dependencies via vcpkg (GLEW).
+Requires `VCPKG_DIR` environment variable pointing to the directory containing `vcpkg.exe` (also add to `PATH`).
 
 ### Linux / GCC (cross-compiling for Windows)
 
@@ -66,6 +67,7 @@ SIMD wrapper library over SSE4/AVX/FMA intrinsics. Core types:
 - `m_f32_4x4` — 4x4 float matrix
 
 Operations are split into many small files by category (accessors, blends, swizzles, selects, constants, math).
+SIMD width suffixes: `128d` (2×f64), `128s` (4×f32), `256d` (4×f64), `256s` (8×f32), `128i`/`256i` (integer).
 Third-party transcendental math in `3rdparty/` (sse_mathfun.h, avx_mathfun.h).
 
 ### primitives (`sources/primitives/`)
@@ -91,10 +93,31 @@ TestLight. Configuration constants defined in main.cpp (FAST_PREVIEW_SIZE, MAX_T
 
 ## Testing
 
-- Framework: Catch2 v3.5
 - Tests live in `tests/vectorization.native-test/` — covers all vectorization operations
-- On Windows/VS: tests build as a shared library (.dll) for VS Test Explorer
-- On Linux: tests build as executables, run via `test-with-local-cc.sh` or `ctest`
+- **Windows/VS**: Uses MS CppUnitTest (`<CppUnitTest.h>`). Tests build as a shared library (.dll) for VS Test Explorer.
+  Uses `TEST_CLASS(NameTest)` / `TEST_METHOD(camelCaseAction)` macros, assertions via `Assert::AreEqual()` etc.
+- **Linux/GCC**: Uses Catch2. Tests build as executables, run via `test-with-local-cc.sh` or `ctest`
+- Test file naming mirrors source: `component_128d.cpp` → `component_128d_test.cpp`
+
+### Regression Tests
+
+Normal stdout messages right after start on the first frame with ray hit and performance metrics:
+
+```
+Machine epsilon for float is 1.19209e-07
+Machine epsilon for double is 2.22045e-16
+Working directory: E:\edu.schwabe.raytracer\data
+Loaded 36961 bytes from file meshes/teapot.off
+loaded meshes/teapot.off: 726 vertices, 1452 faces
+Building culling tree for scene ... done
+Resizing output to 512x512
+Raytrace 1 (512x512):
+primaryRays 262144/0
+secondaryRays 123863/17917
+shadowRays 254010/253727
+objectShadowRays 231858/200292
+Duration: 0.116185s
+```
 
 ## Code Style
 
@@ -113,6 +136,14 @@ TestLight. Configuration constants defined in main.cpp (FAST_PREVIEW_SIZE, MAX_T
 
 Mesh and texture data must be unpacked from `data/data.zip` into the `data/` folder before running. The UI executable
 must be run from or with access to the `data/` directory.
+
+## Naming Conventions
+
+- Types/classes: PascalCase (`AxisAlignedBoundingBox`, `BoundingSphere`)
+- Methods/functions: camelCase (`nearestIntersection()`, `replaceComponent()`)
+- SIMD vector types: `v_{type}_{width}` pattern (`v_f32_4`, `v_ui32_4`)
+- Namespaces match library names: `vectorization`, `primitives`, `raytracer`
+- Commit messages: conventional commits (`fix:`, `feat:`, `refactor:`, `cleanup:`, `docs:`, `test:`)
 
 ## CMake Submodules
 

@@ -18,12 +18,12 @@ namespace vectorization {
     // y_2 = y_1(3/2 - x * y_1 * y_1 / 2)
     const auto half = Half<PackedFloat4_128>();
     const auto oneHalf = OneHalf<PackedFloat4_128>();
-    const auto N = _mm_set_ss(v);
+    const auto N = _mm_set_ss(value);
     const auto x0 = _mm_rsqrt_ss(N);
     const auto x1 = _mm_mul_ss(_mm_sub_ss(oneHalf, _mm_mul_ss(half, _mm_mul_ss(N, _mm_mul_ss(x0, x0)))), x0);
     return x(_mm_mul_ss(_mm_sub_ss(oneHalf, _mm_mul_ss(half, _mm_mul_ss(N, _mm_mul_ss(x1, x1)))), x1));
 #else
-    return x(_mm_rsqrt_ss(_mm_set_ss(v)));
+    return x(_mm_rsqrt_ss(_mm_set_ss(value)));
 #endif
 #else
     return reciprocal(sqrt(value));
@@ -39,11 +39,11 @@ namespace vectorization {
 #ifdef VECTORIZATION_FINE_APPROXIMATIONS
     const auto half = Half<PackedFloat4_128>();
     const auto oneHalf = OneHalf<PackedFloat4_128>();
-    const auto x0 = _mm_rsqrt_ps(v);
-    const auto x1 = _mm_mul_ps(_mm_sub_ps(oneHalf, _mm_mul_ps(half, _mm_mul_ps(v, _mm_mul_ps(x0, x0)))), x0);
-    return _mm_mul_ps(_mm_sub_ps(oneHalf, _mm_mul_ps(half, _mm_mul_ps(v, _mm_mul_ps(x1, x1)))), x1);
+    const auto x0 = _mm_rsqrt_ps(values);
+    const auto x1 = _mm_mul_ps(_mm_sub_ps(oneHalf, _mm_mul_ps(half, _mm_mul_ps(values, _mm_mul_ps(x0, x0)))), x0);
+    return _mm_mul_ps(_mm_sub_ps(oneHalf, _mm_mul_ps(half, _mm_mul_ps(values, _mm_mul_ps(x1, x1)))), x1);
 #else
-    return _mm_rsqrt_ps(v);
+    return _mm_rsqrt_ps(values);
 #endif
 #else
     return reciprocal(sqrt(values));
