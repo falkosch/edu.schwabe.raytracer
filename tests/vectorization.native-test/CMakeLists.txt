@@ -8,61 +8,61 @@ set(SOURCES
         src/vectorization/accessors/component_128s_test.cpp
         src/vectorization/accessors/component_256d_test.cpp
         src/vectorization/accessors/component_256s_test.cpp
-        src/vectorization/accessors/replaceComponent_128d_test.cpp
-        src/vectorization/accessors/replaceComponent_128s_test.cpp
-        src/vectorization/accessors/replaceComponent_256d_test.cpp
-        src/vectorization/accessors/replaceComponent_256s_test.cpp
+        src/vectorization/accessors/replace_component_128d_test.cpp
+        src/vectorization/accessors/replace_component_128s_test.cpp
+        src/vectorization/accessors/replace_component_256d_test.cpp
+        src/vectorization/accessors/replace_component_256s_test.cpp
         src/vectorization/architecture/compiler_definitions_test.cpp
         src/vectorization/architecture/compiler_intrinsics_test.cpp
         src/vectorization/architecture/memory_test.cpp
         src/vectorization/architecture/meta_types_test.cpp
-        src/vectorization/blends/blendMasked_128d_test.cpp
-        src/vectorization/blends/blendMasked_128i_test.cpp
-        src/vectorization/blends/blendMasked_128s_test.cpp
-        src/vectorization/blends/blendMasked_256d_test.cpp
-        src/vectorization/blends/blendMasked_256i_test.cpp
-        src/vectorization/blends/blendMasked_256s_test.cpp
-        src/vectorization/blends/blendMasked_scalar_test.cpp
         src/vectorization/blends/blend_128d_test.cpp
         src/vectorization/blends/blend_128s_test.cpp
         src/vectorization/blends/blend_256d_test.cpp
         src/vectorization/blends/blend_256s_test.cpp
-        src/vectorization/constants/masks/MaskAll_test.cpp
-        src/vectorization/constants/masks/MaskNone_test.cpp
-        src/vectorization/constants/masks/MaskW_test.cpp
-        src/vectorization/constants/masks/MaskXYZW_test.cpp
-        src/vectorization/constants/masks/MaskXYZ_test.cpp
-        src/vectorization/constants/masks/MaskXY_test.cpp
-        src/vectorization/constants/masks/MaskX_test.cpp
-        src/vectorization/constants/masks/MaskYZW_test.cpp
-        src/vectorization/constants/masks/MaskYZ_test.cpp
-        src/vectorization/constants/masks/MaskY_test.cpp
-        src/vectorization/constants/masks/MaskZW_test.cpp
-        src/vectorization/constants/masks/MaskZ_test.cpp
-        src/vectorization/constants/values/DegreeToRadian_test.cpp
-        src/vectorization/constants/values/Epsilon_test.cpp
-        src/vectorization/constants/values/Half_test.cpp
-        src/vectorization/constants/values/Identity_test.cpp
-        src/vectorization/constants/values/Infinity_test.cpp
-        src/vectorization/constants/values/NegativeInfinity_test.cpp
-        src/vectorization/constants/values/NegativeOne_test.cpp
-        src/vectorization/constants/values/NegativeTwo_test.cpp
-        src/vectorization/constants/values/NegativeZero_test.cpp
-        src/vectorization/constants/values/NotANumber_test.cpp
-        src/vectorization/constants/values/OneHalf_test.cpp
-        src/vectorization/constants/values/OneW_test.cpp
-        src/vectorization/constants/values/OneX_test.cpp
-        src/vectorization/constants/values/OneY_test.cpp
-        src/vectorization/constants/values/OneZ_test.cpp
-        src/vectorization/constants/values/One_test.cpp
-        src/vectorization/constants/values/Pi_test.cpp
-        src/vectorization/constants/values/RadianToDegree_test.cpp
-        src/vectorization/constants/values/RadianToUniform_test.cpp
-        src/vectorization/constants/values/ReciprocalPi_test.cpp
-        src/vectorization/constants/values/SelfOcclusionEpsilon_test.cpp
-        src/vectorization/constants/values/Sin45_test.cpp
-        src/vectorization/constants/values/Two_test.cpp
-        src/vectorization/constants/values/Zero_test.cpp
+        src/vectorization/blends/blend_masked_128d_test.cpp
+        src/vectorization/blends/blend_masked_128i_test.cpp
+        src/vectorization/blends/blend_masked_128s_test.cpp
+        src/vectorization/blends/blend_masked_256d_test.cpp
+        src/vectorization/blends/blend_masked_256i_test.cpp
+        src/vectorization/blends/blend_masked_256s_test.cpp
+        src/vectorization/blends/blend_masked_scalar_test.cpp
+        src/vectorization/constants/masks/mask_all_test.cpp
+        src/vectorization/constants/masks/mask_none_test.cpp
+        src/vectorization/constants/masks/mask_w_test.cpp
+        src/vectorization/constants/masks/mask_x_test.cpp
+        src/vectorization/constants/masks/mask_xy_test.cpp
+        src/vectorization/constants/masks/mask_xyz_test.cpp
+        src/vectorization/constants/masks/mask_xyzw_test.cpp
+        src/vectorization/constants/masks/mask_y_test.cpp
+        src/vectorization/constants/masks/mask_yz_test.cpp
+        src/vectorization/constants/masks/mask_yzw_test.cpp
+        src/vectorization/constants/masks/mask_z_test.cpp
+        src/vectorization/constants/masks/mask_zw_test.cpp
+        src/vectorization/constants/values/degree_to_radian_test.cpp
+        src/vectorization/constants/values/epsilon_test.cpp
+        src/vectorization/constants/values/half_test.cpp
+        src/vectorization/constants/values/identity_test.cpp
+        src/vectorization/constants/values/infinity_test.cpp
+        src/vectorization/constants/values/negative_infinity_test.cpp
+        src/vectorization/constants/values/negative_one_test.cpp
+        src/vectorization/constants/values/negative_two_test.cpp
+        src/vectorization/constants/values/negative_zero_test.cpp
+        src/vectorization/constants/values/not_a_number_test.cpp
+        src/vectorization/constants/values/one_half_test.cpp
+        src/vectorization/constants/values/one_test.cpp
+        src/vectorization/constants/values/one_w_test.cpp
+        src/vectorization/constants/values/one_x_test.cpp
+        src/vectorization/constants/values/one_y_test.cpp
+        src/vectorization/constants/values/one_z_test.cpp
+        src/vectorization/constants/values/pi_test.cpp
+        src/vectorization/constants/values/radian_to_degree_test.cpp
+        src/vectorization/constants/values/radian_to_uniform_test.cpp
+        src/vectorization/constants/values/reciprocal_pi_test.cpp
+        src/vectorization/constants/values/self_occlusion_epsilon_test.cpp
+        src/vectorization/constants/values/sin45_test.cpp
+        src/vectorization/constants/values/two_test.cpp
+        src/vectorization/constants/values/zero_test.cpp
         src/vectorization/m_f32_4x4/m_f32_4x4_test.cpp
         src/vectorization/selects/select_128d_test.cpp
         src/vectorization/selects/select_128i_test.cpp
@@ -71,14 +71,14 @@ set(SOURCES
         src/vectorization/selects/select_256i_test.cpp
         src/vectorization/selects/select_256s_test.cpp
         src/vectorization/selects/select_scalar_test.cpp
-        src/vectorization/swizzledBlends/swizzledBlend1x1_128d_test.cpp
-        src/vectorization/swizzledBlends/swizzledBlend2x2_128s_test.cpp
-        src/vectorization/swizzledBlends/swizzledBlend2x2_256d_test.cpp
-        src/vectorization/swizzledBlends/swizzledBlendMasked_128d_test.cpp
-        src/vectorization/swizzledBlends/swizzledBlend_128d_test.cpp
-        src/vectorization/swizzledBlends/swizzledBlend_128s_test.cpp
-        src/vectorization/swizzledBlends/swizzledBlend_256d_test.cpp
-        src/vectorization/swizzledBlends/swizzledBlend_256s_test.cpp
+        src/vectorization/swizzled_blends/swizzled_blend_128d_test.cpp
+        src/vectorization/swizzled_blends/swizzled_blend_128s_test.cpp
+        src/vectorization/swizzled_blends/swizzled_blend_1x1_128d_test.cpp
+        src/vectorization/swizzled_blends/swizzled_blend_256d_test.cpp
+        src/vectorization/swizzled_blends/swizzled_blend_256s_test.cpp
+        src/vectorization/swizzled_blends/swizzled_blend_2x2_128s_test.cpp
+        src/vectorization/swizzled_blends/swizzled_blend_2x2_256d_test.cpp
+        src/vectorization/swizzled_blends/swizzled_blend_masked_128d_test.cpp
         src/vectorization/swizzles/swizzle_128d_test.cpp
         src/vectorization/swizzles/swizzle_128s_test.cpp
         src/vectorization/swizzles/swizzle_256d_test.cpp
@@ -91,18 +91,18 @@ set(SOURCES
         src/vectorization/v_f32_4/functions_trigonometry_test.cpp
         src/vectorization/v_f32_4/operators_test.cpp
         src/vectorization/v_f32_4/selects_test.cpp
-        src/vectorization/v_f32_4/swizzledBlends_test.cpp
+        src/vectorization/v_f32_4/swizzled_blends_test.cpp
         src/vectorization/v_f32_4/swizzles_test.cpp
         src/vectorization/v_f32_4/type_test.cpp
 )
 
 set(HEADERS
-        include/Compare.h
-        include/Iterate.h
-        include/MessageFormat.h
-        include/Mutate.h
-        include/StandardSample.h
-        include/ToString_specializations.h
+        include/compare.h
+        include/iterate.h
+        include/message_format.h
+        include/mutate.h
+        include/standard_sample.h
+        include/to_string_specializations.h
         include/vectorization_tests.h
 )
 

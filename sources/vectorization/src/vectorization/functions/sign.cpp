@@ -1,6 +1,6 @@
 #include "vectorization/functions/sign.h"
 
-#include "vectorization/functions/copySign.h"
+#include "vectorization/functions/copysign.h"
 
 #include "vectorization/accessors.h"
 #include "vectorization/blends.h"

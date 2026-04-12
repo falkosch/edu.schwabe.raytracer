@@ -1,7 +1,7 @@
 #include "raytracing/common/noise/SimplexNoiseGenerator.h"
 #include "../../../stdafx.h"
 
-#include <vectorization/functions/staticAverage.h>
+#include <vectorization/functions/static_average.h>
 
 namespace raytracer {
   SimplexNoiseGenerator::SimplexNoiseGenerator(const unsigned int seed) : simplexGrid() {

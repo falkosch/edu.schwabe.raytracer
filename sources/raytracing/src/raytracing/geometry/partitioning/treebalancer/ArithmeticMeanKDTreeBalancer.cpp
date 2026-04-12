@@ -9,9 +9,10 @@ namespace raytracer {
 
   ArithmeticMeanKDTreeBalancer::~ArithmeticMeanKDTreeBalancer() = default;
 
-  const KDTreePlane ArithmeticMeanKDTreeBalancer::
-      findSplitter(const KDTreeBuildParameters &, const ASizeT, const AxisAlignedBoundingBox &bounding, const PGeometryNodeList &geometry, const KDTreePlane *)
-          const {
+  const KDTreePlane ArithmeticMeanKDTreeBalancer::findSplitter(
+      const KDTreeBuildParameters &, const ASizeT, const AxisAlignedBoundingBox &bounding,
+      const PGeometryNodeList &geometry, const KDTreePlane *
+  ) const {
     const Float4 boundingExtents = extents(bounding);
     const ASizeT maxAxis = argmax3(boundingExtents);
 

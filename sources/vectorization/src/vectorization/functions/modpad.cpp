@@ -1,4 +1,4 @@
-#include "vectorization/functions/modPad.h"
+#include "vectorization/functions/modpad.h"
 
 #include "vectorization/functions/modulo.h"
 

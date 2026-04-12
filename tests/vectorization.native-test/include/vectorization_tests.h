@@ -1,13 +1,13 @@
 #pragma once
 
-#include "ToString_specializations.h"
+#include "to_string_specializations.h"
 
-#include "Compare.h"
-#include "MessageFormat.h"
-#include "Mutate.h"
-#include "StandardSample.h"
+#include "compare.h"
+#include "message_format.h"
+#include "mutate.h"
+#include "standard_sample.h"
 
-#include "Iterate.h"
+#include "iterate.h"
 
 #include <CppUnitTest.h>
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;

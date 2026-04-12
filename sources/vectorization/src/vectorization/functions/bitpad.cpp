@@ -1,4 +1,4 @@
-#include "vectorization/functions/bitPad.h"
+#include "vectorization/functions/bitpad.h"
 
 namespace vectorization {
   Int_8 bitPad(const Int_8 value, const Int_8 padding) noexcept {

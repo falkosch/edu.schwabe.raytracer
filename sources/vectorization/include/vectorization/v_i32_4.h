@@ -11,4 +11,4 @@
 #include "v_i32_4/operators.h"
 #include "v_i32_4/swizzles.h"
 
-#include "v_i32_4/swizzledBlends.h"
+#include "v_i32_4/swizzled_blends.h"

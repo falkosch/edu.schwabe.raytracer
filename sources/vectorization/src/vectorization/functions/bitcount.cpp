@@ -1,4 +1,4 @@
-#include "vectorization/functions/bitCount.h"
+#include "vectorization/functions/bitcount.h"
 
 namespace vectorization {
   ASizeT bitCount(const bool value) noexcept {

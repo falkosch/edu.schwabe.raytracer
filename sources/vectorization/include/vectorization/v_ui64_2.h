@@ -11,4 +11,4 @@
 #include "v_ui64_2/operators.h"
 #include "v_ui64_2/swizzles.h"
 
-#include "v_ui64_2/swizzledBlends.h"
+#include "v_ui64_2/swizzled_blends.h"
