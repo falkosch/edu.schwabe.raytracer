@@ -18,6 +18,8 @@ namespace raytracerui {
 
     bool disableFastPreview;
 
+    ASizeT frameCount;
+
     const HDRImage *outputHDR;
 
     const Bitmap *output;

@@ -6,7 +6,7 @@
 namespace raytracerui {
   RaytracerUI::RaytracerUI(Raytracer &raytracerIn, const RaytraceParameters &parametersIn, ASizeT &fastPreviewSizeIn)
       : parameters(parametersIn), screenSize(One<Int2>()), fastPreviewSize(fastPreviewSizeIn), showMapIndex(),
-        disableFastPreview(), outputHDR(), output(), raytracer(&raytracerIn) {
+        disableFastPreview(), frameCount(), outputHDR(), output(), raytracer(&raytracerIn) {
     this->parameters.observer = this;
   }
 
@@ -58,6 +58,13 @@ namespace raytracerui {
       delete configuration.depthMap;
     if (outputHDR != configuration.timingMap)
       delete configuration.timingMap;
+
+    ++frameCount;
+    if (frameCount == 1) {
+      std::cout << "Saving ray-traced image ...";
+      output->saveAsBMP("ray-traced.bmp");
+      std::cout << " ray-traced.bmp" << std::endl;
+    }
   }
 
   const HDRImage *const RaytracerUI::selectOutputImage(const RaytraceConfiguration &configuration) const {
