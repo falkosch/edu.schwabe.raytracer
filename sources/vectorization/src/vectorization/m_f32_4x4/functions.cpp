@@ -76,20 +76,37 @@ namespace vectorization {
     const auto normal = oneW(normalize3(rotationAxis));
     const auto temp = (One<m_f32_4x4::RowVectorType>() - xxxx(rot)) * normal;
 
+    // tx/ty/tz are the columns of the 3x3 rotation matrix R.
     const auto tx = xxxx(temp) * normal + rot * wzyx(normal);
     const auto ty = yyyy(temp) * normal + zxyw(rot) * zwxy(normal);
     const auto tz = zzzz(temp) * normal + yzxw(rot) * yxwz(normal);
 
-    const auto transposed = transpose(matrix);
-    return transpose(m_f32_4x4(
-        row<VectorIndices::X>(transposed) * xxxx(tx) + row<VectorIndices::Y>(transposed) * yyyy(tx)
-            + row<VectorIndices::Z>(transposed) * zzzz(tx),
-        row<VectorIndices::X>(transposed) * xxxx(ty) + row<VectorIndices::Y>(transposed) * yyyy(ty)
-            + row<VectorIndices::Z>(transposed) * zzzz(ty),
-        row<VectorIndices::X>(transposed) * xxxx(tz) + row<VectorIndices::Y>(transposed) * yyyy(tz)
-            + row<VectorIndices::Z>(transposed) * zzzz(tz),
-        row<VectorIndices::W>(transposed)
-    ));
+    // Transpose the 3x3 rotation to get R's rows (rx/ry/rz), replacing two full
+    // 4x4 transposes with one partial 3x3 transpose.
+    const auto xy_ct = xy_xy(tx, ty);
+    const auto zw_ct = zw_zw(tx, ty);
+    const auto xy_cz = xy_xy(tz, Zero<m_f32_4x4::RowVectorType>());
+    const auto zw_cz = zw_zw(tz, Zero<m_f32_4x4::RowVectorType>());
+    const auto rx = xz_xz(xy_ct, xy_cz);
+    const auto ry = yw_yw(xy_ct, xy_cz);
+    const auto rz = xz_xz(zw_ct, zw_cz);
+
+    // Multiply each matrix row against R's rows via broadcast-multiply-add.
+    // rx/ry/rz have W=0, so the sum leaves W=0; blend preserves the original W.
+    return m_f32_4x4(
+        blend<false, false, false, true>(
+            xxxx(matrix.row0) * rx + yyyy(matrix.row0) * ry + zzzz(matrix.row0) * rz, matrix.row0
+        ),
+        blend<false, false, false, true>(
+            xxxx(matrix.row1) * rx + yyyy(matrix.row1) * ry + zzzz(matrix.row1) * rz, matrix.row1
+        ),
+        blend<false, false, false, true>(
+            xxxx(matrix.row2) * rx + yyyy(matrix.row2) * ry + zzzz(matrix.row2) * rz, matrix.row2
+        ),
+        blend<false, false, false, true>(
+            xxxx(matrix.row3) * rx + yyyy(matrix.row3) * ry + zzzz(matrix.row3) * rz, matrix.row3
+        )
+    );
   }
 
   // Optimized version of glm:unproject: Doesn't take the projection and
