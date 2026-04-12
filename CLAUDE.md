@@ -14,29 +14,6 @@ project. Uses OpenMP for parallelization. Key compiler flags: `/arch:AVX2 /fp:fa
 Open with Visual Studio using CMake integration (CMakeSettings.json provided). Dependencies via vcpkg (GLEW).
 Requires `VCPKG_DIR` environment variable pointing to the directory containing `vcpkg.exe` (also add to `PATH`).
 
-### Linux / GCC (cross-compiling for Windows)
-
-```bash
-# Install dependencies (Conan)
-./install-dependencies-with-conan.sh
-
-# Build (defaults: Release, x64, target=sources_and_tests)
-./build-with-local-cc.sh
-
-# Run tests
-./test-with-local-cc.sh
-
-# Run the UI executable
-./run-with-local-cc.sh
-```
-
-Environment variables for build scripts (set before running, see `_build-env.sh`):
-
-- `BUILD_TYPE` (default: Release)
-- `TARGET` (default: sources_and_tests)
-- `ARCH_TYPE` (default: x64)
-- `OUTPUT_DIR` (default: build/{ARCH_TYPE}-local-cc-{BUILD_TYPE})
-
 ### CMake directly
 
 ```bash
