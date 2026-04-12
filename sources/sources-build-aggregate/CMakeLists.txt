@@ -18,7 +18,7 @@ target_compile_definitions(${PROJECT_NAME}
         $<$<CONFIG:Debug>: _DEBUG DEBUG >
 )
 
-set_target_properties(${PROJECT_NAME} PROPERTIES INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE)
+set_target_properties(${PROJECT_NAME} PROPERTIES INTERPROCEDURAL_OPTIMIZATION_RELEASE FALSE)
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     target_link_libraries(${PROJECT_NAME} PUBLIC stdc++)
