@@ -126,6 +126,7 @@ namespace vectorization {
     // normalize x and y of affineScreenPoint using the offset in viewport.xy and the scale in viewport.zw
     const auto normalizedScreenXY = (affineScreenPoint - viewport) * zwxy(viewport);
     const auto transformed = inverseViewProjectionMatrix * xy_zw(normalizedScreenXY, affineScreenPoint);
+    assert(w(transformed) != Zero<m_f32_4x4::ValueType>() && "unproject with W=0 (point at infinity)");
     return transformed / wwww(transformed);
   }
 
