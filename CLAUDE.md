@@ -14,12 +14,12 @@ project. Uses OpenMP for parallelization. Key compiler flags: `/arch:AVX2 /fp:fa
 Open with Visual Studio using CMake integration (CMakeSettings.json provided). Dependencies via vcpkg (GLEW).
 Requires `VCPKG_DIR` environment variable pointing to the directory containing `vcpkg.exe` (also add to `PATH`).
 
-### CMake directly
+### CMake directly (Windows/MSVC)
 
 ```bash
-cmake -B build -DCMAKE_BUILD_TYPE=Release .
-cmake --build build --target sources_and_tests
-ctest --test-dir build
+cmake -B build_msvc -G "Visual Studio 18 2026" -A x64 -DCMAKE_TOOLCHAIN_FILE="$VCPKG_DIR/scripts/buildsystems/vcpkg.cmake" .
+cmake --build build_msvc --config Release --target sources_and_tests
+vstest.console.exe build_msvc/tests/vectorization.native-test/Release/vectorization.native-test.dll
 ```
 
 ## Architecture
@@ -73,7 +73,6 @@ TestLight. Configuration constants defined in main.cpp (FAST_PREVIEW_SIZE, MAX_T
 - Tests live in `tests/vectorization.native-test/` — covers all vectorization operations
 - **Windows/VS**: Uses MS CppUnitTest (`<CppUnitTest.h>`). Tests build as a shared library (.dll) for VS Test Explorer.
   Uses `TEST_CLASS(NameTest)` / `TEST_METHOD(camelCaseAction)` macros, assertions via `Assert::AreEqual()` etc.
-- **Linux/GCC**: Uses Catch2. Tests build as executables, run via `ctest`
 - Test file naming mirrors source: `component_128d.cpp` → `component_128d_test.cpp`
 
 ### Regression Tests
@@ -100,7 +99,7 @@ Duration: 0.116185s
 
 - Formatting: `.clang-format` (LLVM-based, 120-column limit)
 - Linting: `.clang-tidy` (clang-diagnostic-*, clang-analyzer-*)
-- Compiler warnings: `/W4` (MSVC), `-Wall -Wextra -pedantic` (GCC)
+- Compiler warnings: `/W4` (MSVC)
 - Defines always set: `UNICODE`, `_UNICODE`, `WIN32_LEAN_AND_MEAN`, `NOMINMAX`
 
 ## Data
@@ -110,9 +109,12 @@ must be run from or with access to the `data/` directory.
 
 ## Naming Conventions
 
-- Types/classes: PascalCase (`AxisAlignedBoundingBox`, `BoundingSphere`)
-- Methods/functions: camelCase (`nearestIntersection()`, `replaceComponent()`)
-- SIMD vector types: `v_{type}_{width}` pattern (`v_f32_4`, `v_ui32_4`)
+- **Files and folders**: snake_case, lowercase (`replace_component_128s.h`, `blend_masked_128d.cpp`,
+  `swizzled_blends/`, ...)
+- Types/classes: PascalCase (`AxisAlignedBoundingBox`, `BoundingSphere`, ...)
+- Constant builder functions: PascalCase (`MaskAll<T>()`, `One<T>()`, `OneW<T>()`, ...)
+- Methods/functions: camelCase (`nearestIntersection()`, `replaceComponent()`, ...)
+- SIMD vector types: `v_{type}_{width}` pattern (`v_f32_4`, `v_ui32_4`, ...)
 - Namespaces match library names: `vectorization`, `primitives`, `raytracer`
 - Commit messages: conventional commits (`fix:`, `feat:`, `refactor:`, `cleanup:`, `docs:`, `test:`)
 
