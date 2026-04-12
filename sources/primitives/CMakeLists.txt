@@ -46,11 +46,6 @@ target_compile_definitions(${PROJECT_NAME}
         PRIVATE _LIB
 )
 
-set_target_properties(${PROJECT_NAME}
-        PROPERTIES
-        INTERPROCEDURAL_OPTIMIZATION_RELEASE FALSE
-)
-
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")

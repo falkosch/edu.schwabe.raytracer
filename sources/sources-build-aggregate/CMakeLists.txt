@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.13.0 FATAL_ERROR)
-
 project("sources-build-aggregate" LANGUAGES CXX)
 
 # Generates a dummy compilation source so that add_library doesn't complain
@@ -8,7 +6,7 @@ file(GENERATE OUTPUT ${SOURCES_BUILD_AGGREGATE_DUMMY_FILE} CONTENT "")
 
 add_library(${PROJECT_NAME} STATIC ${SOURCES_BUILD_AGGREGATE_DUMMY_FILE})
 
-target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_20)
+target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_23)
 
 target_compile_definitions(${PROJECT_NAME}
         PUBLIC
