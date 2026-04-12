@@ -13,50 +13,50 @@ namespace vectorization {
 #if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
     return _mm_permute_ps(values, _MM_SHUFFLE(W, Z, Y, X));
 #else
-    return _mm_shuffle_ps(v, v, _MM_SHUFFLE(W, Z, Y, X));
+    return _mm_shuffle_ps(values, values, _MM_SHUFFLE(W, Z, Y, X));
 #endif
   }
 
   template <>
   // pass through swizzle
-  PackedFloat4_128
-  swizzle<VectorIndices::X, VectorIndices::Y, VectorIndices::Z, VectorIndices::W>(const PackedFloat4_128 &values
+  PackedFloat4_128 swizzle<VectorIndices::X, VectorIndices::Y, VectorIndices::Z, VectorIndices::W>(
+      const PackedFloat4_128 &values
   ) noexcept;
 
   template <>
   // unpack low-values swizzle
-  PackedFloat4_128
-  swizzle<VectorIndices::X, VectorIndices::X, VectorIndices::Y, VectorIndices::Y>(const PackedFloat4_128 &values
+  PackedFloat4_128 swizzle<VectorIndices::X, VectorIndices::X, VectorIndices::Y, VectorIndices::Y>(
+      const PackedFloat4_128 &values
   ) noexcept;
 
   template <>
   // duplicate XZ-values swizzle
-  PackedFloat4_128
-  swizzle<VectorIndices::X, VectorIndices::X, VectorIndices::Z, VectorIndices::Z>(const PackedFloat4_128 &values
+  PackedFloat4_128 swizzle<VectorIndices::X, VectorIndices::X, VectorIndices::Z, VectorIndices::Z>(
+      const PackedFloat4_128 &values
   ) noexcept;
 
   template <>
   // move low-values swizzle
-  PackedFloat4_128
-  swizzle<VectorIndices::X, VectorIndices::Y, VectorIndices::X, VectorIndices::Y>(const PackedFloat4_128 &values
+  PackedFloat4_128 swizzle<VectorIndices::X, VectorIndices::Y, VectorIndices::X, VectorIndices::Y>(
+      const PackedFloat4_128 &values
   ) noexcept;
 
   template <>
   // duplicate YW-values swizzle
-  PackedFloat4_128
-  swizzle<VectorIndices::Y, VectorIndices::Y, VectorIndices::W, VectorIndices::W>(const PackedFloat4_128 &values
+  PackedFloat4_128 swizzle<VectorIndices::Y, VectorIndices::Y, VectorIndices::W, VectorIndices::W>(
+      const PackedFloat4_128 &values
   ) noexcept;
 
   template <>
   // unpack high-values swizzle
-  PackedFloat4_128
-  swizzle<VectorIndices::Z, VectorIndices::Z, VectorIndices::W, VectorIndices::W>(const PackedFloat4_128 &values
+  PackedFloat4_128 swizzle<VectorIndices::Z, VectorIndices::Z, VectorIndices::W, VectorIndices::W>(
+      const PackedFloat4_128 &values
   ) noexcept;
 
   template <>
   // move high-values swizzle
-  PackedFloat4_128
-  swizzle<VectorIndices::Z, VectorIndices::W, VectorIndices::Z, VectorIndices::W>(const PackedFloat4_128 &values
+  PackedFloat4_128 swizzle<VectorIndices::Z, VectorIndices::W, VectorIndices::Z, VectorIndices::W>(
+      const PackedFloat4_128 &values
   ) noexcept;
 
   PackedFloat4_128 xxxx(const PackedFloat4_128 &values) noexcept;
