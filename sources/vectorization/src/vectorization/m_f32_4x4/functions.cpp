@@ -48,7 +48,7 @@ namespace vectorization {
   }
 
   m_f32_4x4 translate(const m_f32_4x4 &matrix, const m_f32_4x4::RowVectorType &translation) noexcept {
-    const auto transformedTranslation = transpose(matrix) * oneW(translation);
+    const auto transformedTranslation = oneW(translation) * matrix;
     return m_f32_4x4(
         replaceW(matrix.row0, x(transformedTranslation)), replaceW(matrix.row1, y(transformedTranslation)),
         replaceW(matrix.row2, z(transformedTranslation)), replaceW(matrix.row3, w(transformedTranslation))
@@ -56,11 +56,8 @@ namespace vectorization {
   }
 
   m_f32_4x4 scale(const m_f32_4x4 &matrix, const m_f32_4x4::RowVectorType &scale) noexcept {
-    const auto transposed = transpose(matrix);
-    return transpose(m_f32_4x4(
-        row<VectorIndices::X>(transposed) * xxxx(scale), row<VectorIndices::Y>(transposed) * yyyy(scale),
-        row<VectorIndices::Z>(transposed) * zzzz(scale), row<VectorIndices::W>(transposed)
-    ));
+    const auto s = oneW(scale);
+    return m_f32_4x4(matrix.row0 * s, matrix.row1 * s, matrix.row2 * s, matrix.row3 * s);
   }
 
   m_f32_4x4 rotate(
