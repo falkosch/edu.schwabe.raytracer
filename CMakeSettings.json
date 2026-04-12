@@ -16,6 +16,11 @@
           "name": "CMAKE_VS_PLATFORM_NAME",
           "value": "x64",
           "type": "STRING"
+        },
+        {
+          "name": "VCPKG_TARGET_TRIPLET",
+          "value": "x64-windows-static",
+          "type": "STRING"
         }
       ]
     },
@@ -35,6 +40,11 @@
           "name": "CMAKE_VS_PLATFORM_NAME",
           "value": "x64",
           "type": "STRING"
+        },
+        {
+          "name": "VCPKG_TARGET_TRIPLET",
+          "value": "x64-windows-static",
+          "type": "STRING"
         }
       ]
     },
@@ -53,6 +63,11 @@
         {
           "name": "CMAKE_VS_PLATFORM_NAME",
           "value": "x64",
+          "type": "STRING"
+        },
+        {
+          "name": "VCPKG_TARGET_TRIPLET",
+          "value": "x64-windows-static",
           "type": "STRING"
         }
       ]
