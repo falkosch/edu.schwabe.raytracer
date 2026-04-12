@@ -4,6 +4,7 @@
 #include "vectorization/v_f32_4/blends.h"
 #include "vectorization/v_f32_4/constants.h"
 #include "vectorization/v_f32_4/operators.h"
+#include "vectorization/v_f32_4/selects.h"
 #include "vectorization/v_f32_4/swizzledBlends.h"
 #include "vectorization/v_f32_4/swizzles.h"
 
@@ -68,8 +69,8 @@ namespace vectorization {
   //{ horizontalSum()
 
   v_f32_4 horizontalSumv(const v_f32_4 &v) noexcept {
-    const v_f32_4::PackedType t = _mm_hadd_ps(v.components, v.components);
-    return _mm_hadd_ps(t, t);
+    const v_f32_4 t = v + zwzw(v);
+    return t + yyww(t);
   }
 
   v_f32_4::ValueType horizontalSum(const v_f32_4 &v) noexcept {

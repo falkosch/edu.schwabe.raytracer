@@ -35,10 +35,11 @@ namespace vectorization {
     //             r_0213_1302,
     //             _MM_SHUFFLE(VectorIndices::W, VectorIndices::Y, VectorIndices::Z, VectorIndices::X)));
     // #else
-    return _mm_hadd_ps(
-        _mm_hadd_ps((vector * matrix.row0).components, (vector * matrix.row1).components),
-        _mm_hadd_ps((vector * matrix.row2).components, (vector * matrix.row3).components)
-    );
+    const auto d0 = _mm_dp_ps(vector.components, matrix.row0.components, 0xF1);
+    const auto d1 = _mm_dp_ps(vector.components, matrix.row1.components, 0xF2);
+    const auto d2 = _mm_dp_ps(vector.components, matrix.row2.components, 0xF4);
+    const auto d3 = _mm_dp_ps(vector.components, matrix.row3.components, 0xF8);
+    return _mm_or_ps(_mm_or_ps(d0, d1), _mm_or_ps(d2, d3));
     // #endif
   }
 
