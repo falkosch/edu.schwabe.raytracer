@@ -50,14 +50,6 @@ alignment (`alignas` absent).
 referenced by index. Split axis + leaf flag packed into low bits of the child index. This halves memory and
 eliminates pointer-chasing.
 
-## 9. KD-Tree — Overly Small Leaf Size
-
-**Severity: Medium | Impact: Traversal depth**
-
-`KDTreeBalancer.cpp:46` sets `maxNodesSize = 4`. Modern ray tracers use 8-32 primitives per leaf. Smaller
-leaves mean a deeper tree and more traversal steps (each with a cache miss per issue #8). Increasing to
-16-32 is a trivial parameter change with measurable impact.
-
 ## 10. KD-Tree — Recursive Traversal (Not Stackless)
 
 **Severity: Medium | Impact: Stack pressure, branch prediction**
@@ -82,44 +74,6 @@ up to 4 facets. With SoA triangle data, 4 triangles could be tested simultaneous
 layout prevents SIMD batch intersection. Converting to SoA (separate arrays for each vertex component)
 would enable issue #11.
 
-## 13. Mesh Data — Unused `facetEdges` Storage
-
-**Severity: Low | Impact: Wasted memory**
-
-`Mesh.h:77` allocates `std::vector<FacetEdges> facetEdges` for the commented-out Moller-Trumbore algorithm.
-This wastes memory proportional to triangle count.
-
-## 14. OpenMP — Global Critical Section for Normal Accumulation
-
-**Severity: Medium | Impact: Mesh preprocessing throughput**
-
-`facets.cpp:62-68` uses `#pragma omp critical` (a single global lock) for vertex normal accumulation during
-mesh loading. Every thread serializes on this lock for every triangle.
-
-**Fix:** Use per-thread accumulation buffers merged after the loop, or `#pragma omp parallel for reduction`.
-
-## 15. OpenMP — KD-Tree Build Serialization
-
-**Severity: Low | Impact: Build parallelism**
-
-`KDTreeBalancer.cpp:113-159` uses two named `#pragma omp critical` sections to merge left/right geometry
-lists via `vector::insert()` (O(N) copy each). With enough geometry the critical sections become the
-bottleneck.
-
-**Fix:** Pre-size output vectors and use parallel partitioning, or thread-local buffers with final merge.
-
-## 16. Memory Safety — Raw `new`/`delete` Throughout
-
-**Severity: Medium | Impact: Leak risk on early returns/exceptions**
-
-~40+ instances of raw `new`/`delete` with zero `std::unique_ptr`/`std::shared_ptr` usage:
-
-- Scene construction (`ProceduralScene.h`, `TestScene*.h`) — all raw `new`
-- `KDTreeBalancer.cpp:50-93` — `new KDTreeRoot` with manual `delete` on error paths
-- `RaytracerUI.cpp` — raw `delete` for output buffers
-
-No RAII for dynamically allocated resources. Any exception or early return leaks.
-
 ## 17. Test Coverage — No Tests for Raytracing/Primitives
 
 **Severity: Medium | Impact: Regression risk**
@@ -133,11 +87,3 @@ However, there are **zero tests** for:
 - Scene management, camera, image processing
 
 Any refactoring of the raytracing or primitives layers has no safety net.
-
-## 18. Build — PCH Not Configured in CMake
-
-**Severity: Low | Impact: Compile time**
-
-`stdafx.h` files exist in `raytracing/src/` and `raytracerui/src/` but are not wired up via
-`target_precompile_headers()` in CMake. With 291 headers across the project, enabling PCH would improve
-incremental build times.

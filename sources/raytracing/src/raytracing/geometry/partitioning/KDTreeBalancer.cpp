@@ -3,6 +3,7 @@
 
 #include <cassert>
 #include <numeric>
+#include <omp.h>
 
 namespace raytracer {
   KDTreeBalancer::~KDTreeBalancer() = default;
@@ -108,12 +109,16 @@ namespace raytracer {
     leftGeometry = std::make_unique<PGeometryNodeList>();
     rightGeometry = std::make_unique<PGeometryNodeList>();
 
+    auto numThreads = omp_get_max_threads();
+    std::vector<PGeometryNodeList> allLeftGeometry(numThreads);
+    std::vector<PGeometryNodeList> allRightGeometry(numThreads);
+
 #pragma omp parallel if (geometrySize >= 64)
     {
-      auto tLeftGeometry = std::make_unique<PGeometryNodeList>();
-      tLeftGeometry->reserve(geometry.size());
-      auto tRightGeometry = std::make_unique<PGeometryNodeList>();
-      tRightGeometry->reserve(geometry.size());
+      auto &tLeftGeometry = allLeftGeometry[omp_get_thread_num()];
+      tLeftGeometry.reserve(geometry.size() / numThreads + 1);
+      auto &tRightGeometry = allRightGeometry[omp_get_thread_num()];
+      tRightGeometry.reserve(geometry.size() / numThreads + 1);
 
 #pragma omp for nowait
       for (int i = Zero<int>(); i < geometrySize; ++i) {
@@ -122,11 +127,11 @@ namespace raytracer {
 
         // Ask the geometryNode to test for an overlap with one of the two bounds
         if (geometryNode->overlaps(leftBounding)) {
-          tLeftGeometry->push_back(geometryNode);
+          tLeftGeometry.push_back(geometryNode);
           inserted |= true;
         }
         if (geometryNode->overlaps(rightBounding)) {
-          tRightGeometry->push_back(geometryNode);
+          tRightGeometry.push_back(geometryNode);
           inserted |= true;
         }
 
@@ -139,23 +144,30 @@ namespace raytracer {
         if (!inserted) {
           const AxisAlignedBoundingBox aabb = geometryNode->includeInBounding(AxisAlignedBoundingBox());
           if (overlaps(aabb, leftBounding)) {
-            tLeftGeometry->push_back(geometryNode);
+            tLeftGeometry.push_back(geometryNode);
             inserted |= true;
           }
           if (overlaps(aabb, rightBounding)) {
-            tRightGeometry->push_back(geometryNode);
+            tRightGeometry.push_back(geometryNode);
             inserted |= true;
           }
         }
 
         assert(inserted);
       }
+    }
 
-#pragma omp critical(appendLeftGeometry)
-      { leftGeometry->insert(leftGeometry->end(), tLeftGeometry->cbegin(), tLeftGeometry->cend()); }
-#pragma omp critical(appendRightGeometry)
-      { rightGeometry->insert(rightGeometry->end(), tRightGeometry->cbegin(), tRightGeometry->cend()); }
-
+    // merge thread-local buffers without locks
+    ASizeT totalLeft{0}, totalRight{0};
+    for (auto t = 0; t < numThreads; t++) {
+      totalLeft += allLeftGeometry[t].size();
+      totalRight += allRightGeometry[t].size();
+    }
+    leftGeometry->reserve(totalLeft);
+    rightGeometry->reserve(totalRight);
+    for (auto t = 0; t < numThreads; t++) {
+      leftGeometry->insert(leftGeometry->end(), allLeftGeometry[t].cbegin(), allLeftGeometry[t].cend());
+      rightGeometry->insert(rightGeometry->end(), allRightGeometry[t].cbegin(), allRightGeometry[t].cend());
     }
   }
 
