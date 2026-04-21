@@ -3,46 +3,6 @@
 Review of the full codebase focusing on shortcomings, performance bottlenecks in data structures,
 algorithms, and hardware-level SSE/AVX usage. Items already tracked in `.backlog/` are excluded.
 
-## 1. Build System — LTO/IPO Disabled for All Libraries
-
-**Severity: Critical | Impact: Entire codebase**
-
-`sources-build-aggregate/CMakeLists.txt:19` explicitly sets `INTERPROCEDURAL_OPTIMIZATION_RELEASE FALSE`.
-The three static libraries (vectorization, primitives, raytracing) inherit this default — none override it.
-Only `raytracerui` (executable) and the test DLL set `INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE`.
-
-On MSVC this means the static libraries are compiled **without `/GL`**, so the linker cannot inline across
-translation units even though the executable requests `/LTCG`. Since all SIMD operators live in `.cpp` files
-(e.g. `v_f32_4/operators.cpp`), every `+`, `-`, `*`, `/` on a `v_f32_4` is a real function call in the
-generated binary. This is likely the single largest performance issue in the project.
-
-Additionally, GCC builds are missing `-flto` and `-ffast-math` in the root `CMakeLists.txt:42`.
-
-**Recommendation:** Set `CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE` in the root `CMakeLists.txt`
-(before `add_subdirectory`) and remove the explicit `FALSE` from `sources-build-aggregate`. See section 11
-for details.
-
-## 2. SIMD — Missing `__forceinline` on Wrappers
-
-**Severity: High | Impact: All SIMD operations**
-
-`compiler_definitions.h` defines `ARCH_NOINLINE` but has no corresponding `ARCH_FORCEINLINE` macro. No SIMD
-wrapper function uses `__forceinline` (MSVC) or `__attribute__((always_inline))` (GCC). Without LTO (issue
-#1), this means the compiler cannot inline these 1-3 instruction wrappers across TUs. Even with LTO, an
-explicit force-inline is insurance against the optimizer deciding not to inline.
-
-## 3. SIMD — Inefficient Matrix-Vector Multiply
-
-**Severity: High | Impact: Every ray transformation**
-
-`m_f32_4x4/operators.cpp:32-35` uses `_mm_hadd_ps()` for 4×4 matrix × vector dot products. `hadd` has 3-6
-cycle latency on Skylake (vs. 1 cycle for vertical ops). A shuffle-based reduction tree using
-`_mm_shuffle_ps` + vertical `_mm_add_ps` would be 2-3× faster for each dot product.
-
-The commented-out `_mm_dp_ps` version (line 25-29) is also suboptimal (5-cycle latency + port pressure).
-The best approach is broadcast-multiply-add: broadcast each vector component, multiply by the corresponding
-matrix row, and vertically add the four results.
-
 ## 4. SIMD — Scalar Broadcast Overhead
 
 **Severity: Medium | Impact: Every scalar-vector operation**
@@ -181,28 +141,3 @@ Any refactoring of the raytracing or primitives layers has no safety net.
 `stdafx.h` files exist in `raytracing/src/` and `raytracerui/src/` but are not wired up via
 `target_precompile_headers()` in CMake. With 291 headers across the project, enabling PCH would improve
 incremental build times.
-
----
-
-## Priority Ranking
-
-| #  | Issue                                | Severity | Effort  |
-|----|--------------------------------------|----------|---------|
-| 1  | Enable LTO/IPO for all targets       | Critical | Low     |
-| 2  | Add `ARCH_FORCEINLINE` macro         | High     | Low     |
-| 3  | Shuffle-based matrix-vector multiply | High     | Low     |
-| 7  | Sweep-based incremental SAH          | High     | Medium  |
-| 8  | Flat-array KD-tree nodes             | High     | High    |
-| 9  | Increase leaf size to 16-32          | Medium   | Trivial |
-| 11 | SIMD batch triangle intersection     | Medium   | High    |
-| 12 | SoA mesh data layout                 | Medium   | High    |
-| 14 | Replace omp critical with reduction  | Medium   | Low     |
-| 16 | Replace raw new/delete with RAII     | Medium   | Medium  |
-| 17 | Add raytracing/primitives tests      | Medium   | High    |
-| 4  | Scalar broadcast optimization        | Medium   | Low     |
-| 5  | Direct element extraction            | Medium   | Low     |
-| 10 | Stackless KD-tree traversal          | Medium   | Medium  |
-| 13 | Remove unused facetEdges             | Low      | Trivial |
-| 6  | Aligned load validation              | Low      | Trivial |
-| 15 | KD-tree build parallelism            | Low      | Medium  |
-| 18 | Wire up PCH in CMake                 | Low      | Low     |
