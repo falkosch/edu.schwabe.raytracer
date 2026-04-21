@@ -43,7 +43,7 @@ namespace raytracer {
 
     auto parameters = KDTreeBuildParameters();
     parameters.costParameters = Float4(4.68375f, 1.0f);
-    parameters.maxNodesSize = ASizeT{4};
+    parameters.maxNodesSize = ASizeT{16};
     parameters.maxTreeDepth =
         ASizeT{1} + static_cast<ASizeT>(1.1f * logN(static_cast<Float>(rootGeometry.size() + ASizeT{1}), 2.0f));
 
