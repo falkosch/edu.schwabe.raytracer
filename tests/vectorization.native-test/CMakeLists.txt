@@ -1,7 +1,4 @@
-project("vectorization.native-test"
-        LANGUAGES CXX
-        VERSION 1.0.0
-)
+project("vectorization.native-test" LANGUAGES CXX VERSION 1.0.0)
 
 set(SOURCES
         src/vectorization/accessors/component_128d_test.cpp
@@ -138,11 +135,7 @@ set(HEADERS
 
 add_library(${PROJECT_NAME} SHARED ${SOURCES} ${HEADERS})
 
-source_group(
-        TREE ${CMAKE_CURRENT_SOURCE_DIR}
-        PREFIX "Files"
-        REGULAR_EXPRESSION ".+\\.(h|cpp)"
-)
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} PREFIX "Files" REGULAR_EXPRESSION ".+\\.(h|cpp)")
 
 add_dependencies(${PROJECT_NAME} vectorization)
 
@@ -154,11 +147,6 @@ target_include_directories(${PROJECT_NAME}
         PRIVATE
         "$ENV{VCInstallDir}/Auxiliary/VS/UnitTest/include"
         "${CMAKE_CURRENT_SOURCE_DIR}/include"
-)
-
-set_target_properties(${PROJECT_NAME}
-        PROPERTIES
-        INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE
 )
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")

@@ -353,6 +353,8 @@ set(THIRD_PARTY
 
 add_library(${PROJECT_NAME} STATIC ${SOURCES} ${HEADERS} ${THIRD_PARTY})
 
+set_target_properties(${PROJECT_NAME} PROPERTIES UNITY_BUILD ON UNITY_BUILD_BATCH_SIZE 0)
+
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} PREFIX "Files" REGULAR_EXPRESSION ".+\\.(h|cpp)")
 
 target_include_directories(${PROJECT_NAME}
@@ -361,8 +363,6 @@ target_include_directories(${PROJECT_NAME}
 )
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE _LIB)
-
-set_target_properties(${PROJECT_NAME} PROPERTIES INTERPROCEDURAL_OPTIMIZATION_RELEASE FALSE)
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 

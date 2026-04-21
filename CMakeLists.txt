@@ -6,9 +6,6 @@ project(Raytracer)
 
 set(CompilerFlags CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_RELEASE
         CMAKE_C_FLAGS CMAKE_C_FLAGS_DEBUG CMAKE_C_FLAGS_RELEASE)
-foreach (CompilerFlag ${CompilerFlags})
-    message(NOTICE "${CompilerFlag}=${${CompilerFlag}}")
-endforeach ()
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -34,9 +31,8 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     endforeach ()
 
     add_compile_definitions(_WIN32)
-
-    add_compile_options(-g3 -march=native -fopenmp
-            -Wall -Wextra -pedantic -Wno-ignored-qualifiers -Wno-unknown-pragmas)
+    add_compile_options(-Wall -Wextra -pedantic -Wno-ignored-qualifiers -Wno-unknown-pragmas)
+    add_compile_options(-g3 -march=native -fopenmp)
 
     add_link_options(-g3 -fopenmp)
 
@@ -61,16 +57,14 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
         string(REPLACE "/MD" "/MT" ${CompilerFlag} "${${CompilerFlag}}")
     endforeach ()
 
-    add_compile_options(/arch:SSE4.2 /openmp /GS- /fp:fast /permissive- /Zc:twoPhase- /Zp16 /sdl- /Oi
-            /W4 /wd4514 /wd4710 /wd4711 /wd4820 /wd4068)
-
-    add_compile_options(
-            $<$<AND:$<CONFIG:Release>,$<NOT:$<BOOL:${COVERAGE}>>>:/Oy>
-    )
+    add_compile_options(/permissive- /W4 /wd4514 /wd4710 /wd4711 /wd4820 /wd4068)
+    add_compile_options(/arch:AVX2 /openmp /GS- /fp:fast /Zp16 /sdl- /Oi /Gy)
+    add_compile_options($<$<CONFIG:Release>:/O2>)
+    add_compile_options($<$<AND:$<CONFIG:Release>,$<NOT:$<BOOL:${COVERAGE}>>>:/Oy>)
 
     add_link_options(
             $<$<CONFIG:Release>:/OPT:REF>
-            $<$<CONFIG:Release>:/OPT:ICF>
+            $<$<CONFIG:Release>:/OPT:ICF=3>
             $<$<CONFIG:Debug>:/Debug>
     )
 
