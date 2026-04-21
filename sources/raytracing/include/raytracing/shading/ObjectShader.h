@@ -6,6 +6,8 @@
 #include "SurfaceShading.h"
 #include "TextureTransformInfo.h"
 
+#include <memory>
+
 namespace raytracer {
   using namespace vectorization;
 
@@ -18,25 +20,25 @@ namespace raytracer {
     ~ObjectShader() override;
 
     const MaterialShader *getDiffusionShader() const;
-    void setDiffusionShader(const MaterialShader *value);
+    void setDiffusionShader(std::unique_ptr<const MaterialShader> value);
 
     const MaterialShader *getReflectanceShader() const;
-    void setReflectanceShader(const MaterialShader *value);
+    void setReflectanceShader(std::unique_ptr<const MaterialShader> value);
 
     const MaterialShader *getSpecularShader() const;
-    void setSpecularShader(const MaterialShader *value);
+    void setSpecularShader(std::unique_ptr<const MaterialShader> value);
 
     const MaterialShader *getShininessShader() const;
-    void setShininessShader(const MaterialShader *value);
+    void setShininessShader(std::unique_ptr<const MaterialShader> value);
 
     const MaterialShader *getTransmittanceShader() const;
-    void setTransmittanceShader(const MaterialShader *value);
+    void setTransmittanceShader(std::unique_ptr<const MaterialShader> value);
 
     const MaterialShader *getRefractionEtaShader() const;
-    void setRefractionEtaShader(const MaterialShader *value);
+    void setRefractionEtaShader(std::unique_ptr<const MaterialShader> value);
 
     const MaterialShader *getEmittanceShader() const;
-    void setEmittanceShader(const MaterialShader *value);
+    void setEmittanceShader(std::unique_ptr<const MaterialShader> value);
 
     void resetTextureMatrix();
 
@@ -53,13 +55,13 @@ namespace raytracer {
 
     TextureTransformInfo textureTransformInfo;
 
-    const MaterialShader *diffusionShader;
-    const MaterialShader *reflectanceShader;
-    const MaterialShader *specularShader;
-    const MaterialShader *shininessShader;
-    const MaterialShader *transmittanceShader;
-    const MaterialShader *refractionEtaShader;
-    const MaterialShader *emittanceShader;
+    std::unique_ptr<const MaterialShader> diffusionShader;
+    std::unique_ptr<const MaterialShader> reflectanceShader;
+    std::unique_ptr<const MaterialShader> specularShader;
+    std::unique_ptr<const MaterialShader> shininessShader;
+    std::unique_ptr<const MaterialShader> transmittanceShader;
+    std::unique_ptr<const MaterialShader> refractionEtaShader;
+    std::unique_ptr<const MaterialShader> emittanceShader;
 
     void updateTextureMatrix();
   };

@@ -4,6 +4,7 @@
 #include "partitioning/KDTreeNode.h"
 #include "partitioning/KDTreeTraverser.h"
 
+#include <memory>
 #include <vector>
 
 namespace raytracer {
@@ -15,7 +16,7 @@ namespace raytracer {
   public:
     SceneGeometry();
 
-    explicit SceneGeometry(const KDTreeTraverser<SceneIntersection> *const treeTraverser);
+    explicit SceneGeometry(std::unique_ptr<const KDTreeTraverser<SceneIntersection>> treeTraverser);
 
     ~SceneGeometry() override;
 
@@ -32,9 +33,9 @@ namespace raytracer {
     virtual void buildSceneGraph() = 0;
 
   protected:
-    const KDTreeTraverser<SceneIntersection> *treeTraverser;
+    std::unique_ptr<const KDTreeTraverser<SceneIntersection>> treeTraverser;
 
-    const KDTreeRoot *sceneGraph;
+    std::unique_ptr<const KDTreeRoot> sceneGraph;
 
     PGeometryNodeList finiteSceneObjectsAsGeometryNodes;
 

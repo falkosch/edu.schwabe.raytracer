@@ -11,11 +11,14 @@ namespace raytracer {
 
   class Scene : public SceneShader {
   public:
-    typedef std::vector<SceneObject *, AlignedAllocator<SceneObject *>> SceneList;
+    typedef std::vector<std::unique_ptr<SceneObject>> SceneList;
 
     Scene();
 
-    Scene(const KDTreeTraverser<SceneIntersection> *const treeTraverser, const KDTreeBalancer *const treeBalancer);
+    Scene(
+        std::unique_ptr<const KDTreeTraverser<SceneIntersection>> treeTraverser,
+        std::unique_ptr<const KDTreeBalancer> treeBalancer
+    );
 
     virtual ~Scene();
 
@@ -28,6 +31,6 @@ namespace raytracer {
   protected:
     SceneList sceneObjects;
 
-    const KDTreeBalancer *treeBalancer;
+    std::unique_ptr<const KDTreeBalancer> treeBalancer;
   };
 }

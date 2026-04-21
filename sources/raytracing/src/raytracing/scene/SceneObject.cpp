@@ -4,7 +4,7 @@
 #include "raytracing/scene/SceneObject.h"
 
 namespace raytracer {
-  SceneObject::SceneObject(std::string idIn) : ObjectShader(), bounding(), form(), id(std::move(idIn)) {
+  SceneObject::SceneObject(std::string idIn) : ObjectShader(), bounding(), ownedForm(), form(), id(std::move(idIn)) {
     resetModelMatrix();
   }
 
@@ -18,8 +18,15 @@ namespace raytracer {
     return form;
   }
 
-  void SceneObject::setForm(const Form *const value) {
-    this->form = value;
+  void SceneObject::setForm(std::unique_ptr<const Form> value) {
+    this->ownedForm = std::move(value);
+    this->form = this->ownedForm.get();
+    updateBounding();
+  }
+
+  void SceneObject::setForm(const Form *borrowed) {
+    this->ownedForm.reset();
+    this->form = borrowed;
     updateBounding();
   }
 

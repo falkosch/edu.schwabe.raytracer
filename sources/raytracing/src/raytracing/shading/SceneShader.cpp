@@ -9,18 +9,18 @@ namespace raytracer {
   SceneShader::SceneShader() : SceneGeometry(), backgroundShader(), ambientLight(), lights() {
   }
 
-  SceneShader::SceneShader(const KDTreeTraverser<SceneIntersection> *const treeTraverser)
-      : SceneGeometry(treeTraverser), backgroundShader(), ambientLight(), lights() {
+  SceneShader::SceneShader(std::unique_ptr<const KDTreeTraverser<SceneIntersection>> treeTraverser)
+      : SceneGeometry(std::move(treeTraverser)), backgroundShader(), ambientLight(), lights() {
   }
 
   SceneShader::~SceneShader() = default;
 
   const SceneShader::BackgroundShader *SceneShader::getBackgroundShader() const {
-    return backgroundShader;
+    return backgroundShader.get();
   }
 
-  void SceneShader::setBackgroundShader(const BackgroundShader *const value) {
-    backgroundShader = value;
+  void SceneShader::setBackgroundShader(std::unique_ptr<const BackgroundShader> value) {
+    backgroundShader = std::move(value);
   }
 
   Float4 SceneShader::getAmbientLight() const {

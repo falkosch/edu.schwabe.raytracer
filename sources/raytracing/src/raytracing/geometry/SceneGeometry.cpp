@@ -6,25 +6,15 @@ namespace raytracer {
       : treeTraverser(), sceneGraph(), finiteSceneObjectsAsGeometryNodes(), infiniteSceneObjectsAsGeometryNodes() {
   }
 
-  SceneGeometry::SceneGeometry(const KDTreeTraverser<SceneIntersection> *const treeTraverserIn)
-      : treeTraverser(treeTraverserIn), sceneGraph(), finiteSceneObjectsAsGeometryNodes(),
+  SceneGeometry::SceneGeometry(std::unique_ptr<const KDTreeTraverser<SceneIntersection>> treeTraverserIn)
+      : treeTraverser(std::move(treeTraverserIn)), sceneGraph(), finiteSceneObjectsAsGeometryNodes(),
         infiniteSceneObjectsAsGeometryNodes() {
   }
 
-  SceneGeometry::~SceneGeometry() {
-    clearSceneGraph();
-    if (treeTraverser) {
-      delete treeTraverser;
-    }
-    finiteSceneObjectsAsGeometryNodes.clear();
-    infiniteSceneObjectsAsGeometryNodes.clear();
-  }
+  SceneGeometry::~SceneGeometry() = default;
 
   void SceneGeometry::clearSceneGraph() {
-    if (sceneGraph) {
-      delete sceneGraph;
-      sceneGraph = nullptr;
-    }
+    sceneGraph.reset();
   }
 
   Float SceneGeometry::findNearestIntersection(

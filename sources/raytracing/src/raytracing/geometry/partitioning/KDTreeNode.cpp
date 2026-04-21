@@ -10,14 +10,8 @@ namespace raytracer {
   }
 
   void KDTreeNode::clear() {
-    if (children) {
-      delete children;
-      children = nullptr;
-    }
-    if (geometryNodes) {
-      delete geometryNodes;
-      geometryNodes = nullptr;
-    }
+    children.reset();
+    geometryNodes.reset();
   }
 
   const bool KDTreeNode::isNonEmptyLeaf() const {
@@ -25,14 +19,14 @@ namespace raytracer {
   }
 
   void KDTreeNode::grow(
-      const AxisAlignedBoundingBox &leftBounding, PGeometryNodeList &leftGeometryNodes,
-      const AxisAlignedBoundingBox &rightBounding, PGeometryNodeList &rightGeometryNodes
+      const AxisAlignedBoundingBox &leftBounding, std::unique_ptr<PGeometryNodeList> leftGeometryNodes,
+      const AxisAlignedBoundingBox &rightBounding, std::unique_ptr<PGeometryNodeList> rightGeometryNodes
   ) {
     clear();
-    children = new KDTreeNodeChildren();
+    children = std::make_unique<KDTreeNodeChildren>();
     children->boundingA = leftBounding;
     children->boundingB = rightBounding;
-    children->childA.geometryNodes = &leftGeometryNodes;
-    children->childB.geometryNodes = &rightGeometryNodes;
+    children->childA.geometryNodes = std::move(leftGeometryNodes);
+    children->childB.geometryNodes = std::move(rightGeometryNodes);
   }
 }

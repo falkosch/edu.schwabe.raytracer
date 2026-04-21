@@ -3,6 +3,8 @@
 #include "../geometry/forms/Form.h"
 #include "../shading/ObjectShader.h"
 
+#include <memory>
+
 namespace raytracer {
   using namespace vectorization;
   using namespace primitives;
@@ -17,7 +19,9 @@ namespace raytracer {
 
     const Form *getForm() const;
 
-    void setForm(const Form *value);
+    void setForm(std::unique_ptr<const Form> value);
+
+    void setForm(const Form *borrowed);
 
     Float findNearestIntersection(
         const RayCast &rayCast, const FacetIntersection *originIntersection, FacetIntersection &intersectionOut
@@ -33,6 +37,7 @@ namespace raytracer {
 
   protected:
     AxisAlignedBoundingBox bounding;
+    std::unique_ptr<const Form> ownedForm;
     const Form *form;
     std::string id;
 

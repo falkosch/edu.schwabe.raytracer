@@ -17,10 +17,10 @@ namespace raytracer {
     // Initialize memory blocks
     const ASizeT permutationsCountExtended = permutationsCount + permutationsCount + Two<ASizeT>();
     permutations = AlignedAllocator<Int>::allocElements(permutationsCountExtended);
-    gradients1 = new Float4[permutationsCountExtended];
-    gradients2 = new Float4[permutationsCountExtended];
-    gradients3 = new Float4[permutationsCountExtended];
-    gradients4 = new Float4[permutationsCountExtended];
+    gradients1.reset(new Float4[permutationsCountExtended]);
+    gradients2.reset(new Float4[permutationsCountExtended]);
+    gradients3.reset(new Float4[permutationsCountExtended]);
+    gradients4.reset(new Float4[permutationsCountExtended]);
 
     // Initialize permutation and gradients tables
     for (ASizeT i = Zero<ASizeT>(); i < permutationsCount; ++i) {

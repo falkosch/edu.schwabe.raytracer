@@ -16,17 +16,9 @@
 
 namespace raytracer {
   Resources::Resources() : meshes(), textures(), revertedNormalsCheckList() {
-    auto basicMesh = new Mesh();
-    basicMesh->buildTriangleMesh();
-    meshes["triangle"] = basicMesh;
-
-    basicMesh = new Mesh();
-    basicMesh->buildPlaneMesh();
-    meshes["plane"] = basicMesh;
-
-    basicMesh = new Mesh();
-    basicMesh->buildCubeMesh();
-    meshes["cube"] = basicMesh;
+    meshes["triangle"] = Mesh::buildTriangleMesh();
+    meshes["plane"] = Mesh::buildPlaneMesh();
+    meshes["cube"] = Mesh::buildCubeMesh();
 
     // revertedNormalsCheckList.push_back("meshes/cone.off");
     std::sort(revertedNormalsCheckList.begin(), revertedNormalsCheckList.end());
@@ -38,49 +30,48 @@ namespace raytracer {
     return std::binary_search(revertedNormalsCheckList.cbegin(), revertedNormalsCheckList.cend(), identifier);
   }
 
-  Mesh *const Resources::getMesh(const std::string &identifier) {
-    std::map<std::string, Mesh *>::const_iterator found = meshes.find(identifier);
-    if (found == meshes.cend()) {
+  Mesh *Resources::getMesh(const std::string &identifier) {
+    auto found = meshes.find(identifier);
+    if (found == meshes.end()) {
       const std::string file = "meshes/" + identifier + ".off";
       found = meshes.find(file);
 
-      if (found == meshes.cend()) {
-        const KDTreeTraverser<FacetIntersection> *const traverser = new NaiveKDTreeTraverser<FacetIntersection>();
-        // const KDTreeTraverser<FacetIntersection>*const traverser = new
-        // VoxelizationKDTreeTraverser<FacetIntersection>();
+      if (found == meshes.end()) {
+        auto traverser = std::make_unique<NaiveKDTreeTraverser<FacetIntersection>>();
+        // auto traverser = std::make_unique<VoxelizationKDTreeTraverser<FacetIntersection>>();
 
-        // const KDTreeBalancer*const balancer = new RotatingAxisKDTreeBalancer();
-        // const KDTreeBalancer*const balancer = new MaxAxisKDTreeBalancer();
-        // const KDTreeBalancer*const balancer = new MedianKDTreeBalancer();
-        // const KDTreeBalancer*const balancer = new ArithmeticMeanKDTreeBalancer();
-        const KDTreeBalancer *const balancer = new FixedIterationsSAHKDTreeBalancer(5);
-        // const KDTreeBalancer*const balancer = new BruteForceSAHKDTreeBalancer();
+        // auto balancer = std::make_unique<RotatingAxisKDTreeBalancer>();
+        // auto balancer = std::make_unique<MaxAxisKDTreeBalancer>();
+        // auto balancer = std::make_unique<MedianKDTreeBalancer>();
+        // auto balancer = std::make_unique<ArithmeticMeanKDTreeBalancer>();
+        auto balancer = std::make_unique<FixedIterationsSAHKDTreeBalancer>(5);
+        // auto balancer = std::make_unique<BruteForceSAHKDTreeBalancer>();
 
-        Mesh *const newMesh = Mesh::loadFromOffFile(file, hasRevertedNormals(file), traverser, balancer);
-        meshes[file] = newMesh;
-        return newMesh;
+        auto newMesh = Mesh::loadFromOffFile(file, hasRevertedNormals(file), std::move(traverser), std::move(balancer));
+        auto *ptr = newMesh.get();
+        meshes[file] = std::move(newMesh);
+        return ptr;
       }
     }
-    return found->second;
+    return found->second.get();
   }
 
-  HDRImage *const Resources::getPPM(const std::string &identifier) {
-    std::map<std::string, HDRImage *>::const_iterator found = textures.find(identifier);
-    if (found == textures.cend()) {
+  HDRImage *Resources::getPPM(const std::string &identifier) {
+    auto found = textures.find(identifier);
+    if (found == textures.end()) {
       const std::string file = "textures/" + identifier + ".ppm";
       found = textures.find(file);
 
-      if (found == textures.cend()) {
-        const Bitmap *const loadedBitmap = Bitmap::loadPPM(file);
+      if (found == textures.end()) {
+        const auto loadedBitmap = Bitmap::loadPPM(file);
         assert(loadedBitmap);
 
-        const auto image = new HDRImage(*loadedBitmap);
-        textures[file] = image;
-
-        delete loadedBitmap;
-        return image;
+        auto image = std::make_unique<HDRImage>(*loadedBitmap);
+        auto *ptr = image.get();
+        textures[file] = std::move(image);
+        return ptr;
       }
     }
-    return found->second;
+    return found->second.get();
   }
 }

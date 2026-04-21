@@ -11,19 +11,19 @@ namespace raytracerui {
   template <int LightsPerAxis = 3, int ObjectsPerAxis = 10>
   struct ProceduralScene {
     static void setupLightScene(Scene &scene, Resources & /*resources*/) {
-      scene.setBackgroundShader(new ConstShader<SceneShader, Float4, Float4>(Float4(1.f, 1.f, 1.f, 0.f)));
+      scene.setBackgroundShader(std::make_unique<ConstShader<SceneShader, Float4, Float4>>(Float4(1.f, 1.f, 1.f, 0.f)));
       scene.setAmbientLight(Float4(0.f, 0.f, 0.f, 0.f));
 
       auto emittanceScale = reciprocal(Float4(LightsPerAxis * LightsPerAxis * LightsPerAxis + 1.f));
       for (auto z{-LightsPerAxis}; z <= LightsPerAxis; ++z) {
         for (auto y{-LightsPerAxis}; y <= LightsPerAxis; ++y) {
           for (auto x{-LightsPerAxis}; x <= LightsPerAxis; ++x) {
-            auto light = new LightInfo();
+            auto light = std::make_unique<LightInfo>();
             auto position = convert<Float4>(Int4(x, y, z));
             light->position = oneW(position * Float4(4.f));
             light->emittance = oneW(abs(position * emittanceScale) + emittanceScale);
             light->attenuationFactors = Float4(1.f, 1.f, 0.f, 1.f);
-            scene.getLights().push_back(light);
+            scene.getLights().push_back(std::move(light));
           }
         }
       }
@@ -38,11 +38,11 @@ namespace raytracerui {
             std::stringstream fmt;
             fmt << z << " " << y << " " << x;
 
-            auto sceneObject = new SceneObject(fmt.str());
+            auto sceneObject = std::make_unique<SceneObject>(fmt.str());
             if ((x + y + z) & One<int>()) {
-              sceneObject->setForm(new Box());
+              sceneObject->setForm(std::make_unique<Box>());
             } else {
-              sceneObject->setForm(new Sphere());
+              sceneObject->setForm(std::make_unique<Sphere>());
             }
             sceneObject->scale(Float3(.25f));
             sceneObject->rotate(Float3(Float(z), Float(x), Float(y)) * Float(30.f));
@@ -50,16 +50,16 @@ namespace raytracerui {
             sceneObject->scaleTexture(Float2(1.f, 1.f));
             sceneObject->rotateTexture(0.f);
             sceneObject->translateTexture(Float2(0.f, 0.f));
-            sceneObject->setEmittanceShader(new Resources::ConstMaterialShader(Float4(1.f, 1.f, 1.f, 0.f)));
-            sceneObject->setDiffusionShader(new HDRImageShader(*resources.getPPM("marble")));
-            sceneObject->setReflectanceShader(new Resources::ConstMaterialShader(Float4(1.f, 1.f, 1.f, .2f)));
-            sceneObject->setSpecularShader(new Resources::ConstMaterialShader(Float4(1.f, 1.f, 1.f, .2f)));
-            sceneObject->setShininessShader(new Resources::ConstMaterialShader(Float4(1.f, 1.f, 1.f, 32.f)));
-            sceneObject->setTransmittanceShader(new Resources::ConstMaterialShader(Float4(1.f, 1.f, 1.f, 0.f)));
-            sceneObject->setRefractionEtaShader(new Resources::ConstMaterialShader(
+            sceneObject->setEmittanceShader(std::make_unique<Resources::ConstMaterialShader>(Float4(1.f, 1.f, 1.f, 0.f)));
+            sceneObject->setDiffusionShader(std::make_unique<HDRImageShader>(*resources.getPPM("marble")));
+            sceneObject->setReflectanceShader(std::make_unique<Resources::ConstMaterialShader>(Float4(1.f, 1.f, 1.f, .2f)));
+            sceneObject->setSpecularShader(std::make_unique<Resources::ConstMaterialShader>(Float4(1.f, 1.f, 1.f, .2f)));
+            sceneObject->setShininessShader(std::make_unique<Resources::ConstMaterialShader>(Float4(1.f, 1.f, 1.f, 32.f)));
+            sceneObject->setTransmittanceShader(std::make_unique<Resources::ConstMaterialShader>(Float4(1.f, 1.f, 1.f, 0.f)));
+            sceneObject->setRefractionEtaShader(std::make_unique<Resources::ConstMaterialShader>(
                 RefractionIndices::refractionEta(RefractionIndices::Vacuum, RefractionIndices::Water)
             ));
-            scene.getSceneObjects().push_back(sceneObject);
+            scene.getSceneObjects().push_back(std::move(sceneObject));
           }
         }
       }

@@ -80,7 +80,6 @@ namespace raytracerui {
       dummy += mesh->findNearestIntersection(rayCasts[3], &f1, f2);
     }
 
-    delete mesh;
     return dummy;
   }
 

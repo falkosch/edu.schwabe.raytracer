@@ -36,7 +36,7 @@ namespace raytracer {
            <= calculateSplitCost(parameters, parentBounding, leftBounding, rightBounding, leftGeometry, rightGeometry);
   }
 
-  KDTreeRoot *const KDTreeBalancer::build(const PGeometryNodeList &rootGeometry) const {
+  std::unique_ptr<KDTreeRoot> KDTreeBalancer::build(const PGeometryNodeList &rootGeometry) const {
     if (rootGeometry.empty()) {
       return nullptr;
     }
@@ -47,9 +47,9 @@ namespace raytracer {
     parameters.maxTreeDepth =
         ASizeT{1} + static_cast<ASizeT>(1.1f * logN(static_cast<Float>(rootGeometry.size() + ASizeT{1}), 2.0f));
 
-    const auto root = new KDTreeRoot();
+    auto root = std::make_unique<KDTreeRoot>();
     root->rootBounding = KDTreeBounding::findMinimumBoundingOfGeometry(rootGeometry);
-    root->rootNode.geometryNodes = new PGeometryNodeList(rootGeometry);
+    root->rootNode.geometryNodes = std::make_unique<PGeometryNodeList>(rootGeometry);
 
     build(parameters, Zero<ASizeT>(), nullptr, root->rootBounding, root->rootNode);
 
@@ -62,7 +62,7 @@ namespace raytracer {
   ) const {
     KDTreePlane splitter;
     AxisAlignedBoundingBox leftBounding, rightBounding;
-    PGeometryNodeList *leftGeometry, *rightGeometry;
+    std::unique_ptr<PGeometryNodeList> leftGeometry, rightGeometry;
     const PGeometryNodeList &parentGeometry = *parentNode.geometryNodes;
     assert(!parentGeometry.empty());
 
@@ -88,14 +88,11 @@ namespace raytracer {
             parameters, treeDepthNext, parentBounding, parentGeometry, leftBounding, rightBounding, *leftGeometry,
             *rightGeometry
         )) {
-      // Remove left- and right-children-lists, because the parent geometry will be left as is instead.
-      delete leftGeometry;
-      delete rightGeometry;
       return;
     }
 
     // grow tree by new children
-    parentNode.grow(leftBounding, *leftGeometry, rightBounding, *rightGeometry);
+    parentNode.grow(leftBounding, std::move(leftGeometry), rightBounding, std::move(rightGeometry));
 
     // recurse into new left and right child nodes
     build(parameters, treeDepthNext, &splitter, leftBounding, parentNode.children->childA);
@@ -104,17 +101,18 @@ namespace raytracer {
 
   void KDTreeBalancer::sort(
       const KDTreePlane &, const PGeometryNodeList &geometry, const AxisAlignedBoundingBox &leftBounding,
-      const AxisAlignedBoundingBox &rightBounding, PGeometryNodeList *&leftGeometry, PGeometryNodeList *&rightGeometry
+      const AxisAlignedBoundingBox &rightBounding, std::unique_ptr<PGeometryNodeList> &leftGeometry,
+      std::unique_ptr<PGeometryNodeList> &rightGeometry
   ) const {
     const int geometrySize = static_cast<int>(geometry.size());
-    leftGeometry = new PGeometryNodeList();
-    rightGeometry = new PGeometryNodeList();
+    leftGeometry = std::make_unique<PGeometryNodeList>();
+    rightGeometry = std::make_unique<PGeometryNodeList>();
 
 #pragma omp parallel if (geometrySize >= 64)
     {
-      const auto tLeftGeometry = new PGeometryNodeList();
+      auto tLeftGeometry = std::make_unique<PGeometryNodeList>();
       tLeftGeometry->reserve(geometry.size());
-      const auto tRightGeometry = new PGeometryNodeList();
+      auto tRightGeometry = std::make_unique<PGeometryNodeList>();
       tRightGeometry->reserve(geometry.size());
 
 #pragma omp for nowait
@@ -158,8 +156,6 @@ namespace raytracer {
 #pragma omp critical(appendRightGeometry)
       { rightGeometry->insert(rightGeometry->end(), tRightGeometry->cbegin(), tRightGeometry->cend()); }
 
-      delete tLeftGeometry;
-      delete tRightGeometry;
     }
   }
 

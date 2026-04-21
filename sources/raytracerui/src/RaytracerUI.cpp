@@ -10,12 +10,7 @@ namespace raytracerui {
     this->parameters.observer = this;
   }
 
-  RaytracerUI::~RaytracerUI() {
-    delete outputHDR;
-    outputHDR = nullptr;
-    delete output;
-    output = nullptr;
-  }
+  RaytracerUI::~RaytracerUI() = default;
 
   void RaytracerUI::reshape(const Int2 &newSize) {
     std::cout << "Resizing output to " << x(newSize) << "x" << y(newSize) << std::endl;
@@ -46,17 +41,15 @@ namespace raytracerui {
     std::cout << "objectShadowRays " << configuration.statistics.objectShadowRays << "/"
               << configuration.statistics.objectMissedShadowRays << std::endl;
 
-    delete outputHDR;
-    delete output;
+    const auto *selected = selectOutputImage(configuration);
+    outputHDR.reset(selected);
+    output = std::make_unique<Bitmap>(*outputHDR);
 
-    outputHDR = selectOutputImage(configuration);
-    output = new Bitmap(*outputHDR);
-
-    if (outputHDR != configuration.image)
+    if (selected != configuration.image)
       delete configuration.image;
-    if (outputHDR != configuration.depthMap)
+    if (selected != configuration.depthMap)
       delete configuration.depthMap;
-    if (outputHDR != configuration.timingMap)
+    if (selected != configuration.timingMap)
       delete configuration.timingMap;
 
     ++frameCount;

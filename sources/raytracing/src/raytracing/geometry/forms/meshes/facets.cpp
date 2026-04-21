@@ -93,7 +93,7 @@ namespace raytracer {
     }
   }
 
-  KDTreeRoot *const computeNodesAndGraph(
+  std::unique_ptr<KDTreeRoot> computeNodesAndGraph(
       const std::vector<Facet> &facets, const KDTreeBalancer *const balancer, PGeometryNodeList &nodes
   ) noexcept {
     nodes.resize(facets.size());

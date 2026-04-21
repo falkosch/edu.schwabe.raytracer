@@ -5,6 +5,8 @@
 #include "../../partitioning/KDTreeBalancer.h"
 #include "../../partitioning/KDTreeTraverser.h"
 
+#include <memory>
+
 namespace raytracer {
   using namespace vectorization;
   using namespace primitives;
@@ -12,7 +14,7 @@ namespace raytracer {
   struct Mesh final : Form, GeometryNodesTraverser<FacetIntersection> {
     Mesh();
 
-    explicit Mesh(const KDTreeTraverser<FacetIntersection> *traverser, const KDTreeBalancer *balancer);
+    Mesh(std::unique_ptr<const KDTreeTraverser<FacetIntersection>> traverser, std::unique_ptr<const KDTreeBalancer> balancer);
 
     ~Mesh() override;
 
@@ -47,15 +49,15 @@ namespace raytracer {
 
     // Builders and test methods
 
-    static Mesh *buildCubeMesh();
+    static std::unique_ptr<Mesh> buildCubeMesh();
 
-    static Mesh *buildPlaneMesh();
+    static std::unique_ptr<Mesh> buildPlaneMesh();
 
-    static Mesh *buildTriangleMesh();
+    static std::unique_ptr<Mesh> buildTriangleMesh();
 
-    static Mesh *loadFromOffFile(
-        const std::string &filename, bool flipNormals, const KDTreeTraverser<FacetIntersection> *traverser,
-        const KDTreeBalancer *balancer
+    static std::unique_ptr<Mesh> loadFromOffFile(
+        const std::string &filename, bool flipNormals, std::unique_ptr<const KDTreeTraverser<FacetIntersection>> traverser,
+        std::unique_ptr<const KDTreeBalancer> balancer
     );
 
   protected:
@@ -77,10 +79,10 @@ namespace raytracer {
     std::vector<FacetEdges> facetEdges;
 
     PGeometryNodeList nodes;
-    KDTreeRoot *graph;
+    std::unique_ptr<KDTreeRoot> graph;
 
-    const KDTreeTraverser<FacetIntersection> *traverser;
-    const KDTreeBalancer *balancer;
+    std::unique_ptr<const KDTreeTraverser<FacetIntersection>> traverser;
+    std::unique_ptr<const KDTreeBalancer> balancer;
 
     void clear();
 

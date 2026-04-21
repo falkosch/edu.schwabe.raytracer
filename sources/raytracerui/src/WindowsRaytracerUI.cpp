@@ -245,7 +245,7 @@ namespace raytracerui {
 
     case DragTypes::Light: {
       const auto &lights = parameters.sceneShader->getLights();
-      const auto lastLight = lights.back();
+      const auto &lastLight = lights.back();
       lastLight->position += Float4(0.0f, 0.0f, x(delta) - y(delta)) * MOUSE_SENSITIVITY;
       triggerRaytracing(true);
       break;
@@ -254,7 +254,7 @@ namespace raytracerui {
     case DragTypes::Object: {
       const auto scene = dynamic_cast<Scene *const>(parameters.sceneShader);
       const auto &sceneObjects = scene->getSceneObjects();
-      const auto lastSceneObject = sceneObjects.back();
+      const auto &lastSceneObject = sceneObjects.back();
       lastSceneObject->translate(Float3(0.0f, 0.0f, x(delta) - y(delta)) * MOUSE_SENSITIVITY);
       triggerRaytracing(true);
       break;

@@ -18,16 +18,16 @@ namespace raytracer {
         planeNormals(), facetEdges(), nodes(), graph(), traverser(), balancer() {
   }
 
-  Mesh::Mesh(const KDTreeTraverser<FacetIntersection> *const traverser, const KDTreeBalancer *const balancer)
+  Mesh::Mesh(
+      std::unique_ptr<const KDTreeTraverser<FacetIntersection>> traverser,
+      std::unique_ptr<const KDTreeBalancer> balancer
+  )
       : bounding(), vertices(), vertexNormals(), facetIndices(), facets(), texCoords(), flatNormals(), smoothNormals(),
-        planeNormals(), facetEdges(), nodes(), graph(), traverser(traverser), balancer(balancer) {
+        planeNormals(), facetEdges(), nodes(), graph(), traverser(std::move(traverser)), balancer(std::move(balancer)) {
   }
 
   Mesh::~Mesh() {
     clear();
-    delete graph;
-    delete traverser;
-    delete balancer;
   }
 
   AxisAlignedBoundingBox Mesh::getBounding() const {
@@ -140,8 +140,8 @@ namespace raytracer {
     return rayCast.maxDistance;
   }
 
-  Mesh *Mesh::buildCubeMesh() {
-    const auto mesh = new Mesh();
+  std::unique_ptr<Mesh> Mesh::buildCubeMesh() {
+    auto mesh = std::make_unique<Mesh>();
 
     mesh->vertices.reserve(8);
     mesh->vertices.push_back(Float4(-1.0f, -1.0f, -1.0f, 1.0f));
@@ -182,8 +182,8 @@ namespace raytracer {
     return mesh;
   }
 
-  Mesh *Mesh::buildPlaneMesh() {
-    const auto mesh = new Mesh();
+  std::unique_ptr<Mesh> Mesh::buildPlaneMesh() {
+    auto mesh = std::make_unique<Mesh>();
 
     mesh->vertices.reserve(4);
     mesh->vertices.push_back(Float4{-1.0f, -1.0f, 0.0f, 1.0f});
@@ -204,8 +204,8 @@ namespace raytracer {
     return mesh;
   }
 
-  Mesh *Mesh::buildTriangleMesh() {
-    const auto mesh = new Mesh();
+  std::unique_ptr<Mesh> Mesh::buildTriangleMesh() {
+    auto mesh = std::make_unique<Mesh>();
 
     mesh->vertices.reserve(3);
     mesh->vertices.push_back(Float4{-0.5f, 0.0f, 0.0f, 1.0f});
@@ -248,11 +248,12 @@ namespace raytracer {
     return false;
   }
 
-  Mesh *Mesh::loadFromOffFile(
-      const std::string &filename, const bool flipNormals, const KDTreeTraverser<FacetIntersection> *const traverser,
-      const KDTreeBalancer *const balancer
+  std::unique_ptr<Mesh> Mesh::loadFromOffFile(
+      const std::string &filename, const bool flipNormals,
+      std::unique_ptr<const KDTreeTraverser<FacetIntersection>> traverser,
+      std::unique_ptr<const KDTreeBalancer> balancer
   ) {
-    auto mesh = new Mesh(traverser, balancer);
+    auto mesh = std::make_unique<Mesh>(std::move(traverser), std::move(balancer));
     if (filename.empty()) {
       std::cerr << "File name is empty" << std::endl;
       return mesh;
@@ -323,6 +324,13 @@ namespace raytracer {
   }
 
   void Mesh::clear() {
+    graph.reset();
+
+    for (auto *node : nodes) {
+      delete node;
+    }
+    nodes.clear();
+
     vertices.clear();
     vertexNormals.clear();
 
@@ -339,6 +347,6 @@ namespace raytracer {
     bounding = computeStandardMesh(vertices);
     computeFacets(vertices, facetIndices, facets);
     computeNormals(vertices, facetIndices, facets, vertexNormals, flatNormals, smoothNormals, planeNormals, facetEdges);
-    graph = computeNodesAndGraph(facets, balancer, nodes);
+    graph = computeNodesAndGraph(facets, balancer.get(), nodes);
   }
 }

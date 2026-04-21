@@ -11,16 +11,13 @@ namespace raytracer {
   }
 
   Scene::Scene(
-      const KDTreeTraverser<SceneIntersection> *const treeTraverserIn, const KDTreeBalancer *const treeBalancerIn
+      std::unique_ptr<const KDTreeTraverser<SceneIntersection>> treeTraverserIn,
+      std::unique_ptr<const KDTreeBalancer> treeBalancerIn
   )
-      : SceneShader(treeTraverserIn), sceneObjects(), treeBalancer(treeBalancerIn) {
+      : SceneShader(std::move(treeTraverserIn)), sceneObjects(), treeBalancer(std::move(treeBalancerIn)) {
   }
 
-  Scene::~Scene() {
-    if (treeBalancer) {
-      delete treeBalancer;
-    }
-  }
+  Scene::~Scene() = default;
 
   Scene::SceneList &Scene::getSceneObjects() {
     return sceneObjects;
@@ -34,11 +31,11 @@ namespace raytracer {
     clearSceneGraph();
     finiteSceneObjectsAsGeometryNodes.clear();
     infiniteSceneObjectsAsGeometryNodes.clear();
-    for (const auto sceneObject : sceneObjects) {
+    for (const auto &sceneObject : sceneObjects) {
       if (sceneObject->getForm()->isInfinite()) {
-        infiniteSceneObjectsAsGeometryNodes.push_back(sceneObject);
+        infiniteSceneObjectsAsGeometryNodes.push_back(sceneObject.get());
       } else {
-        finiteSceneObjectsAsGeometryNodes.push_back(sceneObject);
+        finiteSceneObjectsAsGeometryNodes.push_back(sceneObject.get());
       }
     }
 

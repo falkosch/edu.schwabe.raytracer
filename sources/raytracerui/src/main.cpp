@@ -52,7 +52,9 @@ constexpr ASizeT RAY_PACKET_SIZE = 15;
 namespace raytracerui {
   LRESULT runRaytracerUI() {
     Resources resources{};
-    Scene scene{new NaiveKDTreeTraverser<SceneIntersection>(), new FixedIterationsSAHKDTreeBalancer()};
+    Scene scene{
+        std::make_unique<NaiveKDTreeTraverser<SceneIntersection>>(), std::make_unique<FixedIterationsSAHKDTreeBalancer>()
+    };
 
     CornellBoxScene::setup(scene, resources);
     // TestScene1::setup(scene, resources);

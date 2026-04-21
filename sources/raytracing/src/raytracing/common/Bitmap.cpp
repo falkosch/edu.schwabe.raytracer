@@ -17,12 +17,7 @@ namespace raytracer {
     init();
   }
 
-  Bitmap::~Bitmap() {
-    if (data) {
-      delete[] data;
-      data = nullptr;
-    }
-  }
+  Bitmap::~Bitmap() = default;
 
   Bitmap::VectorType::ValueType &Bitmap::operator[](const ASizeT index) {
     return data[index];
@@ -67,23 +62,23 @@ namespace raytracer {
   const BITMAP Bitmap::getBITMAP() const {
     const auto [bmiHeader, bmiColors] = this->getBITMAPINFO();
     const BITMAP sysBitmap{
-        LONG{0},                         // bmType
-        bmiHeader.biWidth,               // bmWidth
-        bmiHeader.biHeight,              // bmHeight
-        static_cast<LONG>(this->stride), // bmWidthBytes
-        bmiHeader.biPlanes,              // bmPlanes
-        bmiHeader.biBitCount,            // bmBitsPixel
-        static_cast<LPVOID>(this->data)  // bmBits
+        LONG{0},                              // bmType
+        bmiHeader.biWidth,                    // bmWidth
+        bmiHeader.biHeight,                   // bmHeight
+        static_cast<LONG>(this->stride),      // bmWidthBytes
+        bmiHeader.biPlanes,                   // bmPlanes
+        bmiHeader.biBitCount,                 // bmBitsPixel
+        static_cast<LPVOID>(this->data.get()) // bmBits
     };
     return sysBitmap;
   }
 
   void Bitmap::init() {
     this->stride = bitPad(x(resolution) * VectorType::SIZE, VectorType::SIZE);
-    this->data = new VectorType::ValueType[this->stride * y(resolution)];
+    this->data.reset(new VectorType::ValueType[this->stride * y(resolution)]);
   }
 
-  Bitmap *const Bitmap::loadPPM(const std::string &filename) {
+  std::unique_ptr<Bitmap> Bitmap::loadPPM(const std::string &filename) {
     std::ifstream file(filename.c_str(), std::ios::binary);
     if (!file.is_open()) {
       std::cerr << "opening file " << filename << " failed" << std::endl;
@@ -108,7 +103,7 @@ namespace raytracer {
     Size2 resolution;
     std::stringstream(dimensions) >> resolution[VectorIndices::X] >> resolution[VectorIndices::Y];
 
-    auto loaded = new Bitmap(resolution);
+    auto loaded = std::make_unique<Bitmap>(resolution);
 
     std::string max;
     getline(file, max);
@@ -194,7 +189,7 @@ namespace raytracer {
 
     writeObject<BITMAPFILEHEADER, sizeof(BITMAPFILEHEADER)>(file, bmfh);
     writeVariadicObject<BITMAPINFOHEADER>(file, bmiHeader, bmiHeader.biSize);
-    writeVariadicData<UInt_8>(file, this->data, bmiHeader.biSizeImage);
+    writeVariadicData<UInt_8>(file, this->data.get(), bmiHeader.biSizeImage);
 
     file.flush();
     file.close();

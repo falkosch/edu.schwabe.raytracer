@@ -2,16 +2,18 @@
 
 #include "NoiseGenerator.h"
 
+#include <memory>
+
 namespace raytracer {
   using namespace vectorization;
 
   class PerlinNoiseGenerator : public NoiseGenerator {
     static constexpr ASizeT DefaultPermutationsCount = 256;
 
-    Float4 *gradients1;
-    Float4 *gradients2;
-    Float4 *gradients3;
-    Float4 *gradients4;
+    std::unique_ptr<Float4[]> gradients1;
+    std::unique_ptr<Float4[]> gradients2;
+    std::unique_ptr<Float4[]> gradients3;
+    std::unique_ptr<Float4[]> gradients4;
     Int *permutations;
 
     ASizeT permutationsCount;
@@ -28,6 +30,11 @@ namespace raytracer {
     PerlinNoiseGenerator(UInt_64 seed);
 
     ~PerlinNoiseGenerator() override {
+      if (permutations) {
+        void *vp = reinterpret_cast<void *>(permutations);
+        vectorization::free(vp);
+        permutations = nullptr;
+      }
     }
 
     Float noise(Float v) const override;

@@ -43,19 +43,14 @@ namespace raytracer {
     }
   }
 
-  HDRImage::~HDRImage() {
-    if (data) {
-      delete[] data;
-      data = nullptr;
-    }
-  }
+  HDRImage::~HDRImage() = default;
 
   HDRImage::VectorType *const HDRImage::getData() {
-    return data;
+    return data.get();
   }
 
   const HDRImage::VectorType *const HDRImage::getData() const {
-    return data;
+    return data.get();
   }
 
   HDRImage::VectorType &HDRImage::operator[](const ASizeT index) {
@@ -156,7 +151,7 @@ namespace raytracer {
   void HDRImage::init() {
     resolutionf = convert<Float4>(resolution);
     const ASizeT size = x(resolution) * y(resolution);
-    data = new VectorType[size];
+    data.reset(new VectorType[size]);
   }
 
   const Float4 HDRImage::sampleBilinear(const Float4 &texCoords) const {

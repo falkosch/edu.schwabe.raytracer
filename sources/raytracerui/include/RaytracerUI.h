@@ -2,6 +2,8 @@
 
 #include <raytracing.h>
 
+#include <memory>
+
 namespace raytracerui {
   using namespace vectorization;
   using namespace raytracer;
@@ -20,9 +22,9 @@ namespace raytracerui {
 
     ASizeT frameCount;
 
-    const HDRImage *outputHDR;
+    std::unique_ptr<const HDRImage> outputHDR;
 
-    const Bitmap *output;
+    std::unique_ptr<const Bitmap> output;
 
     Raytracer *raytracer;
 

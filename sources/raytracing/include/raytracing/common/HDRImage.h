@@ -2,6 +2,8 @@
 
 #include "Bitmap.h"
 
+#include <memory>
+
 namespace raytracer {
   using namespace vectorization;
 
@@ -15,7 +17,7 @@ namespace raytracer {
 
     Float4 resolutionf;
 
-    VectorType *data;
+    std::unique_ptr<VectorType[]> data;
 
     void init();
 

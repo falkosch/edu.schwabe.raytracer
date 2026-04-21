@@ -17,16 +17,16 @@ namespace raytracer {
   class SceneShader : public SceneGeometry, public Shader<SceneShaderContainment, SceneIntersection, LightShading> {
   public:
     typedef Shader<SceneShader, Float4, Float4> BackgroundShader;
-    typedef std::vector<LightInfo *, AlignedAllocator<LightInfo *>> LightsCollection;
+    typedef std::vector<std::unique_ptr<LightInfo>> LightsCollection;
 
     SceneShader();
 
-    explicit SceneShader(const KDTreeTraverser<SceneIntersection> *treeTraverser);
+    explicit SceneShader(std::unique_ptr<const KDTreeTraverser<SceneIntersection>> treeTraverser);
 
     ~SceneShader() override;
 
     const BackgroundShader *getBackgroundShader() const;
-    void setBackgroundShader(const BackgroundShader *value);
+    void setBackgroundShader(std::unique_ptr<const BackgroundShader> value);
 
     Float4 getAmbientLight() const;
     void setAmbientLight(const Float4 &value);
@@ -53,7 +53,7 @@ namespace raytracer {
     static Float4 adaptedVisibilityCutoff(Float visibilityCutoff, Float visibilityIndex);
 
   private:
-    const BackgroundShader *backgroundShader;
+    std::unique_ptr<const BackgroundShader> backgroundShader;
 
     Float4 ambientLight;
     LightsCollection lights;

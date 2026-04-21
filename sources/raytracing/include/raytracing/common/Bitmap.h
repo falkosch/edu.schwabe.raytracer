@@ -3,6 +3,7 @@
 #include "Image.h"
 
 #include <limits>
+#include <memory>
 #include <windows.h>
 
 namespace raytracer {
@@ -23,7 +24,7 @@ namespace raytracer {
 
     ASizeT stride;
 
-    VectorType::ValueType *data;
+    std::unique_ptr<VectorType::ValueType[]> data;
 
     void init();
 
@@ -78,6 +79,6 @@ namespace raytracer {
 
     void saveAsBMP(const std::string &filename) const;
 
-    static Bitmap *const loadPPM(const std::string &filename);
+    static std::unique_ptr<Bitmap> loadPPM(const std::string &filename);
   };
 }

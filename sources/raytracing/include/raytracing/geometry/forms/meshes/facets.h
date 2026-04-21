@@ -21,7 +21,7 @@ namespace raytracer {
       std::vector<primitives::FacetNormals> &planeNormals, std::vector<primitives::FacetEdges> &facetEdges
   ) noexcept;
 
-  KDTreeRoot *const computeNodesAndGraph(
+  std::unique_ptr<KDTreeRoot> computeNodesAndGraph(
       const std::vector<Facet> &facets, const KDTreeBalancer *const balancer, PGeometryNodeList &nodes
   ) noexcept;
 

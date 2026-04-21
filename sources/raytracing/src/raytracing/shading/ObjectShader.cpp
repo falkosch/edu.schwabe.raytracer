@@ -11,59 +11,59 @@ namespace raytracer {
   ObjectShader::~ObjectShader() = default;
 
   const ObjectShader::MaterialShader *ObjectShader::getDiffusionShader() const {
-    return diffusionShader;
+    return diffusionShader.get();
   }
 
-  void ObjectShader::setDiffusionShader(const MaterialShader *const value) {
-    diffusionShader = value;
+  void ObjectShader::setDiffusionShader(std::unique_ptr<const MaterialShader> value) {
+    diffusionShader = std::move(value);
   }
 
   const ObjectShader::MaterialShader *ObjectShader::getReflectanceShader() const {
-    return reflectanceShader;
+    return reflectanceShader.get();
   }
 
-  void ObjectShader::setReflectanceShader(const MaterialShader *const value) {
-    reflectanceShader = value;
+  void ObjectShader::setReflectanceShader(std::unique_ptr<const MaterialShader> value) {
+    reflectanceShader = std::move(value);
   }
 
   const ObjectShader::MaterialShader *ObjectShader::getSpecularShader() const {
-    return specularShader;
+    return specularShader.get();
   }
 
-  void ObjectShader::setSpecularShader(const MaterialShader *const value) {
-    specularShader = value;
+  void ObjectShader::setSpecularShader(std::unique_ptr<const MaterialShader> value) {
+    specularShader = std::move(value);
   }
 
   const ObjectShader::MaterialShader *ObjectShader::getShininessShader() const {
-    return shininessShader;
+    return shininessShader.get();
   }
 
-  void ObjectShader::setShininessShader(const MaterialShader *const value) {
-    shininessShader = value;
+  void ObjectShader::setShininessShader(std::unique_ptr<const MaterialShader> value) {
+    shininessShader = std::move(value);
   }
 
   const ObjectShader::MaterialShader *ObjectShader::getTransmittanceShader() const {
-    return transmittanceShader;
+    return transmittanceShader.get();
   }
 
-  void ObjectShader::setTransmittanceShader(const MaterialShader *const value) {
-    transmittanceShader = value;
+  void ObjectShader::setTransmittanceShader(std::unique_ptr<const MaterialShader> value) {
+    transmittanceShader = std::move(value);
   }
 
   const ObjectShader::MaterialShader *ObjectShader::getRefractionEtaShader() const {
-    return refractionEtaShader;
+    return refractionEtaShader.get();
   }
 
-  void ObjectShader::setRefractionEtaShader(const MaterialShader *const value) {
-    refractionEtaShader = value;
+  void ObjectShader::setRefractionEtaShader(std::unique_ptr<const MaterialShader> value) {
+    refractionEtaShader = std::move(value);
   }
 
   const ObjectShader::MaterialShader *ObjectShader::getEmittanceShader() const {
-    return emittanceShader;
+    return emittanceShader.get();
   }
 
-  void ObjectShader::setEmittanceShader(const MaterialShader *const value) {
-    emittanceShader = value;
+  void ObjectShader::setEmittanceShader(std::unique_ptr<const MaterialShader> value) {
+    emittanceShader = std::move(value);
   }
 
   void ObjectShader::resetTextureMatrix() {
