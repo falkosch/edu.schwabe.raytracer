@@ -15,10 +15,14 @@ namespace raytracerui {
     sceneObject->setReflectanceShader(std::make_unique<Resources::ConstMaterialShader>(Float4(0.0f, 0.0f, 0.0f, 1.0f)));
     sceneObject->setSpecularShader(std::make_unique<Resources::ConstMaterialShader>(Float4(0.0f, 0.0f, 0.0f, 1.0f)));
     sceneObject->setShininessShader(std::make_unique<Resources::ConstMaterialShader>(Float4(0.0f, 0.0f, 0.0f, 32.0f)));
-    sceneObject->setTransmittanceShader(std::make_unique<Resources::ConstMaterialShader>(Float4(0.0f, 0.0f, 0.0f, 1.0f)));
-    sceneObject->setRefractionEtaShader(std::make_unique<Resources::ConstMaterialShader>(
-        RefractionIndices::refractionEta(RefractionIndices::Vacuum, RefractionIndices::Vacuum)
-    ));
+    sceneObject->setTransmittanceShader(
+        std::make_unique<Resources::ConstMaterialShader>(Float4(0.0f, 0.0f, 0.0f, 1.0f))
+    );
+    sceneObject->setRefractionEtaShader(
+        std::make_unique<Resources::ConstMaterialShader>(
+            RefractionIndices::refractionEta(RefractionIndices::Vacuum, RefractionIndices::Vacuum)
+        )
+    );
     return sceneObject;
   }
 
@@ -32,10 +36,14 @@ namespace raytracerui {
     sceneObject->setReflectanceShader(std::make_unique<Resources::ConstMaterialShader>(Float4(0.0f, 0.0f, 0.0f, 1.0f)));
     sceneObject->setSpecularShader(std::make_unique<Resources::ConstMaterialShader>(Float4(0.0f, 0.0f, 0.0f, 1.0f)));
     sceneObject->setShininessShader(std::make_unique<Resources::ConstMaterialShader>(Float4(0.0f, 0.0f, 0.0f, 32.0f)));
-    sceneObject->setTransmittanceShader(std::make_unique<Resources::ConstMaterialShader>(Float4(0.0f, 0.0f, 0.0f, 1.0f)));
-    sceneObject->setRefractionEtaShader(std::make_unique<Resources::ConstMaterialShader>(
-        RefractionIndices::refractionEta(RefractionIndices::Vacuum, RefractionIndices::Vacuum)
-    ));
+    sceneObject->setTransmittanceShader(
+        std::make_unique<Resources::ConstMaterialShader>(Float4(0.0f, 0.0f, 0.0f, 1.0f))
+    );
+    sceneObject->setRefractionEtaShader(
+        std::make_unique<Resources::ConstMaterialShader>(
+            RefractionIndices::refractionEta(RefractionIndices::Vacuum, RefractionIndices::Vacuum)
+        )
+    );
     return sceneObject;
   }
 
@@ -49,10 +57,14 @@ namespace raytracerui {
     sceneObject->setReflectanceShader(std::make_unique<Resources::ConstMaterialShader>(Float4(0.0f, 0.0f, 0.0f, 1.0f)));
     sceneObject->setSpecularShader(std::make_unique<Resources::ConstMaterialShader>(Float4(0.0f, 0.0f, 0.0f, 1.0f)));
     sceneObject->setShininessShader(std::make_unique<Resources::ConstMaterialShader>(Float4(0.0f, 0.0f, 0.0f, 32.0f)));
-    sceneObject->setTransmittanceShader(std::make_unique<Resources::ConstMaterialShader>(Float4(0.0f, 0.0f, 0.0f, 1.0f)));
-    sceneObject->setRefractionEtaShader(std::make_unique<Resources::ConstMaterialShader>(
-        RefractionIndices::refractionEta(RefractionIndices::Vacuum, RefractionIndices::Vacuum)
-    ));
+    sceneObject->setTransmittanceShader(
+        std::make_unique<Resources::ConstMaterialShader>(Float4(0.0f, 0.0f, 0.0f, 1.0f))
+    );
+    sceneObject->setRefractionEtaShader(
+        std::make_unique<Resources::ConstMaterialShader>(
+            RefractionIndices::refractionEta(RefractionIndices::Vacuum, RefractionIndices::Vacuum)
+        )
+    );
     return sceneObject;
   }
 
@@ -66,10 +78,14 @@ namespace raytracerui {
     sceneObject->setReflectanceShader(std::make_unique<Resources::ConstMaterialShader>(Float4(0.0f, 0.0f, 0.0f, 1.0f)));
     sceneObject->setSpecularShader(std::make_unique<Resources::ConstMaterialShader>(Float4(0.0f, 0.0f, 0.0f, 1.0f)));
     sceneObject->setShininessShader(std::make_unique<Resources::ConstMaterialShader>(Float4(0.0f, 0.0f, 0.0f, 32.0f)));
-    sceneObject->setTransmittanceShader(std::make_unique<Resources::ConstMaterialShader>(Float4(0.0f, 0.0f, 0.0f, 1.0f)));
-    sceneObject->setRefractionEtaShader(std::make_unique<Resources::ConstMaterialShader>(
-        RefractionIndices::refractionEta(RefractionIndices::Vacuum, RefractionIndices::Vacuum)
-    ));
+    sceneObject->setTransmittanceShader(
+        std::make_unique<Resources::ConstMaterialShader>(Float4(0.0f, 0.0f, 0.0f, 1.0f))
+    );
+    sceneObject->setRefractionEtaShader(
+        std::make_unique<Resources::ConstMaterialShader>(
+            RefractionIndices::refractionEta(RefractionIndices::Vacuum, RefractionIndices::Vacuum)
+        )
+    );
     return sceneObject;
   }
 
@@ -83,10 +99,14 @@ namespace raytracerui {
     sceneObject->setReflectanceShader(std::make_unique<Resources::ConstMaterialShader>(Float4(0.0f, 0.0f, 0.0f, 1.0f)));
     sceneObject->setSpecularShader(std::make_unique<Resources::ConstMaterialShader>(Float4(0.0f, 0.0f, 0.0f, 1.0f)));
     sceneObject->setShininessShader(std::make_unique<Resources::ConstMaterialShader>(Float4(0.0f, 0.0f, 0.0f, 32.0f)));
-    sceneObject->setTransmittanceShader(std::make_unique<Resources::ConstMaterialShader>(Float4(0.0f, 0.0f, 0.0f, 1.0f)));
-    sceneObject->setRefractionEtaShader(std::make_unique<Resources::ConstMaterialShader>(
-        RefractionIndices::refractionEta(RefractionIndices::Vacuum, RefractionIndices::Vacuum)
-    ));
+    sceneObject->setTransmittanceShader(
+        std::make_unique<Resources::ConstMaterialShader>(Float4(0.0f, 0.0f, 0.0f, 1.0f))
+    );
+    sceneObject->setRefractionEtaShader(
+        std::make_unique<Resources::ConstMaterialShader>(
+            RefractionIndices::refractionEta(RefractionIndices::Vacuum, RefractionIndices::Vacuum)
+        )
+    );
     return sceneObject;
   }
 
@@ -97,13 +117,19 @@ namespace raytracerui {
     sceneObject->translate(Float3(0.35f, -0.64f, 0.35f));
     sceneObject->setEmittanceShader(std::make_unique<Resources::ConstMaterialShader>(Float4(0.0f, 0.0f, 0.0f, 1.0f)));
     sceneObject->setDiffusionShader(std::make_unique<Resources::ConstMaterialShader>(Float4(1.0f, 1.0f, 1.0f, 0.87f)));
-    sceneObject->setReflectanceShader(std::make_unique<Resources::ConstMaterialShader>(Float4(1.0f, 1.0f, 1.0f, 0.13f)));
+    sceneObject->setReflectanceShader(
+        std::make_unique<Resources::ConstMaterialShader>(Float4(1.0f, 1.0f, 1.0f, 0.13f))
+    );
     sceneObject->setSpecularShader(std::make_unique<Resources::ConstMaterialShader>(Float4(1.0f, 1.0f, 1.0f, 0.13f)));
     sceneObject->setShininessShader(std::make_unique<Resources::ConstMaterialShader>(Float4(1.0f, 1.0f, 1.0f, 4.0f)));
-    sceneObject->setTransmittanceShader(std::make_unique<Resources::ConstMaterialShader>(Float4(1.0f, 1.0f, 1.0f, 0.87f)));
-    sceneObject->setRefractionEtaShader(std::make_unique<Resources::ConstMaterialShader>(
-        RefractionIndices::refractionEta(RefractionIndices::Vacuum, RefractionIndices::Water)
-    ));
+    sceneObject->setTransmittanceShader(
+        std::make_unique<Resources::ConstMaterialShader>(Float4(1.0f, 1.0f, 1.0f, 0.87f))
+    );
+    sceneObject->setRefractionEtaShader(
+        std::make_unique<Resources::ConstMaterialShader>(
+            RefractionIndices::refractionEta(RefractionIndices::Vacuum, RefractionIndices::Water)
+        )
+    );
     return sceneObject;
   }
 
@@ -118,10 +144,14 @@ namespace raytracerui {
     sceneObject->setReflectanceShader(std::make_unique<Resources::ConstMaterialShader>(Float4(0.0f, 0.0f, 0.0f, 1.0f)));
     sceneObject->setSpecularShader(std::make_unique<Resources::ConstMaterialShader>(Float4(0.0f, 0.0f, 0.0f, 1.0f)));
     sceneObject->setShininessShader(std::make_unique<Resources::ConstMaterialShader>(Float4(1.0f, 1.0f, 1.0f, 32.0f)));
-    sceneObject->setTransmittanceShader(std::make_unique<Resources::ConstMaterialShader>(Float4(0.0f, 0.0f, 0.0f, 1.0f)));
-    sceneObject->setRefractionEtaShader(std::make_unique<Resources::ConstMaterialShader>(
-        RefractionIndices::refractionEta(RefractionIndices::Vacuum, RefractionIndices::Vacuum)
-    ));
+    sceneObject->setTransmittanceShader(
+        std::make_unique<Resources::ConstMaterialShader>(Float4(0.0f, 0.0f, 0.0f, 1.0f))
+    );
+    sceneObject->setRefractionEtaShader(
+        std::make_unique<Resources::ConstMaterialShader>(
+            RefractionIndices::refractionEta(RefractionIndices::Vacuum, RefractionIndices::Vacuum)
+        )
+    );
     return sceneObject;
   }
 
@@ -132,21 +162,27 @@ namespace raytracerui {
     sceneObject->rotate(Float3(0.0f, 0.0f, 0.0f));
     sceneObject->translate(Float3(-0.35f, 0.375f, -0.35f));
     sceneObject->setEmittanceShader(std::make_unique<Resources::ConstMaterialShader>(Float4(0.0f, 0.0f, 0.0f, 1.0f)));
-    sceneObject->setDiffusionShader(std::make_unique<Resources::ConstMaterialShader>(Float4(1.0f, 1.0f, 1.0f, 0.13f)));
-    sceneObject->setReflectanceShader(std::make_unique<Resources::ConstMaterialShader>(Float4(1.0f, 1.0f, 1.0f, 0.87f)));
-    sceneObject->setSpecularShader(std::make_unique<Resources::ConstMaterialShader>(Float4(1.0f, 1.0f, 1.0f, 0.87f)));
+    sceneObject->setDiffusionShader(std::make_unique<Resources::ConstMaterialShader>(Float4(1.0f, 0.8f, 0.8f, 0.2f)));
+    sceneObject->setReflectanceShader(std::make_unique<Resources::ConstMaterialShader>(Float4(0.5f, 1.0f, 1.0f, 0.8f)));
+    sceneObject->setSpecularShader(std::make_unique<Resources::ConstMaterialShader>(Float4(0.5f, 0.9f, 0.9f, 0.8f)));
     sceneObject->setShininessShader(std::make_unique<Resources::ConstMaterialShader>(Float4(1.0f, 1.0f, 1.0f, 32.0f)));
-    sceneObject->setTransmittanceShader(std::make_unique<Resources::ConstMaterialShader>(Float4(1.0f, 1.0f, 1.0f, 0.87f)));
-    sceneObject->setRefractionEtaShader(std::make_unique<Resources::ConstMaterialShader>(
-        RefractionIndices::refractionEta(RefractionIndices::Vacuum, RefractionIndices::Glass)
-    ));
+    sceneObject->setTransmittanceShader(
+        std::make_unique<Resources::ConstMaterialShader>(Float4(0.9f, 0.9f, 0.9f, 0.8f))
+    );
+    sceneObject->setRefractionEtaShader(
+        std::make_unique<Resources::ConstMaterialShader>(
+            RefractionIndices::refractionEta(RefractionIndices::Vacuum, RefractionIndices::Glass)
+        )
+    );
     return sceneObject;
   }
 
   void CornellBoxScene::setup(Scene &scene, Resources &resources) {
     TestResources::setup(resources);
 
-    scene.setBackgroundShader(std::make_unique<ConstShader<SceneShader, Float4, Float4>>(Float4(1.0f, 1.0f, 1.0f, 0.0f)));
+    scene.setBackgroundShader(
+        std::make_unique<ConstShader<SceneShader, Float4, Float4>>(Float4(1.0f, 1.0f, 1.0f, 0.0f))
+    );
     scene.setAmbientLight(Float4(0.0f, 0.0f, 0.0f, 0.0f));
 
     auto light = std::make_unique<LightInfo>();
