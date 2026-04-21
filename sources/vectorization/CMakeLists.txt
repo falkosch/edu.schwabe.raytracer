@@ -1,7 +1,4 @@
-project(vectorization
-        LANGUAGES CXX
-        VERSION 1.0.0
-)
+project(vectorization LANGUAGES CXX VERSION 1.0.0)
 
 set(SOURCES
         src/vectorization/accessors/component_128d.cpp
@@ -356,26 +353,16 @@ set(THIRD_PARTY
 
 add_library(${PROJECT_NAME} STATIC ${SOURCES} ${HEADERS} ${THIRD_PARTY})
 
-source_group(
-        TREE ${CMAKE_CURRENT_SOURCE_DIR}
-        PREFIX "Files"
-        REGULAR_EXPRESSION ".+\\.(h|cpp)"
-)
-
-add_dependencies(${PROJECT_NAME} sources-build-aggregate)
-
-target_link_libraries(${PROJECT_NAME}
-        PUBLIC sources-build-aggregate
-)
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} PREFIX "Files" REGULAR_EXPRESSION ".+\\.(h|cpp)")
 
 target_include_directories(${PROJECT_NAME}
         PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include"
         PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty"
 )
 
-target_compile_definitions(${PROJECT_NAME}
-        PRIVATE _LIB
-)
+target_compile_definitions(${PROJECT_NAME} PRIVATE _LIB)
+
+set_target_properties(${PROJECT_NAME} PROPERTIES INTERPROCEDURAL_OPTIMIZATION_RELEASE FALSE)
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 

@@ -1,7 +1,4 @@
-project(raytracerui
-        LANGUAGES CXX
-        VERSION 1.0.0
-)
+project(raytracerui LANGUAGES CXX VERSION 1.0.0)
 
 set(SOURCES
         src/Benchmarks.cpp
@@ -38,15 +35,11 @@ set(HEADERS
 
 add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
 
-source_group(
-        TREE ${CMAKE_CURRENT_SOURCE_DIR}
-        PREFIX "Files"
-        REGULAR_EXPRESSION ".+\\.(h|cpp)"
-)
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} PREFIX "Files" REGULAR_EXPRESSION ".+\\.(h|cpp)")
 
 add_dependencies(${PROJECT_NAME} raytracing)
 
-find_package(RealGLEW)
+find_package(GLEW REQUIRED)
 
 target_link_libraries(${PROJECT_NAME}
         PUBLIC
@@ -54,29 +47,19 @@ target_link_libraries(${PROJECT_NAME}
         gdi32
         opengl32
         glu32
-        RealGLEW::RealGLEW
+        GLEW::GLEW
 )
 
-target_include_directories(${PROJECT_NAME}
-        PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include"
-)
+target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
-target_compile_definitions(${PROJECT_NAME}
-        PRIVATE _CONSOLE
-)
+target_compile_definitions(${PROJECT_NAME} PRIVATE _CONSOLE)
 
-set_target_properties(${PROJECT_NAME}
-        PROPERTIES
-        INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE
-)
+set_target_properties(${PROJECT_NAME} PROPERTIES INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE)
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-    target_link_options(${PROJECT_NAME}
-            PRIVATE
-            /SUBSYSTEM:CONSOLE
-    )
+    target_link_options(${PROJECT_NAME} PRIVATE /SUBSYSTEM:CONSOLE)
 
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 

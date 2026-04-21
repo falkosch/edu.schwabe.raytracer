@@ -12,7 +12,7 @@ namespace vectorization {
 #if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
     return _mm_permute_pd(values, swizzleMask);
 #else
-    return _mm_shuffle_pd(v, v, swizzleMask);
+    return _mm_shuffle_pd(values, values, swizzleMask);
 #endif
   }
 
