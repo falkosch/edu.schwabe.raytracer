@@ -3,6 +3,8 @@
 
 #include "raytracing/geometry/forms/meshes/MeshGeometryNode.h"
 
+#include <omp.h>
+
 namespace raytracer {
   void computeFacets(
       const std::vector<Float4> &vertices, const std::vector<UInt3> &facetIndices, std::vector<Facet> &facets
@@ -22,13 +24,17 @@ namespace raytracer {
       std::vector<Float4> &vertexNormals, std::vector<Float4> &flatNormals, std::vector<FacetNormals> &smoothNormals,
       std::vector<FacetNormals> &planeNormals, std::vector<FacetEdges> &facetEdges
   ) noexcept {
-    vertexNormals.resize(vertices.size());
+    auto vertexCount = vertices.size();
+    vertexNormals.resize(vertexCount);
 
     auto facetsCount = facets.size();
     flatNormals.resize(facetsCount);
     smoothNormals.resize(facetsCount);
     planeNormals.resize(facetsCount);
     facetEdges.resize(facetsCount);
+
+    auto numThreads = omp_get_max_threads();
+    std::vector<std::vector<Float4>> threadNormals(numThreads, std::vector<Float4>(vertexCount, Zero<Float4>()));
 
 #pragma omp parallel for
     for (auto i = int{0}; i < static_cast<int>(facets.size()); i++) {
@@ -59,13 +65,22 @@ namespace raytracer {
       auto l2 = length3v(edge2);
       const FacetNormals normalsWeighted{flatNormal / (l0 * l2), flatNormal / (l1 * l0), flatNormal / (l2 * l1)};
 
-#pragma omp critical
-      {
-        auto &indices = facetIndices[index];
-        vertexNormals[x(indices)] += normalsWeighted.v0;
-        vertexNormals[y(indices)] += normalsWeighted.v1;
-        vertexNormals[z(indices)] += normalsWeighted.v2;
+      auto &localNormals = threadNormals[omp_get_thread_num()];
+      auto &indices = facetIndices[index];
+      localNormals[x(indices)] += normalsWeighted.v0;
+      localNormals[y(indices)] += normalsWeighted.v1;
+      localNormals[z(indices)] += normalsWeighted.v2;
+    }
+
+    // merge per-thread normal buffers
+#pragma omp parallel for
+    for (auto i = int{0}; i < static_cast<int>(vertexCount); i++) {
+      auto index = static_cast<ASizeT>(i);
+      auto accumulated = Zero<Float4>();
+      for (auto t = 0; t < numThreads; t++) {
+        accumulated += threadNormals[t][index];
       }
+      vertexNormals[index] = accumulated;
     }
 
     // normalize vertex-normals
