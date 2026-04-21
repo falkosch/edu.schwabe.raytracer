@@ -3,7 +3,8 @@
 #include "vectorization/blends/blend_masked_128d.h"
 #include "vectorization/blends/blend_masked_128s.h"
 
-#include "vectorization/accessors.h"
+#include "vectorization/accessors/component_128d.h"
+#include "vectorization/accessors/component_128s.h"
 
 #ifndef ARCH_X64
 #include <array>

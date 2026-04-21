@@ -1,6 +1,7 @@
 #include "vectorization/constants/values/pi.h"
 
-#include "vectorization/accessors.h"
+#include "vectorization/accessors/component_128d.h"
+#include "vectorization/accessors/component_128s.h"
 
 namespace vectorization {
   const PackedFloat2_128 Pi_PackedFloat2_128 = _mm_set1_pd(Float_64{C_PI});
@@ -10,12 +11,12 @@ namespace vectorization {
 
   template <>
   Float_32 Pi<Float_32>() noexcept {
-    return x(Pi<PackedFloat4_128>());
+    return x(Pi_PackedFloat4_128);
   }
 
   template <>
   Float_64 Pi<Float_64>() noexcept {
-    return x(Pi<PackedFloat2_128>());
+    return x(Pi_PackedFloat2_128);
   }
 
   template <>

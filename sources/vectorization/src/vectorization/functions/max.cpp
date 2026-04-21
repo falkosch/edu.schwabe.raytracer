@@ -1,7 +1,8 @@
 #include "vectorization/functions/max.h"
 
-#include "vectorization/accessors.h"
-#include "vectorization/selects.h"
+#include "vectorization/accessors/component_128d.h"
+#include "vectorization/accessors/component_128s.h"
+#include "vectorization/selects/selects_scalar.h"
 
 namespace vectorization {
   bool max(const bool a, const bool b) noexcept {

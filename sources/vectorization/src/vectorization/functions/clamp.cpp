@@ -3,7 +3,8 @@
 #include "vectorization/functions/max.h"
 #include "vectorization/functions/min.h"
 
-#include "vectorization/accessors.h"
+#include "vectorization/accessors/component_128d.h"
+#include "vectorization/accessors/component_128s.h"
 
 namespace vectorization {
   bool clamp(const bool value, const bool lower, const bool upper) noexcept {

@@ -2,7 +2,8 @@
 
 #include "vectorization/constants/masks.h"
 
-#include "vectorization/accessors.h"
+#include "vectorization/accessors/component_128d.h"
+#include "vectorization/accessors/component_128s.h"
 
 #include <limits>
 
@@ -25,16 +26,6 @@ namespace vectorization {
   template <>
   Int_64 NegativeTwo() noexcept {
     return Int_64{-2};
-  }
-
-  template <>
-  Float_32 NegativeTwo<Float_32>() noexcept {
-    return x(NegativeTwo<PackedFloat4_128>());
-  }
-
-  template <>
-  Float_64 NegativeTwo<Float_64>() noexcept {
-    return x(NegativeTwo<PackedFloat2_128>());
   }
 
   template <>
@@ -61,5 +52,15 @@ namespace vectorization {
   PackedFloat8_256 NegativeTwo<PackedFloat8_256>() noexcept {
     const auto v = NegativeTwo<PackedFloat4_128>();
     return _mm256_set_m128(v, v);
+  }
+
+  template <>
+  Float_32 NegativeTwo<Float_32>() noexcept {
+    return x(NegativeTwo<PackedFloat4_128>());
+  }
+
+  template <>
+  Float_64 NegativeTwo<Float_64>() noexcept {
+    return x(NegativeTwo<PackedFloat2_128>());
   }
 }

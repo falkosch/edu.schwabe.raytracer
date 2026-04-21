@@ -4,7 +4,8 @@
 #include "vectorization/functions/sqrt.h"
 
 #ifdef VECTORIZATION_APPROXIMATIONS
-#include "vectorization/accessors.h"
+#include "vectorization/accessors/component_128d.h"
+#include "vectorization/accessors/component_128s.h"
 #endif
 
 namespace vectorization {

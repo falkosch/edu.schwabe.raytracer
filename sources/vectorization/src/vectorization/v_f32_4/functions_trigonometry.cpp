@@ -3,7 +3,9 @@
 #include "vectorization/v_f32_4/accessors.h"
 #include "vectorization/v_f32_4/blends.h"
 
-#include "vectorization/functions.h"
+#include "vectorization/functions/exp.h"
+#include "vectorization/functions/log.h"
+#include "vectorization/functions/pow.h"
 
 #define USE_THIRD_PARTY 1
 

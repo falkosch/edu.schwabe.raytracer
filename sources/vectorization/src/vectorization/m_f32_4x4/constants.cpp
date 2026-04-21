@@ -1,6 +1,7 @@
 #include "vectorization/m_f32_4x4.h"
 
-#include "vectorization/constants.h"
+#include "vectorization/constants/masks.h"
+#include "vectorization/constants/values.h"
 
 namespace vectorization {
   template <>

@@ -1,6 +1,6 @@
 #include "vectorization/functions/round_down.h"
 
-#include "vectorization/constants.h"
+#include "vectorization/constants/values.h"
 
 namespace vectorization {
   Int_8 roundDown(const Int_8 value, const Int_8 stepSize) noexcept {

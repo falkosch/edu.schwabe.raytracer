@@ -1,6 +1,7 @@
 #include "vectorization/constants/masks/mask_none.h"
 
-#include "vectorization/accessors.h"
+#include "vectorization/accessors/component_128d.h"
+#include "vectorization/accessors/component_128s.h"
 
 namespace vectorization {
   template <>

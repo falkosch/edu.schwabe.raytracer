@@ -2,7 +2,8 @@
 
 #include "vectorization/constants/masks.h"
 
-#include "vectorization/accessors.h"
+#include "vectorization/accessors/component_128d.h"
+#include "vectorization/accessors/component_128s.h"
 
 #include <limits>
 
@@ -48,16 +49,6 @@ namespace vectorization {
   }
 
   template <>
-  Float_32 Two<Float_32>() noexcept {
-    return x(Two<PackedFloat4_128>());
-  }
-
-  template <>
-  Float_64 Two<Float_64>() noexcept {
-    return x(Two<PackedFloat2_128>());
-  }
-
-  template <>
   PackedFloat4_128 Two<PackedFloat4_128>() noexcept {
     return _mm_castsi128_ps(_mm_srli_epi32(
         _mm_slli_epi32(MaskAll<PackedInts_128>(), sizeof(Int_32) * std::numeric_limits<UInt_8>::digits - 1), 1
@@ -81,5 +72,15 @@ namespace vectorization {
   PackedFloat8_256 Two<PackedFloat8_256>() noexcept {
     const auto v = Two<PackedFloat4_128>();
     return _mm256_set_m128(v, v);
+  }
+
+  template <>
+  Float_32 Two<Float_32>() noexcept {
+    return x(Two<PackedFloat4_128>());
+  }
+
+  template <>
+  Float_64 Two<Float_64>() noexcept {
+    return x(Two<PackedFloat2_128>());
   }
 }

@@ -3,7 +3,8 @@
 #include "vectorization/constants/values/one.h"
 #include "vectorization/constants/values/zero.h"
 
-#include "vectorization/blends.h"
+#include "vectorization/blends/blend_256d.h"
+#include "vectorization/blends/blend_256s.h"
 
 namespace vectorization {
   template <>

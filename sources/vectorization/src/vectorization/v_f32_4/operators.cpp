@@ -2,8 +2,10 @@
 
 #include "vectorization/v_f32_4/accessors.h"
 
-#include "vectorization/constants.h"
-#include "vectorization/functions.h"
+#include "vectorization/constants/masks.h"
+#include "vectorization/constants/values.h"
+#include "vectorization/functions/divide.h"
+#include "vectorization/functions/modulo.h"
 
 namespace vectorization {
   // http://fastcpp.blogspot.de/2011/03/changing-sign-of-float-values-using-sse.html

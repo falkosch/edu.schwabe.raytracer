@@ -1,7 +1,9 @@
 #include "vectorization/functions/copysign.h"
 
-#include "vectorization/accessors.h"
-#include "vectorization/constants.h"
+#include "vectorization/accessors/component_128d.h"
+#include "vectorization/accessors/component_128s.h"
+#include "vectorization/constants/masks.h"
+#include "vectorization/constants/values.h"
 
 namespace vectorization {
   PackedFloat4_128 copySign(const PackedFloat4_128 &values) noexcept {

@@ -1,7 +1,8 @@
 #include "vectorization/functions/round.h"
 
-#include "vectorization/accessors.h"
-#include "vectorization/constants.h"
+#include "vectorization/accessors/component_128d.h"
+#include "vectorization/accessors/component_128s.h"
+#include "vectorization/constants/values.h"
 
 namespace vectorization {
   Float_32 round(const Float_32 value) noexcept {

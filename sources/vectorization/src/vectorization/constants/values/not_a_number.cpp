@@ -2,7 +2,8 @@
 
 #include "vectorization/constants/masks.h"
 
-#include "vectorization/accessors.h"
+#include "vectorization/accessors/component_128d.h"
+#include "vectorization/accessors/component_128s.h"
 
 #include <limits>
 
@@ -12,16 +13,6 @@ namespace vectorization {
 
   // Example: (Signed) Quiet NaN for Float_32 is 1111 1111 11xx xxxx xxxx xxxx xxxx xxxx
   // bits with x are undetermined
-
-  template <>
-  Float_32 NotANumber<Float_32>() noexcept {
-    return x(NotANumber<PackedFloat4_128>());
-  }
-
-  template <>
-  Float_64 NotANumber<Float_64>() noexcept {
-    return x(NotANumber<PackedFloat2_128>());
-  }
 
   template <>
   PackedFloat4_128 NotANumber<PackedFloat4_128>() noexcept {
@@ -43,5 +34,15 @@ namespace vectorization {
   PackedFloat8_256 NotANumber<PackedFloat8_256>() noexcept {
     const auto v = NotANumber<PackedFloat4_128>();
     return _mm256_set_m128(v, v);
+  }
+
+  template <>
+  Float_32 NotANumber<Float_32>() noexcept {
+    return x(NotANumber<PackedFloat4_128>());
+  }
+
+  template <>
+  Float_64 NotANumber<Float_64>() noexcept {
+    return x(NotANumber<PackedFloat2_128>());
   }
 }

@@ -1,6 +1,7 @@
 #include "vectorization/v_f32_4/accessors.h"
 
-#include "vectorization/accessors.h"
+#include "vectorization/accessors/component_128s.h"
+#include "vectorization/accessors/replace_component_128s.h"
 
 namespace vectorization {
   template <>

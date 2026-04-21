@@ -1,6 +1,7 @@
 #include "vectorization/accessors/replace_component_256d.h"
 
-#include "vectorization/blends.h"
+#include "vectorization/blends/blend_256d.h"
+#include "vectorization/blends/blend_masked_256d.h"
 
 #include <cassert>
 

@@ -10,7 +10,21 @@
 #include "vectorization/v_f32_4/swizzled_blends.h"
 #include "vectorization/v_f32_4/swizzles.h"
 
-#include "vectorization/functions.h"
+#include "vectorization/functions/abs.h"
+#include "vectorization/functions/acos.h"
+#include "vectorization/functions/atan2.h"
+#include "vectorization/functions/ceil.h"
+#include "vectorization/functions/clamp.h"
+#include "vectorization/functions/floor.h"
+#include "vectorization/functions/fract.h"
+#include "vectorization/functions/max.h"
+#include "vectorization/functions/min.h"
+#include "vectorization/functions/mix.h"
+#include "vectorization/functions/modulo.h"
+#include "vectorization/functions/reciprocal.h"
+#include "vectorization/functions/round.h"
+#include "vectorization/functions/rsqrt.h"
+#include "vectorization/functions/sqrt.h"
 
 namespace vectorization {
 #pragma region min()

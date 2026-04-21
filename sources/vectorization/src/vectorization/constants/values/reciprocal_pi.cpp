@@ -2,7 +2,8 @@
 
 #include "vectorization/constants/values/pi.h"
 
-#include "vectorization/accessors.h"
+#include "vectorization/accessors/component_128d.h"
+#include "vectorization/accessors/component_128s.h"
 
 namespace vectorization {
 #define RECIPROCAL_PI (1.0 / C_PI)
@@ -14,12 +15,12 @@ namespace vectorization {
 
   template <>
   Float_32 ReciprocalPi<Float_32>() noexcept {
-    return x(ReciprocalPi<PackedFloat4_128>());
+    return x(ReciprocalPi_PackedFloat4_128);
   }
 
   template <>
   Float_64 ReciprocalPi<Float_64>() noexcept {
-    return x(ReciprocalPi<PackedFloat2_128>());
+    return x(ReciprocalPi_PackedFloat2_128);
   }
 
   template <>

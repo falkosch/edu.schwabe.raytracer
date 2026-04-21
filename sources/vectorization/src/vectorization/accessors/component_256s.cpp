@@ -1,6 +1,6 @@
 #include "vectorization/accessors/component_256s.h"
 
-#include "vectorization/swizzles.h"
+#include "vectorization/swizzles/swizzle_256s.h"
 
 namespace vectorization {
   inline PackedFloat8_256 hi128_lo128(const PackedFloat8_256 &values) {

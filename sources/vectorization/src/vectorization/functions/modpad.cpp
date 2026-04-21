@@ -2,7 +2,7 @@
 
 #include "vectorization/functions/modulo.h"
 
-#include "vectorization/constants.h"
+#include "vectorization/constants/values.h"
 
 namespace vectorization {
   Int_8 modPad(const Int_8 value, const Int_8 padding) noexcept {

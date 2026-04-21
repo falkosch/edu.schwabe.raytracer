@@ -1,7 +1,7 @@
 #include "vectorization/selects/selects_128s.h"
 
-#include "vectorization/blends.h"
-#include "vectorization/constants.h"
+#include "vectorization/blends/blend_masked_128s.h"
+#include "vectorization/constants/values/zero.h"
 
 namespace vectorization {
   PackedFloat4_128 select(const bool mask, const PackedFloat4_128 &onTrue, const PackedFloat4_128 &onFalse) noexcept {

@@ -2,7 +2,8 @@
 
 #include "vectorization/constants/values/pi.h"
 
-#include "vectorization/accessors.h"
+#include "vectorization/accessors/component_128d.h"
+#include "vectorization/accessors/component_128s.h"
 
 namespace vectorization {
 #define DEGREE_TO_RADIAN (C_PI / 180.0)
@@ -14,12 +15,12 @@ namespace vectorization {
 
   template <>
   Float_32 DegreeToRadian<Float_32>() noexcept {
-    return x(DegreeToRadian<PackedFloat4_128>());
+    return x(DegreeToRadian_PackedFloat4_128);
   }
 
   template <>
   Float_64 DegreeToRadian<Float_64>() noexcept {
-    return x(DegreeToRadian<PackedFloat2_128>());
+    return x(DegreeToRadian_PackedFloat2_128);
   }
 
   template <>

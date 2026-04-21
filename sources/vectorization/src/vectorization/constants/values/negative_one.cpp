@@ -3,7 +3,8 @@
 #include "vectorization/constants/values/negative_zero.h"
 #include "vectorization/constants/values/one.h"
 
-#include "vectorization/accessors.h"
+#include "vectorization/accessors/component_128d.h"
+#include "vectorization/accessors/component_128s.h"
 
 namespace vectorization {
   template <>
@@ -27,16 +28,6 @@ namespace vectorization {
   }
 
   template <>
-  Float_32 NegativeOne<Float_32>() noexcept {
-    return x(NegativeOne<PackedFloat4_128>());
-  }
-
-  template <>
-  Float_64 NegativeOne<Float_64>() noexcept {
-    return x(NegativeOne<PackedFloat2_128>());
-  }
-
-  template <>
   PackedFloat2_128 NegativeOne<PackedFloat2_128>() noexcept {
     return _mm_or_pd(One<PackedFloat2_128>(), NegativeZero<PackedFloat2_128>());
   }
@@ -54,5 +45,15 @@ namespace vectorization {
   template <>
   PackedFloat8_256 NegativeOne<PackedFloat8_256>() noexcept {
     return _mm256_or_ps(One<PackedFloat8_256>(), NegativeZero<PackedFloat8_256>());
+  }
+
+  template <>
+  Float_32 NegativeOne<Float_32>() noexcept {
+    return x(NegativeOne<PackedFloat4_128>());
+  }
+
+  template <>
+  Float_64 NegativeOne<Float_64>() noexcept {
+    return x(NegativeOne<PackedFloat2_128>());
   }
 }

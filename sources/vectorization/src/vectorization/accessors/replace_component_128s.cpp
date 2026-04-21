@@ -1,6 +1,6 @@
 #include "vectorization/accessors/replace_component_128s.h"
 
-#include "vectorization/blends.h"
+#include "vectorization/blends/blend_masked_128s.h"
 
 #include <cassert>
 

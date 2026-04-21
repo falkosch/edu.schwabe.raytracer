@@ -1,6 +1,6 @@
 #include "vectorization/v_f32_4/selects.h"
 
-#include "vectorization/selects.h"
+#include "vectorization/selects/selects_scalar.h"
 
 namespace vectorization {
   v_f32_4 select(const bool mask, const v_f32_4 &onTrue, const v_f32_4 &onFalse) noexcept {

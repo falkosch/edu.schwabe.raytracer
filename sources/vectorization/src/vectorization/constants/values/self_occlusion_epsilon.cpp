@@ -1,6 +1,7 @@
 #include "vectorization/constants/values/self_occlusion_epsilon.h"
 
-#include "vectorization/accessors.h"
+#include "vectorization/accessors/component_128d.h"
+#include "vectorization/accessors/component_128s.h"
 
 namespace vectorization {
 #define SELF_OCCLUSION_EPSILON 0.001953125
@@ -12,12 +13,12 @@ namespace vectorization {
 
   template <>
   Float_32 SelfOcclusionEpsilon<Float_32>() noexcept {
-    return x(SelfOcclusionEpsilon<PackedFloat4_128>());
+    return x(SelfOcclusionEpsilon_PackedFloat4_128);
   }
 
   template <>
   Float_64 SelfOcclusionEpsilon<Float_64>() noexcept {
-    return x(SelfOcclusionEpsilon<PackedFloat2_128>());
+    return x(SelfOcclusionEpsilon_PackedFloat2_128);
   }
 
   template <>

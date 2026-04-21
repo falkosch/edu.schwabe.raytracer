@@ -1,6 +1,7 @@
 #include "vectorization/constants/values/sin45.h"
 
-#include "vectorization/accessors.h"
+#include "vectorization/accessors/component_128d.h"
+#include "vectorization/accessors/component_128s.h"
 
 namespace vectorization {
 #define SIN_45 0.70710678118654752440084436210485
@@ -12,12 +13,12 @@ namespace vectorization {
 
   template <>
   Float_32 Sin45<Float_32>() noexcept {
-    return x(Sin45<PackedFloat4_128>());
+    return x(Sin45_PackedFloat4_128);
   }
 
   template <>
   Float_64 Sin45<Float_64>() noexcept {
-    return x(Sin45<PackedFloat2_128>());
+    return x(Sin45_PackedFloat2_128);
   }
 
   template <>

@@ -2,9 +2,12 @@
 
 #include "vectorization/functions/copysign.h"
 
-#include "vectorization/accessors.h"
-#include "vectorization/blends.h"
-#include "vectorization/constants.h"
+#include "vectorization/accessors/component_128d.h"
+#include "vectorization/accessors/component_128s.h"
+#include "vectorization/blends/blend_masked_128d.h"
+#include "vectorization/blends/blend_masked_128s.h"
+#include "vectorization/constants/masks.h"
+#include "vectorization/constants/values.h"
 
 namespace vectorization {
   Int_8 sign(const Int_8 value) noexcept {

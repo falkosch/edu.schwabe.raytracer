@@ -1,6 +1,6 @@
 #include "vectorization/v_f32_4/type.h"
 
-#include "vectorization/constants.h"
+#include "vectorization/constants/values.h"
 
 #include <array>
 #include <cassert>

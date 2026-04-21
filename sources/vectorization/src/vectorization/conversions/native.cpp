@@ -1,8 +1,9 @@
 #include "vectorization/conversions/native.h"
 
-#include "vectorization/constants.h"
+#include "vectorization/constants/values.h"
 
-#include "vectorization/accessors.h"
+#include "vectorization/accessors/component_128d.h"
+#include "vectorization/accessors/component_128s.h"
 
 namespace vectorization {
   template <>

@@ -1,8 +1,9 @@
 #include "vectorization/functions/abs.h"
 
-#include "vectorization/accessors.h"
-#include "vectorization/constants.h"
-#include "vectorization/selects.h"
+#include "vectorization/accessors/component_128d.h"
+#include "vectorization/accessors/component_128s.h"
+#include "vectorization/constants/values.h"
+#include "vectorization/selects/selects_scalar.h"
 
 #include <cassert>
 #include <limits>

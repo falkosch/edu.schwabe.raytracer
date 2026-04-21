@@ -1,6 +1,7 @@
 #include "vectorization/constants/values/zero.h"
 
-#include "vectorization/accessors.h"
+#include "vectorization/accessors/component_128d.h"
+#include "vectorization/accessors/component_128s.h"
 
 namespace vectorization {
   template <>
@@ -49,16 +50,6 @@ namespace vectorization {
   }
 
   template <>
-  Float_32 Zero<Float_32>() noexcept {
-    return x(Zero<PackedFloat4_128>());
-  }
-
-  template <>
-  Float_64 Zero<Float_64>() noexcept {
-    return x(Zero<PackedFloat2_128>());
-  }
-
-  template <>
   PackedInts_128 Zero<PackedInts_128>() noexcept {
     return _mm_setzero_si128();
   }
@@ -86,5 +77,15 @@ namespace vectorization {
   template <>
   PackedFloat8_256 Zero<PackedFloat8_256>() noexcept {
     return _mm256_setzero_ps();
+  }
+
+  template <>
+  Float_32 Zero<Float_32>() noexcept {
+    return x(Zero<PackedFloat4_128>());
+  }
+
+  template <>
+  Float_64 Zero<Float_64>() noexcept {
+    return x(Zero<PackedFloat2_128>());
   }
 }

@@ -1,6 +1,7 @@
 #include "vectorization/conversions/complex.h"
 
-#include "vectorization/selects.h"
+#include "vectorization/selects/selects_generic.h"
+#include "vectorization/selects/selects_scalar.h"
 
 namespace vectorization {
   template <>
