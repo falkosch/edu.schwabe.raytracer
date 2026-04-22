@@ -1,6 +1,6 @@
 #include "vectorization/accessors/component_128s.h"
 
-#include "vectorization/swizzles/swizzle_128s.h"
+#include <bit>
 
 namespace vectorization {
   template <>
@@ -10,17 +10,17 @@ namespace vectorization {
 
   template <>
   Float_32 component<VectorIndices::Y>(const PackedFloat4_128 &values) noexcept {
-    return component<VectorIndices::X>(yyww(values));
+    return std::bit_cast<Float_32>(_mm_extract_ps(values, VectorIndices::Y));
   }
 
   template <>
   Float_32 component<VectorIndices::Z>(const PackedFloat4_128 &values) noexcept {
-    return component<VectorIndices::X>(zwzw(values));
+    return std::bit_cast<Float_32>(_mm_extract_ps(values, VectorIndices::Z));
   }
 
   template <>
   Float_32 component<VectorIndices::W>(const PackedFloat4_128 &values) noexcept {
-    return component<VectorIndices::X>(wwww(values));
+    return std::bit_cast<Float_32>(_mm_extract_ps(values, VectorIndices::W));
   }
 
   Float_32 x(const PackedFloat4_128 &values) noexcept {
