@@ -3,21 +3,6 @@
 Review of the full codebase focusing on shortcomings, performance bottlenecks in data structures,
 algorithms, and hardware-level SSE/AVX usage. Items already tracked in `.backlog/` are excluded.
 
-## 5. SIMD — Suboptimal Element Extraction
-
-**Severity: Medium | Impact: Hit-testing inner loops**
-
-`accessors/component_128s.cpp:13-24` extracts Y/Z/W via swizzle-then-`_mm_cvtss_f32`. Using
-`_mm_extract_ps()` (SSE4.1, already required) or a `_mm_shuffle_ps` with direct `_mm_cvtss_f32` would save
-one instruction per extraction. In tight per-hit loops this adds up.
-
-## 6. SIMD — Aligned Load Without Validation
-
-**Severity: Low | Impact: Crash on misaligned data**
-
-`v_f32_4/type.cpp:38` uses `_mm_load_ps()` (requires 16-byte alignment) on a user-provided `const float*`
-with no assertion. Should either use `_mm_loadu_ps()` or add a `static_assert`/runtime check.
-
 ## 7. KD-Tree — O(N²) SAH Evaluation
 
 **Severity: High | Impact: Build time for large meshes**
