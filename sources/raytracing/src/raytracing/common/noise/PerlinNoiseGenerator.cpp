@@ -118,12 +118,12 @@ namespace raytracer {
   }
 
   Float PerlinNoiseGenerator::noise4(const Float4 &v) const {
-    Int4 bx, by, bz;
+    Int4 bx, by, bz, bw;
     Float4 rx, ry, rz, rw;
     setup(x(v), bx, rx);
     setup(y(v), by, ry);
     setup(z(v), bz, rz);
-    setup(w(v), bz, rz);
+    setup(w(v), bw, rw);
     const auto ij = Int4(permutations[x(bx)], permutations[y(bx)]);
     const auto b0 = Int4(permutations[x(ij) + x(by)], permutations[x(ij) + y(by)]);
     const auto b1 = Int4(permutations[y(ij) + x(by)], permutations[y(ij) + y(by)]);

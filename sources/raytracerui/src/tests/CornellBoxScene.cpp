@@ -3,6 +3,9 @@
 
 #include "tests/TestResources.h"
 
+#include <raytracing/common/noise/PerlinNoiseGenerator.h>
+#include <raytracing/shading/shaders/NoiseGeneratorMap.h>
+
 namespace raytracerui {
 
   auto ceiling() {
@@ -134,13 +137,18 @@ namespace raytracerui {
   }
 
   auto largeBox() {
-    auto sceneObject = std::make_unique<SceneObject>("large box");
+    static PerlinNoiseGenerator perlinNoise{42};
+
+    auto sceneObject = std::make_unique<SceneObject>("large box, perlin noise");
     sceneObject->setForm(std::make_unique<Box>());
     sceneObject->scale(Float3(0.35f, 0.60f, 0.35f));
     sceneObject->rotate(Float3(0.0f, 20.0f, 0.0f));
     sceneObject->translate(Float3(-0.35f, -0.39f, -0.35f));
+    sceneObject->scaleTexture(Float2(0.6f, 0.6f));
     sceneObject->setEmittanceShader(std::make_unique<Resources::ConstMaterialShader>(Float4(0.0f, 0.0f, 0.0f, 1.0f)));
-    sceneObject->setDiffusionShader(std::make_unique<Resources::ConstMaterialShader>(Float4(1.0f, 1.0f, 1.0f, 1.0f)));
+    sceneObject->setDiffusionShader(
+        std::unique_ptr<const ObjectShader::MaterialShader>(std::make_unique<NoiseGeneratorMap<8>>(perlinNoise))
+    );
     sceneObject->setReflectanceShader(std::make_unique<Resources::ConstMaterialShader>(Float4(0.0f, 0.0f, 0.0f, 1.0f)));
     sceneObject->setSpecularShader(std::make_unique<Resources::ConstMaterialShader>(Float4(0.0f, 0.0f, 0.0f, 1.0f)));
     sceneObject->setShininessShader(std::make_unique<Resources::ConstMaterialShader>(Float4(1.0f, 1.0f, 1.0f, 32.0f)));

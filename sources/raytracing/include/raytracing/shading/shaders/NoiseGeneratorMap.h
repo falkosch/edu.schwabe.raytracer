@@ -11,8 +11,6 @@ namespace raytracer {
     const NoiseGenerator *generator;
 
   public:
-    ALIGNED_ALLOCATORS(__alignof(NoiseGeneratorMap));
-
     NoiseGeneratorMap(const NoiseGenerator &generatorIn) : generator(&generatorIn) {
     }
 
@@ -33,7 +31,7 @@ namespace raytracer {
         frequency += frequency;
       }
 
-      return clamp(noise, Zero<Float4>(), One<Float4>());
-    }
+      return replaceW(clamp(noise * Half<Float4>() + Half<Float4>(), Zero<Float4>(), One<Float4>()), One<Float>());
+     }
   };
 }
