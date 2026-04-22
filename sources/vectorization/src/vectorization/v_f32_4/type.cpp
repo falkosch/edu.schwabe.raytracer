@@ -5,6 +5,7 @@
 
 #include <array>
 #include <cassert>
+#include <cstdint>
 
 namespace vectorization {
   v_f32_4::v_f32_4() noexcept : components(Zero<PackedType>()) {
@@ -37,6 +38,7 @@ namespace vectorization {
   }
 
   v_f32_4::v_f32_4(const ValueType *const values) noexcept : components(_mm_load_ps(values)) {
+    assert(reinterpret_cast<std::uintptr_t>(values) % XMM_ALIGNMENT == 0);
   }
 
   v_f32_4 &v_f32_4::operator=(const PackedType &vector) noexcept {
@@ -73,6 +75,7 @@ namespace vectorization {
   }
 
   void store(const v_f32_4 &src, v_f32_4::ValueType *const dst) noexcept {
+    assert(reinterpret_cast<std::uintptr_t>(dst) % XMM_ALIGNMENT == 0);
     _mm_store_ps(dst, src.components);
   }
 }

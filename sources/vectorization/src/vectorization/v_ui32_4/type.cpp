@@ -1,6 +1,7 @@
 #include "vectorization/v_ui32_4.h"
 
 #include <cassert>
+#include <cstdint>
 #include <cstring>
 
 namespace vectorization {
@@ -37,6 +38,7 @@ namespace vectorization {
 
   v_ui32_4::v_ui32_4(const ValueType *const values) noexcept
       : components(_mm_load_si128(reinterpret_cast<const PackedType *>(values))) {
+    assert(reinterpret_cast<std::uintptr_t>(values) % XMM_ALIGNMENT == 0);
   }
 
   v_ui32_4 &v_ui32_4::operator=(const PackedType &vector) noexcept {
