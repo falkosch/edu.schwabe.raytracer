@@ -19,8 +19,7 @@ namespace vectorization {
   template <>
   v_ui64_2::ValueType component<VectorIndices::Y>(const v_ui64_2 &vector) noexcept {
 #ifdef ARCH_X64
-    return static_cast<v_ui64_2::ValueType>(_mm_cvtsi128_si64x(_mm_unpackhi_epi64(vector.components, vector.components))
-    );
+    return static_cast<v_ui64_2::ValueType>(_mm_extract_epi64(vector.components, VectorIndices::Y));
 #else
     std::array<v_ui64_2::ValueType, v_ui64_2::SIZE> components;
     std::memcpy(components.data(), &vector.components, sizeof(v_ui64_2::PackedType));

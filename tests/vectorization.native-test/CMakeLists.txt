@@ -2,10 +2,12 @@ project("vectorization.native-test" LANGUAGES CXX VERSION 1.0.0)
 
 set(SOURCES
         src/vectorization/accessors/component_128d_test.cpp
+        src/vectorization/accessors/component_128i_test.cpp
         src/vectorization/accessors/component_128s_test.cpp
         src/vectorization/accessors/component_256d_test.cpp
         src/vectorization/accessors/component_256s_test.cpp
         src/vectorization/accessors/replace_component_128d_test.cpp
+        src/vectorization/accessors/replace_component_128i_test.cpp
         src/vectorization/accessors/replace_component_128s_test.cpp
         src/vectorization/accessors/replace_component_256d_test.cpp
         src/vectorization/accessors/replace_component_256s_test.cpp

@@ -1,65 +1,63 @@
 #include "vectorization/v_ui32_4.h"
 
+#include "vectorization/accessors/component_128i.h"
+#include "vectorization/accessors/replace_component_128i.h"
+
 namespace vectorization {
   template <>
   v_ui32_4::ValueType component<VectorIndices::X>(const v_ui32_4 &vector) noexcept {
-    return static_cast<v_ui32_4::ValueType>(_mm_cvtsi128_si32(vector.components));
+    return static_cast<v_ui32_4::ValueType>(component<VectorIndices::X>(vector.components));
   }
 
   template <>
   v_ui32_4::ValueType component<VectorIndices::Y>(const v_ui32_4 &vector) noexcept {
-    return static_cast<v_ui32_4::ValueType>(
-        _mm_cvtsi128_si32(_mm_srli_si128(vector.components, VectorSizes::X * sizeof(v_ui32_4::ValueType)))
-    );
+    return static_cast<v_ui32_4::ValueType>(component<VectorIndices::Y>(vector.components));
   }
 
   template <>
   v_ui32_4::ValueType component<VectorIndices::Z>(const v_ui32_4 &vector) noexcept {
-    return static_cast<v_ui32_4::ValueType>(_mm_cvtsi128_si32(_mm_unpackhi_epi32(vector.components, vector.components))
-    );
+    return static_cast<v_ui32_4::ValueType>(component<VectorIndices::Z>(vector.components));
   }
 
   template <>
   v_ui32_4::ValueType component<VectorIndices::W>(const v_ui32_4 &vector) noexcept {
-    return static_cast<v_ui32_4::ValueType>(
-        _mm_cvtsi128_si32(_mm_srli_si128(vector.components, VectorSizes::Z * sizeof(v_ui32_4::ValueType)))
-    );
+    return static_cast<v_ui32_4::ValueType>(component<VectorIndices::W>(vector.components));
   }
 
   v_ui32_4::ValueType x(const v_ui32_4 &vector) noexcept {
-    return component<VectorIndices::X>(vector);
+    return static_cast<v_ui32_4::ValueType>(x(vector.components));
   }
 
   v_ui32_4::ValueType y(const v_ui32_4 &vector) noexcept {
-    return component<VectorIndices::Y>(vector);
+    return static_cast<v_ui32_4::ValueType>(y(vector.components));
   }
 
   v_ui32_4::ValueType z(const v_ui32_4 &vector) noexcept {
-    return component<VectorIndices::Z>(vector);
+    return static_cast<v_ui32_4::ValueType>(z(vector.components));
   }
 
   v_ui32_4::ValueType w(const v_ui32_4 &vector) noexcept {
-    return component<VectorIndices::W>(vector);
+    return static_cast<v_ui32_4::ValueType>(w(vector.components));
   }
 
   template <>
   v_ui32_4 replaceComponent<VectorIndices::X>(const v_ui32_4 &vector, const v_ui32_4::ValueType scalar) noexcept {
-    return _mm_insert_epi32(vector.components, static_cast<int>(scalar), VectorIndices::X);
+    return replaceComponent<VectorIndices::X>(vector.components, static_cast<Int_32>(scalar));
   }
 
   template <>
   v_ui32_4 replaceComponent<VectorIndices::Y>(const v_ui32_4 &vector, const v_ui32_4::ValueType scalar) noexcept {
-    return _mm_insert_epi32(vector.components, static_cast<int>(scalar), VectorIndices::Y);
+    return replaceComponent<VectorIndices::Y>(vector.components, static_cast<Int_32>(scalar));
   }
 
   template <>
   v_ui32_4 replaceComponent<VectorIndices::Z>(const v_ui32_4 &vector, const v_ui32_4::ValueType scalar) noexcept {
-    return _mm_insert_epi32(vector.components, static_cast<int>(scalar), VectorIndices::Z);
+    return replaceComponent<VectorIndices::Z>(vector.components, static_cast<Int_32>(scalar));
   }
 
   template <>
   v_ui32_4 replaceComponent<VectorIndices::W>(const v_ui32_4 &vector, const v_ui32_4::ValueType scalar) noexcept {
-    return _mm_insert_epi32(vector.components, static_cast<int>(scalar), VectorIndices::W);
+    return replaceComponent<VectorIndices::W>(vector.components, static_cast<Int_32>(scalar));
   }
 
   v_ui32_4 replaceX(const v_ui32_4 &vector, const v_ui32_4::ValueType scalar) noexcept {

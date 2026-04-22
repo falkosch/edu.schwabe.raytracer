@@ -2,10 +2,12 @@ project(vectorization LANGUAGES CXX VERSION 1.0.0)
 
 set(SOURCES
         src/vectorization/accessors/component_128d.cpp
+        src/vectorization/accessors/component_128i.cpp
         src/vectorization/accessors/component_128s.cpp
         src/vectorization/accessors/component_256d.cpp
         src/vectorization/accessors/component_256s.cpp
         src/vectorization/accessors/replace_component_128d.cpp
+        src/vectorization/accessors/replace_component_128i.cpp
         src/vectorization/accessors/replace_component_128s.cpp
         src/vectorization/accessors/replace_component_256d.cpp
         src/vectorization/accessors/replace_component_256s.cpp
@@ -157,10 +159,12 @@ set(HEADERS
         include/vectorization.h
         include/vectorization/accessors.h
         include/vectorization/accessors/component_128d.h
+        include/vectorization/accessors/component_128i.h
         include/vectorization/accessors/component_128s.h
         include/vectorization/accessors/component_256d.h
         include/vectorization/accessors/component_256s.h
         include/vectorization/accessors/replace_component_128d.h
+        include/vectorization/accessors/replace_component_128i.h
         include/vectorization/accessors/replace_component_128s.h
         include/vectorization/accessors/replace_component_256d.h
         include/vectorization/accessors/replace_component_256s.h
