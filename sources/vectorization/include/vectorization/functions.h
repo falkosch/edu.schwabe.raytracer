@@ -8,6 +8,7 @@
 
 #include "functions/abs.h"
 #include "functions/acos.h"
+#include "functions/broadcast.h"
 #include "functions/atan2.h"
 #include "functions/bitcount.h"
 #include "functions/bitpad.h"

@@ -26,6 +26,7 @@ set(SOURCES
         src/vectorization/blends/blend_masked_scalar_test.cpp
         src/vectorization/blends/blend_128d_special_values_test.cpp
         src/vectorization/blends/blend_128s_special_values_test.cpp
+        src/vectorization/functions/broadcast_test.cpp
         src/vectorization/constants/masks/mask_all_test.cpp
         src/vectorization/constants/masks/mask_none_test.cpp
         src/vectorization/constants/masks/mask_w_test.cpp

@@ -1,6 +1,7 @@
 #include "vectorization/v_f32_4/type.h"
 
 #include "vectorization/constants/values.h"
+#include "vectorization/functions/broadcast.h"
 
 #include <array>
 #include <cassert>
@@ -12,7 +13,7 @@ namespace vectorization {
   v_f32_4::v_f32_4(const PackedType &vector) noexcept : components(vector) {
   }
 
-  v_f32_4::v_f32_4(const ValueType scalar) noexcept : components(_mm_set_ps1(scalar)) {
+  v_f32_4::v_f32_4(const ValueType scalar) noexcept : components(broadcast(scalar)) {
   }
 
   v_f32_4::v_f32_4(const ValueType x, const ValueType y) noexcept

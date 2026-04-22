@@ -3,6 +3,7 @@
 #include "vectorization/v_f32_4/accessors.h"
 
 #include <cassert>
+#include "vectorization/functions/broadcast.h"
 #include "vectorization/v_f32_4/blends.h"
 #include "vectorization/v_f32_4/constants.h"
 #include "vectorization/v_f32_4/operators.h"
@@ -292,7 +293,7 @@ namespace vectorization {
   }
 
   v_f32_4 mix(const v_f32_4 &a, const v_f32_4 &b, const v_f32_4::ValueType factor) noexcept {
-    return mix(a.components, b.components, _mm_set_ps1(factor));
+    return mix(a.components, b.components, broadcast(factor));
   }
 
   //}

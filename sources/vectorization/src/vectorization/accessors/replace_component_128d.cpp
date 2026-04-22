@@ -1,6 +1,7 @@
 #include "vectorization/accessors/replace_component_128d.h"
 
 #include "vectorization/blends/blend_masked_128d.h"
+#include "vectorization/functions/broadcast.h"
 
 #include <cassert>
 
@@ -42,6 +43,6 @@ namespace vectorization {
 
   PackedFloat2_128
   replaceComponent(const PackedFloat2_128 &values, const Float_64 replacement, const ASizeT index) noexcept {
-    return replaceComponent(values, _mm_set1_pd(replacement), index);
+    return replaceComponent(values, broadcast(replacement), index);
   }
 }

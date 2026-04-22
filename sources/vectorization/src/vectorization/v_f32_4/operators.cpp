@@ -4,6 +4,7 @@
 
 #include "vectorization/constants/masks.h"
 #include "vectorization/constants/values.h"
+#include "vectorization/functions/broadcast.h"
 #include "vectorization/functions/divide.h"
 #include "vectorization/functions/modulo.h"
 
@@ -27,11 +28,11 @@ namespace vectorization {
   }
 
   v_f32_4 operator+(const v_f32_4 &a, const v_f32_4::ValueType &b) noexcept {
-    return _mm_add_ps(a.components, _mm_set_ps1(b));
+    return _mm_add_ps(a.components, broadcast(b));
   }
 
   v_f32_4 operator+(const v_f32_4::ValueType &a, const v_f32_4 &b) noexcept {
-    return _mm_add_ps(_mm_set_ps1(a), b.components);
+    return _mm_add_ps(broadcast(a), b.components);
   }
 
   v_f32_4 operator-(const v_f32_4 &a, const v_f32_4 &b) noexcept {
@@ -39,11 +40,11 @@ namespace vectorization {
   }
 
   v_f32_4 operator-(const v_f32_4 &a, const v_f32_4::ValueType &b) noexcept {
-    return _mm_sub_ps(a.components, _mm_set_ps1(b));
+    return _mm_sub_ps(a.components, broadcast(b));
   }
 
   v_f32_4 operator-(const v_f32_4::ValueType &a, const v_f32_4 &b) noexcept {
-    return _mm_sub_ps(_mm_set_ps1(a), b.components);
+    return _mm_sub_ps(broadcast(a), b.components);
   }
 
   v_f32_4 operator*(const v_f32_4 &a, const v_f32_4 &b) noexcept {
@@ -51,11 +52,11 @@ namespace vectorization {
   }
 
   v_f32_4 operator*(const v_f32_4 &a, const v_f32_4::ValueType &b) noexcept {
-    return _mm_mul_ps(a.components, _mm_set_ps1(b));
+    return _mm_mul_ps(a.components, broadcast(b));
   }
 
   v_f32_4 operator*(const v_f32_4::ValueType &a, const v_f32_4 &b) noexcept {
-    return _mm_mul_ps(_mm_set_ps1(a), b.components);
+    return _mm_mul_ps(broadcast(a), b.components);
   }
 
   v_f32_4 operator/(const v_f32_4 &a, const v_f32_4 &b) noexcept {
@@ -63,11 +64,11 @@ namespace vectorization {
   }
 
   v_f32_4 operator/(const v_f32_4 &a, const v_f32_4::ValueType &b) noexcept {
-    return divide(a.components, _mm_set_ps1(b));
+    return divide(a.components, broadcast(b));
   }
 
   v_f32_4 operator/(const v_f32_4::ValueType &a, const v_f32_4 &b) noexcept {
-    return divide(_mm_set_ps1(a), b.components);
+    return divide(broadcast(a), b.components);
   }
 
   v_f32_4 operator%(const v_f32_4 &a, const v_f32_4 &b) noexcept {
