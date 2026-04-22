@@ -3,32 +3,6 @@
 Review of the full codebase focusing on shortcomings, performance bottlenecks in data structures,
 algorithms, and hardware-level SSE/AVX usage. Items already tracked in `.backlog/` are excluded.
 
-## 4. SIMD — Scalar Broadcast Overhead
-
-**Severity: Medium | Impact: `v_f32_4` scalar operators, `mix()`, `replaceComponent()`**
-
-19 hot-path call sites use `_mm_set_ps1()`/`_mm_set1_*()` per invocation: the 8 scalar operator overloads in
-`v_f32_4/operators.cpp` (lines 30-70), `mix()` in `functions.cpp:295` and `mix.cpp:13,17`, and
-`replaceComponent()` in `replace_component_128s/128d/256s/256d.cpp`. Other vector types (`v_i32_4`,
-`v_ui32_4`, `v_ui64_2`) are unaffected — they lack scalar operator overloads. The ~32 usages in constant
-initializers (pi, epsilon, masks, etc.) are cold paths and not a concern.
-
-The optimal broadcast instruction depends on `VECTORIZATION_INTRINSICS_LEVEL` (set in
-`compiler_definitions.h`, auto-upgraded from the default `VECTORIZATION_SSE4` when the compiler reports
-`__AVX__`/`__AVX2__`/`__AVX512F__` based on `/arch:` flags):
-
-| Level | Float 128 | Double 128 | Integer 128 | 256-bit |
-|-------|-----------|------------|-------------|---------|
-| SSE4  | `_mm_set_ps1` → `shufps` (adequate) | `_mm_set1_pd` → `movddup` (adequate) | `_mm_set1_epi32` → `pshufd` (adequate) | N/A |
-| AVX1  | `_mm_broadcast_ss(&b)` (from memory) | `_mm_broadcastsd_pd(&b)` (from memory) | No improvement | `_mm256_broadcast_ss/sd` (from memory) |
-| AVX2+ | `_mm_broadcastss_ps(_mm_set_ss(b))` (register-to-register, avoids store-forward stall) | `_mm_broadcastsd_pd` (from register) | `_mm_broadcastd_epi32`/`_mm_broadcastq_epi64` (from register) | Register-to-register variants |
-
-**Fix:** Specialize the broadcast constructors (`v_f32_4(float)`, etc.) based on
-`VECTORIZATION_INTRINSICS_LEVEL` using `#if` guards. The scalar operators and `mix()`/`replaceComponent()`
-then benefit automatically by constructing through the type. At SSE4, keep current behavior. At AVX1, use
-memory-broadcast intrinsics. At AVX2+, use register-to-register broadcast. This avoids duplicating the
-`#if` logic across all 19 call sites.
-
 ## 5. SIMD — Suboptimal Element Extraction
 
 **Severity: Medium | Impact: Hit-testing inner loops**
