@@ -14,17 +14,17 @@
 #define VECTORIZATION_SSE4 4   // up to SSE 4.2 including SSSE3
 #define VECTORIZATION_AVX 5    // up to AVX1
 #define VECTORIZATION_AVX2 6   // up to AVX2
-#define VECTORIZATION_AVX512 7 // up to AVX2
+#define VECTORIZATION_AVX512 7 // up to AVX512
 
 #define VECTORIZATION_INTRINSICS_LEVEL VECTORIZATION_SSE4
 
-// Compiler specific id switches for easier handling with different compiler types
+// Compiler-specific id switches for easier handling with different compiler types
 
 #if defined(__MINGW32__) && !defined(__GNUC__)
 #define __GNUC__
 #endif
 
-// Generalize compiler dependent architecture switches into one switch
+// Generalize compiler-dependent architecture switches into one switch
 
 #if defined(_M_AMD64) || defined(__amd64__)
 #define ARCH_X64

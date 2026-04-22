@@ -95,6 +95,25 @@ objectShadowRays 231858/200292
 Duration: 0.116185s
 ```
 
+New baseline output after using CMake Unity compilation mode:
+
+```
+D:\edu.schwabe.raytracer\cmake-build-release\sources\raytracerui\raytracerui.exe
+Machine epsilon for float is 1.19209e-07
+Machine epsilon for double is 2.22045e-16
+Working directory: D:\edu.schwabe.raytracer\data
+Loaded 36961 bytes from file meshes/teapot.off
+loaded meshes/teapot.off: 726 vertices, 1452 faces
+Building culling tree for scene ... done
+Resizing output to 512x512
+Raytrace 1 (512x512):
+primaryRays 262144/0
+secondaryRays 121805/17871
+shadowRays 253279/252997
+objectShadowRays 231073/199578
+Duration: 0.0670916s
+```
+
 ## Code Style
 
 - Formatting: `.clang-format` (LLVM-based, 120-column limit)
