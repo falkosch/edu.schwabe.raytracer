@@ -16,11 +16,23 @@
 
 namespace raytracer
 {
-    Raytracer::Raytracer() : runId(), running(), current()
+    Raytracer::Raytracer()
+        : runId(0), running(), current(), mutex(), workAvailable(),
+          workerThread([this](std::stop_token stopToken) { workerLoop(stopToken); })
     {
     }
 
-  Raytracer::~Raytracer() = default;
+  Raytracer::~Raytracer() {
+    stop();
+  }
+
+  void Raytracer::stop() {
+    if (workerThread.joinable()) {
+      workerThread.request_stop();
+      workAvailable.notify_all();
+      workerThread.join();
+    }
+  }
 
   RaytraceConfiguration Raytracer::getRunning() const
   {
@@ -29,30 +41,43 @@ namespace raytracer
 
   void Raytracer::requestUpdate()
   {
-      if (current.runId == running.runId)
+      // No-op: rendering is now driven by the background worker thread.
+      // Kept for interface compatibility.
+  }
+
+  void Raytracer::workerLoop(std::stop_token stopToken) {
+    while (!stopToken.stop_requested()) {
       {
-          return;
-    }
+        std::unique_lock lock(mutex);
+        workAvailable.wait(lock, stopToken, [this] {
+          return current.runId != running.runId;
+        });
+      }
+      if (stopToken.stop_requested()) break;
 
-    running = current;
-    running.image = new HDRImage(running.resolution);
-    running.depthMap = new HDRImage(running.resolution);
-    running.timingMap = new HDRImage(running.resolution);
+      {
+        std::lock_guard lock(mutex);
+        running = current;
+      }
+      running.image = new HDRImage(running.resolution);
+      running.depthMap = new HDRImage(running.resolution);
+      running.timingMap = new HDRImage(running.resolution);
 
-    // start raytracing
-    LARGE_INTEGER frequency, start, stop;
-    QueryPerformanceFrequency(&frequency);
+      LARGE_INTEGER frequency, start, stop;
+      QueryPerformanceFrequency(&frequency);
 
-    std::cout << "Raytrace " << running.runId << " (" << x(running.resolution) << "x" << y(running.resolution)
-          << "):" << std::endl;
+      std::cout << "Raytrace " << running.runId << " (" << x(running.resolution) << "x" << y(running.resolution)
+                << "):" << std::endl;
 
       QueryPerformanceCounter(&start);
-    trace();
-    QueryPerformanceCounter(&stop);
+      trace();
+      QueryPerformanceCounter(&stop);
 
-    const auto timeDuration = static_cast<Int_64>(stop.QuadPart - start.QuadPart);
-    const auto timeFrequency = static_cast<Int_64>(frequency.QuadPart);
-    std::cout << "Duration: " << convert<Float_64>(timeDuration) / convert<Float_64>(timeFrequency) << "s" << std::endl;
+      const auto timeDuration = static_cast<Int_64>(stop.QuadPart - start.QuadPart);
+      const auto timeFrequency = static_cast<Int_64>(frequency.QuadPart);
+      std::cout << "Duration: " << convert<Float_64>(timeDuration) / convert<Float_64>(timeFrequency) << "s"
+                << std::endl;
+    }
   }
 
   void Raytracer::trigger(const RaytraceParameters& parameters)
@@ -61,18 +86,23 @@ namespace raytracer
     assert(parameters.camera);
     assert(parameters.sceneShader);
 
-    runId += 1;
+    const auto newRunId = ++runId;
 
     const auto samplingResolution =
           max(One<Size2>(), convert<Size2>(convert<Float4>(parameters.resolution) * parameters.samplingFactor));
 
+    {
+      std::lock_guard lock(mutex);
+
       // build raytrace configuration
-    current = parameters; // copies parameters into current
-    current.maxDistance =
-          select(parameters.maxDistance > Zero<Float>(), parameters.maxDistance, std::numeric_limits<Float>::max());
+      current = parameters;
+      current.maxDistance =
+            select(parameters.maxDistance > Zero<Float>(), parameters.maxDistance, std::numeric_limits<Float>::max());
       current.resolution = max(One<Size2>(), samplingResolution);
-    current.state = false;
-    current.runId = runId;
+      current.state = false;
+      current.runId = newRunId;
+    }
+    workAvailable.notify_one();
   }
 
   Int_64 perPixelTiming()
@@ -200,16 +230,12 @@ namespace raytracer
       }
     }
 
-    auto hasFinished = running.runId == runId;
-    running.state = hasFinished;
-      if (hasFinished)
-      {
-          running.timingMap->normalizeEachChannel();
-      running.depthMap->normalizeEachChannel();
+    running.state = (running.runId == runId.load());
+    running.timingMap->normalizeEachChannel();
+    running.depthMap->normalizeEachChannel();
 
-      // notify completion
-      running.observer->notifyUpdate(running);
-    }
+    // notify completion
+    running.observer->notifyUpdate(running);
   }
 
   Float4 schlickFresnel(const bool enteringLessDense, const Float4& negNdotI, const Float4& eta)

@@ -47,6 +47,8 @@ namespace raytracerui {
 
     virtual void display();
 
+    virtual void onRenderComplete();
+
   public:
     WindowsRaytracerUI(Raytracer &raytracer, const RaytraceParameters &parameters, ASizeT &fastPreviewSize);
 

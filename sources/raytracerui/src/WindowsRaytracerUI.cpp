@@ -1,4 +1,5 @@
 #include "WindowsRaytracerUI.h"
+#include "OpenGLWindowsRaytracerUI.h"
 #include "stdafx.h"
 
 #include <iostream>
@@ -307,11 +308,18 @@ namespace raytracerui {
       keyPressed(wParam);
       break;
 
+    case OpenGLWindowsRaytracerUI::WM_RENDER_COMPLETE:
+      onRenderComplete();
+      break;
+
     default:
       return DefWindowProc(hWnd, message, wParam, lParam);
     }
 
     return LRESULT{0};
+  }
+
+  void WindowsRaytracerUI::onRenderComplete() {
   }
 
   LRESULT CALLBACK

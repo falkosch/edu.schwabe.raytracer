@@ -6,6 +6,8 @@
 
 #include <GL/gl.h>
 
+#include <mutex>
+
 namespace raytracerui {
   using namespace vectorization;
   using namespace raytracer;
@@ -17,12 +19,22 @@ namespace raytracerui {
 
     GLuint outputSurface;
 
+    std::mutex pendingMutex;
+
+    RaytraceConfiguration pendingConfig{};
+
+    bool hasPendingResult{false};
+
   protected:
     void reshape(const Int2 &newSize) override;
 
     void display() override;
 
+    void onRenderComplete() override;
+
   public:
+    static constexpr UINT WM_RENDER_COMPLETE = WM_APP + 1;
+
     OpenGLWindowsRaytracerUI(Raytracer &raytracer, const RaytraceParameters &parameters, ASizeT fastPreviewSize);
 
     ~OpenGLWindowsRaytracerUI() override;

@@ -65,6 +65,7 @@ namespace raytracerui {
   }
 
   OpenGLWindowsRaytracerUI::~OpenGLWindowsRaytracerUI() {
+    raytracer->stop();
     wglMakeCurrent(hDC, nullptr);
     wglDeleteContext(hGLRC);
     ReleaseDC(hWnd, hDC);
@@ -79,8 +80,6 @@ namespace raytracerui {
     PAINTSTRUCT psPaint{};
     BeginPaint(hWnd, &psPaint);
     EndPaint(hWnd, &psPaint);
-
-    raytracer->requestUpdate();
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -99,12 +98,42 @@ namespace raytracerui {
   }
 
   void OpenGLWindowsRaytracerUI::notifyUpdate(const RaytraceConfiguration &configuration) {
-    RaytracerUI::notifyUpdate(configuration);
+    // Called from the worker thread — do not call OpenGL here.
+    // Store the completed configuration and marshal to the UI thread.
+    {
+      std::lock_guard lock(pendingMutex);
+      if (hasPendingResult) {
+        // A previous result was not yet processed — discard its images to prevent leaks
+        delete pendingConfig.image;
+        delete pendingConfig.depthMap;
+        delete pendingConfig.timingMap;
+      }
+      pendingConfig = configuration;
+      hasPendingResult = true;
+    }
+    PostMessage(hWnd, WM_RENDER_COMPLETE, 0, 0);
+  }
+
+  void OpenGLWindowsRaytracerUI::onRenderComplete() {
+    RaytraceConfiguration config;
+    {
+      std::lock_guard lock(pendingMutex);
+      if (!hasPendingResult) return;
+      config = pendingConfig;
+      hasPendingResult = false;
+    }
+
+    // Process on UI thread: stats, image selection, bitmap conversion
+    RaytracerUI::notifyUpdate(config);
+
+    // Upload texture to OpenGL (must happen on the UI thread that owns the GL context)
     if (this->outputHDR) {
       glTexImage2D(
-          GL_TEXTURE_2D, 0, GL_RGBA32F, static_cast<GLsizei>(x(configuration.resolution)),
-          static_cast<GLsizei>(y(configuration.resolution)), 0, GL_RGBA, GL_FLOAT, outputHDR->getData()
+          GL_TEXTURE_2D, 0, GL_RGBA32F, static_cast<GLsizei>(x(config.resolution)),
+          static_cast<GLsizei>(y(config.resolution)), 0, GL_RGBA, GL_FLOAT, outputHDR->getData()
       );
     }
+
+    InvalidateRect(hWnd, nullptr, FALSE);
   }
 }

@@ -6,6 +6,11 @@
 #include "IlluminatedIntersection.h"
 #include "RaytracerCache.h"
 
+#include <atomic>
+#include <condition_variable>
+#include <mutex>
+#include <thread>
+
 namespace raytracer {
   using namespace vectorization;
 
@@ -21,12 +26,22 @@ namespace raytracer {
 
     void trigger(const RaytraceParameters &parameters);
 
+    void stop();
+
   private:
-    volatile ASizeT runId;
+    std::atomic<ASizeT> runId;
 
     RaytraceConfiguration running;
 
     RaytraceConfiguration current;
+
+    std::mutex mutex;
+
+    std::condition_variable_any workAvailable;
+
+    std::jthread workerThread;
+
+    void workerLoop(std::stop_token stopToken);
 
     void trace();
 
