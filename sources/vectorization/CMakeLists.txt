@@ -135,6 +135,7 @@ set(SOURCES
         src/vectorization/v_i32_4/constants.cpp
         src/vectorization/v_i32_4/functions.cpp
         src/vectorization/v_i32_4/operators.cpp
+        src/vectorization/v_i32_4/swizzled_blends.cpp
         src/vectorization/v_i32_4/swizzles.cpp
         src/vectorization/v_i32_4/type.cpp
         src/vectorization/v_ui32_4/accessors.cpp

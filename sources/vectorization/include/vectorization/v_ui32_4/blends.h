@@ -18,4 +18,6 @@ namespace vectorization {
   template <>
   // pass through blend other
   v_ui32_4 blend<true, true, true, true>(const v_ui32_4 &a, const v_ui32_4 &b) noexcept;
+
+  v_ui32_4 blendMasked(const v_ui32_4 &a, const v_ui32_4 &b, const v_ui32_4 &mask) noexcept;
 }

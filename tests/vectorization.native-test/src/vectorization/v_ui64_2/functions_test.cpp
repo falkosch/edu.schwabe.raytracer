@@ -74,5 +74,23 @@ namespace vectorization::test {
       Assert::IsTrue(allFalse(Zero<v_ui64_2>()), L"allFalse should be true", LINE_INFO());
       Assert::IsFalse(allFalse(v_ui64_2{UInt_64{0}, UInt_64{1}}), L"allFalse should be false", LINE_INFO());
     }
+
+    TEST_METHOD(computesLengthVector) {
+      const v_ui64_2 given{UInt_64{3}, UInt_64{7}};
+      const auto actual = lengthv(given);
+      Assert::AreEqual(UInt_64{10}, x(actual), L"lengthv X mismatch", LINE_INFO());
+      Assert::AreEqual(UInt_64{10}, y(actual), L"lengthv Y mismatch", LINE_INFO());
+    }
+
+    TEST_METHOD(computesScalarLength) {
+      const v_ui64_2 given{UInt_64{3}, UInt_64{7}};
+      Assert::AreEqual(UInt_64{10}, length(given), L"length mismatch", LINE_INFO());
+    }
+
+    TEST_METHOD(computesDistance) {
+      const v_ui64_2 a{UInt_64{10}, UInt_64{20}};
+      const v_ui64_2 b{UInt_64{7}, UInt_64{15}};
+      Assert::AreEqual(UInt_64{8}, distance(a, b), L"distance mismatch", LINE_INFO());
+    }
   };
 }

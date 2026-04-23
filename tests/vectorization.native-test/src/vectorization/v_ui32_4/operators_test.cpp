@@ -139,5 +139,91 @@ namespace vectorization::test {
       const v_ui32_4 expected{11u, 22u, 33u, 44u};
       Assert::IsTrue(allTrue(expected == actual), L"'+=' op value mismatch", LINE_INFO());
     }
+
+    TEST_METHOD(testLessThanOrEqualOperator) {
+      const v_ui32_4 a{1, 2, 3, 4};
+      const v_ui32_4 b{2, 2, 2, 5};
+      const auto result = a <= b;
+      Assert::IsTrue(allTrue(result == v_ui32_4{UInt_32(-1), UInt_32(-1), 0, UInt_32(-1)}), L"<= mismatch", LINE_INFO());
+    }
+
+    TEST_METHOD(testGreaterThanOrEqualOperator) {
+      const v_ui32_4 a{1, 2, 3, 4};
+      const v_ui32_4 b{2, 2, 2, 5};
+      const auto result = a >= b;
+      Assert::IsTrue(allTrue(result == v_ui32_4{0, UInt_32(-1), UInt_32(-1), 0}), L">= mismatch", LINE_INFO());
+    }
+
+    TEST_METHOD(testCompoundSubtractAssignOperator) {
+      v_ui32_4 a{10u, 20u, 30u, 40u};
+      const v_ui32_4 b{2u, 3u, 5u, 4u};
+      const auto expected = a - b;
+      a -= b;
+      Assert::IsTrue(allTrue(expected == a), L"'-=' op value mismatch", LINE_INFO());
+    }
+
+    TEST_METHOD(testCompoundMultiplyAssignOperator) {
+      v_ui32_4 a{10u, 20u, 30u, 40u};
+      const v_ui32_4 b{2u, 3u, 5u, 4u};
+      const auto expected = a * b;
+      a *= b;
+      Assert::IsTrue(allTrue(expected == a), L"'*=' op value mismatch", LINE_INFO());
+    }
+
+    TEST_METHOD(testCompoundDivideAssignOperator) {
+      v_ui32_4 a{10u, 20u, 30u, 40u};
+      const v_ui32_4 b{2u, 3u, 5u, 4u};
+      const auto expected = a / b;
+      a /= b;
+      Assert::IsTrue(allTrue(expected == a), L"'/=' op value mismatch", LINE_INFO());
+    }
+
+    TEST_METHOD(testCompoundModuloAssignOperator) {
+      v_ui32_4 a{10u, 20u, 30u, 40u};
+      const v_ui32_4 b{2u, 3u, 5u, 4u};
+      const auto expected = a % b;
+      a %= b;
+      Assert::IsTrue(allTrue(expected == a), L"'%=' op value mismatch", LINE_INFO());
+    }
+
+    TEST_METHOD(testCompoundBitwiseAndAssignOperator) {
+      v_ui32_4 a{0xFF00FF00u, 0x0F0F0F0Fu, 0xAAAAAAAAu, 0x12345678u};
+      const v_ui32_4 b{0x0F0F0F0Fu, 0xF0F0F0F0u, 0x55555555u, 0x87654321u};
+      const auto expected = a & b;
+      a &= b;
+      Assert::IsTrue(allTrue(expected == a), L"'&=' op value mismatch", LINE_INFO());
+    }
+
+    TEST_METHOD(testCompoundBitwiseOrAssignOperator) {
+      v_ui32_4 a{0xFF00FF00u, 0x0F0F0F0Fu, 0xAAAAAAAAu, 0x12345678u};
+      const v_ui32_4 b{0x0F0F0F0Fu, 0xF0F0F0F0u, 0x55555555u, 0x87654321u};
+      const auto expected = a | b;
+      a |= b;
+      Assert::IsTrue(allTrue(expected == a), L"'|=' op value mismatch", LINE_INFO());
+    }
+
+    TEST_METHOD(testCompoundBitwiseXorAssignOperator) {
+      v_ui32_4 a{0xFF00FF00u, 0x0F0F0F0Fu, 0xAAAAAAAAu, 0x12345678u};
+      const v_ui32_4 b{0x0F0F0F0Fu, 0xF0F0F0F0u, 0x55555555u, 0x87654321u};
+      const auto expected = a ^ b;
+      a ^= b;
+      Assert::IsTrue(allTrue(expected == a), L"'^=' op value mismatch", LINE_INFO());
+    }
+
+    TEST_METHOD(testCompoundLeftShiftAssignOperator) {
+      v_ui32_4 a{16u, 32u, 64u, 128u};
+      const v_ui32_4 b{v_ui32_4(1)};
+      const auto expected = a << b;
+      a <<= b;
+      Assert::IsTrue(allTrue(expected == a), L"'<<=' op value mismatch", LINE_INFO());
+    }
+
+    TEST_METHOD(testCompoundRightShiftAssignOperator) {
+      v_ui32_4 a{16u, 32u, 64u, 128u};
+      const v_ui32_4 b{v_ui32_4(1)};
+      const auto expected = a >> b;
+      a >>= b;
+      Assert::IsTrue(allTrue(expected == a), L"'>>=' op value mismatch", LINE_INFO());
+    }
   };
 }

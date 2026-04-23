@@ -2,7 +2,7 @@
 
 #include "api.h"
 
-#include "vectorization/v_f32_4.h"
+#include "vectorization/v_f32_4/type.h"
 
 #include "vectorization/architecture.h"
 

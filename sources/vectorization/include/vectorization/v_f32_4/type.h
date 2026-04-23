@@ -1,6 +1,6 @@
 #pragma once
 
-#include "vectorization/v_i32_4.h"
+#include "vectorization/v_i32_4/type.h"
 
 #include "vectorization/architecture.h"
 

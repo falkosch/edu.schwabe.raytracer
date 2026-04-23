@@ -159,5 +159,83 @@ namespace vectorization::test {
       actual &= MaskX<v_i32_4>();
       Assert::IsTrue(allTrue(MaskX<v_i32_4>() == actual), L"'&=' op value mismatch", LINE_INFO());
     }
+
+    TEST_METHOD(testLessThanOrEqualOperator) {
+      const v_i32_4 a{1, 2, 3, 4};
+      const v_i32_4 b{2, 2, 2, 5};
+      const auto result = a <= b;
+      // X: 1<=2 true, Y: 2<=2 true, Z: 3<=2 false, W: 4<=5 true
+      Assert::AreEqual(Int_32{-1}, x(result), L"X mismatch", LINE_INFO());
+      Assert::AreEqual(Int_32{-1}, y(result), L"Y mismatch", LINE_INFO());
+      Assert::AreEqual(Int_32{0}, z(result), L"Z mismatch", LINE_INFO());
+      Assert::AreEqual(Int_32{-1}, w(result), L"W mismatch", LINE_INFO());
+    }
+
+    TEST_METHOD(testGreaterThanOrEqualOperator) {
+      const v_i32_4 a{1, 2, 3, 4};
+      const v_i32_4 b{2, 2, 2, 5};
+      const auto result = a >= b;
+      // X: 1>=2 false, Y: 2>=2 true, Z: 3>=2 true, W: 4>=5 false
+      Assert::AreEqual(Int_32{0}, x(result), L"X mismatch", LINE_INFO());
+      Assert::AreEqual(Int_32{-1}, y(result), L"Y mismatch", LINE_INFO());
+      Assert::AreEqual(Int_32{-1}, z(result), L"Z mismatch", LINE_INFO());
+      Assert::AreEqual(Int_32{0}, w(result), L"W mismatch", LINE_INFO());
+    }
+
+    TEST_METHOD(testCompoundMultiplyAssignOperator) {
+      v_i32_4 a{10, 20, 30, 40};
+      const v_i32_4 b{2, 3, 5, 4};
+      const auto expected = a * b;
+      a *= b;
+      Assert::IsTrue(allTrue(expected == a), L"'*=' op value mismatch", LINE_INFO());
+    }
+
+    TEST_METHOD(testCompoundDivideAssignOperator) {
+      v_i32_4 a{10, 20, 30, 40};
+      const v_i32_4 b{2, 3, 5, 4};
+      const auto expected = a / b;
+      a /= b;
+      Assert::IsTrue(allTrue(expected == a), L"'/=' op value mismatch", LINE_INFO());
+    }
+
+    TEST_METHOD(testCompoundModuloAssignOperator) {
+      v_i32_4 a{10, 20, 30, 40};
+      const v_i32_4 b{2, 3, 5, 4};
+      const auto expected = a % b;
+      a %= b;
+      Assert::IsTrue(allTrue(expected == a), L"'%%=' op value mismatch", LINE_INFO());
+    }
+
+    TEST_METHOD(testCompoundBitwiseOrAssignOperator) {
+      v_i32_4 a{10, 20, 30, 40};
+      const v_i32_4 b{2, 3, 5, 4};
+      const auto expected = a | b;
+      a |= b;
+      Assert::IsTrue(allTrue(expected == a), L"'|=' op value mismatch", LINE_INFO());
+    }
+
+    TEST_METHOD(testCompoundBitwiseXorAssignOperator) {
+      v_i32_4 a{10, 20, 30, 40};
+      const v_i32_4 b{2, 3, 5, 4};
+      const auto expected = a ^ b;
+      a ^= b;
+      Assert::IsTrue(allTrue(expected == a), L"'^=' op value mismatch", LINE_INFO());
+    }
+
+    TEST_METHOD(testCompoundLeftShiftAssignOperator) {
+      v_i32_4 a{16, 32, 64, 128};
+      const v_i32_4 b{1, 0, 0, 0};
+      const auto expected = a << b;
+      a <<= b;
+      Assert::IsTrue(allTrue(expected == a), L"'<<=' op value mismatch", LINE_INFO());
+    }
+
+    TEST_METHOD(testCompoundRightShiftAssignOperator) {
+      v_i32_4 a{16, 32, 64, 128};
+      const v_i32_4 b{1, 0, 0, 0};
+      const auto expected = a >> b;
+      a >>= b;
+      Assert::IsTrue(allTrue(expected == a), L"'>>=' op value mismatch", LINE_INFO());
+    }
   };
 }

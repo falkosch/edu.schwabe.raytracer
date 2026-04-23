@@ -62,7 +62,7 @@ namespace vectorization {
   }
 
   template <>
-  inline v_ui64_2 swizzledBlendMasked<VectorIndices::X, VectorIndices::Y>(
+  v_ui64_2 swizzledBlendMasked<VectorIndices::X, VectorIndices::Y>(
       const v_ui64_2 &a, const v_ui64_2 &b, const v_ui64_2 &mask
   ) noexcept {
     return blendMasked(a, b, mask);

@@ -242,5 +242,267 @@ namespace vectorization::test {
       Assert::AreEqual(z(expected), z(actual), L"NotEquals value mismatch", LINE_INFO());
       Assert::IsTrue(std::isnan(w(sampleVector3)), L"W should still be NaN after copy", LINE_INFO());
     }
+
+    // "%"
+    TEST_METHOD(testModuloOperator) {
+      const v_f32_4 a{5.5f, 7.0f, 10.3f, 3.0f};
+      const v_f32_4 b{2.0f, 3.0f, 4.0f, 1.5f};
+      const auto actual = a % b;
+
+      // modulo(a, b) = a - b * floor(a / b)
+      Assert::AreEqual(std::fmod(5.5f, 2.0f), x(actual), L"'%' op X mismatch", LINE_INFO());
+      Assert::AreEqual(std::fmod(7.0f, 3.0f), y(actual), L"'%' op Y mismatch", LINE_INFO());
+      Assert::AreEqual(std::fmod(10.3f, 4.0f), z(actual), L"'%' op Z mismatch", LINE_INFO());
+      Assert::AreEqual(std::fmod(3.0f, 1.5f), w(actual), L"'%' op W mismatch", LINE_INFO());
+    }
+
+    // "&"
+    TEST_METHOD(testBitwiseAndOperator) {
+      const auto a = MaskAll<v_f32_4>();
+      const auto b = MaskX<v_f32_4>();
+      const auto actual = a & b;
+
+      Assert::AreEqual(x(b), x(actual), L"'&' op X mismatch", LINE_INFO());
+      Assert::AreEqual(y(b), y(actual), L"'&' op Y mismatch", LINE_INFO());
+      Assert::AreEqual(z(b), z(actual), L"'&' op Z mismatch", LINE_INFO());
+      Assert::AreEqual(w(b), w(actual), L"'&' op W mismatch", LINE_INFO());
+    }
+
+    // "|"
+    TEST_METHOD(testBitwiseOrOperator) {
+      const auto a = MaskX<v_f32_4>();
+      const auto b = MaskY<v_f32_4>();
+      const auto expected = MaskXY<v_f32_4>();
+      const auto actual = a | b;
+
+      Assert::AreEqual(x(expected), x(actual), L"'|' op X mismatch", LINE_INFO());
+      Assert::AreEqual(y(expected), y(actual), L"'|' op Y mismatch", LINE_INFO());
+      Assert::AreEqual(z(expected), z(actual), L"'|' op Z mismatch", LINE_INFO());
+      Assert::AreEqual(w(expected), w(actual), L"'|' op W mismatch", LINE_INFO());
+    }
+
+    // "^"
+    TEST_METHOD(testBitwiseXorOperator) {
+      const auto a = MaskAll<v_f32_4>();
+      const auto expected = Zero<v_f32_4>();
+      const auto actual = a ^ a;
+
+      Assert::AreEqual(x(expected), x(actual), L"'^' op X mismatch", LINE_INFO());
+      Assert::AreEqual(y(expected), y(actual), L"'^' op Y mismatch", LINE_INFO());
+      Assert::AreEqual(z(expected), z(actual), L"'^' op Z mismatch", LINE_INFO());
+      Assert::AreEqual(w(expected), w(actual), L"'^' op W mismatch", LINE_INFO());
+    }
+
+    // "<<"
+    TEST_METHOD(testLeftShiftOperator) {
+      const v_f32_4 given = One<v_f32_4>();
+      // _mm_sll_epi32 reads the shift count from the low 64-bit element
+      const v_f32_4::VectorBoolType shift{1, 0, 0, 0};
+      const auto actual = given << shift;
+      // Shifting the bit pattern of 1.0f (0x3F800000) left by 1 gives 0x7F000000
+      const auto expected = v_f32_4(_mm_castsi128_ps(_mm_slli_epi32(_mm_castps_si128(given.components), 1)));
+
+      Assert::AreEqual(x(expected), x(actual), L"'<<' op X mismatch", LINE_INFO());
+      Assert::AreEqual(y(expected), y(actual), L"'<<' op Y mismatch", LINE_INFO());
+      Assert::AreEqual(z(expected), z(actual), L"'<<' op Z mismatch", LINE_INFO());
+      Assert::AreEqual(w(expected), w(actual), L"'<<' op W mismatch", LINE_INFO());
+    }
+
+    // ">>"
+    TEST_METHOD(testRightShiftOperator) {
+      const v_f32_4 given = One<v_f32_4>();
+      // _mm_srl_epi32 reads the shift count from the low 64-bit element
+      const v_f32_4::VectorBoolType shift{1, 0, 0, 0};
+      const auto actual = given >> shift;
+      // Shifting the bit pattern of 1.0f (0x3F800000) right by 1 gives 0x1FC00000
+      const auto expected = v_f32_4(_mm_castsi128_ps(_mm_srli_epi32(_mm_castps_si128(given.components), 1)));
+
+      Assert::AreEqual(x(expected), x(actual), L"'>>' op X mismatch", LINE_INFO());
+      Assert::AreEqual(y(expected), y(actual), L"'>>' op Y mismatch", LINE_INFO());
+      Assert::AreEqual(z(expected), z(actual), L"'>>' op Z mismatch", LINE_INFO());
+      Assert::AreEqual(w(expected), w(actual), L"'>>' op W mismatch", LINE_INFO());
+    }
+
+    // "<"
+    TEST_METHOD(testLessThanOperator) {
+      const v_f32_4 a{1.0f, 2.0f, 3.0f, 4.0f};
+      const v_f32_4 b{2.0f, 2.0f, 1.0f, 5.0f};
+      const auto actual = a < b;
+      // X: 1<2 true, Y: 2<2 false, Z: 3<1 false, W: 4<5 true
+
+      Assert::AreEqual(MaskAll<v_f32_4::BoolType>(), x(actual), L"'<' X mismatch", LINE_INFO());
+      Assert::AreEqual(v_f32_4::BoolType{0}, y(actual), L"'<' Y mismatch", LINE_INFO());
+      Assert::AreEqual(v_f32_4::BoolType{0}, z(actual), L"'<' Z mismatch", LINE_INFO());
+      Assert::AreEqual(MaskAll<v_f32_4::BoolType>(), w(actual), L"'<' W mismatch", LINE_INFO());
+    }
+
+    // ">"
+    TEST_METHOD(testGreaterThanOperator) {
+      const v_f32_4 a{2.0f, 2.0f, 3.0f, 4.0f};
+      const v_f32_4 b{1.0f, 2.0f, 5.0f, 1.0f};
+      const auto actual = a > b;
+      // X: 2>1 true, Y: 2>2 false, Z: 3>5 false, W: 4>1 true
+
+      Assert::AreEqual(MaskAll<v_f32_4::BoolType>(), x(actual), L"'>' X mismatch", LINE_INFO());
+      Assert::AreEqual(v_f32_4::BoolType{0}, y(actual), L"'>' Y mismatch", LINE_INFO());
+      Assert::AreEqual(v_f32_4::BoolType{0}, z(actual), L"'>' Z mismatch", LINE_INFO());
+      Assert::AreEqual(MaskAll<v_f32_4::BoolType>(), w(actual), L"'>' W mismatch", LINE_INFO());
+    }
+
+    // "<="
+    TEST_METHOD(testLessThanOrEqualOperator) {
+      const v_f32_4 a{1.0f, 2.0f, 3.0f, 4.0f};
+      const v_f32_4 b{2.0f, 2.0f, 1.0f, 5.0f};
+      const auto actual = a <= b;
+      // X: 1<=2 true, Y: 2<=2 true, Z: 3<=1 false, W: 4<=5 true
+
+      Assert::AreEqual(MaskAll<v_f32_4::BoolType>(), x(actual), L"'<=' X mismatch", LINE_INFO());
+      Assert::AreEqual(MaskAll<v_f32_4::BoolType>(), y(actual), L"'<=' Y mismatch", LINE_INFO());
+      Assert::AreEqual(v_f32_4::BoolType{0}, z(actual), L"'<=' Z mismatch", LINE_INFO());
+      Assert::AreEqual(MaskAll<v_f32_4::BoolType>(), w(actual), L"'<=' W mismatch", LINE_INFO());
+    }
+
+    // ">="
+    TEST_METHOD(testGreaterThanOrEqualOperator) {
+      const v_f32_4 a{1.0f, 2.0f, 3.0f, 4.0f};
+      const v_f32_4 b{2.0f, 2.0f, 1.0f, 5.0f};
+      const auto actual = a >= b;
+      // X: 1>=2 false, Y: 2>=2 true, Z: 3>=1 true, W: 4>=5 false
+
+      Assert::AreEqual(v_f32_4::BoolType{0}, x(actual), L"'>=' X mismatch", LINE_INFO());
+      Assert::AreEqual(MaskAll<v_f32_4::BoolType>(), y(actual), L"'>=' Y mismatch", LINE_INFO());
+      Assert::AreEqual(MaskAll<v_f32_4::BoolType>(), z(actual), L"'>=' Z mismatch", LINE_INFO());
+      Assert::AreEqual(v_f32_4::BoolType{0}, w(actual), L"'>=' W mismatch", LINE_INFO());
+    }
+
+    // "+="
+    TEST_METHOD(testCompoundAddAssignOperator) {
+      auto a = v_f32_4{2.0f, 3.0f, 4.0f, 5.0f};
+      const v_f32_4 b{1.0f, 2.0f, 3.0f, 4.0f};
+      const auto expected = a + b;
+      a += b;
+
+      Assert::AreEqual(x(expected), x(a), L"'+=' X mismatch", LINE_INFO());
+      Assert::AreEqual(y(expected), y(a), L"'+=' Y mismatch", LINE_INFO());
+      Assert::AreEqual(z(expected), z(a), L"'+=' Z mismatch", LINE_INFO());
+      Assert::AreEqual(w(expected), w(a), L"'+=' W mismatch", LINE_INFO());
+    }
+
+    // "-="
+    TEST_METHOD(testCompoundSubtractAssignOperator) {
+      auto a = v_f32_4{10.0f, 20.0f, 30.0f, 40.0f};
+      const v_f32_4 b{1.0f, 2.0f, 3.0f, 4.0f};
+      const auto expected = a - b;
+      a -= b;
+
+      Assert::AreEqual(x(expected), x(a), L"'-=' X mismatch", LINE_INFO());
+      Assert::AreEqual(y(expected), y(a), L"'-=' Y mismatch", LINE_INFO());
+      Assert::AreEqual(z(expected), z(a), L"'-=' Z mismatch", LINE_INFO());
+      Assert::AreEqual(w(expected), w(a), L"'-=' W mismatch", LINE_INFO());
+    }
+
+    // "*="
+    TEST_METHOD(testCompoundMultiplyAssignOperator) {
+      auto a = v_f32_4{2.0f, 3.0f, 4.0f, 5.0f};
+      const v_f32_4 b{3.0f, 2.0f, 1.5f, 2.0f};
+      const auto expected = a * b;
+      a *= b;
+
+      Assert::AreEqual(x(expected), x(a), L"'*=' X mismatch", LINE_INFO());
+      Assert::AreEqual(y(expected), y(a), L"'*=' Y mismatch", LINE_INFO());
+      Assert::AreEqual(z(expected), z(a), L"'*=' Z mismatch", LINE_INFO());
+      Assert::AreEqual(w(expected), w(a), L"'*=' W mismatch", LINE_INFO());
+    }
+
+    // "/="
+    TEST_METHOD(testCompoundDivideAssignOperator) {
+      auto a = v_f32_4{10.0f, 20.0f, 30.0f, 40.0f};
+      const v_f32_4 b{2.0f, 4.0f, 5.0f, 8.0f};
+      const auto expected = a / b;
+      a /= b;
+
+      Assert::AreEqual(x(expected), x(a), L"'/=' X mismatch", LINE_INFO());
+      Assert::AreEqual(y(expected), y(a), L"'/=' Y mismatch", LINE_INFO());
+      Assert::AreEqual(z(expected), z(a), L"'/=' Z mismatch", LINE_INFO());
+      Assert::AreEqual(w(expected), w(a), L"'/=' W mismatch", LINE_INFO());
+    }
+
+    // "%="
+    TEST_METHOD(testCompoundModuloAssignOperator) {
+      auto a = v_f32_4{5.5f, 7.0f, 10.3f, 3.0f};
+      const v_f32_4 b{2.0f, 3.0f, 4.0f, 1.5f};
+      const auto expected = a % b;
+      a %= b;
+
+      Assert::AreEqual(x(expected), x(a), L"'%%=' X mismatch", LINE_INFO());
+      Assert::AreEqual(y(expected), y(a), L"'%%=' Y mismatch", LINE_INFO());
+      Assert::AreEqual(z(expected), z(a), L"'%%=' Z mismatch", LINE_INFO());
+      Assert::AreEqual(w(expected), w(a), L"'%%=' W mismatch", LINE_INFO());
+    }
+
+    // "&="
+    TEST_METHOD(testCompoundBitwiseAndAssignOperator) {
+      auto a = MaskAll<v_f32_4>();
+      const auto b = MaskX<v_f32_4>();
+      const auto expected = a & b;
+      a &= b;
+
+      Assert::AreEqual(x(expected), x(a), L"'&=' X mismatch", LINE_INFO());
+      Assert::AreEqual(y(expected), y(a), L"'&=' Y mismatch", LINE_INFO());
+      Assert::AreEqual(z(expected), z(a), L"'&=' Z mismatch", LINE_INFO());
+      Assert::AreEqual(w(expected), w(a), L"'&=' W mismatch", LINE_INFO());
+    }
+
+    // "|="
+    TEST_METHOD(testCompoundBitwiseOrAssignOperator) {
+      auto a = MaskX<v_f32_4>();
+      const auto b = MaskY<v_f32_4>();
+      const auto expected = a | b;
+      a |= b;
+
+      Assert::AreEqual(x(expected), x(a), L"'|=' X mismatch", LINE_INFO());
+      Assert::AreEqual(y(expected), y(a), L"'|=' Y mismatch", LINE_INFO());
+      Assert::AreEqual(z(expected), z(a), L"'|=' Z mismatch", LINE_INFO());
+      Assert::AreEqual(w(expected), w(a), L"'|=' W mismatch", LINE_INFO());
+    }
+
+    // "^="
+    TEST_METHOD(testCompoundBitwiseXorAssignOperator) {
+      auto a = MaskAll<v_f32_4>();
+      const auto b = MaskAll<v_f32_4>();
+      const auto expected = a ^ b;
+      a ^= b;
+
+      Assert::AreEqual(x(expected), x(a), L"'^=' X mismatch", LINE_INFO());
+      Assert::AreEqual(y(expected), y(a), L"'^=' Y mismatch", LINE_INFO());
+      Assert::AreEqual(z(expected), z(a), L"'^=' Z mismatch", LINE_INFO());
+      Assert::AreEqual(w(expected), w(a), L"'^=' W mismatch", LINE_INFO());
+    }
+
+    // "<<="
+    TEST_METHOD(testCompoundLeftShiftAssignOperator) {
+      auto a = One<v_f32_4>();
+      const v_f32_4::VectorBoolType b{1, 0, 0, 0};
+      const auto expected = a << b;
+      a <<= b;
+
+      Assert::AreEqual(x(expected), x(a), L"'<<=' X mismatch", LINE_INFO());
+      Assert::AreEqual(y(expected), y(a), L"'<<=' Y mismatch", LINE_INFO());
+      Assert::AreEqual(z(expected), z(a), L"'<<=' Z mismatch", LINE_INFO());
+      Assert::AreEqual(w(expected), w(a), L"'<<=' W mismatch", LINE_INFO());
+    }
+
+    // ">>="
+    TEST_METHOD(testCompoundRightShiftAssignOperator) {
+      auto a = One<v_f32_4>();
+      const v_f32_4::VectorBoolType b{1, 0, 0, 0};
+      const auto expected = a >> b;
+      a >>= b;
+
+      Assert::AreEqual(x(expected), x(a), L"'>>=' X mismatch", LINE_INFO());
+      Assert::AreEqual(y(expected), y(a), L"'>>=' Y mismatch", LINE_INFO());
+      Assert::AreEqual(z(expected), z(a), L"'>>=' Z mismatch", LINE_INFO());
+      Assert::AreEqual(w(expected), w(a), L"'>>=' W mismatch", LINE_INFO());
+    }
   };
 }

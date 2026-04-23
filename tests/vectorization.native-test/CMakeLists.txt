@@ -94,6 +94,7 @@ set(SOURCES
         src/vectorization/v_i32_4/functions_test.cpp
         src/vectorization/v_i32_4/operators_test.cpp
         src/vectorization/v_i32_4/selects_test.cpp
+        src/vectorization/v_i32_4/swizzled_blends_test.cpp
         src/vectorization/v_i32_4/swizzles_test.cpp
         src/vectorization/v_i32_4/type_test.cpp
         src/vectorization/v_ui32_4/accessors_test.cpp
@@ -102,6 +103,7 @@ set(SOURCES
         src/vectorization/v_ui32_4/functions_test.cpp
         src/vectorization/v_ui32_4/operators_test.cpp
         src/vectorization/v_ui32_4/selects_test.cpp
+        src/vectorization/v_ui32_4/swizzled_blends_test.cpp
         src/vectorization/v_ui32_4/swizzles_test.cpp
         src/vectorization/v_ui32_4/type_test.cpp
         src/vectorization/v_ui64_2/accessors_test.cpp
@@ -110,6 +112,7 @@ set(SOURCES
         src/vectorization/v_ui64_2/functions_test.cpp
         src/vectorization/v_ui64_2/operators_test.cpp
         src/vectorization/v_ui64_2/selects_test.cpp
+        src/vectorization/v_ui64_2/swizzled_blends_test.cpp
         src/vectorization/v_ui64_2/swizzles_test.cpp
         src/vectorization/v_ui64_2/type_test.cpp
         src/vectorization/v_f32_4/accessors_test.cpp
@@ -124,6 +127,7 @@ set(SOURCES
         src/vectorization/v_f32_4/swizzles_test.cpp
         src/vectorization/v_f32_4/special_values_test.cpp
         src/vectorization/v_f32_4/type_test.cpp
+        src/vectorization/v_f32_4x4/v_f32_4x4_test.cpp
 )
 
 set(HEADERS

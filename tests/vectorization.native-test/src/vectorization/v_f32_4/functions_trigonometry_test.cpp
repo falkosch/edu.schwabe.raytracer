@@ -122,5 +122,67 @@ namespace vectorization::test {
           allTrue(expNegInf == v_f32_4(Zero<v_f32_4::ValueType>())), L"exp(-inf) should be 0", LINE_INFO()
       );
     }
+
+    TEST_METHOD(computesPow) {
+      const v_f32_4 base{2.0f, 3.0f, 4.0f, 10.0f};
+      const v_f32_4 exponent{3.0f, 2.0f, 0.5f, 1.0f};
+      const auto result = pow(base, exponent);
+      // 2^3=8, 3^2=9, 4^0.5=2, 10^1=10
+      Assert::AreEqual(8.0f, x(result), 0.01f, L"X mismatch", LINE_INFO());
+      Assert::AreEqual(9.0f, y(result), 0.01f, L"Y mismatch", LINE_INFO());
+      Assert::AreEqual(2.0f, z(result), 0.01f, L"Z mismatch", LINE_INFO());
+      Assert::AreEqual(10.0f, w(result), 0.01f, L"W mismatch", LINE_INFO());
+    }
+
+    TEST_METHOD(computesPowWithScalarExponent) {
+      const v_f32_4 base{1.0f, 2.0f, 3.0f, 4.0f};
+      const auto result = pow(base, 2.0f);
+      // 1^2=1, 2^2=4, 3^2=9, 4^2=16
+      Assert::AreEqual(1.0f, x(result), 0.01f, L"X mismatch", LINE_INFO());
+      Assert::AreEqual(4.0f, y(result), 0.01f, L"Y mismatch", LINE_INFO());
+      Assert::AreEqual(9.0f, z(result), 0.01f, L"Z mismatch", LINE_INFO());
+      Assert::AreEqual(16.0f, w(result), 0.01f, L"W mismatch", LINE_INFO());
+    }
+
+    TEST_METHOD(computesLog3) {
+      const v_f32_4 given{std::exp(1.0f), std::exp(2.0f), std::exp(3.0f), 999.0f};
+      const auto result = log3(given);
+      // log3 computes log for X,Y,Z and preserves W from input
+      Assert::AreEqual(1.0f, x(result), 0.001f, L"X mismatch", LINE_INFO());
+      Assert::AreEqual(2.0f, y(result), 0.001f, L"Y mismatch", LINE_INFO());
+      Assert::AreEqual(3.0f, z(result), 0.001f, L"Z mismatch", LINE_INFO());
+      Assert::AreEqual(999.0f, w(result), L"W should be preserved from input", LINE_INFO());
+    }
+
+    TEST_METHOD(computesExp3) {
+      const v_f32_4 given{0.0f, 1.0f, 2.0f, 999.0f};
+      const auto result = exp3(given);
+      // exp3 computes exp for X,Y,Z and preserves W from input
+      Assert::AreEqual(1.0f, x(result), 0.001f, L"X mismatch", LINE_INFO());
+      Assert::AreEqual(std::exp(1.0f), y(result), 0.01f, L"Y mismatch", LINE_INFO());
+      Assert::AreEqual(std::exp(2.0f), z(result), 0.01f, L"Z mismatch", LINE_INFO());
+      Assert::AreEqual(999.0f, w(result), L"W should be preserved from input", LINE_INFO());
+    }
+
+    TEST_METHOD(computesPow3) {
+      const v_f32_4 base{2.0f, 3.0f, 4.0f, 999.0f};
+      const v_f32_4 exponent{3.0f, 2.0f, 0.5f, 999.0f};
+      const auto result = pow3(base, exponent);
+      // pow3 computes pow for X,Y,Z and preserves W from base
+      Assert::AreEqual(8.0f, x(result), 0.01f, L"X mismatch", LINE_INFO());
+      Assert::AreEqual(9.0f, y(result), 0.01f, L"Y mismatch", LINE_INFO());
+      Assert::AreEqual(2.0f, z(result), 0.01f, L"Z mismatch", LINE_INFO());
+      Assert::AreEqual(999.0f, w(result), L"W should be preserved from base", LINE_INFO());
+    }
+
+    TEST_METHOD(computesPow3WithScalarExponent) {
+      const v_f32_4 base{1.0f, 2.0f, 3.0f, 999.0f};
+      const auto result = pow3(base, 2.0f);
+      // pow3 computes pow for X,Y,Z and preserves W from base
+      Assert::AreEqual(1.0f, x(result), 0.01f, L"X mismatch", LINE_INFO());
+      Assert::AreEqual(4.0f, y(result), 0.01f, L"Y mismatch", LINE_INFO());
+      Assert::AreEqual(9.0f, z(result), 0.01f, L"Z mismatch", LINE_INFO());
+      Assert::AreEqual(999.0f, w(result), L"W should be preserved from base", LINE_INFO());
+    }
   };
 }

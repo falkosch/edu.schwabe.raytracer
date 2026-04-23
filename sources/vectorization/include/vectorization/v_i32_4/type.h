@@ -1,6 +1,6 @@
 #pragma once
 
-#include "vectorization/constants.h"
+#include "vectorization/architecture.h"
 
 namespace vectorization {
   struct v_i32_4 {

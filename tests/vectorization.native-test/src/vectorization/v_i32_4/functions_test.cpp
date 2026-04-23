@@ -101,5 +101,66 @@ namespace vectorization::test {
       Assert::IsTrue(allFalse(Zero<v_i32_4>()), L"allFalse should be true", LINE_INFO());
       Assert::IsFalse(allFalse(v_i32_4{0, 1, 0, 0}), L"allFalse should be false", LINE_INFO());
     }
+
+    TEST_METHOD(computesLengthv) {
+      const v_i32_4 given{1, 2, 3, 4};
+      const auto result = lengthv(given);
+      // lengthv sums absolute values of all components: |1|+|2|+|3|+|4| = 10
+      const v_i32_4 expected{10};
+      Assert::IsTrue(allTrue(expected == result), L"lengthv mismatch", LINE_INFO());
+    }
+
+    TEST_METHOD(computesLength) {
+      const v_i32_4 given{1, 2, 3, 4};
+      Assert::AreEqual(Int_32{10}, length(given), L"length mismatch", LINE_INFO());
+    }
+
+    TEST_METHOD(computesLength3v) {
+      const v_i32_4 given{1, 2, 3, 99};
+      const auto result = length3v(given);
+      // length3v sums absolute values of X,Y,Z only: |1|+|2|+|3| = 6
+      const v_i32_4 expected{6};
+      Assert::IsTrue(allTrue(expected == result), L"length3v mismatch", LINE_INFO());
+    }
+
+    TEST_METHOD(computesLength3) {
+      const v_i32_4 given{1, 2, 3, 99};
+      Assert::AreEqual(Int_32{6}, length3(given), L"length3 mismatch", LINE_INFO());
+    }
+
+    TEST_METHOD(computesDistance) {
+      const v_i32_4 a{1, 2, 3, 4};
+      const v_i32_4 b{4, 6, 9, 14};
+      // distance = length(b - a) = |3| + |4| + |6| + |10| = 23
+      Assert::AreEqual(Int_32{23}, distance(a, b), L"distance mismatch", LINE_INFO());
+    }
+
+    TEST_METHOD(computesDistance3) {
+      const v_i32_4 a{1, 2, 3, 99};
+      const v_i32_4 b{4, 6, 9, 99};
+      // distance3 = length3(b - a) = |3| + |4| + |6| = 13
+      Assert::AreEqual(Int_32{13}, distance3(a, b), L"distance3 mismatch", LINE_INFO());
+    }
+
+    TEST_METHOD(checksAnyTrue3) {
+      Assert::IsTrue(anyTrue3(v_i32_4{0, 0, 1, 0}), L"should detect true in Z", LINE_INFO());
+      Assert::IsFalse(anyTrue3(v_i32_4{0, 0, 0, 99}), L"W should be ignored", LINE_INFO());
+      Assert::IsFalse(anyTrue3(Zero<v_i32_4>()), L"all zero should be false", LINE_INFO());
+    }
+
+    TEST_METHOD(checksAnyFalse3) {
+      Assert::IsTrue(anyFalse3(v_i32_4{-1, 0, -1, -1}), L"should detect false in Y", LINE_INFO());
+      Assert::IsFalse(anyFalse3(v_i32_4{-1, -1, -1, 0}), L"W should be ignored", LINE_INFO());
+    }
+
+    TEST_METHOD(checksAllTrue3) {
+      Assert::IsTrue(allTrue3(v_i32_4{-1, -1, -1, 0}), L"W should be ignored", LINE_INFO());
+      Assert::IsFalse(allTrue3(v_i32_4{-1, 0, -1, -1}), L"Y is zero", LINE_INFO());
+    }
+
+    TEST_METHOD(checksAllFalse3) {
+      Assert::IsTrue(allFalse3(v_i32_4{0, 0, 0, 99}), L"W should be ignored", LINE_INFO());
+      Assert::IsFalse(allFalse3(v_i32_4{0, 1, 0, 0}), L"Y is nonzero", LINE_INFO());
+    }
   };
 }
