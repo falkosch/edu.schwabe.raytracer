@@ -143,9 +143,12 @@ namespace raytracerui
   {
     switch (key)
     {
-    case VK_F1: showControls = !showControls; break;
-    case VK_F2: showMetrics = !showMetrics; break;
-    case VK_F3: showConfig = !showConfig; break;
+    case VK_F1: showControls = !showControls;
+      break;
+    case VK_F2: showMetrics = !showMetrics;
+      break;
+    case VK_F3: showConfig = !showConfig;
+      break;
     default: return;
     }
     repaint();
@@ -189,29 +192,23 @@ namespace raytracerui
       ImGui::SetNextWindowSize(ImVec2(280, 0), ImGuiCond_FirstUseEver);
       if (ImGui::Begin("Controls (F1)", &showControls))
       {
-        ImGui::SeparatorText("Camera");
-        ImGui::BulletText("Left Mouse Drag: Rotate");
-        ImGui::BulletText("Ctrl + Left Drag: Pan XY");
-        ImGui::BulletText("Shift + Left Drag: Zoom");
-        ImGui::BulletText("Alt + Left Drag: Scale");
+        ImGui::SeparatorText("Movement");
+        ImGui::BulletText("W/A/S/D: Move forward/left/back/right");
+        ImGui::BulletText("Space/C: Move up/down");
+        ImGui::BulletText("Right Mouse Drag: Rotate camera");
         ImGui::BulletText("R: Reset camera");
 
-        ImGui::SeparatorText("Scene");
-        ImGui::BulletText("Right Mouse Drag: Move light");
-        ImGui::BulletText("Shift + Right Drag: Move object");
+        ImGui::SeparatorText("Interaction Mode (1/2/3)");
+        ImGui::BulletText("1: Camera (right-drag rotates)");
+        ImGui::BulletText("2: Object (right-drag moves,");
+        ImGui::BulletText("   left-drag scales)");
+        ImGui::BulletText("3: Light (right-drag moves)");
 
         ImGui::SeparatorText("Rendering");
         ImGui::BulletText("Enter: Full quality render");
-        ImGui::BulletText("W: Quick save as BMP");
         ImGui::BulletText("Save As: PNG/BMP (in Config)");
         ImGui::BulletText("E: Cycle display mode");
         ImGui::BulletText("T: Toggle fast preview");
-
-        ImGui::SeparatorText("Parameters");
-        ImGui::BulletText("A/S: Sampling factor -/+");
-        ImGui::BulletText("D/F: Trace depth -/+");
-        ImGui::BulletText("G/H: Ray packet size -/+");
-        ImGui::BulletText("J/K: Super-sampling -/+");
         ImGui::BulletText("Q: Cycle culling orientation");
 
         ImGui::SeparatorText("Panels");
@@ -308,10 +305,27 @@ namespace raytracerui
           changed = true;
         }
 
+        auto fov = static_cast<float>(parameters.perspectiveFOV);
+        if (ImGui::SliderFloat("Field of View", &fov, 10.0f, 120.0f, "%.0f deg"))
+        {
+          parameters.perspectiveFOV = fov;
+          parameters.camera->setProjection(
+            parameters.perspectiveFOV, convert<Float2>(screenSize), parameters.perspectiveZPlanes
+          );
+          changed = true;
+        }
+
+        const char* modeItems[] = {"Camera", "Object", "Light"};
+        auto modeIndex = static_cast<int>(interactionMode);
+        if (ImGui::Combo("Interaction Mode", &modeIndex, modeItems, 3))
+        {
+          interactionMode = static_cast<InteractionMode>(modeIndex);
+        }
+
         ImGui::Separator();
         if (ImGui::Button("Reset Camera"))
         {
-          parameters.camera->resetView();
+          parameters.camera->setViewMatrix(initialViewMatrix);
           changed = true;
         }
         ImGui::SameLine();

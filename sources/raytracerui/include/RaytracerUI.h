@@ -32,6 +32,8 @@ namespace raytracerui
 
     std::unique_ptr<const Bitmap> output;
 
+    Float44 initialViewMatrix;
+
     Raytracer* raytracer;
 
     virtual void reshape(const Int2& newSize);

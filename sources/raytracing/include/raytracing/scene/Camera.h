@@ -2,10 +2,12 @@
 
 #include "../geometry/TransformInfo.h"
 
-namespace raytracer {
+namespace raytracer
+{
   using namespace vectorization;
 
-  class Camera {
+  class Camera
+  {
     Float44 projectionMatrix, viewMatrix;
 
     Float4 worldPosition;
@@ -23,15 +25,19 @@ namespace raytracer {
 
     virtual ~Camera();
 
-    void setProjection(const Float &fov, const Float2 &screenSize, const Float2 &projectionPlanes);
+    void setProjection(const Float& fov, const Float2& screenSize, const Float2& projectionPlanes);
 
     void resetView();
 
-    void rotate(const Float3 &rotation);
+    const Float44& getViewMatrix() const;
 
-    void translate(const Float3 &translation);
+    void setViewMatrix(const Float44& matrix);
 
-    void scale(const Float3 &scale);
+    void rotate(const Float3& rotation);
+
+    void translate(const Float3& translation);
+
+    void scale(const Float3& scale);
 
     const Float4 getWorldPosition() const;
 

@@ -38,6 +38,7 @@ namespace raytracerui
 
   WindowsRaytracerUI::~WindowsRaytracerUI()
   {
+    if (movementTimerActive) KillTimer(hWnd, MOVEMENT_TIMER_ID);
     createUIs.erase(this->hWnd);
     DestroyWindow(hWnd);
   }
@@ -123,43 +124,17 @@ namespace raytracerui
       std::cout << "Culling orientation: " << parameters.cullingOrientation << std::endl;
       break;
 
-    case 'W':
-      std::cout << "Saving ray-traced image ...";
-      output->saveAsBMP("ray-traced.bmp");
-      std::cout << " ray-traced.bmp" << std::endl;
-      break;
-
     case 'E':
       showMapIndex = (showMapIndex + 1) % 3;
       break;
 
     case 'R':
-      parameters.camera->resetView();
+      parameters.camera->setViewMatrix(initialViewMatrix);
       break;
 
     case 'T':
       disableFastPreview = !disableFastPreview;
       std::cout << "Fast preview disabled: " << disableFastPreview << std::endl;
-      break;
-
-    case 'A':
-      parameters.samplingFactor *= 0.5f;
-      std::cout << "Sampling-factor: " << parameters.samplingFactor << std::endl;
-      break;
-
-    case 'S':
-      parameters.samplingFactor += 1.0f;
-      std::cout << "Sampling-factor: " << parameters.samplingFactor << std::endl;
-      break;
-
-    case 'D':
-      parameters.maxTraceDepth -= select(parameters.maxTraceDepth > ASizeT{0}, ASizeT{1}, ASizeT{0});
-      std::cout << "Max trace-depth: " << parameters.maxTraceDepth << std::endl;
-      break;
-
-    case 'F':
-      parameters.maxTraceDepth += ASizeT{1};
-      std::cout << "Max trace-depth: " << parameters.maxTraceDepth << std::endl;
       break;
 
     case 'G':
@@ -182,17 +157,20 @@ namespace raytracerui
       std::cout << "Super-sampling factor: " << parameters.superSamplingFactor << std::endl;
       break;
 
-    case VK_SPACE:
-      break;
+    case '1':
+      interactionMode = InteractionMode::Camera;
+      return;
+
+    case '2':
+      interactionMode = InteractionMode::Object;
+      return;
+
+    case '3':
+      interactionMode = InteractionMode::Light;
+      return;
 
     case VK_RETURN:
       triggerRaytracing(false);
-      return;
-
-    case VK_F1:
-    case VK_F2:
-    case VK_F3:
-      onTogglePanel(wParam);
       return;
 
     default:
@@ -202,45 +180,54 @@ namespace raytracerui
     triggerRaytracing(true);
   }
 
+  void WindowsRaytracerUI::updateMovement()
+  {
+    auto move = Zero<Float3>();
+    if (keyDown['W']) move = move + Float3(0, 0, CAMERA_STEP);
+    if (keyDown['S']) move = move + Float3(0, 0, -CAMERA_STEP);
+    if (keyDown['A']) move = move + Float3(CAMERA_STEP, 0, 0);
+    if (keyDown['D']) move = move + Float3(-CAMERA_STEP, 0, 0);
+    if (keyDown[VK_SPACE]) move = move + Float3(0, -CAMERA_STEP, 0);
+    if (keyDown['C']) move = move + Float3(0, CAMERA_STEP, 0);
+
+    if (!allTrue3(move == Zero<Float3>()))
+    {
+      parameters.camera->translate(move);
+      triggerRaytracing(true);
+    }
+    else
+    {
+      KillTimer(hWnd, MOVEMENT_TIMER_ID);
+      movementTimerActive = false;
+    }
+  }
+
   void WindowsRaytracerUI::mousePressed(const MouseButtons button, const ButtonStates state, const Int2& position)
   {
     previousMousePosition = position;
 
+    if (state == ButtonStates::Up)
+    {
+      activeDrag = DragTypes::None;
+      return;
+    }
+
     switch (button)
     {
     case MouseButtons::Left:
-      if (state == ButtonStates::Down)
-      {
-        if (GetKeyState(VK_CONTROL) & 0x8000)
-          activeDrag = DragTypes::ShiftXY;
-        else if (GetKeyState(VK_SHIFT) & 0x8000)
-          activeDrag = DragTypes::ShiftZ;
-        else if (GetKeyState(VK_MENU) & 0x8000) // ALT key
-          activeDrag = DragTypes::Scale;
-        else
-          activeDrag = DragTypes::Rotate;
-      }
-      else if (state == ButtonStates::Up)
-      {
-        activeDrag = DragTypes::None;
-      }
+      if (interactionMode == InteractionMode::Object)
+        activeDrag = DragTypes::Scale;
       break;
 
     case MouseButtons::Right:
-      if (state == ButtonStates::Down)
+      switch (interactionMode)
       {
-        if (GetKeyState(VK_SHIFT) & 0x8000)
-        {
-          activeDrag = DragTypes::Object;
-        }
-        else
-        {
-          activeDrag = DragTypes::Light;
-        }
-      }
-      else if (state == ButtonStates::Up)
-      {
-        activeDrag = DragTypes::None;
+      case InteractionMode::Camera: activeDrag = DragTypes::Rotate;
+        break;
+      case InteractionMode::Object: activeDrag = DragTypes::Object;
+        break;
+      case InteractionMode::Light: activeDrag = DragTypes::Light;
+        break;
       }
       break;
 
@@ -261,20 +248,15 @@ namespace raytracerui
       triggerRaytracing(true);
       break;
 
-    case DragTypes::ShiftXY:
-      parameters.camera->translate(Float3(-x(delta), y(delta)) * MOUSE_SENSITIVITY);
-      triggerRaytracing(true);
-      break;
-
-    case DragTypes::ShiftZ:
-      parameters.camera->translate(Float3(0.0f, 0.0f, x(delta) - y(delta)) * MOUSE_SENSITIVITY);
-      triggerRaytracing(true);
-      break;
-
     case DragTypes::Scale:
-      parameters.camera->scale(Float3((x(delta) + y(delta)) * MOUSE_SENSITIVITY) + One<Float3>());
-      triggerRaytracing(true);
-      break;
+      {
+        const auto scene = dynamic_cast<Scene*const>(parameters.sceneShader);
+        const auto& sceneObjects = scene->getSceneObjects();
+        const auto& lastSceneObject = sceneObjects.back();
+        lastSceneObject->scale(Float3((x(delta) + y(delta)) * MOUSE_SENSITIVITY) + One<Float3>());
+        triggerRaytracing(true);
+        break;
+      }
 
     case DragTypes::Light:
       {
@@ -348,8 +330,27 @@ namespace raytracerui
       mouseDragged(getXY(lParam));
       break;
 
+    case WM_KEYDOWN:
+      keyDown[wParam & 0xFF] = true;
+      if ((wParam == VK_F1 || wParam == VK_F2 || wParam == VK_F3) && !(lParam & 0x40000000))
+      {
+        onTogglePanel(wParam);
+      }
+      else if (!movementTimerActive && (wParam == 'W' || wParam == 'A' || wParam == 'S' || wParam == 'D'
+        || wParam == VK_SPACE || wParam == 'C'))
+      {
+        SetTimer(hWnd, MOVEMENT_TIMER_ID, 16, nullptr);
+        movementTimerActive = true;
+      }
+      break;
+
     case WM_KEYUP:
+      keyDown[wParam & 0xFF] = false;
       keyPressed(wParam);
+      break;
+
+    case WM_TIMER:
+      if (wParam == MOVEMENT_TIMER_ID) updateMovement();
       break;
 
     case WM_RENDER_COMPLETE:

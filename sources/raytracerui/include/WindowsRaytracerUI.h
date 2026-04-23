@@ -12,17 +12,27 @@ namespace raytracerui
 
   enum class ButtonStates : ASizeT { Down, Up };
 
-  enum class DragTypes : ASizeT { None, Rotate, ShiftXY, ShiftZ, Scale, Light, Object };
+  enum class DragTypes : ASizeT { None, Rotate, Scale, Light, Object };
+
+  enum class InteractionMode : ASizeT { Camera, Object, Light };
 
   class WindowsRaytracerUI : public RaytracerUI, public MessageLoopBasedUI
   {
     static const Float MOUSE_SENSITIVITY;
+
+    static constexpr Float CAMERA_STEP = 0.05f;
+
+    static constexpr UINT_PTR MOVEMENT_TIMER_ID = 1;
 
     static WNDCLASSEX windowClass;
 
     Int2 previousMousePosition;
 
     DragTypes activeDrag;
+
+    bool movementTimerActive{false};
+
+    bool keyDown[256]{};
 
     LRESULT WndProc(UINT message, WPARAM wParam, LPARAM lParam);
 
@@ -33,6 +43,8 @@ namespace raytracerui
     void mousePressed(MouseButtons button, ButtonStates state, const Int2& position);
 
     void mouseDragged(const Int2& position);
+
+    void updateMovement();
 
     void InitWindow();
 
@@ -46,6 +58,8 @@ namespace raytracerui
     static constexpr UINT WM_RENDER_COMPLETE = WM_APP + 1;
 
     HWND hWnd;
+
+    InteractionMode interactionMode{InteractionMode::Camera};
 
     void triggerRaytracing(bool fastPreview) override;
 

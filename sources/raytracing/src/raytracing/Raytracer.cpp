@@ -83,6 +83,8 @@ namespace raytracer
             const auto timeFrequency = static_cast<Int_64>(frequency.QuadPart);
             running.durationSeconds = convert<Float_64>(timeDuration) / convert<Float_64>(timeFrequency);
             std::cout << "Duration: " << running.durationSeconds << "s" << std::endl;
+
+            running.observer->notifyUpdate(running);
         }
     }
 
@@ -242,9 +244,6 @@ namespace raytracer
         running.state = (running.runId == runId.load());
         running.timingMap->normalizeEachChannel();
         running.depthMap->normalizeEachChannel();
-
-        // notify completion
-        running.observer->notifyUpdate(running);
     }
 
     Float4 schlickFresnel(const bool enteringLessDense, const Float4& negNdotI, const Float4& eta)

@@ -7,7 +7,8 @@ namespace raytracerui
 {
   RaytracerUI::RaytracerUI(Raytracer& raytracerIn, const RaytraceParameters& parametersIn, ASizeT& fastPreviewSizeIn)
     : parameters(parametersIn), screenSize(One<Int2>()), fastPreviewSize(fastPreviewSizeIn), showMapIndex(),
-      disableFastPreview(), frameCount(), outputHDR(), output(), raytracer(&raytracerIn)
+      disableFastPreview(), frameCount(), initialViewMatrix(parametersIn.camera->getViewMatrix()),
+      outputHDR(), output(), raytracer(&raytracerIn)
   {
     this->parameters.observer = this;
   }
