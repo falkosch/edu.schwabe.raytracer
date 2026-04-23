@@ -14,13 +14,13 @@ namespace vectorization
     struct Alignments
     {
         static constexpr std::size_t ARCH = ARCH_ALIGNMENT;
-    static constexpr std::size_t X86 = X86_ALIGNMENT;
-    static constexpr std::size_t MM = MM_ALIGNMENT;
-    static constexpr std::size_t XMM = XMM_ALIGNMENT;
-    static constexpr std::size_t YMM = YMM_ALIGNMENT;
-    static constexpr std::size_t ZMM = ZMM_ALIGNMENT;
-    static constexpr std::size_t Best = BEST_ALIGNMENT;
-  };
+        static constexpr std::size_t X86 = X86_ALIGNMENT;
+        static constexpr std::size_t MM = MM_ALIGNMENT;
+        static constexpr std::size_t XMM = XMM_ALIGNMENT;
+        static constexpr std::size_t YMM = YMM_ALIGNMENT;
+        static constexpr std::size_t ZMM = ZMM_ALIGNMENT;
+        static constexpr std::size_t Best = BEST_ALIGNMENT;
+    };
 
     void free(void*& data) noexcept;
 
@@ -38,74 +38,74 @@ namespace vectorization
 
     void* alloc(std::size_t size, std::size_t alignment, const std::nothrow_t& nothrow) noexcept;
 
-  template <class T>
-  struct AlignedAllocator
-  {
-      // typedefs required by xmemory
-    using value_type = T;
-      using pointer = T*;
-      using size_type = std::size_t;
-    using is_always_equal = std::true_type;
-
-    AlignedAllocator<T>() noexcept = default;
-
-    template <class U>
-    AlignedAllocator<T>(const AlignedAllocator<U>& /*unused*/) noexcept
+    template <class T>
+    struct AlignedAllocator
     {
-    }
+        // typedefs required by xmemory
+        using value_type = T;
+        using pointer = T*;
+        using size_type = std::size_t;
+        using is_always_equal = std::true_type;
 
-    template <class U>
-    bool operator==(const AlignedAllocator<U>& /*unused*/) const
-    {
-        return true;
-    }
+        AlignedAllocator<T>() noexcept = default;
 
-    template <class U>
-    bool operator!=(const AlignedAllocator<U>& /*unused*/) const
-    {
-        return false;
-    }
+        template <class U>
+        AlignedAllocator<T>(const AlignedAllocator<U>& /*unused*/) noexcept
+        {
+        }
 
-      pointer allocate(const size_type arrayLength) const
-      {
-          if (arrayLength == 0)
-          {
-              return nullptr;
-      }
-      constexpr auto maxLength = static_cast<size_type>(-1) / sizeof(T);
-          if (arrayLength > maxLength)
-          {
-              throw std::bad_array_new_length();
-      }
+        template <class U>
+        bool operator==(const AlignedAllocator<U>& /*unused*/) const
+        {
+            return true;
+        }
 
-          void* allocated = vectorization::alloc(sizeof(T) * arrayLength, __alignof(T));
+        template <class U>
+        bool operator!=(const AlignedAllocator<U>& /*unused*/) const
+        {
+            return false;
+        }
 
-          if (allocated == nullptr)
-      {
-        throw std::bad_alloc();
-      }
+        pointer allocate(const size_type arrayLength) const
+        {
+            if (arrayLength == 0)
+            {
+                return nullptr;
+            }
+            constexpr auto maxLength = static_cast<size_type>(-1) / sizeof(T);
+            if (arrayLength > maxLength)
+            {
+                throw std::bad_array_new_length();
+            }
 
-      return static_cast<pointer>(allocated);
-    }
+            void* allocated = vectorization::alloc(sizeof(T) * arrayLength, __alignof(T));
 
-      void deallocate(pointer allocated, const size_type /*unused*/) const
-      {
-          if (allocated != nullptr)
-          {
-              void* vp = reinterpret_cast<void*>(allocated);
-              vectorization::free(vp);
-      }
-    }
+            if (allocated == nullptr)
+            {
+                throw std::bad_alloc();
+            }
 
-    // templated alloc
-      static pointer allocElements(const size_type arrayLength, const size_type alignment)
-      {
-          return static_cast<pointer const>(vectorization::alloc(sizeof(T) * arrayLength, alignment));
-    }
+            return static_cast<pointer>(allocated);
+        }
 
-      static pointer allocElements(const size_type arrayLength)
-      {
-          return allocElements(arrayLength, __alignof(T));
-    }
-  };
+        void deallocate(pointer allocated, const size_type /*unused*/) const
+        {
+            if (allocated != nullptr)
+            {
+                void* vp = reinterpret_cast<void*>(allocated);
+                vectorization::free(vp);
+            }
+        }
+
+        // templated alloc
+        static pointer allocElements(const size_type arrayLength, const size_type alignment)
+        {
+            return static_cast<pointer const>(vectorization::alloc(sizeof(T) * arrayLength, alignment));
+        }
+
+        static pointer allocElements(const size_type arrayLength)
+        {
+            return allocElements(arrayLength, __alignof(T));
+        }
+    };
 }
