@@ -14,10 +14,10 @@ namespace vectorization {
   template <ASizeT Index>
   void aos(v_f32_4x4 &m, const v_f32_4x4::AOSVectorType &v) noexcept {
     static_assert(Index < v_f32_4x4::SIZE_AOS, "AOS index is out of range");
-    component<Index>(m.soaX, component<VectorIndices::X>(v));
-    component<Index>(m.soaY, component<VectorIndices::Y>(v));
-    component<Index>(m.soaZ, component<VectorIndices::Z>(v));
-    component<Index>(m.soaW, component<VectorIndices::W>(v));
+    m.soaX = replaceComponent<Index>(m.soaX, component<VectorIndices::X>(v));
+    m.soaY = replaceComponent<Index>(m.soaY, component<VectorIndices::Y>(v));
+    m.soaZ = replaceComponent<Index>(m.soaZ, component<VectorIndices::Z>(v));
+    m.soaW = replaceComponent<Index>(m.soaW, component<VectorIndices::W>(v));
   }
 
   template <ASizeT Index>
