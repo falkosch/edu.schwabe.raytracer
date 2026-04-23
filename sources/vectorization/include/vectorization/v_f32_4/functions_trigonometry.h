@@ -13,4 +13,12 @@ namespace vectorization {
   v_f32_4 pow(const v_f32_4 &v, v_f32_4::ValueType exponent) noexcept;
   v_f32_4 pow3(const v_f32_4 &v, const v_f32_4 &exponent) noexcept;
   v_f32_4 pow3(const v_f32_4 &v, v_f32_4::ValueType exponent) noexcept;
+
+  v_f32_4 sin(const v_f32_4 &v) noexcept;
+  v_f32_4 sin3(const v_f32_4 &v) noexcept;
+
+  v_f32_4 cos(const v_f32_4 &v) noexcept;
+  v_f32_4 cos3(const v_f32_4 &v) noexcept;
+
+  void sincos(const v_f32_4 &v, v_f32_4 &outSin, v_f32_4 &outCos) noexcept;
 }

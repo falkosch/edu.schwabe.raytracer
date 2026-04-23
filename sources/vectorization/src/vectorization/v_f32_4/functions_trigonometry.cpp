@@ -3,9 +3,11 @@
 #include "vectorization/v_f32_4/accessors.h"
 #include "vectorization/v_f32_4/blends.h"
 
+#include "vectorization/functions/cos.h"
 #include "vectorization/functions/exp.h"
 #include "vectorization/functions/log.h"
 #include "vectorization/functions/pow.h"
+#include "vectorization/functions/sin.h"
 
 #define USE_THIRD_PARTY 1
 
@@ -84,5 +86,70 @@ namespace vectorization {
 
   v_f32_4 pow3(const v_f32_4 &v, const v_f32_4::ValueType exponent) noexcept {
     return v_f32_4(pow(x(v), exponent), pow(y(v), exponent), pow(z(v), exponent), w(v));
+  }
+
+  v_f32_4 sin(const v_f32_4 &v) noexcept {
+#ifdef USE_THIRD_PARTY
+
+    return sin_ps(v.components);
+
+#else
+
+    return v_f32_4(sin(x(v)), sin(y(v)), sin(z(v)), sin(w(v)));
+
+#endif
+  }
+
+  v_f32_4 sin3(const v_f32_4 &v) noexcept {
+#ifdef USE_THIRD_PARTY
+
+    return blend<false, false, false, true>(sin_ps(v.components), v.components);
+
+#else
+
+    return v_f32_4(sin(x(v)), sin(y(v)), sin(z(v)), w(v));
+
+#endif
+  }
+
+  v_f32_4 cos(const v_f32_4 &v) noexcept {
+#ifdef USE_THIRD_PARTY
+
+    return cos_ps(v.components);
+
+#else
+
+    return v_f32_4(cos(x(v)), cos(y(v)), cos(z(v)), cos(w(v)));
+
+#endif
+  }
+
+  v_f32_4 cos3(const v_f32_4 &v) noexcept {
+#ifdef USE_THIRD_PARTY
+
+    return blend<false, false, false, true>(cos_ps(v.components), v.components);
+
+#else
+
+    return v_f32_4(cos(x(v)), cos(y(v)), cos(z(v)), w(v));
+
+#endif
+  }
+
+  void sincos(const v_f32_4 &v, v_f32_4 &outSin, v_f32_4 &outCos) noexcept {
+#ifdef USE_THIRD_PARTY
+
+    v4sf s;
+    v4sf c;
+    sincos_ps(v.components, &s, &c);
+    outSin = s;
+    outCos = c;
+
+#else
+
+    outSin = v_f32_4(sin(x(v)), sin(y(v)), sin(z(v)), sin(w(v)));
+    outCos = v_f32_4(cos(x(v)), cos(y(v)), cos(z(v)), cos(w(v)));
+
+#endif
   }
 }
