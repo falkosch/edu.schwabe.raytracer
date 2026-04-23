@@ -1,6 +1,10 @@
 #include "OpenGLWindowsRaytracerUI.h"
 #include "stdafx.h"
 
+#include <commdlg.h>
+
+#include <iostream>
+
 #include <imgui.h>
 #include <imgui_impl_opengl2.h>
 #include <imgui_impl_win32.h>
@@ -185,7 +189,8 @@ namespace raytracerui
 
         ImGui::SeparatorText("Rendering");
         ImGui::BulletText("Enter: Full quality render");
-        ImGui::BulletText("W: Save image as BMP");
+        ImGui::BulletText("W: Quick save as BMP");
+        ImGui::BulletText("Save As: PNG/BMP (in Config)");
         ImGui::BulletText("E: Cycle display mode");
         ImGui::BulletText("T: Toggle fast preview");
 
@@ -300,6 +305,31 @@ namespace raytracerui
         if (ImGui::Button("Full Render"))
         {
           triggerRaytracing(false);
+        }
+
+        if (output && ImGui::Button("Save As..."))
+        {
+          char filename[MAX_PATH] = "ray-traced.png";
+          OPENFILENAMEA ofn{};
+          ofn.lStructSize = sizeof(ofn);
+          ofn.hwndOwner = hWnd;
+          ofn.lpstrFilter = "PNG Files (*.png)\0*.png\0BMP Files (*.bmp)\0*.bmp\0";
+          ofn.lpstrFile = filename;
+          ofn.nMaxFile = MAX_PATH;
+          ofn.lpstrInitialDir = "data";
+          ofn.Flags = OFN_OVERWRITEPROMPT;
+          ofn.lpstrDefExt = "png";
+
+          if (GetSaveFileNameA(&ofn))
+          {
+            std::string path(filename);
+            std::cout << "Saving image ... ";
+            if (path.ends_with(".png"))
+              output->saveAsPNG(path);
+            else
+              output->saveAsBMP(path);
+            std::cout << path << std::endl;
+          }
         }
 
         if (changed)

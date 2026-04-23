@@ -12,6 +12,7 @@ set(SOURCES
         src/raytracing/RaytracerPackets.cpp
         src/raytracing/common/Bitmap.cpp
         src/raytracing/common/HDRImage.cpp
+        src/raytracing/common/PNGWriter.cpp
         src/raytracing/common/RefractionIndices.cpp
         src/raytracing/common/StatisticsCookie.cpp
         src/raytracing/common/Tools.cpp
@@ -79,6 +80,7 @@ set(HEADERS
         include/raytracing/RaytracerPackets.h
         include/raytracing/common/Bitmap.h
         include/raytracing/common/HDRImage.h
+        include/raytracing/common/PNGWriter.h
         include/raytracing/common/Image.h
         include/raytracing/common/RefractionIndices.h
         include/raytracing/common/StatisticsCookie.h
@@ -152,7 +154,7 @@ source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} PREFIX "Files" REGULAR_EXPRESSION 
 
 add_dependencies(${PROJECT_NAME} vectorization primitives)
 
-target_link_libraries(${PROJECT_NAME} PUBLIC vectorization primitives)
+target_link_libraries(${PROJECT_NAME} PUBLIC vectorization primitives ole32 windowscodecs)
 
 target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
 

@@ -48,6 +48,7 @@ target_link_libraries(${PROJECT_NAME}
         gdi32
         opengl32
         glu32
+        comdlg32
         GLEW::GLEW
         imgui::imgui
 )

@@ -1,4 +1,5 @@
 #include "raytracing/common/Bitmap.h"
+#include "raytracing/common/PNGWriter.h"
 #include "../../stdafx.h"
 
 #include <array>
@@ -8,80 +9,91 @@
 #include <sstream>
 #include <vector>
 
-namespace raytracer {
-  Bitmap::Bitmap() : resolution(One<ASizeT>()), stride(), data() {
+namespace raytracer
+{
+  Bitmap::Bitmap() : resolution(One<ASizeT>()), stride(), data()
+  {
     init();
   }
 
-  Bitmap::Bitmap(const Size2 &resolution) : resolution(resolution), stride(), data() {
+  Bitmap::Bitmap(const Size2& resolution) : resolution(resolution), stride(), data()
+  {
     init();
   }
 
   Bitmap::~Bitmap() = default;
 
-  Bitmap::VectorType::ValueType &Bitmap::operator[](const ASizeT index) {
+  Bitmap::VectorType::ValueType& Bitmap::operator[](const ASizeT index)
+  {
     return data[index];
   }
 
-  const Bitmap::VectorType::ValueType &Bitmap::operator[](const ASizeT index) const {
+  const Bitmap::VectorType::ValueType& Bitmap::operator[](const ASizeT index) const
+  {
     return data[index];
   }
 
-  const Size2 Bitmap::getResolution() const {
+  const Size2 Bitmap::getResolution() const
+  {
     return resolution;
   }
 
   ASizeT Bitmap::getStride() const
   {
-      return stride;
+    return stride;
   }
 
-  const BITMAPINFO Bitmap::getBITMAPINFO() const {
+  const BITMAPINFO Bitmap::getBITMAPINFO() const
+  {
     const BITMAPINFO sysBitmapInfo{
-        {
-            // bmiHeader
-            DWORD{sizeof(BITMAPINFOHEADER)},                                       // biSize
-            static_cast<LONG>(x(this->resolution)),                                // biWidth
-            static_cast<LONG>(y(this->resolution)),                                // biHeight
-            WORD{1},                                                               // biPlanes
-            WORD{(VectorType::SIZE * sizeof(VectorType::ValueType)) << ASizeT{3}}, // biBitCount
-            DWORD{BI_RGB},                                                         // biCompression
-            static_cast<DWORD>(y(this->resolution) * this->stride),                // biSizeImage
-            LONG{0x0ec4},                                                          // biXPelsPerMeter
-            LONG{0x0ec4},                                                          // biYPelsPerMeter
-            DWORD{0},                                                              // biClrUsed
-            DWORD{0}                                                               // biClrImportant
-        },
-        {
-            // bmiColors
-            {0, 0, 0, 0} // [0]
-        }
+      {
+        // bmiHeader
+        DWORD{sizeof(BITMAPINFOHEADER)}, // biSize
+        static_cast<LONG>(x(this->resolution)), // biWidth
+        static_cast<LONG>(y(this->resolution)), // biHeight
+        WORD{1}, // biPlanes
+        WORD{(VectorType::SIZE * sizeof(VectorType::ValueType)) << ASizeT{3}}, // biBitCount
+        DWORD{BI_RGB}, // biCompression
+        static_cast<DWORD>(y(this->resolution) * this->stride), // biSizeImage
+        LONG{0x0ec4}, // biXPelsPerMeter
+        LONG{0x0ec4}, // biYPelsPerMeter
+        DWORD{0}, // biClrUsed
+        DWORD{0} // biClrImportant
+      },
+      {
+        // bmiColors
+        {0, 0, 0, 0} // [0]
+      }
     };
     return sysBitmapInfo;
   }
 
-  const BITMAP Bitmap::getBITMAP() const {
+  const BITMAP Bitmap::getBITMAP() const
+  {
     const auto [bmiHeader, bmiColors] = this->getBITMAPINFO();
     const BITMAP sysBitmap{
-        LONG{0},                              // bmType
-        bmiHeader.biWidth,                    // bmWidth
-        bmiHeader.biHeight,                   // bmHeight
-        static_cast<LONG>(this->stride),      // bmWidthBytes
-        bmiHeader.biPlanes,                   // bmPlanes
-        bmiHeader.biBitCount,                 // bmBitsPixel
-        static_cast<LPVOID>(this->data.get()) // bmBits
+      LONG{0}, // bmType
+      bmiHeader.biWidth, // bmWidth
+      bmiHeader.biHeight, // bmHeight
+      static_cast<LONG>(this->stride), // bmWidthBytes
+      bmiHeader.biPlanes, // bmPlanes
+      bmiHeader.biBitCount, // bmBitsPixel
+      static_cast<LPVOID>(this->data.get()) // bmBits
     };
     return sysBitmap;
   }
 
-  void Bitmap::init() {
+  void Bitmap::init()
+  {
     this->stride = bitPad(x(resolution) * VectorType::SIZE, VectorType::SIZE);
     this->data.reset(new VectorType::ValueType[this->stride * y(resolution)]);
   }
 
-  std::unique_ptr<Bitmap> Bitmap::loadPPM(const std::string &filename) {
+  std::unique_ptr<Bitmap> Bitmap::loadPPM(const std::string& filename)
+  {
     std::ifstream file(filename.c_str(), std::ios::binary);
-    if (!file.is_open()) {
+    if (!file.is_open())
+    {
       std::cerr << "opening file " << filename << " failed" << std::endl;
       return nullptr;
     }
@@ -90,16 +102,19 @@ namespace raytracer {
     // correct magic cookie for a raw PPM file.
     std::string magic;
     getline(file, magic);
-    if (magic.substr(Zero<ASizeT>(), Two<ASizeT>()) != "P6") {
+    if (magic.substr(Zero<ASizeT>(), Two<ASizeT>()) != "P6")
+    {
       std::cerr << "File " << filename << " is not a raw PPM file" << std::endl;
       return nullptr;
     }
 
     // grab the three elements in the header (width, height, maxval).
     std::string dimensions;
-    do {
+    do
+    {
       getline(file, dimensions);
-    } while (dimensions[Zero<ASizeT>()] == '#');
+    }
+    while (dimensions[Zero<ASizeT>()] == '#');
 
     Size2 resolution;
     std::stringstream(dimensions) >> resolution[VectorIndices::X] >> resolution[VectorIndices::Y];
@@ -126,20 +141,22 @@ namespace raytracer {
     const int heighti = convert<int>(y(resolution));
 
 #pragma omp parallel for
-    for (int i = Zero<int>(); i < heighti; ++i) {
+    for (int i = Zero<int>(); i < heighti; ++i)
+    {
       ASizeT scanline = i * loaded->stride;
       ASizeT scanlineRaw = rawStride * (y(resolution) - i - One<ASizeT>());
 
-      for (ASizeT j = VectorIndices::X; j < rawStride; j += VectorType::SIZE) {
-        const char *const rawData = &raw[scanlineRaw + j];
+      for (ASizeT j = VectorIndices::X; j < rawStride; j += VectorType::SIZE)
+      {
+        const char* const rawData = &raw[scanlineRaw + j];
         const auto texel = (Int4(
-                                static_cast<BitmapValueType>(*rawData), static_cast<BitmapValueType>(*(rawData + 1)),
-                                static_cast<BitmapValueType>(*(rawData + 2))
-                            )
-                            + scaleOffset)
-                           * scale;
+              static_cast<BitmapValueType>(*rawData), static_cast<BitmapValueType>(*(rawData + 1)),
+              static_cast<BitmapValueType>(*(rawData + 2))
+            )
+            + scaleOffset)
+          * scale;
 
-        BitmapValueType *dataLoaded = &(loaded->data[scanline + j]);
+        BitmapValueType* dataLoaded = &(loaded->data[scanline + j]);
         *(dataLoaded++) = static_cast<BitmapValueType>(x(texel));
         *(dataLoaded++) = static_cast<BitmapValueType>(y(texel));
         *(dataLoaded) = static_cast<BitmapValueType>(z(texel));
@@ -151,7 +168,8 @@ namespace raytracer {
   }
 
   template <typename T, ASizeT ByteSize>
-  void writeObject(std::ostream &file, const T &object) {
+  void writeObject(std::ostream& file, const T& object)
+  {
     constexpr auto CharCount = ByteSize / sizeof(std::ofstream::char_type);
     std::array<std::ofstream::char_type, CharCount> buffer{};
     std::memcpy(buffer.data(), &object, ByteSize);
@@ -159,7 +177,8 @@ namespace raytracer {
   }
 
   template <typename T>
-  void writeVariadicObject(std::ostream &file, const T &object, const ASizeT byteSize) {
+  void writeVariadicObject(std::ostream& file, const T& object, const ASizeT byteSize)
+  {
     const auto charCount = byteSize / sizeof(std::ofstream::char_type);
     std::vector<std::ofstream::char_type> buffer(charCount);
     std::memcpy(buffer.data(), &object, byteSize);
@@ -167,16 +186,27 @@ namespace raytracer {
   }
 
   template <typename T>
-  void writeVariadicData(std::ostream &file, const T *const data, const ASizeT byteSize) {
+  void writeVariadicData(std::ostream& file, const T* const data, const ASizeT byteSize)
+  {
     const auto charCount = byteSize / sizeof(std::ofstream::char_type);
     std::vector<std::ofstream::char_type> buffer(charCount);
     std::memcpy(buffer.data(), data, byteSize);
     file.write(buffer.data(), charCount);
   }
 
-  void Bitmap::saveAsBMP(const std::string &filename) const {
+  void Bitmap::saveAsPNG(const std::string& filename) const
+  {
+    savePNG(
+      filename, static_cast<int>(x(resolution)), static_cast<int>(y(resolution)),
+      static_cast<int>(stride), data.get()
+    );
+  }
+
+  void Bitmap::saveAsBMP(const std::string& filename) const
+  {
     std::ofstream file(filename.c_str(), std::ios::binary | std::ios::trunc);
-    if (!file.is_open()) {
+    if (!file.is_open())
+    {
       std::cerr << "opening file " << filename << " failed" << std::endl;
       return;
     }

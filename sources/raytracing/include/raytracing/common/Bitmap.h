@@ -6,14 +6,17 @@
 #include <memory>
 #include <windows.h>
 
-namespace raytracer {
+namespace raytracer
+{
   using namespace vectorization;
 
   // Bitmap with 8-bit-width red, green and blue color-channels but no alpha-channel.
   // The width of each scanline is padded to be a multiple of 4 bytes.
-  class Bitmap final {
+  class Bitmap final
+  {
   public:
-    typedef struct _BitmapVectorType {
+    typedef struct _BitmapVectorType
+    {
       static const ASizeT SIZE = VectorSizes::Z;
       typedef UInt_8 ValueType;
       typedef UInt_8 BoolType;
@@ -31,10 +34,11 @@ namespace raytracer {
   public:
     Bitmap();
 
-    explicit Bitmap(const Size2 &resolution);
+    explicit Bitmap(const Size2& resolution);
 
     template <typename ImageVectorType>
-    explicit Bitmap(const Image<ImageVectorType> &image) : resolution(image.getResolution()), stride(), data() {
+    explicit Bitmap(const Image<ImageVectorType>& image) : resolution(image.getResolution()), stride(), data()
+    {
       typedef VectorType::ValueType BitmapValueType;
       typedef std::numeric_limits<BitmapValueType> BitmapValueLimits;
 
@@ -46,28 +50,30 @@ namespace raytracer {
       const int heighti = convert<int>(y(resolution));
 
 #pragma omp parallel for
-      for (int yi = Zero<int>(); yi < heighti; ++yi) {
+      for (int yi = Zero<int>(); yi < heighti; ++yi)
+      {
         const ASizeT sy = convert<ASizeT>(yi);
         const ASizeT rx = x(resolution);
         const ASizeT scanlineIn = sy * rx;
         const ASizeT scanlineOut = sy * stride;
 
-        for (ASizeT sx = Zero<ASizeT>(); sx < rx; ++sx) {
+        for (ASizeT sx = Zero<ASizeT>(); sx < rx; ++sx)
+        {
           const Int4 scaled = clamp(convert<Int4>(image[scanlineIn + sx] * VMAX + VMIN), BMIN, BMAX);
-          BitmapValueType *dataOut = &data[scanlineOut + sx * VectorType::SIZE];
+          BitmapValueType* dataOut = &data[scanlineOut + sx * VectorType::SIZE];
           // need to swap r,g,b to b,g,r
           *(dataOut++) = convert<BitmapValueType>(z(scaled)); // blue
           *(dataOut++) = convert<BitmapValueType>(y(scaled)); // green
-          *dataOut = convert<BitmapValueType>(x(scaled));     // red
+          *dataOut = convert<BitmapValueType>(x(scaled)); // red
         }
       }
     }
 
     virtual ~Bitmap();
 
-    VectorType::ValueType &operator[](const ASizeT index);
+    VectorType::ValueType& operator[](const ASizeT index);
 
-    const VectorType::ValueType &operator[](const ASizeT index) const;
+    const VectorType::ValueType& operator[](const ASizeT index) const;
 
     const Size2 getResolution() const;
 
@@ -77,8 +83,10 @@ namespace raytracer {
 
     const BITMAP getBITMAP() const;
 
-    void saveAsBMP(const std::string &filename) const;
+    void saveAsBMP(const std::string& filename) const;
 
-    static std::unique_ptr<Bitmap> loadPPM(const std::string &filename);
+    void saveAsPNG(const std::string& filename) const;
+
+    static std::unique_ptr<Bitmap> loadPPM(const std::string& filename);
   };
 }
