@@ -8,11 +8,13 @@
 
 #include <mutex>
 
-namespace raytracerui {
+namespace raytracerui
+{
   using namespace vectorization;
   using namespace raytracer;
 
-  class OpenGLWindowsRaytracerUI : public WindowsRaytracerUI {
+  class OpenGLWindowsRaytracerUI : public WindowsRaytracerUI
+  {
     HDC hDC;
 
     HGLRC hGLRC;
@@ -26,19 +28,26 @@ namespace raytracerui {
     bool hasPendingResult{false};
 
   protected:
-    void reshape(const Int2 &newSize) override;
+    void reshape(const Int2& newSize) override;
 
     void display() override;
 
+    void repaint() override;
+
     void onRenderComplete() override;
+
+    LRESULT forwardInputMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) override;
+
+  private:
+    void renderUI();
 
   public:
     static constexpr UINT WM_RENDER_COMPLETE = WM_APP + 1;
 
-    OpenGLWindowsRaytracerUI(Raytracer &raytracer, const RaytraceParameters &parameters, ASizeT fastPreviewSize);
+    OpenGLWindowsRaytracerUI(Raytracer& raytracer, const RaytraceParameters& parameters, ASizeT fastPreviewSize);
 
     ~OpenGLWindowsRaytracerUI() override;
 
-    void notifyUpdate(const RaytraceConfiguration &configuration) override;
+    void notifyUpdate(const RaytraceConfiguration& configuration) override;
   };
 }

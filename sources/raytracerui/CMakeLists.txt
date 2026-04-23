@@ -40,6 +40,7 @@ source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} PREFIX "Files" REGULAR_EXPRESSION 
 add_dependencies(${PROJECT_NAME} raytracing)
 
 find_package(GLEW REQUIRED)
+find_package(imgui CONFIG REQUIRED)
 
 target_link_libraries(${PROJECT_NAME}
         PUBLIC
@@ -48,6 +49,7 @@ target_link_libraries(${PROJECT_NAME}
         opengl32
         glu32
         GLEW::GLEW
+        imgui::imgui
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")

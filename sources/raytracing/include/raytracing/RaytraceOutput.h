@@ -3,14 +3,18 @@
 #include "common/HDRImage.h"
 #include "common/StatisticsCookie.h"
 
-namespace raytracer {
+namespace raytracer
+{
   /*
    * Struct for the raytrace output
    */
-  struct RaytraceOutput {
+  struct RaytraceOutput
+  {
     HDRImage *image, *timingMap, *depthMap;
 
     bool state;
+
+    Float_64 durationSeconds;
 
     StatisticsCookie statistics;
 

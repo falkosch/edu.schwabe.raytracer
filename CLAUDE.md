@@ -14,12 +14,34 @@ project. Uses OpenMP for parallelization. Key compiler flags: `/arch:AVX2 /fp:fa
 Open with Visual Studio using CMake integration (CMakeSettings.json provided). Dependencies via vcpkg (GLEW).
 Requires `VCPKG_DIR` environment variable pointing to the directory containing `vcpkg.exe` (also add to `PATH`).
 
-### CMake directly (Windows/MSVC)
+### CMake directly (Windows/MSVC with Ninja)
+
+Use Ninja, not Visual Studio `.vcxproj` generator. Build directories are `build-release` / `build-debug` (not
+`cmake-build-*`).
+
+**Configure (Release):**
 
 ```bash
-cmake -B build_msvc -G "Visual Studio 18 2026" -A x64 -DCMAKE_TOOLCHAIN_FILE="$VCPKG_DIR/scripts/buildsystems/vcpkg.cmake" .
-cmake --build build_msvc --config Release --target sources_and_tests
-vstest.console.exe build_msvc/tests/vectorization.native-test/Release/vectorization.native-test.dll
+cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_MAKE_PROGRAM=C:/Users/falko/AppData/Local/Programs/CLion/bin/ninja/win/x64/ninja.exe -DVCPKG_TARGET_TRIPLET=x64-windows-static -DCMAKE_TOOLCHAIN_FILE="$VCPKG_DIR/scripts/buildsystems/vcpkg.cmake" -G Ninja -S D:\edu.schwabe.raytracer -B D:\edu.schwabe.raytracer\build-release
+```
+
+**Configure (Debug):**
+
+```bash
+cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_MAKE_PROGRAM=C:/Users/falko/AppData/Local/Programs/CLion/bin/ninja/win/x64/ninja.exe -DCMAKE_TOOLCHAIN_FILE="$VCPKG_DIR/scripts/buildsystems/vcpkg.cmake" -G Ninja -S D:\edu.schwabe.raytracer -B D:\edu.schwabe.raytracer\build-debug
+```
+
+**Build:**
+
+```bash
+cmake --build build-release --target raytracerui
+cmake --build build-release --target sources_and_tests
+```
+
+**Test:**
+
+```bash
+vstest.console.exe build-release/tests/vectorization.native-test/vectorization.native-test.dll
 ```
 
 ## Architecture

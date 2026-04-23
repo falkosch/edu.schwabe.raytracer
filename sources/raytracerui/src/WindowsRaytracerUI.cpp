@@ -7,62 +7,70 @@
 
 #include <windowsx.h>
 
-namespace raytracerui {
+namespace raytracerui
+{
   const Float WindowsRaytracerUI::MOUSE_SENSITIVITY = 0.02f;
 
-  std::map<HWND, WindowsRaytracerUI *> createUIs{};
+  std::map<HWND, WindowsRaytracerUI*> createUIs{};
 
   WNDCLASSEX WindowsRaytracerUI::windowClass{
-      sizeof(WNDCLASSEX),
-      CS_OWNDC | CS_HREDRAW | CS_VREDRAW,
-      DelegatingWndProc,
-      0,
-      0,
-      nullptr,
-      nullptr,
-      nullptr,
-      reinterpret_cast<HBRUSH>(COLOR_BTNFACE + 1),
-      nullptr,
-      TEXT("WindowsRaytracerUIWndClass"),
-      nullptr
+    sizeof(WNDCLASSEX),
+    CS_OWNDC | CS_HREDRAW | CS_VREDRAW,
+    DelegatingWndProc,
+    0,
+    0,
+    nullptr,
+    nullptr,
+    nullptr,
+    reinterpret_cast<HBRUSH>(COLOR_BTNFACE + 1),
+    nullptr,
+    TEXT("WindowsRaytracerUIWndClass"),
+    nullptr
   };
 
   WindowsRaytracerUI::WindowsRaytracerUI(
-      Raytracer &raytracerIn, const RaytraceParameters &parametersIn, ASizeT &fastPreviewSizeIn
+    Raytracer& raytracerIn, const RaytraceParameters& parametersIn, ASizeT& fastPreviewSizeIn
   )
-      : RaytracerUI(raytracerIn, parametersIn, fastPreviewSizeIn), previousMousePosition(), activeDrag(DragTypes::None),
-        hWnd() {
+    : RaytracerUI(raytracerIn, parametersIn, fastPreviewSizeIn), previousMousePosition(), activeDrag(DragTypes::None),
+      hWnd()
+  {
     InitWindow();
   }
 
-  WindowsRaytracerUI::~WindowsRaytracerUI() {
+  WindowsRaytracerUI::~WindowsRaytracerUI()
+  {
     createUIs.erase(this->hWnd);
     DestroyWindow(hWnd);
   }
 
-  void WindowsRaytracerUI::InitWindowClass() {
+  void WindowsRaytracerUI::InitWindowClass()
+  {
     windowClass.hInstance = GetModuleHandle(nullptr);
     windowClass.hIcon = LoadIcon(nullptr, IDI_APPLICATION);
     windowClass.hCursor = LoadCursor(nullptr, IDC_ARROW);
     RegisterClassEx(&windowClass);
   }
 
-  void WindowsRaytracerUI::InitWindow() {
+  void WindowsRaytracerUI::InitWindow()
+  {
     InitWindowClass();
     hWnd = CreateWindowEx(
-        WS_EX_APPWINDOW, windowClass.lpszClassName, TEXT("WindowsRaytracerUI"), WS_OVERLAPPEDWINDOW, CW_USEDEFAULT,
-        CW_USEDEFAULT, 528, 551, nullptr, nullptr, windowClass.hInstance, this
+      WS_EX_APPWINDOW, windowClass.lpszClassName, TEXT("WindowsRaytracerUI"), WS_OVERLAPPEDWINDOW, CW_USEDEFAULT,
+      CW_USEDEFAULT, 528, 551, nullptr, nullptr, windowClass.hInstance, this
     );
     createUIs.insert({this->hWnd, this});
     ShowWindow(this->hWnd, SW_SHOWDEFAULT);
   }
 
-  WPARAM WindowsRaytracerUI::run() {
+  WPARAM WindowsRaytracerUI::run()
+  {
     MSG msg{};
     BOOL bRet;
-    while (0 != (bRet = GetMessage(&msg, hWnd, 0, 0))) {
+    while (0 != (bRet = GetMessage(&msg, hWnd, 0, 0)))
+    {
       // catch GetMessage returns due to an error
-      if (bRet == -1) {
+      if (bRet == -1)
+      {
         // no error handling here
         break;
       }
@@ -73,21 +81,25 @@ namespace raytracerui {
     return msg.wParam;
   }
 
-  void WindowsRaytracerUI::delegateReshape() {
+  void WindowsRaytracerUI::delegateReshape()
+  {
     RECT rect{};
     GetClientRect(hWnd, &rect);
     reshape(Int2(rect.right, rect.bottom) - Int2(rect.left, rect.top));
   }
 
-  void WindowsRaytracerUI::triggerRaytracing(const bool fastPreview) {
+  void WindowsRaytracerUI::triggerRaytracing(const bool fastPreview)
+  {
     RaytracerUI::triggerRaytracing(fastPreview);
     InvalidateRect(hWnd, nullptr, false);
   }
 
-  void WindowsRaytracerUI::display() {
+  void WindowsRaytracerUI::display()
+  {
     raytracer->requestUpdate();
 
-    if (output) {
+    if (output)
+    {
       // output->saveAsBMP("output.bmp");
 
       const auto bitmapInfo = output->getBITMAPINFO();
@@ -96,15 +108,17 @@ namespace raytracerui {
       PAINTSTRUCT psPaint{};
       const auto hdc = BeginPaint(hWnd, &psPaint);
       StretchDIBits(
-          hdc, int{}, int{}, x(screenSize), y(screenSize), int{}, int{}, bmWidth, bmHeight, bmBits, &bitmapInfo,
-          DIB_RGB_COLORS, SRCCOPY
+        hdc, int{}, int{}, x(screenSize), y(screenSize), int{}, int{}, bmWidth, bmHeight, bmBits, &bitmapInfo,
+        DIB_RGB_COLORS, SRCCOPY
       );
       EndPaint(hWnd, &psPaint);
     }
   }
 
-  void WindowsRaytracerUI::keyPressed(const WPARAM wParam) {
-    switch (wParam) {
+  void WindowsRaytracerUI::keyPressed(const WPARAM wParam)
+  {
+    switch (wParam)
+    {
     case 'Q':
       parameters.cullingOrientation = ((parameters.cullingOrientation + 2) % 3) - 1;
       std::cout << "Culling orientation: " << parameters.cullingOrientation << std::endl;
@@ -176,6 +190,21 @@ namespace raytracerui {
       triggerRaytracing(false);
       return;
 
+    case VK_F1:
+      showControls = !showControls;
+      repaint();
+      return;
+
+    case VK_F2:
+      showMetrics = !showMetrics;
+      repaint();
+      return;
+
+    case VK_F3:
+      showConfig = !showConfig;
+      repaint();
+      return;
+
     default:
       return;
     }
@@ -183,12 +212,15 @@ namespace raytracerui {
     triggerRaytracing(true);
   }
 
-  void WindowsRaytracerUI::mousePressed(const MouseButtons button, const ButtonStates state, const Int2 &position) {
+  void WindowsRaytracerUI::mousePressed(const MouseButtons button, const ButtonStates state, const Int2& position)
+  {
     previousMousePosition = position;
 
-    switch (button) {
+    switch (button)
+    {
     case MouseButtons::Left:
-      if (state == ButtonStates::Down) {
+      if (state == ButtonStates::Down)
+      {
         if (GetKeyState(VK_CONTROL) & 0x8000)
           activeDrag = DragTypes::ShiftXY;
         else if (GetKeyState(VK_SHIFT) & 0x8000)
@@ -197,19 +229,27 @@ namespace raytracerui {
           activeDrag = DragTypes::Scale;
         else
           activeDrag = DragTypes::Rotate;
-      } else if (state == ButtonStates::Up) {
+      }
+      else if (state == ButtonStates::Up)
+      {
         activeDrag = DragTypes::None;
       }
       break;
 
     case MouseButtons::Right:
-      if (state == ButtonStates::Down) {
-        if (GetKeyState(VK_SHIFT) & 0x8000) {
+      if (state == ButtonStates::Down)
+      {
+        if (GetKeyState(VK_SHIFT) & 0x8000)
+        {
           activeDrag = DragTypes::Object;
-        } else {
+        }
+        else
+        {
           activeDrag = DragTypes::Light;
         }
-      } else if (state == ButtonStates::Up) {
+      }
+      else if (state == ButtonStates::Up)
+      {
         activeDrag = DragTypes::None;
       }
       break;
@@ -219,11 +259,13 @@ namespace raytracerui {
     }
   }
 
-  void WindowsRaytracerUI::mouseDragged(const Int2 &position) {
+  void WindowsRaytracerUI::mouseDragged(const Int2& position)
+  {
     const auto delta = convert<Float2>(position - previousMousePosition);
     previousMousePosition = position;
 
-    switch (activeDrag) {
+    switch (activeDrag)
+    {
     case DragTypes::Rotate:
       parameters.camera->rotate(Float3(x(delta), y(delta)));
       triggerRaytracing(true);
@@ -244,22 +286,24 @@ namespace raytracerui {
       triggerRaytracing(true);
       break;
 
-    case DragTypes::Light: {
-      const auto &lights = parameters.sceneShader->getLights();
-      const auto &lastLight = lights.back();
-      lastLight->position += Float4(0.0f, 0.0f, x(delta) - y(delta)) * MOUSE_SENSITIVITY;
-      triggerRaytracing(true);
-      break;
-    }
+    case DragTypes::Light:
+      {
+        const auto& lights = parameters.sceneShader->getLights();
+        const auto& lastLight = lights.back();
+        lastLight->position += Float4(0.0f, 0.0f, x(delta) - y(delta)) * MOUSE_SENSITIVITY;
+        triggerRaytracing(true);
+        break;
+      }
 
-    case DragTypes::Object: {
-      const auto scene = dynamic_cast<Scene *const>(parameters.sceneShader);
-      const auto &sceneObjects = scene->getSceneObjects();
-      const auto &lastSceneObject = sceneObjects.back();
-      lastSceneObject->translate(Float3(0.0f, 0.0f, x(delta) - y(delta)) * MOUSE_SENSITIVITY);
-      triggerRaytracing(true);
-      break;
-    }
+    case DragTypes::Object:
+      {
+        const auto scene = dynamic_cast<Scene*const>(parameters.sceneShader);
+        const auto& sceneObjects = scene->getSceneObjects();
+        const auto& lastSceneObject = sceneObjects.back();
+        lastSceneObject->translate(Float3(0.0f, 0.0f, x(delta) - y(delta)) * MOUSE_SENSITIVITY);
+        triggerRaytracing(true);
+        break;
+      }
 
     case DragTypes::None:
     default:
@@ -267,8 +311,18 @@ namespace raytracerui {
     }
   }
 
-  LRESULT WindowsRaytracerUI::WndProc(const UINT message, const WPARAM wParam, const LPARAM lParam) {
-    switch (message) {
+  LRESULT WindowsRaytracerUI::forwardInputMessage(HWND, UINT, WPARAM, LPARAM)
+  {
+    return 0;
+  }
+
+  LRESULT WindowsRaytracerUI::WndProc(const UINT message, const WPARAM wParam, const LPARAM lParam)
+  {
+    if (forwardInputMessage(hWnd, message, wParam, lParam))
+      return LRESULT{1};
+
+    switch (message)
+    {
     case WM_CLOSE:
       PostQuitMessage(0);
       return DefWindowProc(hWnd, message, wParam, lParam);
@@ -319,19 +373,27 @@ namespace raytracerui {
     return LRESULT{0};
   }
 
-  void WindowsRaytracerUI::onRenderComplete() {
+  void WindowsRaytracerUI::repaint()
+  {
+  }
+
+  void WindowsRaytracerUI::onRenderComplete()
+  {
   }
 
   LRESULT CALLBACK
-  WindowsRaytracerUI::DelegatingWndProc(const HWND hWnd, const UINT msg, const WPARAM wParam, const LPARAM lParam) {
+  WindowsRaytracerUI::DelegatingWndProc(const HWND hWnd, const UINT msg, const WPARAM wParam, const LPARAM lParam)
+  {
     const auto targetedUIIterator = createUIs.find(hWnd);
-    if (targetedUIIterator != createUIs.end()) {
+    if (targetedUIIterator != createUIs.end())
+    {
       return targetedUIIterator->second->WndProc(msg, wParam, lParam);
     }
     return DefWindowProc(hWnd, msg, wParam, lParam);
   }
 
-  Int2 WindowsRaytracerUI::getXY(const LPARAM lParam) {
+  Int2 WindowsRaytracerUI::getXY(const LPARAM lParam)
+  {
     return Int2(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
   }
 }

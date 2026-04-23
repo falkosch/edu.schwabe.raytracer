@@ -1,47 +1,55 @@
 #include "OpenGLWindowsRaytracerUI.h"
 #include "stdafx.h"
 
-namespace raytracerui {
+#include <imgui.h>
+#include <imgui_impl_opengl2.h>
+#include <imgui_impl_win32.h>
+
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
+namespace raytracerui
+{
   const Float4_32 QUAD_VERTICES[] = {
-      Float4_32(0.f, 0.f, 0.f, 1.f), Float4_32(0.f, 1.f, 0.f, 1.f), Float4_32(1.f, 1.f, 0.f, 1.f),
-      Float4_32(1.f, 0.f, 0.f, 1.f)
+    Float4_32(0.f, 0.f, 0.f, 1.f), Float4_32(0.f, 1.f, 0.f, 1.f), Float4_32(1.f, 1.f, 0.f, 1.f),
+    Float4_32(1.f, 0.f, 0.f, 1.f)
   };
 
   const Float4_32 QUAD_TEX_COORDS[] = {Float4_32(1.f, 1.f, 1.f, 0.f), Float4_32(0.f, 0.f, 0.f, 1.f)};
 
   OpenGLWindowsRaytracerUI::OpenGLWindowsRaytracerUI(
-      Raytracer &raytracerIn, const RaytraceParameters &parametersIn, ASizeT fastPreviewSizeIn
+    Raytracer& raytracerIn, const RaytraceParameters& parametersIn, ASizeT fastPreviewSizeIn
   )
-      : WindowsRaytracerUI(raytracerIn, parametersIn, fastPreviewSizeIn), hDC(), hGLRC(), outputSurface() {
+    : WindowsRaytracerUI(raytracerIn, parametersIn, fastPreviewSizeIn), hDC(), hGLRC(), outputSurface()
+  {
     // set the pixel format for the device context
     hDC = GetDC(hWnd);
     PIXELFORMATDESCRIPTOR pfd{
-        sizeof(PIXELFORMATDESCRIPTOR),
-        1,
-        PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER,
-        PFD_TYPE_RGBA,
-        32,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        PFD_MAIN_PLANE,
-        0,
-        0,
-        0,
-        0
+      sizeof(PIXELFORMATDESCRIPTOR),
+      1,
+      PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER,
+      PFD_TYPE_RGBA,
+      32,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      PFD_MAIN_PLANE,
+      0,
+      0,
+      0,
+      0
     };
     SetPixelFormat(hDC, ChoosePixelFormat(hDC, &pfd), &pfd);
 
@@ -53,7 +61,7 @@ namespace raytracerui {
 
     auto projection = ortho(1.0f, 0.0f, 0.0f, 1.0f);
     glMatrixMode(GL_PROJECTION);
-    glLoadMatrixf(reinterpret_cast<const GLfloat *const>(&projection));
+    glLoadMatrixf(reinterpret_cast<const GLfloat*const>(&projection));
 
     glEnable(GL_TEXTURE_2D);
     glGenTextures(1, &outputSurface);
@@ -62,27 +70,46 @@ namespace raytracerui {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    // Initialize Dear ImGui
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGui_ImplWin32_Init(hWnd);
+    ImGui_ImplOpenGL2_Init();
+    ImGui::StyleColorsDark();
+    ImGui::GetStyle().Alpha = 0.9f;
   }
 
-  OpenGLWindowsRaytracerUI::~OpenGLWindowsRaytracerUI() {
+  OpenGLWindowsRaytracerUI::~OpenGLWindowsRaytracerUI()
+  {
+    ImGui_ImplOpenGL2_Shutdown();
+    ImGui_ImplWin32_Shutdown();
+    ImGui::DestroyContext();
     raytracer->stop();
     wglMakeCurrent(hDC, nullptr);
     wglDeleteContext(hGLRC);
     ReleaseDC(hWnd, hDC);
   }
 
-  void OpenGLWindowsRaytracerUI::reshape(const Int2 &newSize) {
+  void OpenGLWindowsRaytracerUI::reshape(const Int2& newSize)
+  {
     WindowsRaytracerUI::reshape(newSize);
     glViewport(0, 0, x(newSize), y(newSize));
   }
 
-  void OpenGLWindowsRaytracerUI::display() {
+  void OpenGLWindowsRaytracerUI::display()
+  {
     PAINTSTRUCT psPaint{};
     BeginPaint(hWnd, &psPaint);
     EndPaint(hWnd, &psPaint);
+    repaint();
+  }
 
+  void OpenGLWindowsRaytracerUI::repaint()
+  {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    // Render the raytraced image quad
     glEnableClientState(GL_VERTEX_ARRAY);
     glVertexPointer(4, GL_FLOAT, 0, QUAD_VERTICES);
 
@@ -94,15 +121,204 @@ namespace raytracerui {
     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
     glDisableClientState(GL_VERTEX_ARRAY);
 
+    // Render ImGui overlay on top
+    ImGui_ImplOpenGL2_NewFrame();
+    ImGui_ImplWin32_NewFrame();
+    ImGui::NewFrame();
+
+    renderUI();
+
+    ImGui::Render();
+    ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());
+
     wglSwapLayerBuffers(hDC, WGL_SWAP_MAIN_PLANE);
   }
 
-  void OpenGLWindowsRaytracerUI::notifyUpdate(const RaytraceConfiguration &configuration) {
+  LRESULT OpenGLWindowsRaytracerUI::forwardInputMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+  {
+    ImGui_ImplWin32_WndProcHandler(hwnd, msg, wParam, lParam);
+
+    // Repaint after any input so ImGui's hover/focus state stays fresh.
+    // This ensures WantCaptureMouse is up-to-date before the next click arrives.
+    const auto& io = ImGui::GetIO();
+    switch (msg)
+    {
+    case WM_LBUTTONDOWN:
+    case WM_LBUTTONUP:
+    case WM_RBUTTONDOWN:
+    case WM_RBUTTONUP:
+    case WM_MOUSEMOVE:
+    case WM_MOUSEWHEEL:
+      InvalidateRect(hwnd, nullptr, FALSE);
+      if (io.WantCaptureMouse) return 1;
+      break;
+    case WM_KEYDOWN:
+    case WM_KEYUP:
+    case WM_CHAR:
+      InvalidateRect(hwnd, nullptr, FALSE);
+      if (io.WantCaptureKeyboard) return 1;
+      break;
+    default:
+      break;
+    }
+    return 0;
+  }
+
+  void OpenGLWindowsRaytracerUI::renderUI()
+  {
+    if (showControls)
+    {
+      ImGui::SetNextWindowPos(ImVec2(10, 10), ImGuiCond_FirstUseEver);
+      ImGui::SetNextWindowSize(ImVec2(280, 0), ImGuiCond_FirstUseEver);
+      if (ImGui::Begin("Controls (F1)", &showControls))
+      {
+        ImGui::SeparatorText("Camera");
+        ImGui::BulletText("Left Mouse Drag: Rotate");
+        ImGui::BulletText("Ctrl + Left Drag: Pan XY");
+        ImGui::BulletText("Shift + Left Drag: Zoom");
+        ImGui::BulletText("Alt + Left Drag: Scale");
+        ImGui::BulletText("R: Reset camera");
+
+        ImGui::SeparatorText("Scene");
+        ImGui::BulletText("Right Mouse Drag: Move light");
+        ImGui::BulletText("Shift + Right Drag: Move object");
+
+        ImGui::SeparatorText("Rendering");
+        ImGui::BulletText("Enter: Full quality render");
+        ImGui::BulletText("W: Save image as BMP");
+        ImGui::BulletText("E: Cycle display mode");
+        ImGui::BulletText("T: Toggle fast preview");
+
+        ImGui::SeparatorText("Parameters");
+        ImGui::BulletText("A/S: Sampling factor -/+");
+        ImGui::BulletText("D/F: Trace depth -/+");
+        ImGui::BulletText("G/H: Ray packet size -/+");
+        ImGui::BulletText("J/K: Super-sampling -/+");
+        ImGui::BulletText("Q: Cycle culling orientation");
+
+        ImGui::SeparatorText("Panels");
+        ImGui::BulletText("F1: Controls");
+        ImGui::BulletText("F2: Metrics");
+        ImGui::BulletText("F3: Configuration");
+      }
+      ImGui::End();
+    }
+
+    if (showMetrics)
+    {
+      ImGui::SetNextWindowPos(ImVec2(10, 400), ImGuiCond_FirstUseEver);
+      ImGui::SetNextWindowSize(ImVec2(300, 0), ImGuiCond_FirstUseEver);
+      if (ImGui::Begin("Metrics (F2)", &showMetrics))
+      {
+        ImGui::Text("Duration: %.4f s", lastRenderDuration);
+        ImGui::Text("Resolution: %zu x %zu",
+                    static_cast<size_t>(x(parameters.resolution)),
+                    static_cast<size_t>(y(parameters.resolution)));
+        ImGui::Separator();
+        ImGui::Text("Primary Rays:    %zu / %zu missed",
+                    static_cast<size_t>(lastStatistics.primaryRays),
+                    static_cast<size_t>(lastStatistics.missedPrimaryRays));
+        ImGui::Text("Secondary Rays:  %zu / %zu missed",
+                    static_cast<size_t>(lastStatistics.secondaryRays),
+                    static_cast<size_t>(lastStatistics.missedSecondaryRays));
+        ImGui::Text("Shadow Rays:     %zu / %zu missed",
+                    static_cast<size_t>(lastStatistics.shadowRays),
+                    static_cast<size_t>(lastStatistics.missedShadowRays));
+        ImGui::Text("Obj Shadow Rays: %zu / %zu missed",
+                    static_cast<size_t>(lastStatistics.objectShadowRays),
+                    static_cast<size_t>(lastStatistics.objectMissedShadowRays));
+        ImGui::Separator();
+        ImGui::Text("Frame: %zu", static_cast<size_t>(frameCount));
+      }
+      ImGui::End();
+    }
+
+    if (showConfig)
+    {
+      ImGui::SetNextWindowPos(ImVec2(static_cast<float>(x(screenSize)) - 310.f, 10.f), ImGuiCond_FirstUseEver);
+      ImGui::SetNextWindowSize(ImVec2(300, 0), ImGuiCond_FirstUseEver);
+      if (ImGui::Begin("Configuration (F3)", &showConfig))
+      {
+        bool changed = false;
+
+        auto samplingFactor = static_cast<float>(parameters.samplingFactor);
+        if (ImGui::SliderFloat("Sampling Factor", &samplingFactor, 0.125f, 4.0f, "%.3f"))
+        {
+          parameters.samplingFactor = samplingFactor;
+          changed = true;
+        }
+
+        auto maxTraceDepth = static_cast<int>(parameters.maxTraceDepth);
+        if (ImGui::SliderInt("Max Trace Depth", &maxTraceDepth, 0, 31))
+        {
+          parameters.maxTraceDepth = static_cast<ASizeT>(maxTraceDepth);
+          changed = true;
+        }
+
+        auto superSampling = static_cast<int>(parameters.superSamplingFactor);
+        if (ImGui::SliderInt("Super Sampling", &superSampling, 0, 4))
+        {
+          parameters.superSamplingFactor = static_cast<ASizeT>(superSampling);
+          changed = true;
+        }
+
+        auto rayPacketSize = static_cast<int>(parameters.rayPacketSize);
+        if (ImGui::SliderInt("Ray Packet Size", &rayPacketSize, 0, 31))
+        {
+          parameters.rayPacketSize = static_cast<ASizeT>(rayPacketSize);
+          changed = true;
+        }
+
+        const char* cullingItems[] = {"Back-face", "None", "Front-face"};
+        auto cullingIndex = parameters.cullingOrientation + 1;
+        if (ImGui::Combo("Culling", &cullingIndex, cullingItems, 3))
+        {
+          parameters.cullingOrientation = cullingIndex - 1;
+          changed = true;
+        }
+
+        if (ImGui::Checkbox("Disable Fast Preview", &disableFastPreview))
+        {
+          changed = true;
+        }
+
+        const char* displayItems[] = {"Image", "Timing Map", "Depth Map"};
+        auto displayIndex = static_cast<int>(showMapIndex);
+        if (ImGui::Combo("Display Mode", &displayIndex, displayItems, 3))
+        {
+          showMapIndex = static_cast<ASizeT>(displayIndex);
+          changed = true;
+        }
+
+        ImGui::Separator();
+        if (ImGui::Button("Reset Camera"))
+        {
+          parameters.camera->resetView();
+          changed = true;
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Full Render"))
+        {
+          triggerRaytracing(false);
+        }
+
+        if (changed)
+        {
+          triggerRaytracing(true);
+        }
+      }
+      ImGui::End();
+    }
+  }
+
+  void OpenGLWindowsRaytracerUI::notifyUpdate(const RaytraceConfiguration& configuration)
+  {
     // Called from the worker thread — do not call OpenGL here.
     // Store the completed configuration and marshal to the UI thread.
     {
       std::lock_guard lock(pendingMutex);
-      if (hasPendingResult) {
+      if (hasPendingResult)
+      {
         // A previous result was not yet processed — discard its images to prevent leaks
         delete pendingConfig.image;
         delete pendingConfig.depthMap;
@@ -114,7 +330,8 @@ namespace raytracerui {
     PostMessage(hWnd, WM_RENDER_COMPLETE, 0, 0);
   }
 
-  void OpenGLWindowsRaytracerUI::onRenderComplete() {
+  void OpenGLWindowsRaytracerUI::onRenderComplete()
+  {
     RaytraceConfiguration config;
     {
       std::lock_guard lock(pendingMutex);
@@ -127,10 +344,11 @@ namespace raytracerui {
     RaytracerUI::notifyUpdate(config);
 
     // Upload texture to OpenGL (must happen on the UI thread that owns the GL context)
-    if (this->outputHDR) {
+    if (this->outputHDR)
+    {
       glTexImage2D(
-          GL_TEXTURE_2D, 0, GL_RGBA32F, static_cast<GLsizei>(x(config.resolution)),
-          static_cast<GLsizei>(y(config.resolution)), 0, GL_RGBA, GL_FLOAT, outputHDR->getData()
+        GL_TEXTURE_2D, 0, GL_RGBA32F, static_cast<GLsizei>(x(config.resolution)),
+        static_cast<GLsizei>(y(config.resolution)), 0, GL_RGBA, GL_FLOAT, outputHDR->getData()
       );
     }
 

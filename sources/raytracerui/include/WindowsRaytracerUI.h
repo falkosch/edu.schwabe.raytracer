@@ -3,7 +3,8 @@
 #include "MessageLoopBasedUI.h"
 #include "RaytracerUI.h"
 
-namespace raytracerui {
+namespace raytracerui
+{
   using namespace vectorization;
   using namespace raytracer;
 
@@ -13,7 +14,8 @@ namespace raytracerui {
 
   enum class DragTypes : ASizeT { None, Rotate, ShiftXY, ShiftZ, Scale, Light, Object };
 
-  class WindowsRaytracerUI : public RaytracerUI, public MessageLoopBasedUI {
+  class WindowsRaytracerUI : public RaytracerUI, public MessageLoopBasedUI
+  {
     static const Float MOUSE_SENSITIVITY;
 
     static WNDCLASSEX windowClass;
@@ -26,13 +28,11 @@ namespace raytracerui {
 
     void delegateReshape();
 
-    void triggerRaytracing(bool fastPreview) override;
-
     void keyPressed(WPARAM wParam);
 
-    void mousePressed(MouseButtons button, ButtonStates state, const Int2 &position);
+    void mousePressed(MouseButtons button, ButtonStates state, const Int2& position);
 
-    void mouseDragged(const Int2 &position);
+    void mouseDragged(const Int2& position);
 
     void InitWindow();
 
@@ -45,12 +45,24 @@ namespace raytracerui {
   protected:
     HWND hWnd;
 
+    void triggerRaytracing(bool fastPreview) override;
+
+    bool showControls{false};
+
+    bool showMetrics{false};
+
+    bool showConfig{false};
+
     virtual void display();
+
+    virtual void repaint();
 
     virtual void onRenderComplete();
 
+    virtual LRESULT forwardInputMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
   public:
-    WindowsRaytracerUI(Raytracer &raytracer, const RaytraceParameters &parameters, ASizeT &fastPreviewSize);
+    WindowsRaytracerUI(Raytracer& raytracer, const RaytraceParameters& parameters, ASizeT& fastPreviewSize);
 
     ~WindowsRaytracerUI() override;
 

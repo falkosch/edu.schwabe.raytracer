@@ -4,11 +4,13 @@
 
 #include <memory>
 
-namespace raytracerui {
+namespace raytracerui
+{
   using namespace vectorization;
   using namespace raytracer;
 
-  class RaytracerUI : public RaytraceObserver {
+  class RaytracerUI : public RaytraceObserver
+  {
   protected:
     RaytraceParameters parameters;
 
@@ -22,22 +24,26 @@ namespace raytracerui {
 
     ASizeT frameCount;
 
+    StatisticsCookie lastStatistics;
+
+    Float_64 lastRenderDuration{};
+
     std::unique_ptr<const HDRImage> outputHDR;
 
     std::unique_ptr<const Bitmap> output;
 
-    Raytracer *raytracer;
+    Raytracer* raytracer;
 
-    virtual void reshape(const Int2 &newSize);
+    virtual void reshape(const Int2& newSize);
 
   public:
-    RaytracerUI(Raytracer &raytracer, const RaytraceParameters &parameters, ASizeT &fastPreviewSize);
+    RaytracerUI(Raytracer& raytracer, const RaytraceParameters& parameters, ASizeT& fastPreviewSize);
 
     ~RaytracerUI() override;
 
     virtual void triggerRaytracing(bool fastPreview);
 
-    void notifyUpdate(const RaytraceConfiguration &configuration) override;
+    void notifyUpdate(const RaytraceConfiguration& configuration) override;
 
     const HDRImage* selectOutputImage(const RaytraceConfiguration& configuration) const;
   };

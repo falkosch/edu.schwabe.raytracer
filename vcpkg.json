@@ -3,6 +3,10 @@
   "name": "edu-schwabe-raytracer",
   "dependencies": [
     "catch2",
-    "glew"
+    "glew",
+    {
+      "name": "imgui",
+      "features": ["win32-binding", "opengl2-binding"]
+    }
   ]
 }
