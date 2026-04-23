@@ -34,6 +34,6 @@ namespace raytracer {
   protected:
     std::vector<std::string, AlignedAllocator<std::string>> revertedNormalsCheckList;
 
-    const bool hasRevertedNormals(const std::string &identifier) const;
+    bool hasRevertedNormals(const std::string& identifier) const;
   };
 }

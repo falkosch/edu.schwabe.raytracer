@@ -60,8 +60,9 @@ namespace raytracerui {
     }
   }
 
-  const HDRImage *const RaytracerUI::selectOutputImage(const RaytraceConfiguration &configuration) const {
-    const std::array outputs{configuration.image, configuration.timingMap, configuration.depthMap};
+  const HDRImage* RaytracerUI::selectOutputImage(const RaytraceConfiguration& configuration) const
+  {
+      const std::array outputs{configuration.image, configuration.timingMap, configuration.depthMap};
     return outputs.at(this->showMapIndex);
   }
 }

@@ -43,15 +43,17 @@ namespace raytracer {
   private:
     template <ASizeT Axis>
     struct GeometryMinimumComparer {
-      const bool operator()(const GeometryNode *const left, const GeometryNode *const right) const {
-        return !!component<Axis>(geometryNodeMinimumPredicate(*left) < geometryNodeMinimumPredicate(*right));
+        bool operator()(const GeometryNode* const left, const GeometryNode* const right) const
+        {
+            return !!component<Axis>(geometryNodeMinimumPredicate(*left) < geometryNodeMinimumPredicate(*right));
       }
     };
 
     template <ASizeT Axis>
     struct GeometryMaximumComparer {
-      const bool operator()(const GeometryNode *const left, const GeometryNode *const right) const {
-        return !!component<Axis>(geometryNodeMaximumPredicate(*left) < geometryNodeMaximumPredicate(*right));
+        bool operator()(const GeometryNode* const left, const GeometryNode* const right) const
+        {
+            return !!component<Axis>(geometryNodeMaximumPredicate(*left) < geometryNodeMaximumPredicate(*right));
       }
     };
   };

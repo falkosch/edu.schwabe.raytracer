@@ -8,7 +8,7 @@
 namespace raytracer {
   KDTreeBalancer::~KDTreeBalancer() = default;
 
-  const bool KDTreeBalancer::isTerminal(
+  bool KDTreeBalancer::isTerminal(
       const KDTreeBuildParameters &parameters, const ASizeT treeDepth, const AxisAlignedBoundingBox &bounding,
       const PGeometryNodeList &geometry
   ) {
@@ -21,7 +21,7 @@ namespace raytracer {
     return anyTrue3(extents(bounding) < Epsilon<Float4>());
   }
 
-  const bool KDTreeBalancer::isTerminalPostCheck(
+  bool KDTreeBalancer::isTerminalPostCheck(
       const KDTreeBuildParameters &parameters, const ASizeT treeDepth, const AxisAlignedBoundingBox &parentBounding,
       const PGeometryNodeList &geometry, const AxisAlignedBoundingBox &leftBounding,
       const AxisAlignedBoundingBox &rightBounding, const PGeometryNodeList &leftGeometry,
@@ -171,7 +171,7 @@ namespace raytracer {
     }
   }
 
-  const Float KDTreeBalancer::calculateSplitCost(
+  Float KDTreeBalancer::calculateSplitCost(
       const KDTreeBuildParameters &parameters, const AxisAlignedBoundingBox &parentBounding,
       const AxisAlignedBoundingBox &leftBounding, const AxisAlignedBoundingBox &rightBounding,
       const PGeometryNodeList &leftGeometry, const PGeometryNodeList &rightGeometry
@@ -221,7 +221,7 @@ namespace raytracer {
     return splitCost;
   }
 
-  const Float
+  Float
   KDTreeBalancer::calculateLeafCost(const KDTreeBuildParameters &parameters, const PGeometryNodeList &geometry) {
     const Float costs =
         std::accumulate(geometry.cbegin(), geometry.cend(), One<Float>(), [](const Float accCosts, auto geometryNode) {

@@ -31,8 +31,9 @@ namespace raytracer {
     return resolution;
   }
 
-  const ASizeT Bitmap::getStride() const {
-    return stride;
+  ASizeT Bitmap::getStride() const
+  {
+      return stride;
   }
 
   const BITMAPINFO Bitmap::getBITMAPINFO() const {

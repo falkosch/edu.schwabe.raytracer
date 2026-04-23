@@ -30,9 +30,9 @@ namespace raytracer {
 
     virtual ~HDRImage();
 
-    VectorType *const getData();
+    VectorType* getData();
 
-    const VectorType *const getData() const;
+    const VectorType* getData() const;
 
     VectorType &operator[](const ASizeT index);
 
@@ -40,8 +40,7 @@ namespace raytracer {
 
     const Size2 getResolution() const;
 
-    const void
-    minMax(VectorType &min, VectorType &max, SelectorFunction minSelector, SelectorFunction maxSelector) const;
+    void minMax(VectorType& min, VectorType& max, SelectorFunction minSelector, SelectorFunction maxSelector) const;
 
     void normalizeEachChannel();
 

@@ -26,8 +26,9 @@ namespace raytracer {
 
   Resources::~Resources() = default;
 
-  const bool Resources::hasRevertedNormals(const std::string &identifier) const {
-    return std::binary_search(revertedNormalsCheckList.cbegin(), revertedNormalsCheckList.cend(), identifier);
+  bool Resources::hasRevertedNormals(const std::string& identifier) const
+  {
+      return std::binary_search(revertedNormalsCheckList.cbegin(), revertedNormalsCheckList.cend(), identifier);
   }
 
   Mesh *Resources::getMesh(const std::string &identifier) {

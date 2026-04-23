@@ -71,7 +71,7 @@ namespace raytracer {
 
     const Size2 getResolution() const;
 
-    const ASizeT getStride() const;
+    ASizeT getStride() const;
 
     const BITMAPINFO getBITMAPINFO() const;
 

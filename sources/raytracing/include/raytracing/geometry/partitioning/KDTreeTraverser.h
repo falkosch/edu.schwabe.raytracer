@@ -12,13 +12,13 @@ namespace raytracer {
     virtual ~KDTreeTraverser() {
     }
 
-    virtual const Float findNearestIntersection(
+    virtual Float findNearestIntersection(
         const GeometryNodesTraverser<IntersectionInfoType> &geometryNodesTraverser, const KDTreeRoot &root,
         const RayCast &rayCast, const IntersectionInfoType *const originIntersection,
         IntersectionInfoType &intersectionOut
     ) const = 0;
 
-    virtual const Float findAnyIntersection(
+    virtual Float findAnyIntersection(
         const GeometryNodesTraverser<IntersectionInfoType> &geometryNodesTraverser, const KDTreeRoot &root,
         const RayCast &rayCast, const IntersectionInfoType *const originIntersection,
         IntersectionInfoType &intersectionOut

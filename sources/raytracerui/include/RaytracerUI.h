@@ -39,6 +39,6 @@ namespace raytracerui {
 
     void notifyUpdate(const RaytraceConfiguration &configuration) override;
 
-    const HDRImage *const selectOutputImage(const RaytraceConfiguration &configuration) const;
+    const HDRImage* selectOutputImage(const RaytraceConfiguration& configuration) const;
   };
 }

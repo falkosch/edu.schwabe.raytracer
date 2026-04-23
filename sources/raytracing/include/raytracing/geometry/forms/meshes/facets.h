@@ -25,7 +25,7 @@ namespace raytracer {
       const std::vector<Facet> &facets, const KDTreeBalancer *const balancer, PGeometryNodeList &nodes
   ) noexcept;
 
-  const vectorization::Float computeFacetIntersection(
+  vectorization::Float computeFacetIntersection(
       const vectorization::ASizeT intersected, const vectorization::Float4 &texCoordsAndDistance,
       const primitives::RayCast &rayCast, const std::vector<primitives::FacetTexCoords4> &texCoords,
       const std::vector<vectorization::Float4> &flatNormals, const std::vector<primitives::FacetNormals> &smoothNormals,

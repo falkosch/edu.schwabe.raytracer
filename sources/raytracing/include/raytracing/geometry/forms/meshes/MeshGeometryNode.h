@@ -19,7 +19,7 @@ namespace raytracer {
 
     // GeometryNode interface
 
-    AxisAlignedBoundingBox includeInBounding(const AxisAlignedBoundingBox &aabb) const;
+    AxisAlignedBoundingBox includeInBounding(const AxisAlignedBoundingBox& aabb) const override;
 
     bool overlaps(const AxisAlignedBoundingBox &aabb) const override;
 

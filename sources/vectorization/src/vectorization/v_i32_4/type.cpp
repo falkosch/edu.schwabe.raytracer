@@ -36,8 +36,9 @@ namespace vectorization {
   }
 
   v_i32_4::v_i32_4(const ValueType *const values) noexcept
-      : components(_mm_load_si128(reinterpret_cast<const PackedType *>(values))) {
-    assert(reinterpret_cast<std::uintptr_t>(values) % XMM_ALIGNMENT == 0);
+      : components(::_mm_load_si128(reinterpret_cast<const PackedType*>(values)))
+  {
+      assert(reinterpret_cast<std::uintptr_t>(values) % XMM_ALIGNMENT == 0);
   }
 
   v_i32_4 &v_i32_4::operator=(const PackedType &vector) noexcept {

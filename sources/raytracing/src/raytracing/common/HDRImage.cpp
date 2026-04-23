@@ -45,12 +45,14 @@ namespace raytracer {
 
   HDRImage::~HDRImage() = default;
 
-  HDRImage::VectorType *const HDRImage::getData() {
-    return data.get();
+  HDRImage::VectorType* HDRImage::getData()
+  {
+      return data.get();
   }
 
-  const HDRImage::VectorType *const HDRImage::getData() const {
-    return data.get();
+  const HDRImage::VectorType* HDRImage::getData() const
+  {
+      return data.get();
   }
 
   HDRImage::VectorType &HDRImage::operator[](const ASizeT index) {
@@ -65,7 +67,7 @@ namespace raytracer {
     return resolution;
   }
 
-  const void
+  void
   HDRImage::minMax(VectorType &min, VectorType &max, SelectorFunction minSelector, SelectorFunction maxSelector) const {
     const int count = static_cast<int>(x(resolution) * y(resolution));
 

@@ -20,7 +20,7 @@ namespace raytracer {
 
     void clear();
 
-    const bool isNonEmptyLeaf() const;
+    bool isNonEmptyLeaf() const;
 
     // Adds two new children to this node and makes this node an empty node by deleting the geometryNodes.
     void grow(

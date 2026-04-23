@@ -32,24 +32,24 @@ namespace raytracer {
 
     virtual std::unique_ptr<KDTreeRoot> build(const PGeometryNodeList &rootGeometry) const;
 
-    static const bool isTerminal(
+    static bool isTerminal(
         const KDTreeBuildParameters &parameters, const ASizeT treeDepth, const AxisAlignedBoundingBox &bounding,
         const PGeometryNodeList &geometry
     );
 
-    static const bool isTerminalPostCheck(
+    static bool isTerminalPostCheck(
         const KDTreeBuildParameters &parameters, const ASizeT treeDepth, const AxisAlignedBoundingBox &bounding,
         const PGeometryNodeList &geometry, const AxisAlignedBoundingBox &leftBounding,
         const AxisAlignedBoundingBox &rightBounding, const PGeometryNodeList &leftGeometry,
         const PGeometryNodeList &rightGeometry
     );
 
-    static const Float calculateSplitCost(
+    static Float calculateSplitCost(
         const KDTreeBuildParameters &parameters, const AxisAlignedBoundingBox &parentBounding,
         const AxisAlignedBoundingBox &leftBounding, const AxisAlignedBoundingBox &rightBounding,
         const PGeometryNodeList &leftGeometry, const PGeometryNodeList &rightGeometry
     );
 
-    static const Float calculateLeafCost(const KDTreeBuildParameters &parameters, const PGeometryNodeList &geometry);
+    static Float calculateLeafCost(const KDTreeBuildParameters& parameters, const PGeometryNodeList& geometry);
   };
 }

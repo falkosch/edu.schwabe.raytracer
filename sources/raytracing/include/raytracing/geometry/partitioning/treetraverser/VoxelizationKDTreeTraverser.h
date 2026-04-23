@@ -128,7 +128,7 @@ namespace raytracer {
     virtual ~VoxelizationKDTreeTraverser() {
     }
 
-    const Float findNearestIntersection(
+    Float findNearestIntersection(
         const GeometryNodesTraverser<IntersectionInfoType> &geometryNodesTraverser, const KDTreeRoot &root,
         const RayCast &rayCast, const IntersectionInfoType *const originIntersection,
         IntersectionInfoType &intersectionOut
@@ -145,7 +145,7 @@ namespace raytracer {
       return tr.maxDistance;
     }
 
-    const Float findAnyIntersection(
+    Float findAnyIntersection(
         const GeometryNodesTraverser<IntersectionInfoType> &geometryNodesTraverser, const KDTreeRoot &root,
         const RayCast &rayCast, const IntersectionInfoType *const originIntersection,
         IntersectionInfoType &intersectionOut

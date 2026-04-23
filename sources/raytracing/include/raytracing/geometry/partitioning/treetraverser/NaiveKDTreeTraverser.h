@@ -86,7 +86,7 @@ namespace raytracer {
     virtual ~NaiveKDTreeTraverser() {
     }
 
-    const Float findNearestIntersection(
+    Float findNearestIntersection(
         const GeometryNodesTraverser<IntersectionInfoType> &geometryNodesTraverser, const KDTreeRoot &root,
         const RayCast &rayCast, const IntersectionInfoType *const originIntersection,
         IntersectionInfoType &intersectionOut
@@ -101,7 +101,7 @@ namespace raytracer {
       return rayCastOut.maxDistance;
     }
 
-    const Float findAnyIntersection(
+    Float findAnyIntersection(
         const GeometryNodesTraverser<IntersectionInfoType> &geometryNodesTraverser, const KDTreeRoot &root,
         const RayCast &rayCast, const IntersectionInfoType *const originIntersection,
         IntersectionInfoType &intersectionOut

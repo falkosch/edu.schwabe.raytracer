@@ -14,8 +14,9 @@ namespace raytracer {
     geometryNodes.reset();
   }
 
-  const bool KDTreeNode::isNonEmptyLeaf() const {
-    return geometryNodes && !geometryNodes->empty();
+  bool KDTreeNode::isNonEmptyLeaf() const
+  {
+      return geometryNodes && !geometryNodes->empty();
   }
 
   void KDTreeNode::grow(

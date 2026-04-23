@@ -125,7 +125,7 @@ namespace raytracer {
     return nullptr;
   }
 
-  const Float computeFacetIntersection(
+  Float computeFacetIntersection(
       const ASizeT index, const Float4 &uvAndDistance, const RayCast &rayCast,
       const std::vector<FacetTexCoords4> &texCoords, const std::vector<Float4> &flatNormals,
       const std::vector<FacetNormals> &smoothNormals, const PGeometryNodeList &nodes, FacetIntersection &intersectionOut
