@@ -14,19 +14,24 @@
 #include <omp.h>
 #include <profileapi.h>
 
-namespace raytracer {
-  Raytracer::Raytracer() : runId(), running(), current() {
-  }
+namespace raytracer
+{
+    Raytracer::Raytracer() : runId(), running(), current()
+    {
+    }
 
   Raytracer::~Raytracer() = default;
 
-  RaytraceConfiguration Raytracer::getRunning() const {
-    return running;
+  RaytraceConfiguration Raytracer::getRunning() const
+  {
+      return running;
   }
 
-  void Raytracer::requestUpdate() {
-    if (current.runId == running.runId) {
-      return;
+  void Raytracer::requestUpdate()
+  {
+      if (current.runId == running.runId)
+      {
+          return;
     }
 
     running = current;
@@ -39,9 +44,9 @@ namespace raytracer {
     QueryPerformanceFrequency(&frequency);
 
     std::cout << "Raytrace " << running.runId << " (" << x(running.resolution) << "x" << y(running.resolution)
-              << "):" << std::endl;
+          << "):" << std::endl;
 
-    QueryPerformanceCounter(&start);
+      QueryPerformanceCounter(&start);
     trace();
     QueryPerformanceCounter(&stop);
 
@@ -50,57 +55,64 @@ namespace raytracer {
     std::cout << "Duration: " << convert<Float_64>(timeDuration) / convert<Float_64>(timeFrequency) << "s" << std::endl;
   }
 
-  void Raytracer::trigger(const RaytraceParameters &parameters) {
-    assert(parameters.observer);
+  void Raytracer::trigger(const RaytraceParameters& parameters)
+  {
+      assert(parameters.observer);
     assert(parameters.camera);
     assert(parameters.sceneShader);
 
     runId += 1;
 
     const auto samplingResolution =
-        max(One<Size2>(), convert<Size2>(convert<Float4>(parameters.resolution) * parameters.samplingFactor));
+          max(One<Size2>(), convert<Size2>(convert<Float4>(parameters.resolution) * parameters.samplingFactor));
 
-    // build raytrace configuration
+      // build raytrace configuration
     current = parameters; // copies parameters into current
     current.maxDistance =
-        select(parameters.maxDistance > Zero<Float>(), parameters.maxDistance, std::numeric_limits<Float>::max());
-    current.resolution = max(One<Size2>(), samplingResolution);
+          select(parameters.maxDistance > Zero<Float>(), parameters.maxDistance, std::numeric_limits<Float>::max());
+      current.resolution = max(One<Size2>(), samplingResolution);
     current.state = false;
     current.runId = runId;
   }
 
-  Int_64 perPixelTiming() {
-    LARGE_INTEGER start;
+  Int_64 perPixelTiming()
+  {
+      LARGE_INTEGER start;
     QueryPerformanceCounter(&start);
     return static_cast<Int_64>(start.QuadPart);
   }
 
   // Timing for each pixel: Read end-time and calculate differences
-  Float4 perPixelTiming(const Int_64 start) {
-    LARGE_INTEGER stop;
+  Float4 perPixelTiming(const Int_64 start)
+  {
+      LARGE_INTEGER stop;
     QueryPerformanceCounter(&stop);
     const auto timeStop = static_cast<Int_64>(stop.QuadPart);
     return Float4(vectorization::log(convert<Float4::ValueType>(timeStop - start + Int_64{1})));
   }
 
-  struct PackedRaytrace {
-    typedef std::vector<PackedRaytrace, AlignedAllocator<PackedRaytrace>> ListType;
+  struct PackedRaytrace
+  {
+      typedef std::vector<PackedRaytrace, AlignedAllocator<PackedRaytrace>> ListType;
 
     Raytrace raytrace;
-    Float4 *outputPixel;
+      Float4* outputPixel;
 
-    PackedRaytrace() : raytrace(), outputPixel() {
+      PackedRaytrace() : raytrace(), outputPixel()
+    {
     }
 
-    PackedRaytrace(const Raytrace &raytraceIn, Float4 *const outputPixelIn)
-        : raytrace(raytraceIn), outputPixel(outputPixelIn) {
-    }
+      PackedRaytrace(const Raytrace& raytraceIn, Float4* const outputPixelIn)
+          : raytrace(raytraceIn), outputPixel(outputPixelIn)
+      {
+      }
   };
 
   PackedRaytrace::ListType constructPackedRaytracesList(
-      const int packetIndex, const RaytracerPackets &packets, const RaytraceConfiguration &configuration
-  ) {
-    auto nearPlanePixel = packets.packetStartOf(packetIndex);
+      const int packetIndex, const RaytracerPackets& packets, const RaytraceConfiguration& configuration
+  )
+  {
+      auto nearPlanePixel = packets.packetStartOf(packetIndex);
     auto minPacketLength = packets.clampPacketLength(configuration.resolution, nearPlanePixel);
 
     // iterate over camera-pixels cp in packet
@@ -110,8 +122,9 @@ namespace raytracer {
     auto list = PackedRaytrace::ListType();
     list.reserve(pixelsCount * subSamplesCount);
 
-    for (auto cp = Zero<Size2::ValueType>(); cp < pixelsCount; cp++) {
-      // address camera-point cp to output pixel
+      for (auto cp = Zero<Size2::ValueType>(); cp < pixelsCount; cp++)
+      {
+          // address camera-point cp to output pixel
       auto cpXY = RaytracerPackets::coordsOfPixel(cp, nearPlanePixel, minPacketLength);
       auto cpXYf = convert<Float4>(cpXY);
       auto nearTL = packets.pixelNearTopLeft(cpXYf);
@@ -120,8 +133,9 @@ namespace raytracer {
       auto outputPixel = &configuration.image->getData()[imageIndex];
 
       // generate super sampling rays
-      for (auto s = Zero<Size2::ValueType>(); s < subSamplesCount;) {
-        // interpolate the camera-point's top-left on the view-plane
+          for (auto s = Zero<Size2::ValueType>(); s < subSamplesCount;)
+          {
+              // interpolate the camera-point's top-left on the view-plane
         auto newRay = packets.setupRayOfSampleInPixel(s++, nearTL, farTL);
         auto newRayCast = RayCast(
             newRay, cullingOrientationToMask(configuration.cullingOrientation), Zero<Size2>(), configuration.maxDistance
@@ -139,8 +153,9 @@ namespace raytracer {
    * have to bi-linear interpolate between the corner directions while iterating. This eliminates many expensive
    * transformations and other calculations.
    */
-  void Raytracer::trace() {
-    auto packets = RaytracerPackets(running);
+  void Raytracer::trace()
+  {
+      auto packets = RaytracerPackets(running);
 
 #pragma omp parallel
     {
@@ -149,19 +164,21 @@ namespace raytracer {
 
       // iterate over packets
 #pragma omp for schedule(static, 1) nowait
-      for (int p = Zero<int>(); p < packets.getPacketCount(); ++p) {
-        auto packedRaytraces = constructPackedRaytracesList(p, packets, cache.configuration);
+      for (int p = Zero<int>(); p < packets.getPacketCount(); ++p)
+      {
+          auto packedRaytraces = constructPackedRaytracesList(p, packets, cache.configuration);
         cache.statistics.primaryRays += packedRaytraces.size();
 
-        for (const auto &packedRaytrace : packedRaytraces) {
-          // Timing for each pixel: Read start-time
+          for (const auto& packedRaytrace : packedRaytraces)
+          {
+              // Timing for each pixel: Read start-time
           auto start = perPixelTiming();
 
           auto hit = trace(packedRaytrace.raytrace, cache);
           cache.statistics.missedPrimaryRays +=
-              static_cast<ASizeT>(outOfReach(packedRaytrace.raytrace.rayCast, x(hit.depth)));
+                  static_cast<ASizeT>(outOfReach(packedRaytrace.raytrace.rayCast, x(hit.depth)));
 
-          // Sample colour into output
+              // Sample colour into output
           packets.samplePixel(packedRaytrace.outputPixel, hit.color);
 
           auto imagePtrIndex = packedRaytrace.outputPixel - cache.configuration.image->getData();
@@ -185,8 +202,9 @@ namespace raytracer {
 
     auto hasFinished = running.runId == runId;
     running.state = hasFinished;
-    if (hasFinished) {
-      running.timingMap->normalizeEachChannel();
+      if (hasFinished)
+      {
+          running.timingMap->normalizeEachChannel();
       running.depthMap->normalizeEachChannel();
 
       // notify completion
@@ -194,17 +212,21 @@ namespace raytracer {
     }
   }
 
-  Float4 schlickFresnel(const bool enteringLessDense, const Float4 &negNdotI, const Float4 &eta) {
-    // calculate cosPhiT from Snell's law (TIR is already excluded)
+  Float4 schlickFresnel(const bool enteringLessDense, const Float4& negNdotI, const Float4& eta)
+  {
+      // calculate cosPhiT from Snell's law (TIR is already excluded)
     Float4 cosPhi;
-    if (enteringLessDense) {
-      auto etaItoT = xxxx(eta);
+      if (enteringLessDense)
+      {
+          auto etaItoT = xxxx(eta);
       auto etaItoTMulNdotI = etaItoT * negNdotI;
       auto cosSqrPhiT = One<v_f32_4>() - (etaItoT * etaItoT - etaItoTMulNdotI * etaItoTMulNdotI);
       assert(!isNegative(cosSqrPhiT));
       cosPhi = sqrt(cosSqrPhiT);
-    } else {
-      cosPhi = max(Zero<Float4>(), negNdotI);
+      }
+      else
+      {
+          cosPhi = max(Zero<Float4>(), negNdotI);
     }
 
     // Schlick approximation for polarized light refraction/reflection model:
@@ -218,34 +240,38 @@ namespace raytracer {
     return reflectance;
   }
 
-  Float4 fresnelReflectance(const bool totalInternalReflection, const Float4 &negNdotI, const Float4 &eta) {
-    // entering less dense material and TIR is the case
+  Float4 fresnelReflectance(const bool totalInternalReflection, const Float4& negNdotI, const Float4& eta)
+  {
+      // entering less dense material and TIR is the case
     const auto enteringLessDense = !!isNegative(wwww(eta) - zzzz(eta));
-    if (totalInternalReflection & enteringLessDense) {
-      return One<Float4>();
+      if (totalInternalReflection & enteringLessDense)
+      {
+          return One<Float4>();
     }
     return schlickFresnel(enteringLessDense, negNdotI, eta);
   }
 
   // checks intersections, applies lighting and texturing and shoots secondary rays
-  IlluminatedIntersection Raytracer::trace(const Raytrace &raytrace, RaytracerCache &cache) {
-    BRDFParameters brdf;
+  IlluminatedIntersection Raytracer::trace(const Raytrace& raytrace, RaytracerCache& cache)
+  {
+      BRDFParameters brdf;
 
     // Find the nearest intersection
     brdf.viewDistance = cache.configuration.sceneShader->findNearestIntersection(
         raytrace.rayCast, raytrace.originIntersection, brdf.intersection
     );
-    if (outOfReach(raytrace.rayCast, brdf.viewDistance)) {
-      return {
-          raytrace.rayCast.maxDistance,
-          cache.configuration.sceneShader->sampleBackground(raytrace.rayCast.ray.direction)
-      };
+      if (outOfReach(raytrace.rayCast, brdf.viewDistance))
+      {
+          return {
+              raytrace.rayCast.maxDistance,
+              cache.configuration.sceneShader->sampleBackground(raytrace.rayCast.ray.direction)
+          };
     }
 
     // Sample surface properties at intersection
     assert(brdf.intersection.object);
-    auto &objectShader = *dynamic_cast<const ObjectShader *const>(brdf.intersection.object);
-    brdf.surface = objectShader(*cache.configuration.sceneShader, brdf.intersection);
+      auto& objectShader = *dynamic_cast<const ObjectShader*const>(brdf.intersection.object);
+      brdf.surface = objectShader(*cache.configuration.sceneShader, brdf.intersection);
 
     // Sample lighting properties at the intersection
     brdf.lighting = cache.configuration.sceneShader->sampleLighting(
@@ -258,9 +284,11 @@ namespace raytracer {
         raytrace.rayCast.cullingMask, raytrace.rayCast.ray.direction, brdf.intersection.smoothedNormal,
         brdf.intersection.smoothedNdotI, brdf.surface.refractionEta
     );
-    const auto leavingMaterial = frontfaceCulled(raytrace.rayCast)
-                                 | (notCulled(raytrace.rayCast) && isNegative(-brdf.intersection.smoothedNdotI));
-    const auto totalInternalReflection = allTrue3(!transmittedDirection);
+
+      const auto leavingMaterial = frontfaceCulled(raytrace.rayCast)
+          || (notCulled(raytrace.rayCast) && isNegative(-brdf.intersection.smoothedNdotI));
+
+      const auto totalInternalReflection = allTrue3(!transmittedDirection);
     brdf.reflectanceCoefficient = fresnelReflectance(
         totalInternalReflection,
         select(leavingMaterial, brdf.intersection.smoothedNdotI, -brdf.intersection.smoothedNdotI),
@@ -275,19 +303,22 @@ namespace raytracer {
   }
 
   void Raytracer::traceReflection(
-      const Raytrace &incidentRaytrace, const Float maxDistance, RaytracerCache &cache, BRDFParameters &brdf
-  ) {
-    // would still be visible but tracing is not wanted any more
-    if (incidentRaytrace.traceDepth >= cache.configuration.maxTraceDepth || maxDistance <= Zero<Float>()) {
-      brdf.lighting.reflected = Zero<Float4>();
+      const Raytrace& incidentRaytrace, const Float maxDistance, RaytracerCache& cache, BRDFParameters& brdf
+  )
+  {
+      // would still be visible but tracing is not wanted any more
+      if (incidentRaytrace.traceDepth >= cache.configuration.maxTraceDepth || maxDistance <= Zero<Float>())
+      {
+          brdf.lighting.reflected = Zero<Float4>();
       return;
     }
 
     // check whether it would even make a difference in the image
     auto reflectionVisibilityIndex =
-        incidentRaytrace.visibilityIndex * brdf.reflectanceCoefficient * max3v(brdf.surface.reflectance);
-    if (x(reflectionVisibilityIndex) < cache.configuration.visibilityCutoff) {
-      brdf.lighting.reflected = Zero<Float4>();
+          incidentRaytrace.visibilityIndex * brdf.reflectanceCoefficient * max3v(brdf.surface.reflectance);
+      if (x(reflectionVisibilityIndex) < cache.configuration.visibilityCutoff)
+      {
+          brdf.lighting.reflected = Zero<Float4>();
       return;
     }
 
@@ -306,25 +337,30 @@ namespace raytracer {
 
     cache.statistics.secondaryRays += One<ASizeT>();
     cache.statistics.missedSecondaryRays +=
-        static_cast<ASizeT>(outOfReach(reflectedRaytrace.rayCast, x(reflectedHit.depth)));
+          static_cast<ASizeT>(outOfReach(reflectedRaytrace.rayCast, x(reflectedHit.depth)));
   }
 
   void Raytracer::traceTransmission(
-      const Raytrace &incidentRaytrace, const Float maxDistance, const bool leavingMaterial,
-      const Float4 &transmittedDirection, RaytracerCache &cache, BRDFParameters &brdf
-  ) {
-    // would still be visible, but tracing is not wanted any more, set transmitted to the background
-    if (incidentRaytrace.traceDepth >= cache.configuration.maxTraceDepth || maxDistance <= Zero<Float>()) {
-      brdf.lighting.transmitted = Zero<Float4>();
+      const Raytrace& incidentRaytrace, const Float maxDistance, const bool leavingMaterial,
+      const Float4& transmittedDirection, RaytracerCache& cache, BRDFParameters& brdf
+  )
+  {
+      // would still be visible, but tracing is not wanted any more, set transmitted to the background
+      if (incidentRaytrace.traceDepth >= cache.configuration.maxTraceDepth || maxDistance <= Zero<Float>())
+      {
+          brdf.lighting.transmitted = Zero<Float4>();
       return;
     }
 
     Float4 fractionTransmitted;
-    if (leavingMaterial) {
-      // world vacuum does not absorb
+      if (leavingMaterial)
+      {
+          // world vacuum does not absorb
       fractionTransmitted = One<Float4>();
-    } else {
-      // least possible transmitted fraction of material
+      }
+      else
+      {
+          // least possible transmitted fraction of material
       auto minDepth = Float4(std::numeric_limits<Float4::ValueType>::min());
       auto maxTransmittance = max3v(brdf.surface.transmittance);
       fractionTransmitted = vectorization::exp(-minDepth / maxTransmittance);
@@ -334,9 +370,11 @@ namespace raytracer {
     // check whether it would even make a difference in the image,
     // or whether it is a total internal reflection (transmissionDirection = 0)
     auto transmissionVisibilityIndex =
-        Float4(incidentRaytrace.visibilityIndex) * fractionTransmitted * (One<Float4>() - brdf.reflectanceCoefficient);
-    if (x(transmissionVisibilityIndex) < cache.configuration.visibilityCutoff) {
-      brdf.lighting.transmitted = Zero<Float4>();
+          Float4(incidentRaytrace.visibilityIndex) * fractionTransmitted * (One<Float4>() - brdf.
+              reflectanceCoefficient);
+      if (x(transmissionVisibilityIndex) < cache.configuration.visibilityCutoff)
+      {
+          brdf.lighting.transmitted = Zero<Float4>();
       return;
     }
 
@@ -354,17 +392,19 @@ namespace raytracer {
     auto refractedHit = trace(refractedRaytrace, cache);
     brdf.lighting.transmitted = refractedHit.color;
     // now that we have the transmission distance through the material, recompute the fractionTransmitted coefficient
-    if (!leavingMaterial) {
-      brdf.fractionTransmitted = vectorization::exp(-refractedHit.depth / brdf.surface.transmittance);
+      if (!leavingMaterial)
+      {
+          brdf.fractionTransmitted = vectorization::exp(-refractedHit.depth / brdf.surface.transmittance);
     }
 
     cache.statistics.secondaryRays += One<ASizeT>();
     cache.statistics.missedSecondaryRays +=
-        static_cast<ASizeT>(outOfReach(refractedRaytrace.rayCast, x(refractedHit.depth)));
+          static_cast<ASizeT>(outOfReach(refractedRaytrace.rayCast, x(refractedHit.depth)));
   }
 
-  Float4 Raytracer::applyBRDF(const BRDFParameters &brdf) {
-    // https://en.wikipedia.org/wiki/Phong_reflection_model
+  Float4 Raytracer::applyBRDF(const BRDFParameters& brdf)
+  {
+      // https://en.wikipedia.org/wiki/Phong_reflection_model
     const auto ambient = brdf.surface.diffusion * brdf.lighting.ambient;
     const auto diffuse = brdf.surface.diffusion * brdf.lighting.diffuse;
     const auto specularReflection = brdf.surface.specular * brdf.lighting.specular;

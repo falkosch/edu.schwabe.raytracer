@@ -70,6 +70,47 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 
+    if (CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC")
+        # clang-cl (MSVC-compatible frontend)
+        foreach (CompilerFlag ${CompilerFlags})
+            string(REGEX REPLACE "/[wW][0-9]" "" ${CompilerFlag} "${${CompilerFlag}}")
+            string(REPLACE "/MD" "/MT" ${CompilerFlag} "${${CompilerFlag}}")
+        endforeach ()
+
+        add_compile_options(/W4 /wd4514 /wd4710 /wd4711 /wd4820 /wd4068)
+        add_compile_options(/arch:AVX2 /openmp /GS- /Zp16 /sdl-)
+        add_compile_options($<$<CONFIG:Release>:/O2>)
+
+        link_libraries(libomp)
+
+        add_link_options(
+                $<$<CONFIG:Release>:/OPT:REF>
+                $<$<CONFIG:Release>:/OPT:ICF=3>
+                $<$<CONFIG:Debug>:/Debug>
+        )
+    else ()
+        # Regular clang (GCC-compatible frontend)
+        foreach (CompilerFlag ${CompilerFlags})
+            string(REGEX REPLACE "-g[0-9]?" "" ${CompilerFlag} "${${CompilerFlag}}")
+            string(REGEX REPLACE "-O[0-9]?" "" ${CompilerFlag} "${${CompilerFlag}}")
+        endforeach ()
+
+        add_compile_options(-Wall -Wextra -pedantic -Wno-ignored-qualifiers -Wno-unknown-pragmas)
+        add_compile_options(-march=native -fopenmp)
+
+        add_link_options(-fopenmp)
+
+        add_compile_options(
+                $<$<CONFIG:Release>:-O3>
+                $<$<CONFIG:Debug>:-Og>
+        )
+
+        add_link_options(
+                $<$<CONFIG:Release>:-O3>
+                $<$<CONFIG:Debug>:-Og>
+        )
+    endif ()
+
 else ()
     message(FATAL_ERROR "no configuration for compiler ${CMAKE_CXX_COMPILER_ID}")
 
