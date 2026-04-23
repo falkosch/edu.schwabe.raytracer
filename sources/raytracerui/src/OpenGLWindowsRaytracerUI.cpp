@@ -3,6 +3,7 @@
 
 #include <commdlg.h>
 
+#include <algorithm>
 #include <iostream>
 
 #include <imgui.h>
@@ -138,13 +139,25 @@ namespace raytracerui
     wglSwapLayerBuffers(hDC, WGL_SWAP_MAIN_PLANE);
   }
 
+  void OpenGLWindowsRaytracerUI::onTogglePanel(WPARAM key)
+  {
+    switch (key)
+    {
+    case VK_F1: showControls = !showControls; break;
+    case VK_F2: showMetrics = !showMetrics; break;
+    case VK_F3: showConfig = !showConfig; break;
+    default: return;
+    }
+    repaint();
+  }
+
   LRESULT OpenGLWindowsRaytracerUI::forwardInputMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
   {
     ImGui_ImplWin32_WndProcHandler(hwnd, msg, wParam, lParam);
 
-    // Repaint after any input so ImGui's hover/focus state stays fresh.
-    // This ensures WantCaptureMouse is up-to-date before the next click arrives.
+    // Repaint after input when ImGui panels are visible so hover/focus state stays fresh.
     const auto& io = ImGui::GetIO();
+    const bool hasVisiblePanels = showControls || showMetrics || showConfig;
     switch (msg)
     {
     case WM_LBUTTONDOWN:
@@ -153,13 +166,13 @@ namespace raytracerui
     case WM_RBUTTONUP:
     case WM_MOUSEMOVE:
     case WM_MOUSEWHEEL:
-      InvalidateRect(hwnd, nullptr, FALSE);
+      if (hasVisiblePanels) InvalidateRect(hwnd, nullptr, FALSE);
       if (io.WantCaptureMouse) return 1;
       break;
     case WM_KEYDOWN:
     case WM_KEYUP:
     case WM_CHAR:
-      InvalidateRect(hwnd, nullptr, FALSE);
+      if (hasVisiblePanels) InvalidateRect(hwnd, nullptr, FALSE);
       if (io.WantCaptureKeyboard) return 1;
       break;
     default:
@@ -323,8 +336,11 @@ namespace raytracerui
           if (GetSaveFileNameA(&ofn))
           {
             std::string path(filename);
+            std::string ext = path.substr(path.find_last_of('.') + 1);
+            std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
+
             std::cout << "Saving image ... ";
-            if (path.ends_with(".png"))
+            if (ext == "png")
               output->saveAsPNG(path);
             else
               output->saveAsBMP(path);
@@ -347,13 +363,6 @@ namespace raytracerui
     // Store the completed configuration and marshal to the UI thread.
     {
       std::lock_guard lock(pendingMutex);
-      if (hasPendingResult)
-      {
-        // A previous result was not yet processed — discard its images to prevent leaks
-        delete pendingConfig.image;
-        delete pendingConfig.depthMap;
-        delete pendingConfig.timingMap;
-      }
       pendingConfig = configuration;
       hasPendingResult = true;
     }

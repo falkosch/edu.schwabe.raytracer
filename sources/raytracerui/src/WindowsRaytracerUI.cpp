@@ -1,5 +1,4 @@
 #include "WindowsRaytracerUI.h"
-#include "OpenGLWindowsRaytracerUI.h"
 #include "stdafx.h"
 
 #include <iostream>
@@ -191,18 +190,9 @@ namespace raytracerui
       return;
 
     case VK_F1:
-      showControls = !showControls;
-      repaint();
-      return;
-
     case VK_F2:
-      showMetrics = !showMetrics;
-      repaint();
-      return;
-
     case VK_F3:
-      showConfig = !showConfig;
-      repaint();
+      onTogglePanel(wParam);
       return;
 
     default:
@@ -362,7 +352,7 @@ namespace raytracerui
       keyPressed(wParam);
       break;
 
-    case OpenGLWindowsRaytracerUI::WM_RENDER_COMPLETE:
+    case WM_RENDER_COMPLETE:
       onRenderComplete();
       break;
 
@@ -371,6 +361,10 @@ namespace raytracerui
     }
 
     return LRESULT{0};
+  }
+
+  void WindowsRaytracerUI::onTogglePanel(WPARAM)
+  {
   }
 
   void WindowsRaytracerUI::repaint()

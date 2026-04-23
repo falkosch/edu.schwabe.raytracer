@@ -83,9 +83,9 @@ namespace raytracer
 
     const BITMAP getBITMAP() const;
 
-    void saveAsBMP(const std::string& filename) const;
+    bool saveAsBMP(const std::string& filename) const;
 
-    void saveAsPNG(const std::string& filename) const;
+    bool saveAsPNG(const std::string& filename) const;
 
     static std::unique_ptr<Bitmap> loadPPM(const std::string& filename);
   };

@@ -194,21 +194,21 @@ namespace raytracer
     file.write(buffer.data(), charCount);
   }
 
-  void Bitmap::saveAsPNG(const std::string& filename) const
+  bool Bitmap::saveAsPNG(const std::string& filename) const
   {
-    savePNG(
+    return savePNG(
       filename, static_cast<int>(x(resolution)), static_cast<int>(y(resolution)),
       static_cast<int>(stride), data.get()
     );
   }
 
-  void Bitmap::saveAsBMP(const std::string& filename) const
+  bool Bitmap::saveAsBMP(const std::string& filename) const
   {
     std::ofstream file(filename.c_str(), std::ios::binary | std::ios::trunc);
     if (!file.is_open())
     {
       std::cerr << "opening file " << filename << " failed" << std::endl;
-      return;
+      return false;
     }
 
     const auto [bmiHeader, bmiColors] = getBITMAPINFO();
@@ -224,5 +224,6 @@ namespace raytracer
 
     file.flush();
     file.close();
+    return file.good();
   }
 }

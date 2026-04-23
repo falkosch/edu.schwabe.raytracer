@@ -52,16 +52,8 @@ namespace raytracerui
     std::cout << "objectShadowRays " << configuration.statistics.objectShadowRays << "/"
       << configuration.statistics.objectMissedShadowRays << std::endl;
 
-    const auto* selected = selectOutputImage(configuration);
-    outputHDR.reset(selected);
+    outputHDR = selectOutputImage(configuration);
     output = std::make_unique<Bitmap>(*outputHDR);
-
-    if (selected != configuration.image)
-      delete configuration.image;
-    if (selected != configuration.depthMap)
-      delete configuration.depthMap;
-    if (selected != configuration.timingMap)
-      delete configuration.timingMap;
 
     ++frameCount;
     if (frameCount == 1)
@@ -72,7 +64,7 @@ namespace raytracerui
     }
   }
 
-  const HDRImage* RaytracerUI::selectOutputImage(const RaytraceConfiguration& configuration) const
+  std::shared_ptr<const HDRImage> RaytracerUI::selectOutputImage(const RaytraceConfiguration& configuration) const
   {
     const std::array outputs{configuration.image, configuration.timingMap, configuration.depthMap};
     return outputs.at(this->showMapIndex);

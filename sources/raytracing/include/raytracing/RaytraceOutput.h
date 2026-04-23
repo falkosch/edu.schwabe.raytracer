@@ -3,6 +3,8 @@
 #include "common/HDRImage.h"
 #include "common/StatisticsCookie.h"
 
+#include <memory>
+
 namespace raytracer
 {
   /*
@@ -10,7 +12,7 @@ namespace raytracer
    */
   struct RaytraceOutput
   {
-    HDRImage *image, *timingMap, *depthMap;
+    std::shared_ptr<HDRImage> image, timingMap, depthMap;
 
     bool state;
 

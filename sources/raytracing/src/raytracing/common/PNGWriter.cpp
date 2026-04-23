@@ -17,7 +17,8 @@ namespace raytracer
     const auto h = static_cast<UINT>(height);
 
     const auto comInit = CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
-    if (FAILED(comInit) && comInit != S_FALSE)
+    const bool comOwned = SUCCEEDED(comInit);
+    if (!comOwned && comInit != RPC_E_CHANGED_MODE)
     {
       std::cerr << "COM initialization failed" << std::endl;
       return false;
@@ -28,7 +29,7 @@ namespace raytracer
       CLSID_WICImagingFactory, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&factory))))
     {
       std::cerr << "WIC factory creation failed" << std::endl;
-      CoUninitialize();
+      if (comOwned) CoUninitialize();
       return false;
     }
 
@@ -41,7 +42,7 @@ namespace raytracer
       FAILED(stream->InitializeFromFilename(wideFilename.get(), GENERIC_WRITE)))
     {
       std::cerr << "opening file " << filename << " for writing failed" << std::endl;
-      CoUninitialize();
+      if (comOwned) CoUninitialize();
       return false;
     }
 
@@ -50,7 +51,7 @@ namespace raytracer
       FAILED(encoder->Initialize(stream.Get(), WICBitmapEncoderNoCache)))
     {
       std::cerr << "PNG encoder initialization failed" << std::endl;
-      CoUninitialize();
+      if (comOwned) CoUninitialize();
       return false;
     }
 
@@ -58,7 +59,7 @@ namespace raytracer
     if (FAILED(encoder->CreateNewFrame(&frame, nullptr)) || FAILED(frame->Initialize(nullptr)))
     {
       std::cerr << "PNG frame creation failed" << std::endl;
-      CoUninitialize();
+      if (comOwned) CoUninitialize();
       return false;
     }
 
@@ -66,7 +67,7 @@ namespace raytracer
     if (FAILED(frame->SetSize(w, h)) || FAILED(frame->SetPixelFormat(&pixelFormat)))
     {
       std::cerr << "PNG frame setup failed" << std::endl;
-      CoUninitialize();
+      if (comOwned) CoUninitialize();
       return false;
     }
 
@@ -87,7 +88,7 @@ namespace raytracer
       std::cerr << "PNG commit failed" << std::endl;
     }
 
-    CoUninitialize();
+    if (comOwned) CoUninitialize();
     return ok;
   }
 }

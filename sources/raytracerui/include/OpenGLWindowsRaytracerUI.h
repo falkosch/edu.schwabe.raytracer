@@ -27,6 +27,12 @@ namespace raytracerui
 
     bool hasPendingResult{false};
 
+    bool showControls{false};
+
+    bool showMetrics{false};
+
+    bool showConfig{false};
+
   protected:
     void reshape(const Int2& newSize) override;
 
@@ -36,13 +42,14 @@ namespace raytracerui
 
     void onRenderComplete() override;
 
+    void onTogglePanel(WPARAM key) override;
+
     LRESULT forwardInputMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) override;
 
   private:
     void renderUI();
 
   public:
-    static constexpr UINT WM_RENDER_COMPLETE = WM_APP + 1;
 
     OpenGLWindowsRaytracerUI(Raytracer& raytracer, const RaytraceParameters& parameters, ASizeT fastPreviewSize);
 

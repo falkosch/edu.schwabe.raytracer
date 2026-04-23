@@ -28,7 +28,7 @@ namespace raytracerui
 
     Float_64 lastRenderDuration{};
 
-    std::unique_ptr<const HDRImage> outputHDR;
+    std::shared_ptr<const HDRImage> outputHDR;
 
     std::unique_ptr<const Bitmap> output;
 
@@ -45,6 +45,6 @@ namespace raytracerui
 
     void notifyUpdate(const RaytraceConfiguration& configuration) override;
 
-    const HDRImage* selectOutputImage(const RaytraceConfiguration& configuration) const;
+    std::shared_ptr<const HDRImage> selectOutputImage(const RaytraceConfiguration& configuration) const;
   };
 }

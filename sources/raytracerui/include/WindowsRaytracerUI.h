@@ -43,15 +43,13 @@ namespace raytracerui
     static Int2 getXY(LPARAM lParam);
 
   protected:
+    static constexpr UINT WM_RENDER_COMPLETE = WM_APP + 1;
+
     HWND hWnd;
 
     void triggerRaytracing(bool fastPreview) override;
 
-    bool showControls{false};
-
-    bool showMetrics{false};
-
-    bool showConfig{false};
+    virtual void onTogglePanel(WPARAM key);
 
     virtual void display();
 

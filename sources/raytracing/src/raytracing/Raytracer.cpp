@@ -65,9 +65,9 @@ namespace raytracer
                 std::lock_guard lock(mutex);
                 running = current;
             }
-            running.image = new HDRImage(running.resolution);
-            running.depthMap = new HDRImage(running.resolution);
-            running.timingMap = new HDRImage(running.resolution);
+            running.image = std::make_shared<HDRImage>(running.resolution);
+            running.depthMap = std::make_shared<HDRImage>(running.resolution);
+            running.timingMap = std::make_shared<HDRImage>(running.resolution);
 
             LARGE_INTEGER frequency, start, stop;
             QueryPerformanceFrequency(&frequency);
