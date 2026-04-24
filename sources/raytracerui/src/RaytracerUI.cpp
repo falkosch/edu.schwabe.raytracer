@@ -10,8 +10,8 @@ namespace raytracerui
 {
   RaytracerUI::RaytracerUI(Raytracer& raytracerIn, const RaytraceParameters& parametersIn, ASizeT& fastPreviewSizeIn)
     : parameters(parametersIn), screenSize(One<Int2>()), fastPreviewSize(fastPreviewSizeIn), showMapIndex(),
-      disableFastPreview(), frameCount(), initialViewMatrix(parametersIn.camera->getViewMatrix()),
-      outputHDR(), output(), raytracer(&raytracerIn)
+      disableFastPreview(), frameCount(), outputHDR(), output(),
+      initialViewMatrix(parametersIn.camera->getViewMatrix()), raytracer(&raytracerIn)
   {
     this->parameters.observer = this;
   }
@@ -20,7 +20,8 @@ namespace raytracerui
 
   void RaytracerUI::reshape(const Int2& newSize)
   {
-    Log.info([w = x(newSize), h = y(newSize)] {
+    Log.info([w = x(newSize), h = y(newSize)]
+    {
       return "Resizing output to " + std::to_string(w) + "x" + std::to_string(h);
     });
     screenSize = newSize;
@@ -49,17 +50,21 @@ namespace raytracerui
     lastStatistics = configuration.statistics;
     lastRenderDuration = configuration.durationSeconds;
 
-    const auto &s = configuration.statistics;
-    Log.info([pr = s.primaryRays, mr = s.missedPrimaryRays] {
+    const auto& s = configuration.statistics;
+    Log.info([pr = s.primaryRays, mr = s.missedPrimaryRays]
+    {
       return "primaryRays " + std::to_string(pr) + "/" + std::to_string(mr);
     });
-    Log.info([sr = s.secondaryRays, mr = s.missedSecondaryRays] {
+    Log.info([sr = s.secondaryRays, mr = s.missedSecondaryRays]
+    {
       return "secondaryRays " + std::to_string(sr) + "/" + std::to_string(mr);
     });
-    Log.info([sr = s.shadowRays, mr = s.missedShadowRays] {
+    Log.info([sr = s.shadowRays, mr = s.missedShadowRays]
+    {
       return "shadowRays " + std::to_string(sr) + "/" + std::to_string(mr);
     });
-    Log.info([osr = s.objectShadowRays, omr = s.objectMissedShadowRays] {
+    Log.info([osr = s.objectShadowRays, omr = s.objectMissedShadowRays]
+    {
       return "objectShadowRays " + std::to_string(osr) + "/" + std::to_string(omr);
     });
 
@@ -70,8 +75,8 @@ namespace raytracerui
     if (frameCount == 1)
     {
       Log.info([] { return "Saving ray-traced image ..."; });
-      output->saveAsBMP("ray-traced.bmp");
-      Log.info([] { return "ray-traced.bmp"; });
+      output->saveAsPNG("ray-traced.png");
+      Log.info([] { return "ray-traced.png"; });
     }
   }
 

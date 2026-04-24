@@ -32,7 +32,7 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 
     add_compile_definitions(_WIN32)
     add_compile_options(-Wall -Wextra -pedantic -Wno-ignored-qualifiers -Wno-unknown-pragmas)
-    add_compile_options(-g3 -march=native -fopenmp)
+    add_compile_options(-g3 -march=native -fopenmp -ffp-contract=fast -fassociative-math -freciprocal-math -fno-signed-zeros)
 
     add_link_options(-g3 -fopenmp)
 
@@ -79,6 +79,7 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 
         add_compile_options(/W4 /wd4514 /wd4710 /wd4711 /wd4820 /wd4068)
         add_compile_options(/arch:AVX2 /openmp /GS- /Zp16 /sdl-)
+        add_compile_options(/clang:-ffp-contract=fast /clang:-fassociative-math /clang:-freciprocal-math /clang:-fno-signed-zeros)
         add_compile_options($<$<CONFIG:Release>:/O2>)
 
         link_libraries(libomp)
@@ -96,7 +97,7 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
         endforeach ()
 
         add_compile_options(-Wall -Wextra -pedantic -Wno-ignored-qualifiers -Wno-unknown-pragmas)
-        add_compile_options(-march=native -fopenmp)
+        add_compile_options(-march=native -fopenmp -ffp-contract=fast -fassociative-math -freciprocal-math -fno-signed-zeros)
 
         add_link_options(-fopenmp)
 
