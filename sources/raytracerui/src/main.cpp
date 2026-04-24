@@ -10,7 +10,9 @@
 #include "ManualTests.h"
 #include "OpenGLWindowsRaytracerUI.h"
 
-#include <iostream>
+#include <logging.h>
+
+#include <algorithm>
 #include <memory>
 #include <string>
 
@@ -48,6 +50,8 @@ const Float VISIBILITY_CUTOFF = reciprocal(512.0f);
 
 // n => (n+1)x(n+1) image-pixels/packet
 constexpr ASizeT RAY_PACKET_SIZE = 15;
+
+static const auto Log = logging::scope("Main");
 
 namespace raytracerui {
   LRESULT runRaytracerUI() {
@@ -88,23 +92,32 @@ namespace raytracerui {
     try {
       returnCode = ui->run();
     } catch (const std::exception &exception) {
-      std::cerr << exception.what() << std::endl;
+      std::string what = exception.what();
+      Log.error([what] { return what; });
     } catch (...) {
-      std::cerr << "non standard exception occurred" << std::endl;
+      Log.error([] { return "non standard exception occurred"; });
     }
 
     return static_cast<LRESULT>(returnCode);
   }
 }
 
-int __cdecl main() {
+int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
+  logging::Logger::instance().setLogFile("raytracer.log");
+  logging::Logger::instance().start();
+
   std::array<TCHAR, MAX_PATH + 1> currentPath{0};
   GetCurrentDirectory(MAX_PATH, currentPath.data());
 
-  std::wcout << "Working directory: " << std::wstring(currentPath.data()) << std::endl;
+  std::wstring wpath(currentPath.data());
+  std::string path(wpath.size(), '\0');
+  std::transform(wpath.begin(), wpath.end(), path.begin(), [](wchar_t c) { return static_cast<char>(c); });
+  Log.info([path] { return "Working directory: " + path; });
 
   raytracerui::ManualTests()();
   // raytracerui::Benchmarks()();
 
-  return static_cast<int>(raytracerui::runRaytracerUI());
+  auto result = static_cast<int>(raytracerui::runRaytracerUI());
+  logging::Logger::instance().stop();
+  return result;
 }

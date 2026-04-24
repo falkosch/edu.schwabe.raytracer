@@ -55,12 +55,10 @@ target_link_libraries(${PROJECT_NAME}
 
 target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
-target_compile_definitions(${PROJECT_NAME} PRIVATE _CONSOLE)
-
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-    target_link_options(${PROJECT_NAME} PRIVATE /SUBSYSTEM:CONSOLE)
+    target_link_options(${PROJECT_NAME} PRIVATE /SUBSYSTEM:WINDOWS)
 
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 

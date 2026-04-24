@@ -1,10 +1,13 @@
 #include "WindowsRaytracerUI.h"
 #include "stdafx.h"
 
-#include <iostream>
+#include <logging.h>
 #include <map>
+#include <string>
 
 #include <windowsx.h>
+
+static const auto Log = logging::scope("UI");
 
 namespace raytracerui
 {
@@ -121,7 +124,7 @@ namespace raytracerui
     {
     case 'Q':
       parameters.cullingOrientation = ((parameters.cullingOrientation + 2) % 3) - 1;
-      std::cout << "Culling orientation: " << parameters.cullingOrientation << std::endl;
+      Log.info([v = parameters.cullingOrientation] { return "Culling orientation: " + std::to_string(v); });
       break;
 
     case 'E':
@@ -134,27 +137,27 @@ namespace raytracerui
 
     case 'T':
       disableFastPreview = !disableFastPreview;
-      std::cout << "Fast preview disabled: " << disableFastPreview << std::endl;
+      Log.info([v = disableFastPreview] { return "Fast preview disabled: " + std::to_string(v); });
       break;
 
     case 'G':
       parameters.rayPacketSize -= select(parameters.rayPacketSize > ASizeT{0}, ASizeT{1}, ASizeT{0});
-      std::cout << "Ray packet size: " << parameters.rayPacketSize << std::endl;
+      Log.info([v = parameters.rayPacketSize] { return "Ray packet size: " + std::to_string(v); });
       break;
 
     case 'H':
       parameters.rayPacketSize += ASizeT{1};
-      std::cout << "Ray packet size: " << parameters.rayPacketSize << std::endl;
+      Log.info([v = parameters.rayPacketSize] { return "Ray packet size: " + std::to_string(v); });
       break;
 
     case 'J':
       parameters.superSamplingFactor -= select(parameters.superSamplingFactor > ASizeT{0}, ASizeT{1}, ASizeT{0});
-      std::cout << "Super-sampling factor: " << parameters.superSamplingFactor << std::endl;
+      Log.info([v = parameters.superSamplingFactor] { return "Super-sampling factor: " + std::to_string(v); });
       break;
 
     case 'K':
       parameters.superSamplingFactor += ASizeT{1};
-      std::cout << "Super-sampling factor: " << parameters.superSamplingFactor << std::endl;
+      Log.info([v = parameters.superSamplingFactor] { return "Super-sampling factor: " + std::to_string(v); });
       break;
 
     case '1':
@@ -332,7 +335,7 @@ namespace raytracerui
 
     case WM_KEYDOWN:
       keyDown[wParam & 0xFF] = true;
-      if ((wParam == VK_F1 || wParam == VK_F2 || wParam == VK_F3) && !(lParam & 0x40000000))
+      if ((wParam == VK_F1 || wParam == VK_F2 || wParam == VK_F3 || wParam == VK_F4) && !(lParam & 0x40000000))
       {
         onTogglePanel(wParam);
       }

@@ -1,3 +1,4 @@
+add_subdirectory(logging)
 add_subdirectory(vectorization)
 add_subdirectory(primitives)
 add_subdirectory(raytracing)

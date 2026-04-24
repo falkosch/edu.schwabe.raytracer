@@ -9,10 +9,13 @@
 #include "raytracing/common/Tools.h"
 
 #include <cassert>
-#include <iostream>
 #include <limits>
+#include <logging.h>
 #include <omp.h>
+#include <sstream>
 #include <profileapi.h>
+
+static const auto Log = logging::scope("Raytracer");
 
 namespace raytracer
 {
@@ -72,8 +75,9 @@ namespace raytracer
             LARGE_INTEGER frequency, start, stop;
             QueryPerformanceFrequency(&frequency);
 
-            std::cout << "Raytrace " << running.runId << " (" << x(running.resolution) << "x" << y(running.resolution)
-                << "):" << std::endl;
+            Log.info([id = running.runId, rx = x(running.resolution), ry = y(running.resolution)] {
+                return "Raytrace " + std::to_string(id) + " (" + std::to_string(rx) + "x" + std::to_string(ry) + "):";
+            });
 
             QueryPerformanceCounter(&start);
             trace();
@@ -82,7 +86,11 @@ namespace raytracer
             const auto timeDuration = static_cast<Int_64>(stop.QuadPart - start.QuadPart);
             const auto timeFrequency = static_cast<Int_64>(frequency.QuadPart);
             running.durationSeconds = convert<Float_64>(timeDuration) / convert<Float_64>(timeFrequency);
-            std::cout << "Duration: " << running.durationSeconds << "s" << std::endl;
+            Log.info([d = running.durationSeconds] {
+                std::ostringstream oss;
+                oss << "Duration: " << d << "s";
+                return oss.str();
+            });
 
             running.observer->notifyUpdate(running);
         }

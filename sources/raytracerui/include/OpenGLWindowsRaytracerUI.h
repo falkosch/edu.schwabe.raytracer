@@ -33,6 +33,8 @@ namespace raytracerui
 
     bool showConfig{false};
 
+    bool showLog{false};
+
   protected:
     void reshape(const Int2& newSize) override;
 

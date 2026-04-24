@@ -367,6 +367,10 @@ target_include_directories(${PROJECT_NAME}
         PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty"
 )
 
+add_dependencies(${PROJECT_NAME} logging)
+
+target_link_libraries(${PROJECT_NAME} PUBLIC logging)
+
 target_compile_definitions(${PROJECT_NAME} PRIVATE _LIB)
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")

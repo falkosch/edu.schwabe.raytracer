@@ -1,11 +1,14 @@
 #include "raytracing/common/PNGWriter.h"
 
-#include <iostream>
+#include <logging.h>
 #include <memory>
+#include <string>
 
 #include <windows.h>
 #include <wincodec.h>
 #include <wrl/client.h>
+
+static const auto Log = logging::scope("PNG");
 
 namespace raytracer
 {
@@ -15,12 +18,11 @@ namespace raytracer
 
     const auto w = static_cast<UINT>(width);
     const auto h = static_cast<UINT>(height);
-
     const auto comInit = CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
     const bool comOwned = SUCCEEDED(comInit);
     if (!comOwned && comInit != RPC_E_CHANGED_MODE)
     {
-      std::cerr << "COM initialization failed" << std::endl;
+      Log.error([] { return "COM initialization failed"; });
       return false;
     }
 
@@ -28,7 +30,7 @@ namespace raytracer
     if (FAILED(CoCreateInstance(
       CLSID_WICImagingFactory, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&factory))))
     {
-      std::cerr << "WIC factory creation failed" << std::endl;
+      Log.error([] { return "WIC factory creation failed"; });
       if (comOwned) CoUninitialize();
       return false;
     }
@@ -41,7 +43,7 @@ namespace raytracer
     if (FAILED(factory->CreateStream(&stream)) ||
       FAILED(stream->InitializeFromFilename(wideFilename.get(), GENERIC_WRITE)))
     {
-      std::cerr << "opening file " << filename << " for writing failed" << std::endl;
+      Log.error([fn = filename] { return "opening file " + fn + " for writing failed"; });
       if (comOwned) CoUninitialize();
       return false;
     }
@@ -50,7 +52,7 @@ namespace raytracer
     if (FAILED(factory->CreateEncoder(GUID_ContainerFormatPng, nullptr, &encoder)) ||
       FAILED(encoder->Initialize(stream.Get(), WICBitmapEncoderNoCache)))
     {
-      std::cerr << "PNG encoder initialization failed" << std::endl;
+      Log.error([] { return "PNG encoder initialization failed"; });
       if (comOwned) CoUninitialize();
       return false;
     }
@@ -58,7 +60,7 @@ namespace raytracer
     ComPtr<IWICBitmapFrameEncode> frame;
     if (FAILED(encoder->CreateNewFrame(&frame, nullptr)) || FAILED(frame->Initialize(nullptr)))
     {
-      std::cerr << "PNG frame creation failed" << std::endl;
+      Log.error([] { return "PNG frame creation failed"; });
       if (comOwned) CoUninitialize();
       return false;
     }
@@ -66,7 +68,7 @@ namespace raytracer
     auto pixelFormat = GUID_WICPixelFormat24bppBGR;
     if (FAILED(frame->SetSize(w, h)) || FAILED(frame->SetPixelFormat(&pixelFormat)))
     {
-      std::cerr << "PNG frame setup failed" << std::endl;
+      Log.error([] { return "PNG frame setup failed"; });
       if (comOwned) CoUninitialize();
       return false;
     }
@@ -76,7 +78,7 @@ namespace raytracer
     for (UINT row = 0; row < h; ++row) {
       const auto srcRow = (h - 1 - row) * strideBytes;
       if (FAILED(frame->WritePixels(1, strideBytes, strideBytes, const_cast<BYTE *>(bgrData + srcRow)))) {
-        std::cerr << "PNG pixel write failed at row " << row << std::endl;
+        Log.error([r = row] { return "PNG pixel write failed at row " + std::to_string(r); });
         CoUninitialize();
         return false;
       }
@@ -85,7 +87,7 @@ namespace raytracer
     const bool ok = SUCCEEDED(frame->Commit()) && SUCCEEDED(encoder->Commit());
     if (!ok)
     {
-      std::cerr << "PNG commit failed" << std::endl;
+      Log.error([] { return "PNG commit failed"; });
     }
 
     if (comOwned) CoUninitialize();

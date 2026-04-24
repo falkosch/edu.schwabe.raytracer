@@ -4,13 +4,16 @@
 #include <commdlg.h>
 
 #include <algorithm>
-#include <iostream>
+#include <logging.h>
+#include <string>
 
 #include <imgui.h>
 #include <imgui_impl_opengl2.h>
 #include <imgui_impl_win32.h>
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
+static const auto Log = logging::scope("UI");
 
 namespace raytracerui
 {
@@ -149,6 +152,8 @@ namespace raytracerui
       break;
     case VK_F3: showConfig = !showConfig;
       break;
+    case VK_F4: showLog = !showLog;
+      break;
     default: return;
     }
     repaint();
@@ -160,7 +165,7 @@ namespace raytracerui
 
     // Repaint after input when ImGui panels are visible so hover/focus state stays fresh.
     const auto& io = ImGui::GetIO();
-    const bool hasVisiblePanels = showControls || showMetrics || showConfig;
+    const bool hasVisiblePanels = showControls || showMetrics || showConfig || showLog;
     switch (msg)
     {
     case WM_LBUTTONDOWN:
@@ -215,6 +220,7 @@ namespace raytracerui
         ImGui::BulletText("F1: Controls");
         ImGui::BulletText("F2: Metrics");
         ImGui::BulletText("F3: Configuration");
+        ImGui::BulletText("F4: Log");
       }
       ImGui::End();
     }
@@ -425,12 +431,12 @@ namespace raytracerui
             std::string ext = path.substr(path.find_last_of('.') + 1);
             std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
 
-            std::cout << "Saving image ... ";
+            Log.info([path] { return "Saving image ... "; });
             if (ext == "png")
               output->saveAsPNG(path);
             else
               output->saveAsBMP(path);
-            std::cout << path << std::endl;
+            Log.info([path] { return path; });
           }
         }
 
@@ -438,6 +444,43 @@ namespace raytracerui
         {
           triggerRaytracing(true);
         }
+      }
+      ImGui::End();
+    }
+
+    if (showLog)
+    {
+      ImGui::SetNextWindowPos(ImVec2(10, 500), ImGuiCond_FirstUseEver);
+      ImGui::SetNextWindowSize(ImVec2(600, 300), ImGuiCond_FirstUseEver);
+      if (ImGui::Begin("Log (F4)", &showLog))
+      {
+        if (ImGui::Button("Clear"))
+        {
+          logging::Logger::instance().displayBuffer().clear();
+        }
+        ImGui::Separator();
+
+        ImGui::BeginChild("LogScroll", ImVec2(0, 0), false, ImGuiWindowFlags_HorizontalScrollbar);
+
+        const auto lines = logging::Logger::instance().displayBuffer().snapshot();
+        for (const auto &line : lines)
+        {
+          ImVec4 color;
+          switch (line.level)
+          {
+          case logging::LogLevel::Error: color = ImVec4(1.0f, 0.3f, 0.3f, 1.0f); break;
+          case logging::LogLevel::Warn: color = ImVec4(1.0f, 0.8f, 0.2f, 1.0f); break;
+          default: color = ImVec4(0.8f, 0.8f, 0.8f, 1.0f); break;
+          }
+          ImGui::PushStyleColor(ImGuiCol_Text, color);
+          ImGui::TextUnformatted(line.text.c_str());
+          ImGui::PopStyleColor();
+        }
+
+        if (ImGui::GetScrollY() >= ImGui::GetScrollMaxY())
+          ImGui::SetScrollHereY(1.0f);
+
+        ImGui::EndChild();
       }
       ImGui::End();
     }

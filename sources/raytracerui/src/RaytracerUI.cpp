@@ -1,7 +1,10 @@
 #include "RaytracerUI.h"
 #include "stdafx.h"
 
-#include <iostream>
+#include <logging.h>
+#include <string>
+
+static const auto Log = logging::scope("UI");
 
 namespace raytracerui
 {
@@ -17,7 +20,9 @@ namespace raytracerui
 
   void RaytracerUI::reshape(const Int2& newSize)
   {
-    std::cout << "Resizing output to " << x(newSize) << "x" << y(newSize) << std::endl;
+    Log.info([w = x(newSize), h = y(newSize)] {
+      return "Resizing output to " + std::to_string(w) + "x" + std::to_string(h);
+    });
     screenSize = newSize;
     parameters.camera->setProjection(
       parameters.perspectiveFOV, convert<Float2>(newSize), parameters.perspectiveZPlanes
@@ -44,14 +49,19 @@ namespace raytracerui
     lastStatistics = configuration.statistics;
     lastRenderDuration = configuration.durationSeconds;
 
-    std::cout << "primaryRays " << configuration.statistics.primaryRays << "/"
-      << configuration.statistics.missedPrimaryRays << std::endl;
-    std::cout << "secondaryRays " << configuration.statistics.secondaryRays << "/"
-      << configuration.statistics.missedSecondaryRays << std::endl;
-    std::cout << "shadowRays " << configuration.statistics.shadowRays << "/"
-      << configuration.statistics.missedShadowRays << std::endl;
-    std::cout << "objectShadowRays " << configuration.statistics.objectShadowRays << "/"
-      << configuration.statistics.objectMissedShadowRays << std::endl;
+    const auto &s = configuration.statistics;
+    Log.info([pr = s.primaryRays, mr = s.missedPrimaryRays] {
+      return "primaryRays " + std::to_string(pr) + "/" + std::to_string(mr);
+    });
+    Log.info([sr = s.secondaryRays, mr = s.missedSecondaryRays] {
+      return "secondaryRays " + std::to_string(sr) + "/" + std::to_string(mr);
+    });
+    Log.info([sr = s.shadowRays, mr = s.missedShadowRays] {
+      return "shadowRays " + std::to_string(sr) + "/" + std::to_string(mr);
+    });
+    Log.info([osr = s.objectShadowRays, omr = s.objectMissedShadowRays] {
+      return "objectShadowRays " + std::to_string(osr) + "/" + std::to_string(omr);
+    });
 
     outputHDR = selectOutputImage(configuration);
     output = std::make_unique<Bitmap>(*outputHDR);
@@ -59,9 +69,9 @@ namespace raytracerui
     ++frameCount;
     if (frameCount == 1)
     {
-      std::cout << "Saving ray-traced image ...";
+      Log.info([] { return "Saving ray-traced image ..."; });
       output->saveAsBMP("ray-traced.bmp");
-      std::cout << " ray-traced.bmp" << std::endl;
+      Log.info([] { return "ray-traced.bmp"; });
     }
   }
 

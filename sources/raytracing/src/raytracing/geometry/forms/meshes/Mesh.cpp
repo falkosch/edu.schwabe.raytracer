@@ -9,8 +9,11 @@
 #include <cassert>
 #include <fstream>
 #include <ios>
-#include <iostream>
+#include <logging.h>
 #include <sstream>
+#include <string>
+
+static const auto Log = logging::scope("Mesh");
 
 namespace raytracer {
   Mesh::Mesh()
@@ -259,21 +262,23 @@ namespace raytracer {
   ) {
     auto mesh = std::make_unique<Mesh>(std::move(traverser), std::move(balancer));
     if (filename.empty()) {
-      std::cerr << "File name is empty" << std::endl;
+      Log.error([] { return "File name is empty"; });
       return mesh;
     }
 
     std::string fileContent;
     if (!readMeshFileContent(std::ifstream{filename}, fileContent)) {
-      std::cerr << "Failed to open " << filename << std::endl;
+      Log.error([fn = filename] { return "Failed to open " + fn; });
       return mesh;
     }
-    std::cout << "Loaded " << fileContent.size() << " bytes from file " << filename << std::endl;
+    Log.info([sz = fileContent.size(), fn = filename] {
+      return "Loaded " + std::to_string(sz) + " bytes from file " + fn;
+    });
 
     std::istringstream fileStream{fileContent};
     std::string line;
     if (!readAndCheckHeaderInOFF(fileStream, line)) {
-      std::cerr << "File " << filename << " is not an OFF-file" << std::endl;
+      Log.error([fn = filename] { return "File " + fn + " is not an OFF-file"; });
       return mesh;
     }
 
@@ -305,7 +310,7 @@ namespace raytracer {
       ASizeT faceVerticesCount;
       lineStream >> faceVerticesCount;
       if (faceVerticesCount != 3) {
-        std::cerr << filename << " is corrupted!" << std::endl;
+        Log.error([fn = filename] { return fn + " is corrupted!"; });
         return mesh;
       }
 
@@ -321,8 +326,9 @@ namespace raytracer {
     mesh->setupMesh();
     computeTexCoordsSpherical(mesh->facetIndices, mesh->facets, mesh->texCoords);
 
-    std::cout << "loaded " << filename << ": " << verticesCount << " vertices, " << facetsCount << " faces"
-              << std::endl;
+    Log.info([fn = filename, vc = verticesCount, fc = facetsCount] {
+      return "loaded " + fn + ": " + std::to_string(vc) + " vertices, " + std::to_string(fc) + " faces";
+    });
 
     return mesh;
   }

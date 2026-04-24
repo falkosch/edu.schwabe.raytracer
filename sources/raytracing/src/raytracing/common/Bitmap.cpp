@@ -5,9 +5,12 @@
 #include <array>
 #include <cstring>
 #include <fstream>
-#include <iostream>
+#include <logging.h>
 #include <sstream>
+#include <string>
 #include <vector>
+
+static const auto Log = logging::scope("Bitmap");
 
 namespace raytracer
 {
@@ -94,7 +97,7 @@ namespace raytracer
     std::ifstream file(filename.c_str(), std::ios::binary);
     if (!file.is_open())
     {
-      std::cerr << "opening file " << filename << " failed" << std::endl;
+      Log.error([fn = filename] { return "opening file " + fn + " failed"; });
       return nullptr;
     }
 
@@ -104,7 +107,7 @@ namespace raytracer
     getline(file, magic);
     if (magic.substr(Zero<ASizeT>(), Two<ASizeT>()) != "P6")
     {
-      std::cerr << "File " << filename << " is not a raw PPM file" << std::endl;
+      Log.error([fn = filename] { return "File " + fn + " is not a raw PPM file"; });
       return nullptr;
     }
 
@@ -163,7 +166,9 @@ namespace raytracer
       }
     }
 
-    std::cout << "Image " << filename << "; " << x(resolution) << "x" << y(resolution) << " loaded." << std::endl;
+    Log.info([fn = filename, rx = x(resolution), ry = y(resolution)] {
+      return "Image " + fn + "; " + std::to_string(rx) + "x" + std::to_string(ry) + " loaded.";
+    });
     return loaded;
   }
 
@@ -207,7 +212,7 @@ namespace raytracer
     std::ofstream file(filename.c_str(), std::ios::binary | std::ios::trunc);
     if (!file.is_open())
     {
-      std::cerr << "opening file " << filename << " failed" << std::endl;
+      Log.error([fn = filename] { return "opening file " + fn + " failed"; });
       return false;
     }
 

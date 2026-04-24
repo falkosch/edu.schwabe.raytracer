@@ -3,7 +3,12 @@
 #include "vectorization/constants/values/half.h"
 #include "vectorization/constants/values/one.h"
 
-#include <iostream>
+#include <logging.h>
+
+#include <sstream>
+#include <string>
+
+static const auto Log = logging::scope("Epsilon");
 
 namespace vectorization {
   template <typename T>
@@ -14,7 +19,11 @@ namespace vectorization {
       e = f;
       f *= Half<T>();
     }
-    std::cout << "Machine epsilon for " << typeid(T).name() << " is " << e << std::endl;
+    Log.info([name = std::string(typeid(T).name()), e] {
+      std::ostringstream oss;
+      oss << "Machine epsilon for " << name << " is " << e;
+      return oss.str();
+    });
     return e;
   }
 

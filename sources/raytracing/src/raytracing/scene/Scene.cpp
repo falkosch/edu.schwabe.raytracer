@@ -1,10 +1,12 @@
 #include "raytracing/scene/Scene.h"
 #include "../../stdafx.h"
 
-#include <iostream>
+#include <logging.h>
 
 // disables the generation of a BVH for the scene objects (the scene tree)
 // #define DISABLE_BVH
+
+static const auto Log = logging::scope("Scene");
 
 namespace raytracer {
   Scene::Scene() : SceneShader(), sceneObjects(), treeBalancer() {
@@ -41,9 +43,9 @@ namespace raytracer {
 
 #ifndef DISABLE_BVH
     if (treeBalancer) {
-      std::cout << "Building culling tree for scene ... ";
+      Log.info([] { return "Building culling tree for scene ..."; });
       sceneGraph = treeBalancer->build(finiteSceneObjectsAsGeometryNodes);
-      std::cout << "done" << std::endl;
+      Log.info([] { return "done"; });
     }
 #endif
   }

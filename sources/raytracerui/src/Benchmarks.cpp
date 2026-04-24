@@ -2,7 +2,10 @@
 #include "stdafx.h"
 
 #include <array>
-#include <iostream>
+#include <logging.h>
+#include <string>
+
+static const auto Log = logging::scope("Benchmark");
 
 namespace raytracerui {
   // Ray-AxisAlignedBoundingBox overlaps test
@@ -96,7 +99,9 @@ namespace raytracerui {
     const auto stop = __rdtsc();
 
     const auto cpuClockFrequency = (stop - start) >> 2;
-    std::cout << frequency.QuadPart << " " << cpuClockFrequency << std::endl;
+    Log.debug([f = frequency.QuadPart, c = cpuClockFrequency] {
+      return std::to_string(f) + " " + std::to_string(c);
+    });
     return cpuClockFrequency;
   }
 
@@ -124,11 +129,12 @@ namespace raytracerui {
         )
     };
 
-    auto benchmark = [&rayCasts, &timeFactor](auto benchmarkScope, auto name) {
+    auto benchmark = [&rayCasts, &timeFactor](auto benchmarkScope, std::string name) {
       const auto start = __rdtsc();
       auto dummy = benchmarkScope(rayCasts, iterations);
+      (void)dummy;
       auto cycles = static_cast<Float_64>(__rdtsc() - start) * timeFactor;
-      std::cout << name << ": ret=" << dummy << " cycles=" << cycles << std::endl;
+      Log.debug([name, cycles] { return name + ": cycles=" + std::to_string(cycles); });
     };
 
     benchmark(benchmarkAABBOverlaps, "Ray-AABBx2 overlaps (traversal costs of kd-tree)");
