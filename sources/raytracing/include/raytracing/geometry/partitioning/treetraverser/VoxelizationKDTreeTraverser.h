@@ -2,6 +2,8 @@
 
 #include "../KDTreeTraverser.h"
 
+#include "raytracing/common/StatisticsCookie.h"
+
 namespace raytracer {
   using namespace vectorization;
   using namespace primitives;
@@ -42,6 +44,7 @@ namespace raytracer {
       const KDTreeNode *traversal = &node;
 
       while (traversal->children) {
+        if (StatisticsCookie::current) ++StatisticsCookie::current->kdTreeNodesVisited;
         const KDTreeNodeChildren &children = *traversal->children;
         const Float4::VectorBoolType leftRightHit = overlaps(tr, children.boundingA, children.boundingB);
 
@@ -84,6 +87,7 @@ namespace raytracer {
       const KDTreeNode *traversal = &node;
 
       while (traversal->children) {
+        if (StatisticsCookie::current) ++StatisticsCookie::current->kdTreeNodesVisited;
         const KDTreeNodeChildren &children = *traversal->children;
         const Float4::VectorBoolType leftRightHit = overlaps(tr, children.boundingA, children.boundingB);
 
@@ -133,11 +137,11 @@ namespace raytracer {
         const RayCast &rayCast, const IntersectionInfoType *const originIntersection,
         IntersectionInfoType &intersectionOut
     ) const {
-      // Do we have a hit at root?
       if (!overlaps(rayCast, root.rootBounding)) {
         return rayCast.maxDistance;
       }
 
+      if (StatisticsCookie::current) ++StatisticsCookie::current->kdTreeNodesVisited;
       RayCast tr = rayCast;
       findNearestIntersection(
           geometryNodesTraverser, root.rootNode, root.rootBounding, originIntersection, tr, intersectionOut
@@ -150,11 +154,11 @@ namespace raytracer {
         const RayCast &rayCast, const IntersectionInfoType *const originIntersection,
         IntersectionInfoType &intersectionOut
     ) const {
-      // Do we have a hit at root?
       if (!overlaps(rayCast, root.rootBounding)) {
         return rayCast.maxDistance;
       }
 
+      if (StatisticsCookie::current) ++StatisticsCookie::current->kdTreeNodesVisited;
       RayCast rayCastOut = rayCast;
       findAnyIntersection(
           geometryNodesTraverser, root.rootNode, root.rootBounding, rayCast, originIntersection, rayCastOut,

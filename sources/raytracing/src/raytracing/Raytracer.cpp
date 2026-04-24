@@ -201,6 +201,7 @@ namespace raytracer
         {
             // per worker states
             auto cache = RaytracerCache(running);
+            StatisticsCookie::current = &cache.statistics;
 
             // iterate over packets
 #pragma omp for schedule(static, 1) nowait
@@ -239,6 +240,7 @@ namespace raytracer
                 // merge per worker statistics to one global statistic
                 running.statistics.merge(cache.statistics);
             }
+            StatisticsCookie::current = nullptr;
         }
 
         running.state = (running.runId == runId.load());
@@ -291,9 +293,12 @@ namespace raytracer
         BRDFParameters brdf;
 
         // Find the nearest intersection
+        const auto intersectionStart = __rdtsc();
         brdf.viewDistance = cache.configuration.sceneShader->findNearestIntersection(
             raytrace.rayCast, raytrace.originIntersection, brdf.intersection
         );
+        cache.statistics.intersectionTicks += __rdtsc() - intersectionStart;
+
         if (outOfReach(raytrace.rayCast, brdf.viewDistance))
         {
             return {
@@ -302,17 +307,20 @@ namespace raytracer
             };
         }
 
-        // Sample surface properties at intersection
+        // Sample surface properties and lighting at the intersection
+        const auto shadingStart = __rdtsc();
+
         assert(brdf.intersection.object);
         auto& objectShader = *dynamic_cast<const ObjectShader*const>(brdf.intersection.object);
         brdf.surface = objectShader(*cache.configuration.sceneShader, brdf.intersection);
 
-        // Sample lighting properties at the intersection
         brdf.lighting = cache.configuration.sceneShader->sampleLighting(
             raytrace, SceneShader::adaptedVisibilityCutoff(cache.configuration.visibilityCutoff,
                                                            raytrace.visibilityIndex),
             brdf.surface.shininess, brdf.intersection, cache.shadowCache, cache.statistics
         );
+
+        cache.statistics.shadingTicks += __rdtsc() - shadingStart;
 
         // Whitted raytracing part, reflection and transmission
         const auto transmittedDirection = refract(

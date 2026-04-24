@@ -34,6 +34,10 @@ namespace raytracer {
     return bounding;
   }
 
+  ASizeT Mesh::getFaceCount() const {
+    return static_cast<ASizeT>(facets.size());
+  }
+
   Float Mesh::findNearestIntersection(
       const RayCast &rayCast, const FacetIntersection *const originIntersection, FacetIntersection &intersectionOut
   ) const {

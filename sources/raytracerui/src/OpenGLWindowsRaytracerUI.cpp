@@ -222,26 +222,98 @@ namespace raytracerui
     if (showMetrics)
     {
       ImGui::SetNextWindowPos(ImVec2(10, 400), ImGuiCond_FirstUseEver);
-      ImGui::SetNextWindowSize(ImVec2(300, 0), ImGuiCond_FirstUseEver);
+      ImGui::SetNextWindowSize(ImVec2(320, 0), ImGuiCond_FirstUseEver);
       if (ImGui::Begin("Metrics (F2)", &showMetrics))
       {
-        ImGui::Text("Duration: %.4f s", lastRenderDuration);
+        const auto &s = lastStatistics;
+
+        // Performance
+        ImGui::SeparatorText("Performance");
+
+        const auto totalRays = static_cast<double>(s.primaryRays + s.secondaryRays + s.shadowRays + s.objectShadowRays);
+        if (lastRenderDuration > 0.0)
+        {
+          ImGui::Text("Duration: %.4f s  (%.2f MRays/s)", lastRenderDuration, totalRays / lastRenderDuration / 1e6);
+        }
+        else
+        {
+          ImGui::Text("Duration: %.4f s", lastRenderDuration);
+        }
+
         ImGui::Text("Resolution: %zu x %zu",
-                    static_cast<size_t>(x(parameters.resolution)),
-                    static_cast<size_t>(y(parameters.resolution)));
-        ImGui::Separator();
-        ImGui::Text("Primary Rays:    %zu / %zu missed",
-                    static_cast<size_t>(lastStatistics.primaryRays),
-                    static_cast<size_t>(lastStatistics.missedPrimaryRays));
-        ImGui::Text("Secondary Rays:  %zu / %zu missed",
-                    static_cast<size_t>(lastStatistics.secondaryRays),
-                    static_cast<size_t>(lastStatistics.missedSecondaryRays));
-        ImGui::Text("Shadow Rays:     %zu / %zu missed",
-                    static_cast<size_t>(lastStatistics.shadowRays),
-                    static_cast<size_t>(lastStatistics.missedShadowRays));
-        ImGui::Text("Obj Shadow Rays: %zu / %zu missed",
-                    static_cast<size_t>(lastStatistics.objectShadowRays),
-                    static_cast<size_t>(lastStatistics.objectMissedShadowRays));
+                     static_cast<size_t>(x(parameters.resolution)),
+                     static_cast<size_t>(y(parameters.resolution)));
+
+        const auto totalTicks = static_cast<double>(s.intersectionTicks + s.shadingTicks);
+        if (totalTicks > 0.0)
+        {
+          ImGui::Text("Intersection: %.1f%%  Shading: %.1f%%",
+                       100.0 * static_cast<double>(s.intersectionTicks) / totalTicks,
+                       100.0 * static_cast<double>(s.shadingTicks) / totalTicks);
+        }
+
+        // Ray Statistics
+        ImGui::SeparatorText("Ray Statistics");
+
+        auto rayLine = [](const char *label, ASizeT total, ASizeT missed) {
+          if (total > Zero<ASizeT>())
+          {
+            ImGui::Text("%-16s %zu  (%.1f%% miss)", label, static_cast<size_t>(total),
+                         100.0 * static_cast<double>(missed) / static_cast<double>(total));
+          }
+          else
+          {
+            ImGui::Text("%-16s %zu", label, static_cast<size_t>(total));
+          }
+        };
+
+        rayLine("Primary:", s.primaryRays, s.missedPrimaryRays);
+        rayLine("Secondary:", s.secondaryRays, s.missedSecondaryRays);
+        rayLine("Shadow:", s.shadowRays, s.missedShadowRays);
+        rayLine("Obj Shadow:", s.objectShadowRays, s.objectMissedShadowRays);
+
+        const auto primaryHits = s.primaryRays - s.missedPrimaryRays;
+        if (primaryHits > Zero<ASizeT>())
+        {
+          ImGui::Text("Avg bounces/hit: %.2f",
+                       static_cast<double>(s.secondaryRays) / static_cast<double>(primaryHits));
+          ImGui::Text("Avg shadows/hit: %.2f",
+                       static_cast<double>(s.shadowRays) / static_cast<double>(primaryHits));
+        }
+
+        if (s.kdTreeNodesVisited > Zero<ASizeT>() && totalRays > 0.0)
+        {
+          ImGui::Text("Avg KD nodes/ray: %.1f",
+                       static_cast<double>(s.kdTreeNodesVisited) / totalRays);
+        }
+
+        // Scene Info (collapsible)
+        if (const auto *scene = dynamic_cast<const Scene *>(parameters.sceneShader))
+        {
+          if (ImGui::TreeNode("Scene Info"))
+          {
+            ImGui::Text("Objects: %zu", scene->getSceneObjects().size());
+            ImGui::Text("Lights:  %zu", scene->getLights().size());
+
+            ASizeT totalFaces = Zero<ASizeT>();
+            for (const auto &obj : scene->getSceneObjects())
+            {
+              if (const auto *form = obj->getForm())
+                totalFaces += form->getFaceCount();
+            }
+            ImGui::Text("Faces:   %zu", static_cast<size_t>(totalFaces));
+
+            if (const auto *graph = scene->getSceneGraph())
+            {
+              ImGui::Text("KD-Tree: %zu nodes, depth %zu",
+                           static_cast<size_t>(graph->nodeCount()),
+                           static_cast<size_t>(graph->depth()));
+            }
+
+            ImGui::TreePop();
+          }
+        }
+
         ImGui::Separator();
         ImGui::Text("Frame: %zu", static_cast<size_t>(frameCount));
       }

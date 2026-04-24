@@ -13,6 +13,10 @@ namespace raytracer {
 
   SceneGeometry::~SceneGeometry() = default;
 
+  const KDTreeRoot *SceneGeometry::getSceneGraph() const {
+    return sceneGraph.get();
+  }
+
   void SceneGeometry::clearSceneGraph() {
     sceneGraph.reset();
   }

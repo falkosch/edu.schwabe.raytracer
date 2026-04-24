@@ -15,6 +15,8 @@ namespace raytracer {
 
     virtual AxisAlignedBoundingBox getBounding() const;
 
+    virtual ASizeT getFaceCount() const;
+
     AxisAlignedBoundingBox includeInBounding(const AxisAlignedBoundingBox &aabb) const override;
 
     bool overlaps(const AxisAlignedBoundingBox &aabb) const override;

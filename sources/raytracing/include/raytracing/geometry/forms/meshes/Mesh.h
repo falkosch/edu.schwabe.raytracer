@@ -30,6 +30,8 @@ namespace raytracer {
         const RayCast &rayCast, const FacetIntersection *const originIntersection, FacetIntersection &intersectionOut
     ) const override;
 
+    ASizeT getFaceCount() const override;
+
     Float getIndividualIntersectionCosts() const override {
       // benchmarked intersection costs in cycles
       return 19.027224f;

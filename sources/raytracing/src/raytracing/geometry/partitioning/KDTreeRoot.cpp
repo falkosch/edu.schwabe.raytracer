@@ -6,4 +6,12 @@ namespace raytracer {
   }
 
   KDTreeRoot::~KDTreeRoot() = default;
+
+  ASizeT KDTreeRoot::depth() const {
+    return rootNode.depth();
+  }
+
+  ASizeT KDTreeRoot::nodeCount() const {
+    return rootNode.nodeCount();
+  }
 }

@@ -2,6 +2,8 @@
 
 #include "../KDTreeTraverser.h"
 
+#include "raytracing/common/StatisticsCookie.h"
+
 #include <cassert>
 
 namespace raytracer {
@@ -18,6 +20,7 @@ namespace raytracer {
       const KDTreeNode *traversal = &node;
 
       while (traversal->children) {
+        if (StatisticsCookie::current) ++StatisticsCookie::current->kdTreeNodesVisited;
         const KDTreeNodeChildren &children = *traversal->children;
         const Float4::VectorBoolType leftRightHit = overlaps(rayCast, children.boundingA, children.boundingB);
 
@@ -51,6 +54,7 @@ namespace raytracer {
       const KDTreeNode *traversal = &node;
 
       while (traversal->children) {
+        if (StatisticsCookie::current) ++StatisticsCookie::current->kdTreeNodesVisited;
         const KDTreeNodeChildren &children = *traversal->children;
         const Float4::VectorBoolType leftRightHit = overlaps(rayCastOut, children.boundingA, children.boundingB);
 
@@ -91,11 +95,11 @@ namespace raytracer {
         const RayCast &rayCast, const IntersectionInfoType *const originIntersection,
         IntersectionInfoType &intersectionOut
     ) const {
-      // Do we have a hit at root?
       if (!overlaps(rayCast, root.rootBounding)) {
         return rayCast.maxDistance;
       }
 
+      if (StatisticsCookie::current) ++StatisticsCookie::current->kdTreeNodesVisited;
       RayCast rayCastOut = rayCast;
       findNearestIntersection(geometryNodesTraverser, root.rootNode, originIntersection, rayCastOut, intersectionOut);
       return rayCastOut.maxDistance;
@@ -106,11 +110,11 @@ namespace raytracer {
         const RayCast &rayCast, const IntersectionInfoType *const originIntersection,
         IntersectionInfoType &intersectionOut
     ) const {
-      // Do we have a hit at root?
       if (!overlaps(rayCast, root.rootBounding)) {
         return rayCast.maxDistance;
       }
 
+      if (StatisticsCookie::current) ++StatisticsCookie::current->kdTreeNodesVisited;
       RayCast rayCastOut = rayCast;
       findAnyIntersection(
           geometryNodesTraverser, root.rootNode, rayCast, originIntersection, rayCastOut, intersectionOut

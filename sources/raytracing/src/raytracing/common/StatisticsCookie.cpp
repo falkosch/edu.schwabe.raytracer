@@ -2,9 +2,11 @@
 #include "../../stdafx.h"
 
 namespace raytracer {
+  thread_local StatisticsCookie *StatisticsCookie::current = nullptr;
+
   StatisticsCookie::StatisticsCookie()
       : primaryRays(), missedPrimaryRays(), secondaryRays(), missedSecondaryRays(), shadowRays(), missedShadowRays(),
-        objectShadowRays(), objectMissedShadowRays() {
+        objectShadowRays(), objectMissedShadowRays(), kdTreeNodesVisited(), intersectionTicks(), shadingTicks() {
   }
 
   void StatisticsCookie::merge(const StatisticsCookie &other) {
@@ -16,5 +18,8 @@ namespace raytracer {
     this->missedShadowRays += other.missedShadowRays;
     this->objectShadowRays += other.objectShadowRays;
     this->objectMissedShadowRays += other.objectMissedShadowRays;
+    this->kdTreeNodesVisited += other.kdTreeNodesVisited;
+    this->intersectionTicks += other.intersectionTicks;
+    this->shadingTicks += other.shadingTicks;
   }
 }

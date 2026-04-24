@@ -13,5 +13,9 @@ namespace raytracer {
     KDTreeRoot();
 
     ~KDTreeRoot();
+
+    ASizeT depth() const;
+
+    ASizeT nodeCount() const;
   };
 }

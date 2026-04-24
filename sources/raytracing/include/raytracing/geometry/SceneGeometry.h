@@ -30,6 +30,8 @@ namespace raytracer {
         const RayCast &rayCast, const SceneIntersection *originIntersection, SceneIntersection &intersectionOut
     ) const override;
 
+    const KDTreeRoot *getSceneGraph() const;
+
     virtual void buildSceneGraph() = 0;
 
   protected:

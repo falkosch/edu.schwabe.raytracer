@@ -8,6 +8,10 @@ namespace raytracer {
     return false;
   }
 
+  ASizeT Form::getFaceCount() const {
+    return Zero<ASizeT>();
+  }
+
   AxisAlignedBoundingBox Form::getBounding() const {
     return AxisAlignedBoundingBox(oneW(NegativeOne<Float4>()), One<Float4>());
   }

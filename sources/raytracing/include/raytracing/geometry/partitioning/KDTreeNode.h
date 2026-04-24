@@ -22,6 +22,10 @@ namespace raytracer {
 
     bool isNonEmptyLeaf() const;
 
+    ASizeT depth() const;
+
+    ASizeT nodeCount() const;
+
     // Adds two new children to this node and makes this node an empty node by deleting the geometryNodes.
     void grow(
         const AxisAlignedBoundingBox &leftBounding, std::unique_ptr<PGeometryNodeList> leftGeometryNodes,
