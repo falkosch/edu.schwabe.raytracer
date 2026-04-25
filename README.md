@@ -11,17 +11,6 @@ learning project, licensed under Creative Commons CC-BY-NC-SA.
 
 ## Setup
 
-### Clone
-
-This repository uses [cmake-modules](https://github.com/falkosch/cmake-modules) as a submodule under `./cmake`. Clone
-recursively:
-
-```
-git clone --recursive https://github.com/falkosch/edu.schwabe.raytracer.git
-```
-
-If you already cloned without `--recursive`, run `git submodule update --init --recursive`.
-
 ### Data folder
 
 Unpack `data/data.zip` into `data/` so it contains `meshes/` and `textures/`. See
@@ -30,7 +19,7 @@ Unpack `data/data.zip` into `data/` so it contains `meshes/` and `textures/`. Se
 ### Dependencies
 
 Install [vcpkg](https://vcpkg.io/en/getting-started), set `VCPKG_DIR` to the directory containing `vcpkg.exe`, and add
-the same directory to `PATH`. GLEW is the only vcpkg-managed dependency.
+the same directory to `PATH`. Managed packages (declared in `vcpkg.json`): GLEW, Dear ImGui, Catch2.
 
 ### Build
 
@@ -40,14 +29,15 @@ be run from a directory with access to `data/`.
 
 ## System overview
 
-Four targets in a strict dependency chain:
+Five targets in a layered dependency chain:
 
+* **logging** — thread-safe logger with lazy message evaluation; backs the F4 log panel.
 * **vectorization** — SIMD wrapper library over SSE4/AVX/FMA intrinsics. Core types `v_f32_4`, `v_i32_4`, `v_ui32_4`,
   `v_ui64_2`, `m_f32_4x4`. Vectorized exp/log come from `sse_mathfun.h` / `avx_mathfun.h` (see Credits).
 * **primitives** — geometric types: Ray, AABB, BoundingSphere, Facet, SplittingPlane, …
 * **raytracing** — scene management, KD-tree partitioning (multiple balancer strategies and traversers), Whitted
-  kernel, BRDF shading (Schlick-Fresnel refraction, Beer-Lambert transmission, Phong specular), OpenMP
-  parallelization.
+  kernel, BRDF shading (Lambert diffuse, Phong specular, Schlick-Fresnel refraction, Beer-Lambert transmission),
+  OpenMP parallelization, PNG export via Windows Imaging Component.
 * **raytracerui** — Win32 + OpenGL frontend with Dear ImGui overlay. Predefined scenes: CornellBox, Dragon,
   Procedural, TestScene1/2, TestLight.
 
