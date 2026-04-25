@@ -49,6 +49,8 @@ namespace raytracer {
         FacetIntersection &intersectionOut
     ) const override;
 
+    void setTreeBalancer(std::unique_ptr<const KDTreeBalancer> balancer);
+
     // Builders and test methods
 
     static std::unique_ptr<Mesh> buildCubeMesh();

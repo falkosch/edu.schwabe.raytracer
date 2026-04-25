@@ -8,6 +8,7 @@
 
 #include <atomic>
 #include <condition_variable>
+#include <functional>
 #include <mutex>
 #include <thread>
 
@@ -28,6 +29,8 @@ namespace raytracer {
 
     void stop();
 
+    void enqueueWork(std::function<void()> work);
+
   private:
     std::atomic<ASizeT> runId;
 
@@ -38,6 +41,8 @@ namespace raytracer {
     std::mutex mutex;
 
     std::condition_variable_any workAvailable;
+
+    std::function<void()> pendingWork;
 
     std::jthread workerThread;
 

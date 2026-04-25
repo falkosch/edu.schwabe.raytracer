@@ -40,6 +40,12 @@ namespace raytracer
         }
     }
 
+    void Raytracer::enqueueWork(std::function<void()> work)
+    {
+        std::lock_guard lock(mutex);
+        pendingWork = std::move(work);
+    }
+
     RaytraceConfiguration Raytracer::getRunning() const
     {
         return running;
@@ -63,6 +69,16 @@ namespace raytracer
                 });
             }
             if (stopToken.stop_requested()) break;
+
+            {
+                std::function<void()> work;
+                {
+                    std::lock_guard lock(mutex);
+                    work = std::move(pendingWork);
+                    pendingWork = nullptr;
+                }
+                if (work) work();
+            }
 
             {
                 std::lock_guard lock(mutex);

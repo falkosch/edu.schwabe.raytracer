@@ -7,6 +7,14 @@
 #include <logging.h>
 #include <string>
 
+#include <raytracing/geometry/partitioning/treebalancer/ArithmeticMeanKDTreeBalancer.h>
+#include <raytracing/geometry/partitioning/treebalancer/BruteForceSAHKDTreeBalancer.h>
+#include <raytracing/geometry/partitioning/treebalancer/FixedIterationsSAHKDTreeBalancer.h>
+#include <raytracing/geometry/partitioning/treebalancer/MaxAxisKDTreeBalancer.h>
+#include <raytracing/geometry/partitioning/treebalancer/MedianKDTreeBalancer.h>
+#include <raytracing/geometry/partitioning/treebalancer/RotatingAxisKDTreeBalancer.h>
+#include <raytracing/scene/Scene.h>
+
 #include <imgui.h>
 #include <imgui_impl_opengl2.h>
 #include <imgui_impl_win32.h>
@@ -17,6 +25,20 @@ static const auto Log = logging::scope("UI");
 
 namespace raytracerui
 {
+  std::unique_ptr<const KDTreeBalancer> createBalancer(int index, int threshold)
+  {
+    switch (index)
+    {
+    case 0: return std::make_unique<FixedIterationsSAHKDTreeBalancer>(static_cast<ASizeT>(threshold));
+    case 1: return std::make_unique<BruteForceSAHKDTreeBalancer>();
+    case 2: return std::make_unique<MedianKDTreeBalancer>();
+    case 3: return std::make_unique<ArithmeticMeanKDTreeBalancer>();
+    case 4: return std::make_unique<MaxAxisKDTreeBalancer>();
+    case 5: return std::make_unique<RotatingAxisKDTreeBalancer>();
+    default: return nullptr;
+    }
+  }
+
   const Float4_32 QUAD_VERTICES[] = {
     Float4_32(0.f, 0.f, 0.f, 1.f), Float4_32(0.f, 1.f, 0.f, 1.f), Float4_32(1.f, 1.f, 0.f, 1.f),
     Float4_32(1.f, 0.f, 0.f, 1.f)
@@ -381,6 +403,43 @@ namespace raytracerui
         if (ImGui::Combo("Culling", &cullingIndex, cullingItems, 3))
         {
           parameters.cullingOrientation = cullingIndex - 1;
+          changed = true;
+        }
+
+        const char* balancerItems[] = {
+          "Fixed Iterations SAH", "Brute Force SAH", "Median",
+          "Arithmetic Mean", "Max Axis", "Rotating Axis"
+        };
+
+        bool sceneBalancerChanged = ImGui::Combo("Scene KD-tree balancer", &balancerIndex, balancerItems, 6);
+        if (balancerIndex == 0)
+          sceneBalancerChanged |= ImGui::SliderInt("Scene SAH threshold", &sceneBalancerThreshold, 1, 100);
+        if (sceneBalancerChanged)
+        {
+          if (auto* scene = dynamic_cast<Scene*>(parameters.sceneShader))
+          {
+            auto balancer = std::make_shared<std::unique_ptr<const KDTreeBalancer>>(
+              createBalancer(balancerIndex, sceneBalancerThreshold));
+            raytracer->enqueueWork([scene, balancer] {
+              scene->setTreeBalancer(std::move(*balancer));
+            });
+          }
+          changed = true;
+        }
+
+        bool meshBalancerChanged = ImGui::Combo("Mesh KD-tree balancer", &meshBalancerIndex, balancerItems, 6);
+        if (meshBalancerIndex == 0)
+          meshBalancerChanged |= ImGui::SliderInt("Mesh SAH threshold", &meshBalancerThreshold, 1, 100);
+        if (meshBalancerChanged)
+        {
+          if (auto* scene = dynamic_cast<Scene*>(parameters.sceneShader))
+          {
+            const auto idx = meshBalancerIndex;
+            const auto thr = meshBalancerThreshold;
+            raytracer->enqueueWork([scene, idx, thr] {
+              scene->setMeshTreeBalancer([idx, thr] { return createBalancer(idx, thr); });
+            });
+          }
           changed = true;
         }
 

@@ -333,6 +333,18 @@ namespace raytracer {
     return mesh;
   }
 
+  void Mesh::setTreeBalancer(std::unique_ptr<const KDTreeBalancer> newBalancer) {
+    this->balancer = std::move(newBalancer);
+    graph.reset();
+    for (auto *node : nodes) {
+      delete node;
+    }
+    nodes.clear();
+    Log.info([n = facets.size()] { return "Building culling tree for mesh (" + std::to_string(n) + " faces) ..."; });
+    graph = computeNodesAndGraph(facets, balancer.get(), nodes);
+    Log.info([] { return "done"; });
+  }
+
   void Mesh::clear() {
     graph.reset();
 

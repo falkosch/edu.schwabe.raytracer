@@ -1,6 +1,8 @@
 #include "raytracing/scene/Scene.h"
 #include "../../stdafx.h"
 
+#include "raytracing/geometry/forms/meshes/Mesh.h"
+
 #include <logging.h>
 
 // disables the generation of a BVH for the scene objects (the scene tree)
@@ -27,6 +29,19 @@ namespace raytracer {
 
   const Scene::SceneList &Scene::getSceneObjects() const {
     return sceneObjects;
+  }
+
+  void Scene::setTreeBalancer(std::unique_ptr<const KDTreeBalancer> balancer) {
+    treeBalancer = std::move(balancer);
+    buildSceneGraph();
+  }
+
+  void Scene::setMeshTreeBalancer(const std::function<std::unique_ptr<const KDTreeBalancer>()> &balancerFactory) {
+    for (auto &sceneObject : sceneObjects) {
+      if (auto *mesh = dynamic_cast<Mesh *>(sceneObject->getForm())) {
+        mesh->setTreeBalancer(balancerFactory());
+      }
+    }
   }
 
   void Scene::buildSceneGraph() {

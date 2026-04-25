@@ -18,6 +18,10 @@ namespace raytracer {
     return form;
   }
 
+  Form *SceneObject::getForm() {
+    return const_cast<Form *>(form);
+  }
+
   void SceneObject::setForm(std::unique_ptr<const Form> value) {
     this->ownedForm = std::move(value);
     this->form = this->ownedForm.get();

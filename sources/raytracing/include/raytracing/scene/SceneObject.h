@@ -19,6 +19,8 @@ namespace raytracer {
 
     const Form *getForm() const;
 
+    Form *getForm();
+
     void setForm(std::unique_ptr<const Form> value);
 
     void setForm(const Form *borrowed);

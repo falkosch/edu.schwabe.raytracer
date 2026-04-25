@@ -5,6 +5,8 @@
 #include "../shading/SceneShader.h"
 #include "SceneObject.h"
 
+#include <functional>
+
 namespace raytracer {
   using namespace vectorization;
   using namespace primitives;
@@ -27,6 +29,10 @@ namespace raytracer {
     SceneList &getSceneObjects();
 
     void buildSceneGraph();
+
+    void setTreeBalancer(std::unique_ptr<const KDTreeBalancer> balancer);
+
+    void setMeshTreeBalancer(const std::function<std::unique_ptr<const KDTreeBalancer>()> &balancerFactory);
 
   protected:
     SceneList sceneObjects;

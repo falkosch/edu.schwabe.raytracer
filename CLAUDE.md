@@ -90,6 +90,17 @@ Core engine with subsystems:
 Win32 application entry point (`src/main.cpp`). Predefined test scenes: CornellBox, Dragon, Procedural, TestScene1/2,
 TestLight. Configuration constants defined in main.cpp (FAST_PREVIEW_SIZE, MAX_TRACE_DEPTH, RAY_PACKET_SIZE).
 
+## Threading Model
+
+The `Raytracer` class runs rendering on a background `std::jthread` worker thread. The UI thread triggers renders via
+`Raytracer::trigger()`, which is non-blocking. Render completion is marshalled back to the UI thread via
+`PostMessage(WM_RENDER_COMPLETE)`.
+
+**Enqueue work pattern**: `Raytracer::enqueueWork(std::function<void()>)` stores a callback under the mutex. The worker
+thread executes pending work *before* each trace, on the same thread. This serializes scene modifications (e.g. KD-tree
+rebuilds) with rendering — no concurrent access, no UI blocking. Rapid enqueues overwrite previous pending work, so
+only the last one takes effect. Use this pattern for any scene mutation that must not race with rendering.
+
 ## Testing
 
 - Tests live in `tests/vectorization.native-test/` — covers all vectorization operations

@@ -35,6 +35,14 @@ namespace raytracerui
 
     bool showLog{false};
 
+    int balancerIndex{0};
+
+    int sceneBalancerThreshold{25};
+
+    int meshBalancerIndex{0};
+
+    int meshBalancerThreshold{5};
+
   protected:
     void reshape(const Int2& newSize) override;
 
