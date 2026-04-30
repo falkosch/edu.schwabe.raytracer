@@ -3,11 +3,11 @@
 ## Motivation
 
 The vectorization library has excellent test coverage (120 files, edge cases for NaN/denormals/infinity).
-The raytracing library now has 226 tests in `tests/raytracing.native-test/` covering closed-form
+The raytracing library now has 237 tests in `tests/raytracing.native-test/` covering closed-form
 intersection (Sphere, Box, Plane, Mesh/Facet), KD-tree balancer + traversal, the shading pipeline
-(Fresnel, Beer-Lambert, Phong, BRDF, IntersectionNormalShader), Camera ray generation, and
-Bitmap/HDRImage I/O round-trips. Remaining gaps and testability improvements surfaced during the
-work are tracked in `.backlog/raytracing-testability.md`.
+(Fresnel, Beer-Lambert, Phong, BRDF, IntersectionNormalShader, HDRImageShader, EnvironmentShader),
+Camera ray generation, and Bitmap/HDRImage I/O round-trips. Testability improvements surfaced during
+the work are tracked in `.backlog/raytracing-testability.md`.
 
 Any refactoring of the raytracing layer previously had no safety net beyond a visual comparison of
 `ray-traced.bmp` output and stdout ray counts. The new tests catch numerical regressions adjacent
@@ -59,6 +59,12 @@ to (and partially through) the production code paths.
   transmission, all-zero produces zero)
 - IntersectionNormalShader: 6 tests (normal-to-color mapping, negative -> 0, +1 -> 1, zero -> 0.5,
   operator() matches sample(), arbitrary linear mapping)
+- HDRImageShader: 5 tests (1x1 image pass-through, 2x2 distinct-texel sampling at four corner
+  texCoords, HDR-range value preservation incl. negative and >>1, operator() matches sample(),
+  objectShader argument unused)
+- EnvironmentShader: 6 tests (1x1 image pass-through, 2x2 ray-direction xz -> texel mapping at four
+  cardinals, y-component ignored, HDR-range preservation, operator() matches sample(), modulo wrap
+  at +x +z = 1)
 - Camera ray generation: 18 tests (default state, frustum population, square/wide/tall aspect, FOV
   scaling, translate/rotate/resetView, center & corner pixel rays via the RaytracerPackets formula,
   symmetric corners, far-plane span vs near-plane span)
@@ -96,7 +102,7 @@ to (and partially through) the production code paths.
 
 ## Remaining Notes
 
-- HDRImageShader and EnvironmentShader still need targeted tests (require an HDRImage fixture)
+(none — see `.backlog/raytracing-testability.md` for follow-up API improvements)
 
 ## Key files
 
