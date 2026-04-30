@@ -48,6 +48,19 @@ numerical regressions.
   distance pruning and just-within boundary, findAny hit/miss/maxDistance, diagonal ray, self-
   occlusion advances to next, hit from behind, intersection.vertex set, 32 boxes across multiple
   splits all reachable through traversal)
+- Schlick-Fresnel + refraction/reflection: 13 tests (R0 at normal incidence for water/glass, grazing-
+  angle approach to 1, monotonicity, unit-range, dense->less-dense Snell branch, refract air->glass
+  direction, total internal reflection returns zero, normal-incidence pass-through, equal-eta
+  identity, reflect at horizontal surface and at normal incidence)
+- Beer-Lambert: 7 tests (zero distance -> 1, large distance -> 0, unit-d/unit-T -> 1/e, per-channel
+  independence, monotonic decay, large transmittance coefficient, range stays in [0,1])
+- Phong specular: 8 tests (aligned -> 1, perpendicular -> 0, opposite clamped, narrowing lobe with
+  shininess, non-negative, range in [0,1], reflect-then-Phong consistency, shininess=1 returns dot)
+- BRDF combine (formula from `Raytracer::applyBRDF`): 7 tests (white-light surface, emittance pass-
+  through, diffusion*ambient, specular*lighting, mix-coefficient endpoints select reflection vs
+  transmission, all-zero produces zero)
+- IntersectionNormalShader: 6 tests (normal-to-color mapping, negative -> 0, +1 -> 1, zero -> 0.5,
+  operator() matches sample(), arbitrary linear mapping)
 
 ## Findings (locked-in current behavior)
 
@@ -68,11 +81,15 @@ numerical regressions.
   side; tests assert the actual normal direction.
 - KDTreeBalancer's default `maxNodesSize=16` plus the SAH-style cost post-check means even 20
   primitives can stay as a single leaf; tests use 64 primitives where splits are guaranteed.
+- Production shading helpers `schlickFresnel`, `fresnelReflectance`, `phongSpecularIntensity`, and
+  `applyBRDF` are file-local statics / private members. The shading tests reproduce the formulas via
+  public primitives (`refract`, `reflect`, `mix`, `pow3`, `exp`) to lock in mathematical behavior;
+  refactors of the production helpers must update the tests in lockstep.
 
 ## Remaining Notes
 
-- Shading tests (BRDF, Fresnel, refraction, Phong) may need Scene/SceneObject scaffolding
 - Camera ray generation, Bitmap/HDRImage I/O round-trips
+- HDRImageShader and EnvironmentShader still need targeted tests (require an HDRImage fixture)
 - The Mesh KD-tree-driven path (with traverser) is not directly testable through `Mesh::buildXxxMesh`
   helpers; consider adding a `Mesh::setTraverser` setter or a `buildXxxMesh(traverser, balancer)`
   overload to make this path testable without going through Scene
