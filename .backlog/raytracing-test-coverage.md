@@ -97,16 +97,6 @@ to (and partially through) the production code paths.
 ## Remaining Notes
 
 - HDRImageShader and EnvironmentShader still need targeted tests (require an HDRImage fixture)
-- Bitmap I/O is asymmetric (only `loadPPM`, no `savePPM`; `saveAsBMP` / `saveAsPNG` have no matching
-  loaders), so the Bitmap suite uses hand-written P6 files for the load round-trip and asserts magic
-  bytes for the save side. HDRImage has no file I/O of its own, so the HDR round-trip exercises the
-  `Bitmap ↔ HDRImage` conversion constructors.
-- Test runner quirk: `vstest.console.exe` aborts the test host process at tear-down whenever
-  OpenMP-parallelized paths (`loadPPM`, `Bitmap ↔ HDRImage` ctors, `normalizeEachChannel`, raytrace
-  loops) have run. All assertions still pass, but the last 1–2 results may be truncated. Per-class
-  runs are clean. See `.backlog/raytracing-testability.md` for the planned investigation.
-- The Mesh KD-tree-driven path (with traverser) is not directly testable through `Mesh::buildXxxMesh`
-  helpers — see `.backlog/raytracing-testability.md` for the proposed API change
 
 ## Key files
 
