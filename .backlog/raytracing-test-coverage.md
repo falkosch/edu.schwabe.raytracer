@@ -3,9 +3,10 @@
 ## Motivation
 
 The vectorization library has excellent test coverage (120 files, edge cases for NaN/denormals/infinity).
-However, the raytracing library has zero tests for:
+The raytracing library now has intersection tests for closed-form geometry (Sphere, Box, Plane — 50 tests
+in `tests/raytracing.native-test/`), but still lacks tests for:
 
-- Ray-geometry intersection (Sphere, Box, Plane, Mesh, Facet)
+- Mesh/Facet intersection (requires KD-tree traverser + balancer plumbing)
 - KD-tree building and traversal
 - Shading/BRDF calculations (Schlick-Fresnel, Beer-Lambert, Phong)
 - Scene management, camera, image processing
@@ -23,13 +24,22 @@ numerical regressions.
 - Camera ray generation
 - Bitmap/HDRImage I/O round-trips
 
-## Notes
+## Done
 
-- Needs a test project added to CMake (similar to `tests/vectorization.native-test/`)
-- Consider whether to use MS CppUnitTest (consistent with vectorization tests) or Catch2 (CMake module
-  already in `cmake/Catch2Tests.cmake`)
-- Intersection tests should cover edge cases: tangent rays, rays parallel to surfaces, rays originating
-  inside geometry, degenerate triangles
+- Test project `tests/raytracing.native-test/` added (MS CppUnitTest, mirroring existing pattern)
+- Sphere intersection: 28 tests (hit, miss, tangent, inside, frontface/backface culling, maxDistance
+  boundary, self-occlusion, exact texCoords, smoothed/model-space normals, NaN direction, infinity origin)
+- Box intersection: 27 tests (all 6 face normals, miss, edge hit with output verification, inside,
+  frontface/backface culling, maxDistance boundary, self-occlusion, texCoords, smoothed normals)
+- Plane intersection: 25 tests (hit, parallel miss, both directions, frontface/backface culling, maxDistance
+  boundary, ray on plane, self-occlusion, model-space/smoothed normals, NaN on-plane parallel)
+
+## Remaining Notes
+
+- Mesh tests need KD-tree traverser + balancer wired up — consider using `Mesh::buildCubeMesh()` or
+  `Mesh::buildTriangleMesh()` static helpers
+- Intersection tests should cover degenerate triangles
+- Shading tests may need Scene/SceneObject scaffolding
 
 ## Key files
 
