@@ -4,6 +4,9 @@ set(SOURCES
         src/raytracing/geometry/forms/Sphere_test.cpp
         src/raytracing/geometry/forms/Box_test.cpp
         src/raytracing/geometry/forms/Plane_test.cpp
+        src/raytracing/geometry/forms/meshes/Mesh_test.cpp
+        src/raytracing/geometry/partitioning/Balancer_test.cpp
+        src/raytracing/geometry/partitioning/Traverser_test.cpp
 )
 
 set(HEADERS
