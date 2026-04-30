@@ -3,17 +3,15 @@
 ## Motivation
 
 The vectorization library has excellent test coverage (120 files, edge cases for NaN/denormals/infinity).
-The raytracing library now has intersection tests for closed-form geometry (Sphere, Box, Plane — 50 tests
-in `tests/raytracing.native-test/`), but still lacks tests for:
+The raytracing library now has 226 tests in `tests/raytracing.native-test/` covering closed-form
+intersection (Sphere, Box, Plane, Mesh/Facet), KD-tree balancer + traversal, the shading pipeline
+(Fresnel, Beer-Lambert, Phong, BRDF, IntersectionNormalShader), Camera ray generation, and
+Bitmap/HDRImage I/O round-trips. Remaining gaps and testability improvements surfaced during the
+work are tracked in `.backlog/raytracing-testability.md`.
 
-- Mesh/Facet intersection (requires KD-tree traverser + balancer plumbing)
-- KD-tree building and traversal
-- Shading/BRDF calculations (Schlick-Fresnel, Beer-Lambert, Phong)
-- Scene management, camera, image processing
-
-Any refactoring of the raytracing layer has no safety net. The current regression test is visual
-(comparing `ray-traced.bmp` output and stdout ray counts), which catches gross errors but not subtle
-numerical regressions.
+Any refactoring of the raytracing layer previously had no safety net beyond a visual comparison of
+`ray-traced.bmp` output and stdout ray counts. The new tests catch numerical regressions adjacent
+to (and partially through) the production code paths.
 
 ## Scope
 
@@ -61,6 +59,16 @@ numerical regressions.
   transmission, all-zero produces zero)
 - IntersectionNormalShader: 6 tests (normal-to-color mapping, negative -> 0, +1 -> 1, zero -> 0.5,
   operator() matches sample(), arbitrary linear mapping)
+- Camera ray generation: 18 tests (default state, frustum population, square/wide/tall aspect, FOV
+  scaling, translate/rotate/resetView, center & corner pixel rays via the RaytracerPackets formula,
+  symmetric corners, far-plane span vs near-plane span)
+- Bitmap I/O: 15 tests (default 1x1, stride padding to 4 bytes, operator[], loadPPM round-trip from
+  hand-written P6, missing-file/non-P6 rejection, Y-axis flip on load, saveAsBMP/saveAsPNG magic
+  bytes, 1x1/wide/tall edge cases, all-black/all-white round-trips, bad path)
+- HDRImage I/O round-trip: 15 tests (default, resolution, operator[], Bitmap → HDRImage normalised
+  values, full Bitmap → HDR → Bitmap round-trip, HDR-range storage of values >1 / <0, clamping in
+  HDR → Bitmap, NaN and infinity preservation, normalizeEachChannel, sampleBilinear at texel,
+  resolution preservation, 32x32 round-trip)
 
 ## Findings (locked-in current behavior)
 
@@ -88,13 +96,17 @@ numerical regressions.
 
 ## Remaining Notes
 
-- Camera ray generation, Bitmap/HDRImage I/O round-trips
 - HDRImageShader and EnvironmentShader still need targeted tests (require an HDRImage fixture)
+- Bitmap I/O is asymmetric (only `loadPPM`, no `savePPM`; `saveAsBMP` / `saveAsPNG` have no matching
+  loaders), so the Bitmap suite uses hand-written P6 files for the load round-trip and asserts magic
+  bytes for the save side. HDRImage has no file I/O of its own, so the HDR round-trip exercises the
+  `Bitmap ↔ HDRImage` conversion constructors.
+- Test runner quirk: `vstest.console.exe` aborts the test host process at tear-down whenever
+  OpenMP-parallelized paths (`loadPPM`, `Bitmap ↔ HDRImage` ctors, `normalizeEachChannel`, raytrace
+  loops) have run. All assertions still pass, but the last 1–2 results may be truncated. Per-class
+  runs are clean. See `.backlog/raytracing-testability.md` for the planned investigation.
 - The Mesh KD-tree-driven path (with traverser) is not directly testable through `Mesh::buildXxxMesh`
-  helpers; consider adding a `Mesh::setTraverser` setter or a `buildXxxMesh(traverser, balancer)`
-  overload to make this path testable without going through Scene
-- vstest.console.exe occasionally segfaults during the bulk run after reporting ~135 of 137 tests;
-  individual test invocations and grouped invocations work fine. Each test passes when run.
+  helpers — see `.backlog/raytracing-testability.md` for the proposed API change
 
 ## Key files
 

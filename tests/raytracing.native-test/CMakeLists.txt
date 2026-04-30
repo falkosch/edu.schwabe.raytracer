@@ -12,6 +12,9 @@ set(SOURCES
         src/raytracing/shading/Phong_test.cpp
         src/raytracing/shading/BRDF_test.cpp
         src/raytracing/shading/IntersectionNormalShader_test.cpp
+        src/raytracing/scene/Camera_test.cpp
+        src/raytracing/common/Bitmap_test.cpp
+        src/raytracing/common/HDRImage_test.cpp
 )
 
 set(HEADERS
