@@ -6,8 +6,6 @@
 #include "tests/TestScene1.h"
 #include "tests/TestScene2.h"
 
-#include "Benchmarks.h"
-#include "ManualTests.h"
 #include "OpenGLWindowsRaytracerUI.h"
 
 #include <logging.h>
@@ -53,11 +51,13 @@ constexpr ASizeT RAY_PACKET_SIZE = 15;
 
 static const auto Log = logging::scope("Main");
 
-namespace raytracerui {
-  LRESULT runRaytracerUI() {
+namespace raytracerui
+{
+  LRESULT runRaytracerUI()
+  {
     Resources resources{};
     Scene scene{
-        std::make_unique<NaiveKDTreeTraverser<SceneIntersection>>(), std::make_unique<FixedIterationsSAHKDTreeBalancer>()
+      std::make_unique<NaiveKDTreeTraverser<SceneIntersection>>(), std::make_unique<FixedIterationsSAHKDTreeBalancer>()
     };
 
     CornellBoxScene::setup(scene, resources);
@@ -89,12 +89,17 @@ namespace raytracerui {
 
     auto ui = std::make_unique<OpenGLWindowsRaytracerUI>(raytracer, parameters, FAST_PREVIEW_SIZE);
     WPARAM returnCode{};
-    try {
+    try
+    {
       returnCode = ui->run();
-    } catch (const std::exception &exception) {
+    }
+    catch (const std::exception& exception)
+    {
       std::string what = exception.what();
       Log.error([what] { return what; });
-    } catch (...) {
+    }
+    catch (...)
+    {
       Log.error([] { return "non standard exception occurred"; });
     }
 
@@ -102,7 +107,8 @@ namespace raytracerui {
   }
 }
 
-int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
+int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
+{
   logging::Logger::instance().setLogFile("raytracer.log");
   logging::Logger::instance().start();
 
@@ -113,9 +119,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
   std::string path(wpath.size(), '\0');
   std::transform(wpath.begin(), wpath.end(), path.begin(), [](wchar_t c) { return static_cast<char>(c); });
   Log.info([path] { return "Working directory: " + path; });
-
-  raytracerui::ManualTests()();
-  // raytracerui::Benchmarks()();
 
   auto result = static_cast<int>(raytracerui::runRaytracerUI());
   logging::Logger::instance().stop();

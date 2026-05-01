@@ -3,8 +3,10 @@
 
 #include "raytracing/shading/SceneShader.h"
 
-namespace raytracer {
-  RaytracerCache::RaytracerCache(const RaytraceConfiguration &configurationIn)
-      : configuration(configurationIn), statistics(), shadowCache(configurationIn.sceneShader->getLights().size()) {
-  }
+namespace raytracer
+{
+    RaytracerCache::RaytracerCache(const RaytraceConfiguration& configurationIn)
+        : configuration(configurationIn), statistics(), shadowCache(configurationIn.sceneShader->getLights().size())
+    {
+    }
 }

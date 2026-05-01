@@ -13,6 +13,7 @@
 
 #include "vectorization/functions/abs.h"
 #include "vectorization/functions/acos.h"
+#include "vectorization/functions/add_subtract.h"
 #include "vectorization/functions/atan2.h"
 #include "vectorization/functions/ceil.h"
 #include "vectorization/functions/clamp.h"
@@ -327,8 +328,8 @@ namespace vectorization {
     return _mm_castps_si128(isNaN(a.components, b.components));
   }
 
-  v_f32_4 subadd(const v_f32_4 &a, const v_f32_4 &b) noexcept {
-    return _mm_addsub_ps(a.components, b.components);
+  v_f32_4 addSubtract(const v_f32_4 &a, const v_f32_4 &b) noexcept {
+    return vectorization::addSubtract(a.components, b.components);
   }
 
   v_f32_4 sqrt(const v_f32_4 &v) noexcept {

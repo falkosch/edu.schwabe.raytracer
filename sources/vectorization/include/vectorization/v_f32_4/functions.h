@@ -169,12 +169,12 @@ namespace vectorization {
   // Checks whether a has Nan or b has NaN values
   v_f32_4::VectorBoolType isNaN(const v_f32_4 &a, const v_f32_4 &b) noexcept;
 
-  // Subtracts components with even index and adds components with uneven components, i.e.:
+  // Alternately subtracts and adds: even-indexed components are subtracted, odd-indexed are added.
   // x(out) = x(a) - x(b);
   // y(out) = y(a) + y(b);
   // z(out) = z(a) - z(b);
   // w(out) = w(a) + w(b);
-  v_f32_4 subadd(const v_f32_4 &a, const v_f32_4 &b) noexcept;
+  v_f32_4 addSubtract(const v_f32_4 &a, const v_f32_4 &b) noexcept;
 
   v_f32_4 sqrt(const v_f32_4 &v) noexcept;
 

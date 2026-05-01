@@ -8,6 +8,8 @@
 
 #include "functions/abs.h"
 #include "functions/acos.h"
+#include "functions/add.h"
+#include "functions/add_subtract.h"
 #include "functions/broadcast.h"
 #include "functions/atan2.h"
 #include "functions/bitcount.h"
@@ -20,6 +22,8 @@
 #include "functions/exp.h"
 #include "functions/floor.h"
 #include "functions/fract.h"
+#include "functions/horizontal_add.h"
+#include "functions/horizontal_subtract.h"
 #include "functions/is_nan.h"
 #include "functions/log.h"
 #include "functions/log_n.h"
@@ -28,6 +32,7 @@
 #include "functions/mix.h"
 #include "functions/modpad.h"
 #include "functions/modulo.h"
+#include "functions/multiply.h"
 #include "functions/pow.h"
 #include "functions/reciprocal.h"
 #include "functions/round.h"
@@ -37,6 +42,7 @@
 #include "functions/sin.h"
 #include "functions/sqr.h"
 #include "functions/sqrt.h"
+#include "functions/subtract.h"
 #include "functions/tan.h"
 
 #include "functions/static_average.h"

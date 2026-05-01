@@ -20,6 +20,7 @@ same time gives the biggest win and avoids touching the same code twice.
 ## Proposed fix
 
 ### Flat-array node layout
+
 1. Store all nodes in a single `std::vector<CompactKDNode>`.
 2. Reference children by index instead of pointer (e.g. stored offset or implicit `2*i+1`).
 3. Pack split axis (2 bits) + leaf flag (1 bit) into low bits of the child index.
@@ -29,6 +30,7 @@ Benefits: halves memory (no unique_ptr/allocator overhead), guarantees sequentia
 depth-first traversal, enables prefetching.
 
 ### Iterative traversal with explicit stack
+
 1. Replace recursive `findNearestIntersection` with a `while` loop and a small fixed-size stack
    (`std::array<TraversalEntry, MAX_DEPTH>`) allocated on the function stack.
 2. When both children are hit, push one onto the explicit stack, continue with the other.

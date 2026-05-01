@@ -291,7 +291,7 @@ namespace raytracer
 
         // Schlick approximation for polarized light refraction/reflection model:
         // R0 = ((eta_i - eta_t) / (eta_i + eta_t))²
-        auto refractions = subadd(zzzz(eta), wwww(eta));
+        auto refractions = addSubtract(zzzz(eta), wwww(eta));
         auto sqrtR0 = xxxx(refractions) / yyyy(refractions);
         auto R0 = sqrtR0 * sqrtR0;
         auto oneSubCosPhi = One<Float4>() - cosPhi;

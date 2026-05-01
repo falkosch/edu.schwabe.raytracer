@@ -13,6 +13,10 @@ set(SOURCES
         src/vectorization/accessors/replace_component_256s.cpp
         src/vectorization/architecture/compiler_intrinsics.cpp
         src/vectorization/architecture/memory.cpp
+        src/vectorization/blends/blend_128d.cpp
+        src/vectorization/blends/blend_128s.cpp
+        src/vectorization/blends/blend_256d.cpp
+        src/vectorization/blends/blend_256s.cpp
         src/vectorization/blends/blend_masked_128d.cpp
         src/vectorization/blends/blend_masked_128i.cpp
         src/vectorization/blends/blend_masked_128s.cpp
@@ -20,10 +24,6 @@ set(SOURCES
         src/vectorization/blends/blend_masked_256i.cpp
         src/vectorization/blends/blend_masked_256s.cpp
         src/vectorization/blends/blend_masked_scalar.cpp
-        src/vectorization/blends/blend_128d.cpp
-        src/vectorization/blends/blend_128s.cpp
-        src/vectorization/blends/blend_256d.cpp
-        src/vectorization/blends/blend_256s.cpp
         src/vectorization/constants/masks/mask_all.cpp
         src/vectorization/constants/masks/mask_none.cpp
         src/vectorization/constants/masks/mask_w.cpp
@@ -64,6 +64,8 @@ set(SOURCES
         src/vectorization/conversions/native.cpp
         src/vectorization/functions/abs.cpp
         src/vectorization/functions/acos.cpp
+        src/vectorization/functions/add.cpp
+        src/vectorization/functions/add_subtract.cpp
         src/vectorization/functions/atan2.cpp
         src/vectorization/functions/bitcount.cpp
         src/vectorization/functions/bitpad.cpp
@@ -75,6 +77,8 @@ set(SOURCES
         src/vectorization/functions/exp.cpp
         src/vectorization/functions/floor.cpp
         src/vectorization/functions/fract.cpp
+        src/vectorization/functions/horizontal_add.cpp
+        src/vectorization/functions/horizontal_subtract.cpp
         src/vectorization/functions/is_nan.cpp
         src/vectorization/functions/log.cpp
         src/vectorization/functions/log_n.cpp
@@ -83,6 +87,7 @@ set(SOURCES
         src/vectorization/functions/mix.cpp
         src/vectorization/functions/modpad.cpp
         src/vectorization/functions/modulo.cpp
+        src/vectorization/functions/multiply.cpp
         src/vectorization/functions/pow.cpp
         src/vectorization/functions/reciprocal.cpp
         src/vectorization/functions/round.cpp
@@ -92,6 +97,7 @@ set(SOURCES
         src/vectorization/functions/sin.cpp
         src/vectorization/functions/sqr.cpp
         src/vectorization/functions/sqrt.cpp
+        src/vectorization/functions/subtract.cpp
         src/vectorization/functions/tan.cpp
         src/vectorization/m_f32_4x4/accessors.cpp
         src/vectorization/m_f32_4x4/constants.cpp
@@ -105,11 +111,11 @@ set(SOURCES
         src/vectorization/selects/selects_256i.cpp
         src/vectorization/selects/selects_256s.cpp
         src/vectorization/selects/selects_scalar.cpp
+        src/vectorization/swizzled_blends/swizzled_blend_128d.cpp
+        src/vectorization/swizzled_blends/swizzled_blend_128s.cpp
         src/vectorization/swizzled_blends/swizzled_blend_1x1_128d.cpp
         src/vectorization/swizzled_blends/swizzled_blend_2x2_128s.cpp
         src/vectorization/swizzled_blends/swizzled_blend_2x2_256d.cpp
-        src/vectorization/swizzled_blends/swizzled_blend_128d.cpp
-        src/vectorization/swizzled_blends/swizzled_blend_128s.cpp
         src/vectorization/swizzles/swizzle_128d.cpp
         src/vectorization/swizzles/swizzle_128s.cpp
         src/vectorization/swizzles/swizzle_256d.cpp
@@ -178,6 +184,10 @@ set(HEADERS
         include/vectorization/architecture/meta_packed_types.h
         include/vectorization/architecture/meta_types.h
         include/vectorization/blends.h
+        include/vectorization/blends/blend_128d.h
+        include/vectorization/blends/blend_128s.h
+        include/vectorization/blends/blend_256d.h
+        include/vectorization/blends/blend_256s.h
         include/vectorization/blends/blend_masked_128d.h
         include/vectorization/blends/blend_masked_128i.h
         include/vectorization/blends/blend_masked_128s.h
@@ -185,10 +195,6 @@ set(HEADERS
         include/vectorization/blends/blend_masked_256i.h
         include/vectorization/blends/blend_masked_256s.h
         include/vectorization/blends/blend_masked_scalar.h
-        include/vectorization/blends/blend_128d.h
-        include/vectorization/blends/blend_128s.h
-        include/vectorization/blends/blend_256d.h
-        include/vectorization/blends/blend_256s.h
         include/vectorization/constants.h
         include/vectorization/constants/masks.h
         include/vectorization/constants/masks/mask_all.h
@@ -234,6 +240,8 @@ set(HEADERS
         include/vectorization/functions.h
         include/vectorization/functions/abs.h
         include/vectorization/functions/acos.h
+        include/vectorization/functions/add.h
+        include/vectorization/functions/add_subtract.h
         include/vectorization/functions/atan2.h
         include/vectorization/functions/bitcount.h
         include/vectorization/functions/bitpad.h
@@ -245,6 +253,8 @@ set(HEADERS
         include/vectorization/functions/exp.h
         include/vectorization/functions/floor.h
         include/vectorization/functions/fract.h
+        include/vectorization/functions/horizontal_add.h
+        include/vectorization/functions/horizontal_subtract.h
         include/vectorization/functions/is_nan.h
         include/vectorization/functions/log.h
         include/vectorization/functions/log_n.h
@@ -253,6 +263,7 @@ set(HEADERS
         include/vectorization/functions/mix.h
         include/vectorization/functions/modpad.h
         include/vectorization/functions/modulo.h
+        include/vectorization/functions/multiply.h
         include/vectorization/functions/pow.h
         include/vectorization/functions/reciprocal.h
         include/vectorization/functions/round.h
@@ -265,6 +276,7 @@ set(HEADERS
         include/vectorization/functions/static_average.h
         include/vectorization/functions/static_for.h
         include/vectorization/functions/static_normalize.h
+        include/vectorization/functions/subtract.h
         include/vectorization/functions/tan.h
         include/vectorization/m_f32_4x4.h
         include/vectorization/m_f32_4x4/accessors.h
@@ -283,17 +295,17 @@ set(HEADERS
         include/vectorization/selects/selects_generic.h
         include/vectorization/selects/selects_scalar.h
         include/vectorization/swizzled_blends.h
+        include/vectorization/swizzled_blends/swizzled_blend_128d.h
+        include/vectorization/swizzled_blends/swizzled_blend_128s.h
         include/vectorization/swizzled_blends/swizzled_blend_1x1_128d.h
+        include/vectorization/swizzled_blends/swizzled_blend_256d.h
+        include/vectorization/swizzled_blends/swizzled_blend_256s.h
         include/vectorization/swizzled_blends/swizzled_blend_2x2_128s.h
         include/vectorization/swizzled_blends/swizzled_blend_2x2_256d.h
         include/vectorization/swizzled_blends/swizzled_blend_masked_128d.h
         include/vectorization/swizzled_blends/swizzled_blend_masked_128s.h
         include/vectorization/swizzled_blends/swizzled_blend_masked_256d.h
         include/vectorization/swizzled_blends/swizzled_blend_masked_256s.h
-        include/vectorization/swizzled_blends/swizzled_blend_128d.h
-        include/vectorization/swizzled_blends/swizzled_blend_128s.h
-        include/vectorization/swizzled_blends/swizzled_blend_256d.h
-        include/vectorization/swizzled_blends/swizzled_blend_256s.h
         include/vectorization/swizzles.h
         include/vectorization/swizzles/swizzle_128d.h
         include/vectorization/swizzles/swizzle_128s.h

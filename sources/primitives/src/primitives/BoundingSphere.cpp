@@ -32,7 +32,7 @@ namespace primitives {
     const auto q = sqrt(sqrRadius - sqrM);
     // d.x = d.z = s - q;
     // d.y = d.w = s + q;
-    const auto d = subadd(s, q);
+    const auto d = addSubtract(s, q);
     return blend<false, true, false, true>(min(d, yyww(d)), max(xxzz(d), d));
   }
 

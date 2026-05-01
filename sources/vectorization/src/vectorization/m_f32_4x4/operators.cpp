@@ -1,5 +1,7 @@
 #include "vectorization/m_f32_4x4.h"
 
+#include "vectorization/functions/horizontal_add.h"
+
 namespace vectorization {
   m_f32_4x4 operator*(const m_f32_4x4 &matrix, const m_f32_4x4::ValueType scale) noexcept {
     const auto broadcast = m_f32_4x4::RowVectorType(scale);
@@ -29,9 +31,9 @@ namespace vectorization {
     // return _mm_or_ps(_mm_or_ps(d0, d1), _mm_or_ps(d2, d3));
 
     // hadd variant: 4x mulps (5cy) + 3x haddps (3-6cy) = ~11-17cy chain (mul parallel, then hadd-tree)
-    return _mm_hadd_ps(
-        _mm_hadd_ps((vector * matrix.row0).components, (vector * matrix.row1).components),
-        _mm_hadd_ps((vector * matrix.row2).components, (vector * matrix.row3).components)
+    return horizontalAdd(
+        horizontalAdd((vector * matrix.row0).components, (vector * matrix.row1).components),
+        horizontalAdd((vector * matrix.row2).components, (vector * matrix.row3).components)
     );
   }
 

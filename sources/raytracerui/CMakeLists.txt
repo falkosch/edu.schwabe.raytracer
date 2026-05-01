@@ -1,8 +1,6 @@
 project(raytracerui LANGUAGES CXX VERSION 1.0.0)
 
 set(SOURCES
-        src/Benchmarks.cpp
-        src/ManualTests.cpp
         src/MessageLoopBasedUI.cpp
         src/OpenGLWindowsRaytracerUI.cpp
         src/RaytracerUI.cpp
@@ -17,8 +15,6 @@ set(SOURCES
 )
 
 set(HEADERS
-        include/Benchmarks.h
-        include/ManualTests.h
         include/MessageLoopBasedUI.h
         include/OpenGLWindowsRaytracerUI.h
         include/RaytracerUI.h

@@ -4,9 +4,12 @@
 
 #include "vectorization/constants/masks.h"
 #include "vectorization/constants/values.h"
+#include "vectorization/functions/add.h"
 #include "vectorization/functions/broadcast.h"
 #include "vectorization/functions/divide.h"
 #include "vectorization/functions/modulo.h"
+#include "vectorization/functions/multiply.h"
+#include "vectorization/functions/subtract.h"
 
 namespace vectorization {
   // http://fastcpp.blogspot.de/2011/03/changing-sign-of-float-values-using-sse.html
@@ -24,39 +27,39 @@ namespace vectorization {
   }
 
   v_f32_4 operator+(const v_f32_4 &a, const v_f32_4 &b) noexcept {
-    return _mm_add_ps(a.components, b.components);
+    return add(a.components, b.components);
   }
 
   v_f32_4 operator+(const v_f32_4 &a, const v_f32_4::ValueType &b) noexcept {
-    return _mm_add_ps(a.components, broadcast(b));
+    return add(a.components, broadcast(b));
   }
 
   v_f32_4 operator+(const v_f32_4::ValueType &a, const v_f32_4 &b) noexcept {
-    return _mm_add_ps(broadcast(a), b.components);
+    return add(broadcast(a), b.components);
   }
 
   v_f32_4 operator-(const v_f32_4 &a, const v_f32_4 &b) noexcept {
-    return _mm_sub_ps(a.components, b.components);
+    return subtract(a.components, b.components);
   }
 
   v_f32_4 operator-(const v_f32_4 &a, const v_f32_4::ValueType &b) noexcept {
-    return _mm_sub_ps(a.components, broadcast(b));
+    return subtract(a.components, broadcast(b));
   }
 
   v_f32_4 operator-(const v_f32_4::ValueType &a, const v_f32_4 &b) noexcept {
-    return _mm_sub_ps(broadcast(a), b.components);
+    return subtract(broadcast(a), b.components);
   }
 
   v_f32_4 operator*(const v_f32_4 &a, const v_f32_4 &b) noexcept {
-    return _mm_mul_ps(a.components, b.components);
+    return multiply(a.components, b.components);
   }
 
   v_f32_4 operator*(const v_f32_4 &a, const v_f32_4::ValueType &b) noexcept {
-    return _mm_mul_ps(a.components, broadcast(b));
+    return multiply(a.components, broadcast(b));
   }
 
   v_f32_4 operator*(const v_f32_4::ValueType &a, const v_f32_4 &b) noexcept {
-    return _mm_mul_ps(broadcast(a), b.components);
+    return multiply(broadcast(a), b.components);
   }
 
   v_f32_4 operator/(const v_f32_4 &a, const v_f32_4 &b) noexcept {

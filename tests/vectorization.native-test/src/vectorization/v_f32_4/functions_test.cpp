@@ -1,9 +1,12 @@
 #include "vectorization_tests.h"
 
-namespace vectorization::test {
-  TEST_CLASS(v_f32_4_FunctionsTest) {
+namespace vectorization::test
+{
+  TEST_CLASS(v_f32_4_FunctionsTest)
+  {
   public:
-    TEST_METHOD(computesMinComponentWiseAndScalarAndMin3) {
+    TEST_METHOD(computesMinComponentWiseAndScalarAndMin3)
+    {
       const v_f32_4 a{1.0f, 4.0f, 2.0f, 5.0f};
       const v_f32_4 b{3.0f, 2.0f, 6.0f, 1.0f};
 
@@ -23,7 +26,8 @@ namespace vectorization::test {
       Assert::AreEqual(2.0f, min3(v2), L"min3(v) mismatch", LINE_INFO());
     }
 
-    TEST_METHOD(computesMaxComponentWiseAndScalarAndMax3) {
+    TEST_METHOD(computesMaxComponentWiseAndScalarAndMax3)
+    {
       const v_f32_4 a{1.0f, 4.0f, 2.0f, 5.0f};
       const v_f32_4 b{3.0f, 2.0f, 6.0f, 1.0f};
 
@@ -43,7 +47,8 @@ namespace vectorization::test {
       Assert::AreEqual(4.0f, max3(v2), L"max3(v) mismatch", LINE_INFO());
     }
 
-    TEST_METHOD(computesHorizontalSumAndHorizontalSum3) {
+    TEST_METHOD(computesHorizontalSumAndHorizontalSum3)
+    {
       const v_f32_4 v{1.0f, 2.0f, 3.0f, 4.0f};
       Assert::AreEqual(10.0f, horizontalSum(v), L"horizontalSum mismatch", LINE_INFO());
 
@@ -51,7 +56,8 @@ namespace vectorization::test {
       Assert::AreEqual(6.0f, horizontalSum3(v), L"horizontalSum3 mismatch", LINE_INFO());
     }
 
-    TEST_METHOD(computesDotAndDot3) {
+    TEST_METHOD(computesDotAndDot3)
+    {
       const v_f32_4 a{1.0f, 2.0f, 3.0f, 4.0f};
       const v_f32_4 b{5.0f, 6.0f, 7.0f, 8.0f};
 
@@ -62,7 +68,8 @@ namespace vectorization::test {
       Assert::AreEqual(38.0f, dot3(a, b), L"dot3 mismatch", LINE_INFO());
     }
 
-    TEST_METHOD(computesLengthAndLength3) {
+    TEST_METHOD(computesLengthAndLength3)
+    {
       // length({3,0,4,0}) = sqrt(9+0+16+0) = sqrt(25) = 5
       const v_f32_4 v{3.0f, 0.0f, 4.0f, 0.0f};
       Assert::AreEqual(5.0f, length(v), L"length mismatch", LINE_INFO());
@@ -72,7 +79,8 @@ namespace vectorization::test {
       Assert::AreEqual(5.0f, length3(v2), L"length3 mismatch", LINE_INFO());
     }
 
-    TEST_METHOD(computesNormalizeAndNormalize3) {
+    TEST_METHOD(computesNormalizeAndNormalize3)
+    {
       // normalize({3,0,4,0}) with length=5 gives {0.6, 0, 0.8, 0}
       const v_f32_4 v{3.0f, 0.0f, 4.0f, 0.0f};
       const auto n = normalize(v);
@@ -91,7 +99,8 @@ namespace vectorization::test {
       Assert::AreEqual(0.0f, w(n3), epsilon, L"normalize3 W mismatch", LINE_INFO());
     }
 
-    TEST_METHOD(computesDistanceAndDistance3) {
+    TEST_METHOD(computesDistanceAndDistance3)
+    {
       const v_f32_4 a{1.0f, 2.0f, 3.0f, 0.0f};
       const v_f32_4 b{4.0f, 6.0f, 3.0f, 0.0f};
 
@@ -104,7 +113,8 @@ namespace vectorization::test {
       Assert::AreEqual(5.0f, distance3(a2, b2), L"distance3 mismatch", LINE_INFO());
     }
 
-    TEST_METHOD(computesReflect) {
+    TEST_METHOD(computesReflect)
+    {
       // reflect(incident, normal) = incident - 2*dot(normal, incident)*normal
       // incident going down at 45 deg: {1, -1, 0, 0}, normal pointing up: {0, 1, 0, 0}
       // dot(normal, incident) = -1
@@ -119,7 +129,8 @@ namespace vectorization::test {
       Assert::AreEqual(0.0f, w(r), epsilon, L"reflect W mismatch", LINE_INFO());
     }
 
-    TEST_METHOD(computesCross3) {
+    TEST_METHOD(computesCross3)
+    {
       // cross3({1,0,0,0}, {0,1,0,0}) = {0,0,1,0}
       const v_f32_4 a{1.0f, 0.0f, 0.0f, 0.0f};
       const v_f32_4 b{0.0f, 1.0f, 0.0f, 0.0f};
@@ -138,7 +149,8 @@ namespace vectorization::test {
       Assert::AreEqual(0.0f, z(f), L"cross3 Z mismatch (2)", LINE_INFO());
     }
 
-    TEST_METHOD(computesMix) {
+    TEST_METHOD(computesMix)
+    {
       // mix(a, b, factor) = a + (b - a) * factor
       const v_f32_4 a{1.0f, 2.0f, 3.0f, 4.0f};
       const v_f32_4 b{5.0f, 6.0f, 7.0f, 8.0f};
@@ -169,7 +181,8 @@ namespace vectorization::test {
       Assert::AreEqual(8.0f, w(rv), L"mix(vec) W mismatch", LINE_INFO());
     }
 
-    TEST_METHOD(computesZeroWAndOneW) {
+    TEST_METHOD(computesZeroWAndOneW)
+    {
       const v_f32_4 v{1.0f, 2.0f, 3.0f, 4.0f};
 
       // zeroW sets W to 0, preserves XYZ
@@ -187,33 +200,39 @@ namespace vectorization::test {
       Assert::AreEqual(1.0f, w(ow), L"oneW W mismatch", LINE_INFO());
     }
 
-    TEST_METHOD(computesIsNegative) {
+    TEST_METHOD(computesIsNegative)
+    {
       // isNegative returns a movemask bitmask: bit 0 = X, bit 1 = Y, bit 2 = Z, bit 3 = W
       const v_f32_4 v{-1.0f, 2.0f, -3.0f, 4.0f};
       const auto mask = isNegative(v);
       // X negative (bit 0) and Z negative (bit 2) => 0b0101 = 5
-      Assert::AreEqual(static_cast<v_f32_4::BoolType>(VectorBits::X | VectorBits::Z), mask, L"isNegative mismatch", LINE_INFO());
+      Assert::AreEqual(static_cast<v_f32_4::BoolType>(VectorBits::X | VectorBits::Z), mask, L"isNegative mismatch",
+                       LINE_INFO());
 
       // all positive
       const auto maskPos = isNegative(v_f32_4{1.0f, 2.0f, 3.0f, 4.0f});
-      Assert::AreEqual(static_cast<v_f32_4::BoolType>(VectorBits::None), maskPos, L"isNegative all-positive mismatch", LINE_INFO());
+      Assert::AreEqual(static_cast<v_f32_4::BoolType>(VectorBits::None), maskPos, L"isNegative all-positive mismatch",
+                       LINE_INFO());
 
       // all negative
       const auto maskNeg = isNegative(v_f32_4{-1.0f, -2.0f, -3.0f, -4.0f});
       Assert::AreEqual(
-          static_cast<v_f32_4::BoolType>(VectorBits::X | VectorBits::Y | VectorBits::Z | VectorBits::W), maskNeg,
-          L"isNegative all-negative mismatch", LINE_INFO()
+        static_cast<v_f32_4::BoolType>(VectorBits::X | VectorBits::Y | VectorBits::Z | VectorBits::W), maskNeg,
+        L"isNegative all-negative mismatch", LINE_INFO()
       );
     }
 
-    TEST_METHOD(computesIsNaN) {
+    TEST_METHOD(computesIsNaN)
+    {
       // No NaN values
       const v_f32_4 normal{1.0f, 2.0f, 3.0f, 4.0f};
       const auto noNaN = isNaN(normal);
       Assert::IsFalse(allTrue(noNaN), L"isNaN should not flag normal values", LINE_INFO());
 
       // All NaN values
-      const v_f32_4 allNaN{NotANumber<Float_32>(), NotANumber<Float_32>(), NotANumber<Float_32>(), NotANumber<Float_32>()};
+      const v_f32_4 allNaN{
+        NotANumber<Float_32>(), NotANumber<Float_32>(), NotANumber<Float_32>(), NotANumber<Float_32>()
+      };
       const auto allNaNResult = isNaN(allNaN);
       Assert::IsTrue(allTrue(allNaNResult), L"isNaN should flag all NaN values", LINE_INFO());
 
@@ -224,7 +243,8 @@ namespace vectorization::test {
       Assert::IsFalse(allTrue(mixedResult), L"isNaN should not be allTrue for single NaN", LINE_INFO());
     }
 
-    TEST_METHOD(computesSqrtReciprocalAndRsqrt) {
+    TEST_METHOD(computesSqrtReciprocalAndRsqrt)
+    {
       // sqrt of perfect squares
       const v_f32_4 v{4.0f, 9.0f, 16.0f, 25.0f};
       const auto s = sqrt(v);
@@ -250,7 +270,8 @@ namespace vectorization::test {
       Assert::AreEqual(0.2f, w(rs), epsilon, L"rsqrt W mismatch", LINE_INFO());
     }
 
-    TEST_METHOD(computesCeilFloorRoundAndFract) {
+    TEST_METHOD(computesCeilFloorRoundAndFract)
+    {
       const v_f32_4 v{1.3f, 2.7f, -0.3f, 3.5f};
 
       // ceil
@@ -285,7 +306,8 @@ namespace vectorization::test {
       Assert::AreEqual(0.0f, w(fr), epsilon, L"fract W mismatch", LINE_INFO());
     }
 
-    TEST_METHOD(computesAbs) {
+    TEST_METHOD(computesAbs)
+    {
       const v_f32_4 v{-1.0f, 2.0f, -3.5f, 0.0f};
       const auto a = abs(v);
       Assert::AreEqual(1.0f, x(a), L"abs X mismatch", LINE_INFO());
@@ -294,7 +316,8 @@ namespace vectorization::test {
       Assert::AreEqual(0.0f, w(a), L"abs W mismatch", LINE_INFO());
     }
 
-    TEST_METHOD(computesClamp) {
+    TEST_METHOD(computesClamp)
+    {
       const v_f32_4 v{-1.0f, 0.5f, 1.5f, 3.0f};
       const v_f32_4 lower{0.0f, 0.0f, 0.0f, 0.0f};
       const v_f32_4 upper{1.0f, 1.0f, 1.0f, 1.0f};
@@ -305,18 +328,20 @@ namespace vectorization::test {
       Assert::AreEqual(1.0f, w(c), L"clamp W mismatch", LINE_INFO());
     }
 
-    TEST_METHOD(computesSubadd) {
-      // subadd: X=a.x-b.x, Y=a.y+b.y, Z=a.z-b.z, W=a.w+b.w
+    TEST_METHOD(computesAddSubtract)
+    {
+      // addSubtract: even=sub, odd=add => {a.x-b.x, a.y+b.y, a.z-b.z, a.w+b.w}
       const v_f32_4 a{10.0f, 20.0f, 30.0f, 40.0f};
       const v_f32_4 b{1.0f, 2.0f, 3.0f, 4.0f};
-      const auto r = subadd(a, b);
-      Assert::AreEqual(9.0f, x(r), L"subadd X mismatch", LINE_INFO());
-      Assert::AreEqual(22.0f, y(r), L"subadd Y mismatch", LINE_INFO());
-      Assert::AreEqual(27.0f, z(r), L"subadd Z mismatch", LINE_INFO());
-      Assert::AreEqual(44.0f, w(r), L"subadd W mismatch", LINE_INFO());
+      const auto r = addSubtract(a, b);
+      Assert::AreEqual(9.0f, x(r), L"addSubtract X mismatch", LINE_INFO());
+      Assert::AreEqual(22.0f, y(r), L"addSubtract Y mismatch", LINE_INFO());
+      Assert::AreEqual(27.0f, z(r), L"addSubtract Z mismatch", LINE_INFO());
+      Assert::AreEqual(44.0f, w(r), L"addSubtract W mismatch", LINE_INFO());
     }
 
-    TEST_METHOD(computesArgmin3AndArgmax3) {
+    TEST_METHOD(computesArgmin3AndArgmax3)
+    {
       // argmin3 returns index (0, 1, or 2) of the minimum among X, Y, Z
       const v_f32_4 v1{3.0f, 1.0f, 2.0f, 0.0f}; // min is Y at index 1
       Assert::AreEqual(ASizeT{1}, argmin3(v1), L"argmin3 mismatch", LINE_INFO());
@@ -338,7 +363,8 @@ namespace vectorization::test {
       Assert::AreEqual(ASizeT{2}, argmax3(v6), L"argmax3 mismatch (Z)", LINE_INFO());
     }
 
-    TEST_METHOD(computesVectorReturnVariants) {
+    TEST_METHOD(computesVectorReturnVariants)
+    {
       const v_f32_4 a{1.0f, 4.0f, 2.0f, 3.0f};
       const v_f32_4 b{3.0f, 2.0f, 6.0f, 1.0f};
 
@@ -375,7 +401,8 @@ namespace vectorization::test {
       Assert::AreEqual(distance3(a, b), x(distance3v(a, b)), L"distance3v", LINE_INFO());
     }
 
-    TEST_METHOD(computesReflectWithPrecomputedNdotI) {
+    TEST_METHOD(computesReflectWithPrecomputedNdotI)
+    {
       const v_f32_4 incident{1.0f, -1.0f, 0.0f, 0.0f};
       const v_f32_4 normal{0.0f, 1.0f, 0.0f, 0.0f};
       const auto ndotI = dotv(normal, incident);
@@ -386,7 +413,8 @@ namespace vectorization::test {
       Assert::AreEqual(z(expected), z(result), L"Z", LINE_INFO());
     }
 
-    TEST_METHOD(computesRefractEta) {
+    TEST_METHOD(computesRefractEta)
+    {
       // Normal incidence with eta=1 should pass through unchanged (direction only)
       const v_f32_4 incident{0.0f, -1.0f, 0.0f, 0.0f};
       const v_f32_4 normal{0.0f, 1.0f, 0.0f, 0.0f};
@@ -398,7 +426,8 @@ namespace vectorization::test {
       Assert::AreEqual(0.0f, z(result), 0.001f, L"Z", LINE_INFO());
     }
 
-    TEST_METHOD(computesRefract) {
+    TEST_METHOD(computesRefract)
+    {
       // refract wraps refractEta with sign-corrected normal based on NdotI
       const v_f32_4 incident{0.0f, -1.0f, 0.0f, 0.0f};
       const v_f32_4 normal{0.0f, 1.0f, 0.0f, 0.0f};
@@ -408,7 +437,8 @@ namespace vectorization::test {
       Assert::AreEqual(-1.0f, y(result), 0.001f, L"Y", LINE_INFO());
     }
 
-    TEST_METHOD(computesIsNaNTwoArg) {
+    TEST_METHOD(computesIsNaNTwoArg)
+    {
       const v_f32_4 a{1.0f, NotANumber<Float_32>(), 3.0f, 4.0f};
       const v_f32_4 b{NotANumber<Float_32>(), 2.0f, 3.0f, NotANumber<Float_32>()};
       const auto result = isNaN(a, b);
@@ -416,7 +446,8 @@ namespace vectorization::test {
       Assert::IsTrue(anyTrue(result), L"should detect NaN", LINE_INFO());
     }
 
-    TEST_METHOD(computesModulo) {
+    TEST_METHOD(computesModulo)
+    {
       const v_f32_4 a{5.5f, 7.0f, 10.3f, 3.0f};
       const v_f32_4 b{2.0f, 3.0f, 4.0f, 1.5f};
       const auto result = modulo(a, b);
@@ -426,7 +457,8 @@ namespace vectorization::test {
       Assert::AreEqual(std::fmod(3.0f, 1.5f), w(result), 0.001f, L"W", LINE_INFO());
     }
 
-    TEST_METHOD(computesMapOrthogonal) {
+    TEST_METHOD(computesMapOrthogonal)
+    {
       // mapOrthogonal projects v onto s/t plane axes
       // result: X = dot(v, sPlane), Y = dot(v, tPlane), Z = 0, W = 1
       const v_f32_4 v{1.0f, 2.0f, 3.0f, 0.0f};
@@ -440,7 +472,8 @@ namespace vectorization::test {
       Assert::AreEqual(1.0f, w(result), epsilon, L"W = 1", LINE_INFO());
     }
 
-    TEST_METHOD(computesMapSpherical) {
+    TEST_METHOD(computesMapSpherical)
+    {
       // mapSpherical converts direction to (u, v) texture coordinates
       // X = atan2(z, x) * RadianToUniform + 0.5
       // Y = acos(-y) * ReciprocalPi
@@ -478,7 +511,8 @@ namespace vectorization::test {
       }
     }
 
-    TEST_METHOD(computesAxisAlignedNormal3) {
+    TEST_METHOD(computesAxisAlignedNormal3)
+    {
       // axisAlignedNormal3 snaps normal to nearest axis with correct sign
       // For {0.1, -0.9, 0.2, 0.0}: dominant axis is Y (|0.9|), Y is negative => {0, -1, 0, 0}
       const v_f32_4 normal{0.1f, -0.9f, 0.2f, 0.0f};

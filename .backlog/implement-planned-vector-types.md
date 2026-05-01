@@ -78,20 +78,20 @@ Using `v_f32_4` as the reference, each new type needs:
 
 ### Headers (`sources/vectorization/include/vectorization/{type}/`)
 
-| File                        | Required for                            |
-|-----------------------------|-----------------------------------------|
-| `type.h`                    | all                                     |
-| `api.h`                     | all (umbrella include)                  |
-| `accessors.h`               | all                                     |
-| `blends.h`                  | all                                     |
-| `constants.h`               | all                                     |
-| `conversions.h`             | all                                     |
-| `functions.h`               | all                                     |
-| `functions_trigonometry.h`  | float types only (`v_f32_8`, `v_f64_*`) |
-| `operators.h`               | all                                     |
-| `selects.h`                 | all                                     |
-| `swizzled_blends.h`         | all                                     |
-| `swizzles.h`                | all                                     |
+| File                       | Required for                            |
+|----------------------------|-----------------------------------------|
+| `type.h`                   | all                                     |
+| `api.h`                    | all (umbrella include)                  |
+| `accessors.h`              | all                                     |
+| `blends.h`                 | all                                     |
+| `constants.h`              | all                                     |
+| `conversions.h`            | all                                     |
+| `functions.h`              | all                                     |
+| `functions_trigonometry.h` | float types only (`v_f32_8`, `v_f64_*`) |
+| `operators.h`              | all                                     |
+| `selects.h`                | all                                     |
+| `swizzled_blends.h`        | all                                     |
+| `swizzles.h`               | all                                     |
 
 ### Sources (`sources/vectorization/src/vectorization/{type}/`)
 
@@ -193,13 +193,13 @@ Cross-cutting test files (non-type-specific) may also need to grow:
 Rough sizing based on the `v_f32_4` reference (12 headers + 11 sources + 12 tests ≈ **35 files per type**,
 call it **~1500–2500 LOC** including tests and boilerplate per type):
 
-| Tier                                   | Types                                                                | Approx. files  |
-|----------------------------------------|----------------------------------------------------------------------|----------------|
-| Reuses existing width helpers          | `v_f32_8`, `v_f64_2`, `v_f64_4`                                      | ~35 each       |
-| Needs 256i helpers first               | `v_i32_8`, `v_ui32_8`, `v_i64_4`, `v_ui64_4`                         | ~35 + shared   |
-| Needs 128i swizzle/swizzled-blend      | `v_i64_2`                                                            | ~35 + shared   |
-| Needs entirely new 8/16-bit category helpers | `v_{i,ui}{8,16}_*`                                             | ~50+ each      |
-| Matrix types                           | `m_{i,ui}32_4x4`                                                     | ~25 each       |
+| Tier                                         | Types                                        | Approx. files |
+|----------------------------------------------|----------------------------------------------|---------------|
+| Reuses existing width helpers                | `v_f32_8`, `v_f64_2`, `v_f64_4`              | ~35 each      |
+| Needs 256i helpers first                     | `v_i32_8`, `v_ui32_8`, `v_i64_4`, `v_ui64_4` | ~35 + shared  |
+| Needs 128i swizzle/swizzled-blend            | `v_i64_2`                                    | ~35 + shared  |
+| Needs entirely new 8/16-bit category helpers | `v_{i,ui}{8,16}_*`                           | ~50+ each     |
+| Matrix types                                 | `m_{i,ui}32_4x4`                             | ~25 each      |
 
 ## Suggested implementation order (updated)
 
