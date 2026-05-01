@@ -1,6 +1,7 @@
 #include "vectorization/m_f32_4x4.h"
 
 #include "vectorization/functions/horizontal_add.h"
+#include "vectorization/functions/multiply_add.h"
 
 namespace vectorization {
   m_f32_4x4 operator*(const m_f32_4x4 &matrix, const m_f32_4x4::ValueType scale) noexcept {
@@ -38,7 +39,9 @@ namespace vectorization {
   }
 
   m_f32_4x4::ColumnVectorType operator*(const m_f32_4x4::ColumnVectorType &vector, const m_f32_4x4 &matrix) noexcept {
-    return xxxx(vector) * matrix.row0 + yyyy(vector) * matrix.row1 + zzzz(vector) * matrix.row2
-           + wwww(vector) * matrix.row3;
+    return multiplyAdd(
+        zzzz(vector), matrix.row2,
+        multiplyAdd(yyyy(vector), matrix.row1, multiplyAdd(xxxx(vector), matrix.row0, wwww(vector) * matrix.row3))
+    );
   }
 }

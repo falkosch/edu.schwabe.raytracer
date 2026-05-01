@@ -155,8 +155,8 @@ namespace raytracer {
       const Float4 &attenuationFactors, const Float4 &lightDistance, const Float4 &diffuseIntensity
   ) {
     return diffuseIntensity
-           / (xxxx(attenuationFactors)
-              + lightDistance * (yyyy(attenuationFactors) + lightDistance * zzzz(attenuationFactors)));
+           / multiplyAdd(lightDistance, multiplyAdd(lightDistance, zzzz(attenuationFactors), yyyy(attenuationFactors)),
+                         xxxx(attenuationFactors));
   }
 
   Float4 SceneShader::phongSpecularIntensityPerReflectedIncident(

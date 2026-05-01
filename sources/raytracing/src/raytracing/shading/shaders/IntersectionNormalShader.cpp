@@ -15,6 +15,6 @@ namespace raytracer {
   Float4 IntersectionNormalShader::operator()(
       const ObjectShader & /*objectShader*/, const FacetIntersection &intersection
   ) const {
-    return oneW(intersection.surfaceNormal * Half<Float4>() + Half<Float4>());
+    return oneW(multiplyAdd(intersection.surfaceNormal, Half<Float4>(), Half<Float4>()));
   }
 }

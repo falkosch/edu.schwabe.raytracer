@@ -147,6 +147,48 @@ objectShadowRays 231073/199578
 Duration: 0.0670916s
 ```
 
+New baseline output after packed arithmetic functions refactoring:
+
+```
+[0.000] - INFO Epsilon : Machine epsilon for float is 1.19209e-07
+[0.000] - INFO Epsilon : Machine epsilon for double is 2.22045e-16
+[0.000] - INFO Main : Working directory: D:\edu.schwabe.raytracer\data
+[0.003] - INFO Mesh : Loaded 36961 bytes from file meshes/teapot.off
+[0.023] - INFO Mesh : loaded meshes/teapot.off: 726 vertices, 1452 faces
+[0.023] - INFO Scene : Building culling tree for scene ...
+[0.023] - INFO Scene : done
+[0.044] - INFO UI : Resizing output to 512x512
+[0.046] - INFO Raytracer : Raytrace 1 (512x512):
+[0.130] - INFO Raytracer : Duration: 0.083243s
+[0.202] - INFO UI : primaryRays 262144/0
+[0.202] - INFO UI : secondaryRays 121805/17871
+[0.202] - INFO UI : shadowRays 253279/252997
+[0.202] - INFO UI : objectShadowRays 231073/199578
+[0.202] - INFO UI : Saving ray-traced image ...
+[0.213] - INFO UI : ray-traced.png
+```
+
+New baseline output after FMA3-intrinsics refactoring:
+
+```
+[0.000] - INFO Epsilon : Machine epsilon for float is 1.19209e-07
+[0.000] - INFO Epsilon : Machine epsilon for double is 2.22045e-16
+[0.000] - INFO Main : Working directory: D:\edu.schwabe.raytracer\data
+[0.002] - INFO Mesh : Loaded 36961 bytes from file meshes/teapot.off
+[0.022] - INFO Mesh : loaded meshes/teapot.off: 726 vertices, 1452 faces
+[0.022] - INFO Scene : Building culling tree for scene ...
+[0.022] - INFO Scene : done
+[0.044] - INFO UI : Resizing output to 512x512
+[0.046] - INFO Raytracer : Raytrace 1 (512x512):
+[0.122] - INFO Raytracer : Duration: 0.0757239s
+[0.189] - INFO UI : primaryRays 262144/0
+[0.190] - INFO UI : secondaryRays 121805/17871
+[0.190] - INFO UI : shadowRays 253279/252997
+[0.190] - INFO UI : objectShadowRays 231073/199578
+[0.190] - INFO UI : Saving ray-traced image ...
+[0.200] - INFO UI : ray-traced.png
+```
+
 ## Code Style
 
 - Formatting: `.clang-format` (LLVM-based, 120-column limit)

@@ -12,7 +12,7 @@ namespace raytracer {
   }
 
   Float4 EnvironmentShader::operator()(const SceneShader & /*sceneShader*/, const Float4 &rayDirection) const {
-    const Float4 texCoords = Half<Float4>() * xz_xz(rayDirection, rayDirection) + Half<Float4>();
+    const Float4 texCoords = multiplyAdd(Half<Float4>(), xz_xz(rayDirection, rayDirection), Half<Float4>());
     return environmentImage->sampleBilinear(texCoords);
   }
 }

@@ -24,7 +24,7 @@ namespace primitives {
   }
 
   Float4 baryCenter(const Float4 &uv, const Facet &facet) noexcept {
-    return facet.v0 + xxxx(uv) * (facet.v1 - facet.v0) + yyyy(uv) * (facet.v2 - facet.v0);
+    return multiplyAdd(yyyy(uv), facet.v2 - facet.v0, multiplyAdd(xxxx(uv), facet.v1 - facet.v0, facet.v0));
   }
 
   // Havel et al. ray-triangle intersection test as in paper "Yet Faster Ray-Triangle Intersection (Using SSE4)", 2009.
@@ -35,11 +35,11 @@ namespace primitives {
     const auto detT = -dotv(planeNormals.v0, rayCast.ray.origin);
 
     // no hit when determinants have different signs
-    if (const auto checkT = determinant * maxDistance - detT; isNegative(detT ^ checkT)) {
+    if (const auto checkT = multiplySub(determinant, maxDistance, detT); isNegative(detT ^ checkT)) {
       return maxDistance;
     }
 
-    const auto intersectionPoint = rayCast.ray.origin * determinant + rayCast.ray.direction * detT;
+    const auto intersectionPoint = multiplyAdd(rayCast.ray.origin, determinant, rayCast.ray.direction * detT);
     const auto detU = dotv(intersectionPoint, planeNormals.v1);
 
     if (const auto checkU = determinant - detU; isNegative(detU ^ checkU)) {

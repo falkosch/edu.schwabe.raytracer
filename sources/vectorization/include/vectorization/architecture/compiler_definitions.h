@@ -80,6 +80,16 @@
 #define VECTORIZATION_INTRINSICS_LEVEL VECTORIZATION_AVX512
 #endif
 
+// FMA3 support detection
+#if defined(__FMA__)
+#define VECTORIZATION_FMA 1
+#elif defined(_MSC_VER) && defined(__AVX2__)
+// MSVC does not define __FMA__; /arch:AVX2 enables FMA3 implicitly.
+#define VECTORIZATION_FMA 1
+#else
+#define VECTORIZATION_FMA 0
+#endif
+
 // Define alignment parameters
 
 #define X86_ALIGNMENT 4

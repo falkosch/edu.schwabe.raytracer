@@ -280,7 +280,7 @@ namespace raytracer
         {
             auto etaItoT = xxxx(eta);
             auto etaItoTMulNdotI = etaItoT * negNdotI;
-            auto cosSqrPhiT = One<v_f32_4>() - (etaItoT * etaItoT - etaItoTMulNdotI * etaItoTMulNdotI);
+            auto cosSqrPhiT = One<v_f32_4>() - multiplySub(etaItoT, etaItoT, etaItoTMulNdotI * etaItoTMulNdotI);
             assert(!isNegative(cosSqrPhiT));
             cosPhi = sqrt(cosSqrPhiT);
         }
@@ -296,7 +296,7 @@ namespace raytracer
         auto R0 = sqrtR0 * sqrtR0;
         auto oneSubCosPhi = One<Float4>() - cosPhi;
         auto sqrOneSubCosPhi = oneSubCosPhi * oneSubCosPhi;
-        auto reflectance = R0 + (One<Float4>() - R0) * oneSubCosPhi * sqrOneSubCosPhi * sqrOneSubCosPhi;
+        auto reflectance = multiplyAdd(One<Float4>() - R0, oneSubCosPhi * sqrOneSubCosPhi * sqrOneSubCosPhi, R0);
         return reflectance;
     }
 

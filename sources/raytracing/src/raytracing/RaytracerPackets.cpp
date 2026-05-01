@@ -39,8 +39,8 @@ namespace raytracer {
     ssFarBottomDir = farBottomDir * ssInverseFactor;
 
     // add an offset to the top-left-point to correct sample-positioning
-    nearTopLeft = configuration.camera->getVFNearTopLeft() + Half<Float4>() * (ssNearRightDir + ssNearBottomDir);
-    farTopLeft = configuration.camera->getVFFarTopLeft() + Half<Float4>() * (ssFarRightDir + ssFarBottomDir);
+    nearTopLeft = multiplyAdd(Half<Float4>(), ssNearRightDir + ssNearBottomDir, configuration.camera->getVFNearTopLeft());
+    farTopLeft = multiplyAdd(Half<Float4>(), ssFarRightDir + ssFarBottomDir, configuration.camera->getVFFarTopLeft());
 
     // Calculate packet boundaries
     packetLength = calculatePacketLengths(configuration.rayPacketSize, ssLength);
@@ -72,11 +72,11 @@ namespace raytracer {
   }
 
   Float4 RaytracerPackets::pixelNearTopLeft(const Float4 &pixelCoordinates) const {
-    return nearTopLeft + nearRightDir * xxxx(pixelCoordinates) + nearBottomDir * yyyy(pixelCoordinates);
+    return multiplyAdd(nearBottomDir, yyyy(pixelCoordinates), multiplyAdd(nearRightDir, xxxx(pixelCoordinates), nearTopLeft));
   }
 
   Float4 RaytracerPackets::pixelFarTopLeft(const Float4 &pixelCoordinates) const {
-    return farTopLeft + farRightDir * xxxx(pixelCoordinates) + farBottomDir * yyyy(pixelCoordinates);
+    return multiplyAdd(farBottomDir, yyyy(pixelCoordinates), multiplyAdd(farRightDir, xxxx(pixelCoordinates), farTopLeft));
   }
 
   Ray RaytracerPackets::setupRayOfSampleInPixel(
@@ -84,15 +84,15 @@ namespace raytracer {
   ) const {
     const auto xSSLength = x(ssLength);
     const auto sampleCoords = convert<Float4>(Size2(sample % xSSLength, sample / xSSLength));
-    const auto origin = pixelNearTopLeft + ssNearRightDir * xxxx(sampleCoords) + ssNearBottomDir * yyyy(sampleCoords);
+    const auto origin = multiplyAdd(ssNearBottomDir, yyyy(sampleCoords), multiplyAdd(ssNearRightDir, xxxx(sampleCoords), pixelNearTopLeft));
     return Ray(
         origin,
-        normalize(pixelFarTopLeft - origin + ssFarRightDir * xxxx(sampleCoords) + ssFarBottomDir * yyyy(sampleCoords))
+        normalize(multiplyAdd(ssFarBottomDir, yyyy(sampleCoords), multiplyAdd(ssFarRightDir, xxxx(sampleCoords), pixelFarTopLeft - origin)))
     );
   }
 
   void RaytracerPackets::samplePixel(Float4 *const pixel, const Float4 &sample) const {
-    store(Float4(pixel) + sample * ssAvg, pixel);
+    store(multiplyAdd(sample, ssAvg, Float4(pixel)), pixel);
   }
 
   Float4 RaytracerPackets::superSampledPixelDepth(const Float4 &sampledDepth) const {

@@ -88,6 +88,12 @@ set(SOURCES
         src/vectorization/functions/modpad.cpp
         src/vectorization/functions/modulo.cpp
         src/vectorization/functions/multiply.cpp
+        src/vectorization/functions/multiply_add.cpp
+        src/vectorization/functions/multiply_add_sub.cpp
+        src/vectorization/functions/multiply_sub.cpp
+        src/vectorization/functions/multiply_sub_add.cpp
+        src/vectorization/functions/negative_multiply_add.cpp
+        src/vectorization/functions/negative_multiply_sub.cpp
         src/vectorization/functions/pow.cpp
         src/vectorization/functions/reciprocal.cpp
         src/vectorization/functions/round.cpp
@@ -264,6 +270,12 @@ set(HEADERS
         include/vectorization/functions/modpad.h
         include/vectorization/functions/modulo.h
         include/vectorization/functions/multiply.h
+        include/vectorization/functions/multiply_add.h
+        include/vectorization/functions/multiply_add_sub.h
+        include/vectorization/functions/multiply_sub.h
+        include/vectorization/functions/multiply_sub_add.h
+        include/vectorization/functions/negative_multiply_add.h
+        include/vectorization/functions/negative_multiply_sub.h
         include/vectorization/functions/pow.h
         include/vectorization/functions/reciprocal.h
         include/vectorization/functions/round.h

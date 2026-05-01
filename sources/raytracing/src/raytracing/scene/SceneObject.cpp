@@ -94,7 +94,7 @@ namespace raytracer {
         const Float4 far = farPoint(originatedRayCast);
         const Float4 movedOrigin =
             mix(far, originatedRayCast.ray.origin,
-                One<Float4>() + SelfOcclusionEpsilon<Float4>() * (orientation + Two<Float4>()));
+                multiplyAdd(SelfOcclusionEpsilon<Float4>(), orientation + Two<Float4>(), One<Float4>()));
         originatedRayCast.ray.origin = movedOrigin;
         // update of max distance required as we moved origin away from far point
         originatedRayCast.maxDistance = distance3(movedOrigin, far);

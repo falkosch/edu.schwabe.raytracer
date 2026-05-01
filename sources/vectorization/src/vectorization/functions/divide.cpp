@@ -2,6 +2,8 @@
 
 #include "vectorization/accessors/component_128d.h"
 #include "vectorization/accessors/component_128s.h"
+#include "vectorization/functions/multiply.h"
+#include "vectorization/functions/negative_multiply_add.h"
 
 #include <cassert>
 
@@ -52,8 +54,8 @@ namespace vectorization {
     const auto two = Two<PackedFloat4_128>();
     const auto bs = _mm_set_ss(b);
     const auto x0 = _mm_rcp_ss(bs);
-    const auto x1 = _mm_mul_ss(_mm_sub_ss(two, _mm_mul_ss(bs, x0)), x0);
-    return x(_mm_mul_ss(_mm_set_ss(a), _mm_mul_ss(_mm_sub_ss(two, _mm_mul_ss(bs, x1)), x1)));
+    const auto x1 = multiplyX(negativeMultiplyAddX(bs, x0, two), x0);
+    return x(multiplyX(_mm_set_ss(a), multiplyX(negativeMultiplyAddX(bs, x1, two), x1)));
 #else
     return x(_mm_mul_ss(_mm_set_ss(a), _mm_rcp_ss(_mm_set_ss(b))));
 #endif
@@ -71,8 +73,8 @@ namespace vectorization {
 #ifdef VECTORIZATION_FINE_APPROXIMATIONS
     const auto two = Two<PackedFloat4_128>();
     const auto x0 = _mm_rcp_ps(b);
-    const auto x1 = _mm_mul_ps(_mm_sub_ps(two, _mm_mul_ps(b, x0)), x0);
-    return _mm_mul_ps(a, _mm_mul_ps(_mm_sub_ps(two, _mm_mul_ps(b, x1)), x1));
+    const auto x1 = multiply(negativeMultiplyAdd(b, x0, two), x0);
+    return multiply(a, multiply(negativeMultiplyAdd(b, x1, two), x1));
 #else
     return _mm_mul_ps(a, _mm_rcp_ps(b));
 #endif

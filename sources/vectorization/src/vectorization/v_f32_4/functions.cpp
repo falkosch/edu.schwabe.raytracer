@@ -23,6 +23,12 @@
 #include "vectorization/functions/min.h"
 #include "vectorization/functions/mix.h"
 #include "vectorization/functions/modulo.h"
+#include "vectorization/functions/multiply_add.h"
+#include "vectorization/functions/multiply_add_sub.h"
+#include "vectorization/functions/multiply_sub.h"
+#include "vectorization/functions/multiply_sub_add.h"
+#include "vectorization/functions/negative_multiply_add.h"
+#include "vectorization/functions/negative_multiply_sub.h"
 #include "vectorization/functions/reciprocal.h"
 #include "vectorization/functions/round.h"
 #include "vectorization/functions/rsqrt.h"
@@ -220,8 +226,7 @@ namespace vectorization {
   }
 
   v_f32_4 reflect(const v_f32_4 &incident, const v_f32_4 &normal, const v_f32_4 &NdotI) noexcept {
-    const v_f32_4 t = normal * NdotI;
-    return incident - (t + t);
+    return negativeMultiplyAdd(normal, NdotI + NdotI, incident);
   }
 
   //}
@@ -234,7 +239,7 @@ namespace vectorization {
   refractEta(const v_f32_4 &incident, const v_f32_4 &normal, const v_f32_4 &NdotI, const v_f32_4 &eta) noexcept {
     // By Snell's law: https://en.wikipedia.org/wiki/Snell%27s_law#Vector_form
     const v_f32_4 etaNdotI = eta * NdotI;
-    const v_f32_4 sinSqrPhiT = eta * eta - etaNdotI * etaNdotI;
+    const v_f32_4 sinSqrPhiT = multiplySub(eta, eta, etaNdotI * etaNdotI);
     const v_f32_4 cosSqrPhiT = One<v_f32_4>() - sinSqrPhiT;
 
     if (isNegative(cosSqrPhiT)) {
@@ -242,7 +247,7 @@ namespace vectorization {
       return Zero<v_f32_4>();
     }
 
-    return eta * incident - (etaNdotI + sqrt(cosSqrPhiT)) * normal;
+    return multiplySub(eta, incident, (etaNdotI + sqrt(cosSqrPhiT)) * normal);
   }
 
   v_f32_4 refractEta(const v_f32_4 &incident, const v_f32_4 &normal, const v_f32_4 &eta) noexcept {
@@ -295,6 +300,36 @@ namespace vectorization {
 
   v_f32_4 mix(const v_f32_4 &a, const v_f32_4 &b, const v_f32_4::ValueType factor) noexcept {
     return mix(a.components, b.components, broadcast(factor));
+  }
+
+  //}
+#pragma endregion
+
+#pragma region multiplyAdd() / multiplySub() / negativeMultiplyAdd() / negativeMultiplySub()
+  //{ multiplyAdd() / multiplySub() / negativeMultiplyAdd() / negativeMultiplySub()
+
+  v_f32_4 multiplyAdd(const v_f32_4 &a, const v_f32_4 &b, const v_f32_4 &c) noexcept {
+    return vectorization::multiplyAdd(a.components, b.components, c.components);
+  }
+
+  v_f32_4 multiplySub(const v_f32_4 &a, const v_f32_4 &b, const v_f32_4 &c) noexcept {
+    return vectorization::multiplySub(a.components, b.components, c.components);
+  }
+
+  v_f32_4 multiplyAddSub(const v_f32_4 &a, const v_f32_4 &b, const v_f32_4 &c) noexcept {
+    return vectorization::multiplyAddSub(a.components, b.components, c.components);
+  }
+
+  v_f32_4 multiplySubAdd(const v_f32_4 &a, const v_f32_4 &b, const v_f32_4 &c) noexcept {
+    return vectorization::multiplySubAdd(a.components, b.components, c.components);
+  }
+
+  v_f32_4 negativeMultiplyAdd(const v_f32_4 &a, const v_f32_4 &b, const v_f32_4 &c) noexcept {
+    return vectorization::negativeMultiplyAdd(a.components, b.components, c.components);
+  }
+
+  v_f32_4 negativeMultiplySub(const v_f32_4 &a, const v_f32_4 &b, const v_f32_4 &c) noexcept {
+    return vectorization::negativeMultiplySub(a.components, b.components, c.components);
   }
 
   //}
@@ -370,7 +405,7 @@ namespace vectorization {
 
   v_f32_4 cross3(const v_f32_4 &a, const v_f32_4 &b) noexcept {
     // http://fastcpp.blogspot.de/2011/04/vector-cross-product-using-sse-code.html
-    return yzxw(a) * zxyw(b) - zxyw(a) * yzxw(b);
+    return multiplySub(yzxw(a), zxyw(b), zxyw(a) * yzxw(b));
   }
 
   v_f32_4 clamp(const v_f32_4 &v, const v_f32_4 &lower, const v_f32_4 &upper) noexcept {

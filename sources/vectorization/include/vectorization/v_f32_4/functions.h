@@ -153,6 +153,19 @@ namespace vectorization {
   //}
 #pragma endregion
 
+#pragma region multiplyAdd() / multiplySub() / negativeMultiplyAdd() / negativeMultiplySub()
+  //{ multiplyAdd() / multiplySub() / negativeMultiplyAdd() / negativeMultiplySub()
+
+  v_f32_4 multiplyAdd(const v_f32_4 &a, const v_f32_4 &b, const v_f32_4 &c) noexcept;
+  v_f32_4 multiplySub(const v_f32_4 &a, const v_f32_4 &b, const v_f32_4 &c) noexcept;
+  v_f32_4 multiplyAddSub(const v_f32_4 &a, const v_f32_4 &b, const v_f32_4 &c) noexcept;
+  v_f32_4 multiplySubAdd(const v_f32_4 &a, const v_f32_4 &b, const v_f32_4 &c) noexcept;
+  v_f32_4 negativeMultiplyAdd(const v_f32_4 &a, const v_f32_4 &b, const v_f32_4 &c) noexcept;
+  v_f32_4 negativeMultiplySub(const v_f32_4 &a, const v_f32_4 &b, const v_f32_4 &c) noexcept;
+
+  //}
+#pragma endregion
+
 #pragma region Special vector operations
   //{ Special vector operations
 

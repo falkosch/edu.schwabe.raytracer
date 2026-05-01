@@ -1,6 +1,8 @@
 #include "vectorization/functions/mix.h"
 
 #include "vectorization/functions/broadcast.h"
+#include "vectorization/functions/multiply_add.h"
+#include "vectorization/functions/subtract.h"
 
 namespace vectorization {
   Float_32 mix(const Float_32 x, const Float_32 y, const Float_32 factor) noexcept {
@@ -20,11 +22,11 @@ namespace vectorization {
   }
 
   PackedFloat4_128 mix(const PackedFloat4_128 &x, const PackedFloat4_128 &y, const PackedFloat4_128 &factor) noexcept {
-    return _mm_add_ps(x, _mm_mul_ps(_mm_sub_ps(y, x), factor));
+    return multiplyAdd(subtract(y, x), factor, x);
   }
 
   PackedFloat2_128 mix(const PackedFloat2_128 &x, const PackedFloat2_128 &y, const PackedFloat2_128 &factor) noexcept {
-    return _mm_add_pd(x, _mm_mul_pd(_mm_sub_pd(y, x), factor));
+    return multiplyAdd(subtract(y, x), factor, x);
   }
 
 }

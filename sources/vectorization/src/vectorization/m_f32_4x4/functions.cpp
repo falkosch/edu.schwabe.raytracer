@@ -1,6 +1,7 @@
 #include "vectorization/m_f32_4x4.h"
 
 #include "vectorization/functions/cos.h"
+#include "vectorization/functions/multiply_add.h"
 #include "vectorization/functions/reciprocal.h"
 #include "vectorization/functions/sin.h"
 #include "vectorization/functions/tan.h"
@@ -84,9 +85,9 @@ namespace vectorization {
     const auto temp = m_f32_4x4::RowVectorType(oneMinusCos) * normal;
 
     // tx/ty/tz are the columns of the 3x3 rotation matrix R.
-    const auto tx = xxxx(temp) * normal + rot * wzyx(normal);
-    const auto ty = yyyy(temp) * normal + zxyw(rot) * zwxy(normal);
-    const auto tz = zzzz(temp) * normal + yzxw(rot) * yxwz(normal);
+    const auto tx = multiplyAdd(xxxx(temp), normal, rot * wzyx(normal));
+    const auto ty = multiplyAdd(yyyy(temp), normal, zxyw(rot) * zwxy(normal));
+    const auto tz = multiplyAdd(zzzz(temp), normal, yzxw(rot) * yxwz(normal));
 
     // Transpose the 3x3 rotation to get R's rows (rx/ry/rz), replacing two full
     // 4x4 transposes with one partial 3x3 transpose.
@@ -102,16 +103,16 @@ namespace vectorization {
     // rx/ry/rz have W=0, so the sum leaves W=0; blend preserves the original W.
     return m_f32_4x4(
         blend<false, false, false, true>(
-            xxxx(matrix.row0) * rx + yyyy(matrix.row0) * ry + zzzz(matrix.row0) * rz, matrix.row0
+            multiplyAdd(zzzz(matrix.row0), rz, multiplyAdd(yyyy(matrix.row0), ry, xxxx(matrix.row0) * rx)), matrix.row0
         ),
         blend<false, false, false, true>(
-            xxxx(matrix.row1) * rx + yyyy(matrix.row1) * ry + zzzz(matrix.row1) * rz, matrix.row1
+            multiplyAdd(zzzz(matrix.row1), rz, multiplyAdd(yyyy(matrix.row1), ry, xxxx(matrix.row1) * rx)), matrix.row1
         ),
         blend<false, false, false, true>(
-            xxxx(matrix.row2) * rx + yyyy(matrix.row2) * ry + zzzz(matrix.row2) * rz, matrix.row2
+            multiplyAdd(zzzz(matrix.row2), rz, multiplyAdd(yyyy(matrix.row2), ry, xxxx(matrix.row2) * rx)), matrix.row2
         ),
         blend<false, false, false, true>(
-            xxxx(matrix.row3) * rx + yyyy(matrix.row3) * ry + zzzz(matrix.row3) * rz, matrix.row3
+            multiplyAdd(zzzz(matrix.row3), rz, multiplyAdd(yyyy(matrix.row3), ry, xxxx(matrix.row3) * rx)), matrix.row3
         )
     );
   }

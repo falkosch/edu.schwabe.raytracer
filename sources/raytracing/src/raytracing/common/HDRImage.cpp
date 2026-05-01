@@ -146,7 +146,7 @@ namespace raytracer {
 #pragma omp parallel for
     for (int i = Zero<int>(); i < count; ++i) {
       const ASizeT ii = static_cast<ASizeT>(i);
-      data[ii] = min + max * data[ii];
+      data[ii] = multiplyAdd(max, data[ii], min);
     }
   }
 

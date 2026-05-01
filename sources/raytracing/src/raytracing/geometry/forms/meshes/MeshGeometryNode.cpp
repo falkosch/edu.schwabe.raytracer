@@ -18,11 +18,11 @@ namespace raytracer {
       const Float4 &w01, const Float4 &w10, const Float4 &w11
   ) {
     const auto fe = abs(edge);
-    const auto rad = zxyw(fe) * yzxBoxHalfSize + yzxw(fe) * zxyBoxHalfSize;
+    const auto rad = multiplyAdd(zxyw(fe), yzxBoxHalfSize, yzxw(fe) * zxyBoxHalfSize);
     const auto zxyE = zxyw(edge);
     const auto yzxE = yzxw(edge);
-    const auto p135 = zxyE * w00 - yzxE * w01;
-    const auto p246 = zxyE * w10 - yzxE * w11;
+    const auto p135 = multiplySub(zxyE, w00, yzxE * w01);
+    const auto p246 = multiplySub(zxyE, w10, yzxE * w11);
     return anyTrue3((min(p135, p246) > rad) | (max(p135, p246) < -rad));
   }
 
