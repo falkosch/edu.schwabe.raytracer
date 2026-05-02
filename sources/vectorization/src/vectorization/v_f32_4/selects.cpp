@@ -1,5 +1,7 @@
 #include "vectorization/v_f32_4/selects.h"
 
+#include "vectorization/selects/selects_128i.h"
+#include "vectorization/selects/selects_128s.h"
 #include "vectorization/selects/selects_scalar.h"
 
 namespace vectorization {

@@ -61,10 +61,14 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     add_compile_options(/arch:AVX2 /openmp /GS- /fp:fast /Zp16 /sdl- /Oi /Gy)
     add_compile_options($<$<CONFIG:Release>:/O2>)
     add_compile_options($<$<AND:$<CONFIG:Release>,$<NOT:$<BOOL:${COVERAGE}>>>:/Oy>)
+    add_compile_options($<$<CONFIG:Release>:/GL>)
+    #add_compile_options($<$<CONFIG:Release>:/d2cgsummary>)
+    add_compile_options($<$<CONFIG:Release>:/d2SSAOptimizer->)
 
     add_link_options(
             $<$<CONFIG:Release>:/OPT:REF>
-            $<$<CONFIG:Release>:/OPT:ICF=3>
+            $<$<CONFIG:Release>:/OPT:ICF>
+            $<$<CONFIG:Release>:/LTCG>
             $<$<CONFIG:Debug>:/Debug>
     )
 
@@ -81,12 +85,15 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
         add_compile_options(/arch:AVX2 /openmp /GS- /Zp16 /sdl-)
         add_compile_options(/clang:-ffp-contract=fast /clang:-fassociative-math /clang:-freciprocal-math /clang:-fno-signed-zeros)
         add_compile_options($<$<CONFIG:Release>:/O2>)
+        add_compile_options($<$<CONFIG:Release>:/GL>)
+        add_compile_options($<$<CONFIG:Release>:/d2SSAOptimizer->)
 
         link_libraries(libomp)
 
         add_link_options(
                 $<$<CONFIG:Release>:/OPT:REF>
-                $<$<CONFIG:Release>:/OPT:ICF=3>
+                $<$<CONFIG:Release>:/OPT:ICF>
+                $<$<CONFIG:Release>:/LTCG>
                 $<$<CONFIG:Debug>:/Debug>
         )
     else ()

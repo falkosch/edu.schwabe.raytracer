@@ -24,7 +24,7 @@ namespace raytracer {
     bool overlaps(const AxisAlignedBoundingBox &aabb) const override;
 
     Float getIndividualIntersectionCosts() const override {
-      return 79.1726f;
+      return 39.795773f;
     }
 
     // Intersectable<RayCast, FacetIntersection> interface

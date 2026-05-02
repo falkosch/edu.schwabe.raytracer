@@ -26,7 +26,7 @@ namespace raytracer {
     ) const override;
 
     Float getIndividualIntersectionCosts() const override {
-      return 37.8098f;
+      return 17.625846f;
     }
   };
 }

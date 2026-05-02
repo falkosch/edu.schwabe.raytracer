@@ -2,6 +2,25 @@
 
 #include "type.h"
 
+#include "vectorization/constants/masks/mask_all.h"
+#include "vectorization/constants/masks/mask_w.h"
+#include "vectorization/constants/masks/mask_x.h"
+#include "vectorization/constants/masks/mask_xy.h"
+#include "vectorization/constants/masks/mask_xyz.h"
+#include "vectorization/constants/masks/mask_xyzw.h"
+#include "vectorization/constants/masks/mask_y.h"
+#include "vectorization/constants/masks/mask_yz.h"
+#include "vectorization/constants/masks/mask_yzw.h"
+#include "vectorization/constants/masks/mask_z.h"
+#include "vectorization/constants/masks/mask_zw.h"
+
+#include "vectorization/constants/values/negative_one.h"
+#include "vectorization/constants/values/negative_two.h"
+#include "vectorization/constants/values/one.h"
+#include "vectorization/constants/values/one_w.h"
+#include "vectorization/constants/values/two.h"
+#include "vectorization/constants/values/zero.h"
+
 namespace vectorization {
   template <>
   v_i32_4 MaskAll<v_i32_4>() noexcept;

@@ -1,5 +1,7 @@
 #include "vectorization/v_f32_4x4.h"
 
+#include "vectorization/v_f32_4/swizzles.h"
+
 namespace vectorization {
   v_f32_4x4::v_f32_4x4() noexcept = default;
 

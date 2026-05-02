@@ -33,8 +33,7 @@ namespace raytracer {
     ASizeT getFaceCount() const override;
 
     Float getIndividualIntersectionCosts() const override {
-      // benchmarked intersection costs in cycles
-      return 19.027224f;
+      return 9.377283f;
     }
 
     // GeometryNodesTraverser interface

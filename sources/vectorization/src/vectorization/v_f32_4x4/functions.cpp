@@ -1,5 +1,6 @@
 #include "vectorization/v_f32_4x4.h"
 
+#include "vectorization/v_f32_4/swizzled_blends.h"
 
 namespace vectorization {
   v_f32_4x4 transpose(const v_f32_4x4 &m) noexcept {

@@ -1,5 +1,8 @@
 #include "vectorization/m_f32_4x4.h"
 
+#include "vectorization/v_f32_4/accessors.h"
+#include "vectorization/v_f32_4/swizzled_blends.h"
+
 namespace vectorization {
   template <>
   m_f32_4x4::RowVectorType row<VectorIndices::X>(const m_f32_4x4 &matrix) noexcept {

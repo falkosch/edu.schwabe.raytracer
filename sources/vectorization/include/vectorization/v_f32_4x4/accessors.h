@@ -2,6 +2,8 @@
 
 #include "type.h"
 
+#include "vectorization/v_f32_4/accessors.h"
+
 namespace vectorization {
   template <ASizeT Index>
   v_f32_4x4::AOSVectorType aos(const v_f32_4x4 &m) noexcept {

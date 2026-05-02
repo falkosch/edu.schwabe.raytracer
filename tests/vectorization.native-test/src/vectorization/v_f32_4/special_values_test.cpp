@@ -192,6 +192,7 @@ namespace vectorization::test {
       Assert::AreEqual(Infinity<Float_32>(), x(actual), L"1/0 should be inf", LINE_INFO());
     }
 
+    // Fails under /fp:fast — sign of -0+0 is not guaranteed by relaxed FP model
     TEST_METHOD(negativeZeroArithmetic) {
       const auto negZero = NegativeZero<v_f32_4>();
       const auto posZero = Zero<v_f32_4>();

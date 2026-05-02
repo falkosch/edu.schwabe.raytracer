@@ -110,83 +110,26 @@ only the last one takes effect. Use this pattern for any scene mutation that mus
 
 ### Regression Tests
 
-Normal stdout messages right after start on the first frame with ray hit and performance metrics:
-
-```
-Machine epsilon for float is 1.19209e-07
-Machine epsilon for double is 2.22045e-16
-Working directory: E:\edu.schwabe.raytracer\data
-Loaded 36961 bytes from file meshes/teapot.off
-loaded meshes/teapot.off: 726 vertices, 1452 faces
-Building culling tree for scene ... done
-Resizing output to 512x512
-Raytrace 1 (512x512):
-primaryRays 262144/0
-secondaryRays 123863/17917
-shadowRays 254010/253727
-objectShadowRays 231858/200292
-Duration: 0.116185s
-```
-
-New baseline output after using CMake Unity compilation mode:
-
-```
-D:\edu.schwabe.raytracer\cmake-build-release\sources\raytracerui\raytracerui.exe
-Machine epsilon for float is 1.19209e-07
-Machine epsilon for double is 2.22045e-16
-Working directory: D:\edu.schwabe.raytracer\data
-Loaded 36961 bytes from file meshes/teapot.off
-loaded meshes/teapot.off: 726 vertices, 1452 faces
-Building culling tree for scene ... done
-Resizing output to 512x512
-Raytrace 1 (512x512):
-primaryRays 262144/0
-secondaryRays 121805/17871
-shadowRays 253279/252997
-objectShadowRays 231073/199578
-Duration: 0.0670916s
-```
-
-New baseline output after packed arithmetic functions refactoring:
+Normal logs right after start, baseline numbers incorporate LTCG fix, FMA3 intrinsics, packed arithmetic functions
+refactoring, CMake Unity compilation mode:
 
 ```
 [0.000] - INFO Epsilon : Machine epsilon for float is 1.19209e-07
 [0.000] - INFO Epsilon : Machine epsilon for double is 2.22045e-16
 [0.000] - INFO Main : Working directory: D:\edu.schwabe.raytracer\data
 [0.003] - INFO Mesh : Loaded 36961 bytes from file meshes/teapot.off
-[0.023] - INFO Mesh : loaded meshes/teapot.off: 726 vertices, 1452 faces
-[0.023] - INFO Scene : Building culling tree for scene ...
-[0.023] - INFO Scene : done
-[0.044] - INFO UI : Resizing output to 512x512
-[0.046] - INFO Raytracer : Raytrace 1 (512x512):
-[0.130] - INFO Raytracer : Duration: 0.083243s
-[0.202] - INFO UI : primaryRays 262144/0
-[0.202] - INFO UI : secondaryRays 121805/17871
-[0.202] - INFO UI : shadowRays 253279/252997
-[0.202] - INFO UI : objectShadowRays 231073/199578
-[0.202] - INFO UI : Saving ray-traced image ...
-[0.213] - INFO UI : ray-traced.png
-```
-
-New baseline output after FMA3-intrinsics refactoring:
-
-```
-[0.000] - INFO Epsilon : Machine epsilon for float is 1.19209e-07
-[0.000] - INFO Epsilon : Machine epsilon for double is 2.22045e-16
-[0.000] - INFO Main : Working directory: D:\edu.schwabe.raytracer\data
-[0.002] - INFO Mesh : Loaded 36961 bytes from file meshes/teapot.off
-[0.022] - INFO Mesh : loaded meshes/teapot.off: 726 vertices, 1452 faces
-[0.022] - INFO Scene : Building culling tree for scene ...
-[0.022] - INFO Scene : done
-[0.044] - INFO UI : Resizing output to 512x512
-[0.046] - INFO Raytracer : Raytrace 1 (512x512):
-[0.122] - INFO Raytracer : Duration: 0.0757239s
-[0.189] - INFO UI : primaryRays 262144/0
-[0.190] - INFO UI : secondaryRays 121805/17871
-[0.190] - INFO UI : shadowRays 253279/252997
-[0.190] - INFO UI : objectShadowRays 231073/199578
-[0.190] - INFO UI : Saving ray-traced image ...
-[0.200] - INFO UI : ray-traced.png
+[0.018] - INFO Mesh : loaded meshes/teapot.off: 726 vertices, 1452 faces
+[0.018] - INFO Scene : Building culling tree for scene ...
+[0.018] - INFO Scene : done
+[0.043] - INFO UI : Resizing output to 512x512
+[0.045] - INFO Raytracer : Raytrace 1 (512x512):
+[0.084] - INFO Raytracer : Duration: 0.0388637s
+[0.199] - INFO UI : primaryRays 262144/0
+[0.199] - INFO UI : secondaryRays 121821/17871
+[0.199] - INFO UI : shadowRays 253286/253005
+[0.199] - INFO UI : objectShadowRays 231066/199568
+[0.199] - INFO UI : Saving ray-traced image ...
+[0.209] - INFO UI : ray-traced.png
 ```
 
 ## Code Style

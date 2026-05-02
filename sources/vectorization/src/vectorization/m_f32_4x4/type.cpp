@@ -1,5 +1,10 @@
 #include "vectorization/m_f32_4x4/type.h"
 
+#include "vectorization/constants/values/one_w.h"
+#include "vectorization/constants/values/one_x.h"
+#include "vectorization/constants/values/one_y.h"
+#include "vectorization/constants/values/one_z.h"
+
 #include <array>
 #include <cassert>
 

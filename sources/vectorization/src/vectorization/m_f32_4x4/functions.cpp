@@ -1,5 +1,12 @@
 #include "vectorization/m_f32_4x4.h"
 
+#include "vectorization/v_f32_4/accessors.h"
+#include "vectorization/v_f32_4/blends.h"
+#include "vectorization/v_f32_4/functions.h"
+#include "vectorization/v_f32_4/operators.h"
+#include "vectorization/v_f32_4/swizzled_blends.h"
+#include "vectorization/v_f32_4/swizzles.h"
+
 #include "vectorization/functions/cos.h"
 #include "vectorization/functions/multiply_add.h"
 #include "vectorization/functions/reciprocal.h"
