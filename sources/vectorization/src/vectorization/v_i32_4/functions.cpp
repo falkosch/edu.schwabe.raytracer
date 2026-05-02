@@ -1,8 +1,6 @@
 #include "vectorization/v_i32_4.h"
 
 namespace vectorization {
-#pragma region length()
-  //{ length()
 
   v_i32_4 lengthv(const v_i32_4 &v) noexcept {
     const v_i32_4 t = abs(v);
@@ -22,11 +20,6 @@ namespace vectorization {
     return x(length3v(v));
   }
 
-  //}
-#pragma endregion
-
-#pragma region distance()
-  //{ distance()
 
   v_i32_4::ValueType distance(const v_i32_4 &a, const v_i32_4 &b) noexcept {
     return length(b - a);
@@ -36,11 +29,6 @@ namespace vectorization {
     return length3(b - a);
   }
 
-  //}
-#pragma endregion
-
-#pragma region min()
-  //{ min()
 
   v_i32_4 min(const v_i32_4 &a, const v_i32_4 &b) noexcept {
     return _mm_min_epi32(a.components, b.components);
@@ -58,11 +46,6 @@ namespace vectorization {
     return x(min(yxwz(v), min(v, zwzw(v))));
   }
 
-  //}
-#pragma endregion
-
-#pragma region max()
-  //{ max()
 
   v_i32_4 max(const v_i32_4 &a, const v_i32_4 &b) noexcept {
     return _mm_max_epi32(a.components, b.components);
@@ -77,11 +60,7 @@ namespace vectorization {
     return x(max(yxwz(v), max(v, zwzw(v))));
   }
 
-  //}
-#pragma endregion
 
-#pragma region Special vector operations
-  //{
   v_i32_4 zeroW(const v_i32_4 &v) noexcept {
     // Shift by four bytes left and then back right to erase the w-component
     return _mm_srli_si128(_mm_slli_si128(v.components, sizeof(v_i32_4::ValueType)), sizeof(v_i32_4::ValueType));
@@ -152,6 +131,4 @@ namespace vectorization {
     return testAllZero3(v);
   }
 
-  //}
-#pragma endregion
 }

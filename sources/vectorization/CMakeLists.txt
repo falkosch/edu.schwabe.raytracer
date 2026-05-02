@@ -251,6 +251,7 @@ set(HEADERS
         include/vectorization/functions/atan2.h
         include/vectorization/functions/bitcount.h
         include/vectorization/functions/bitpad.h
+        include/vectorization/functions/broadcast.h
         include/vectorization/functions/ceil.h
         include/vectorization/functions/clamp.h
         include/vectorization/functions/copysign.h
