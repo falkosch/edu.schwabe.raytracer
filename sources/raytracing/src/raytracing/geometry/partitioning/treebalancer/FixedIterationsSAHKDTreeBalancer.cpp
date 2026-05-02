@@ -1,49 +1,58 @@
 #include "raytracing/geometry/partitioning/treebalancer/FixedIterationsSAHKDTreeBalancer.h"
 #include "../../../../stdafx.h"
 
-#include <algorithm>
 #include <limits>
+#include <vector>
 
-namespace raytracer {
-  FixedIterationsSAHKDTreeBalancer::FixedIterationsSAHKDTreeBalancer()
-      : geometryNodesSizeThreshold(GeometryNodesSizeThreshold) {
-  }
-
-  FixedIterationsSAHKDTreeBalancer::FixedIterationsSAHKDTreeBalancer(const ASizeT geometryNodesSizeThresholdIn)
-      : geometryNodesSizeThreshold(geometryNodesSizeThresholdIn) {
-  }
-
-  FixedIterationsSAHKDTreeBalancer::~FixedIterationsSAHKDTreeBalancer() = default;
-
-  const KDTreePlane FixedIterationsSAHKDTreeBalancer::
-      findSplitter(const KDTreeBuildParameters &parameters, const ASizeT, const AxisAlignedBoundingBox &bounding, const PGeometryNodeList &geometry, const KDTreePlane *)
-          const {
-    // get the usual geometry stuff
-    const ASizeT maxAxis = argmax3(extents(bounding));
-
-    // remember the best split and its associated costs
-    // initialize it with the mid-point and assume worst costs for it
-    Float bestCost = std::numeric_limits<Float>::max();
-    auto bestPlane = KDTreePlane(Half<Float>(), maxAxis);
-
-    // approximate a good splitting plane by searching through fixed iterations,
-    // but if geometry-list is too small, switch over to a brute-force approach
-    if (geometry.size() >= geometryNodesSizeThreshold) {
-      const Float norm = reciprocal(static_cast<Float>(geometryNodesSizeThreshold + One<ASizeT>()));
-
-      for (ASizeT i = Zero<ASizeT>(); i < geometryNodesSizeThreshold; ++i) {
-        const Float4 testPosition =
-            mix(bounding.minimum, bounding.maximum, static_cast<Float>(i + One<ASizeT>()) * norm);
-        testSplit(parameters, testPosition, maxAxis, geometry, bounding, bestCost, bestPlane);
-      }
-    } else {
-      std::for_each(geometry.cbegin(), geometry.cend(), [&](auto geometryNode) {
-        const Float4 testPosition = SamplingKDTreeBalancer::geometryNodeMaximumPredicate(*geometryNode);
-        testSplit(parameters, testPosition, maxAxis, geometry, bounding, bestCost, bestPlane);
-      });
+namespace raytracer
+{
+    FixedIterationsSAHKDTreeBalancer::FixedIterationsSAHKDTreeBalancer()
+        : geometryNodesSizeThreshold(GeometryNodesSizeThreshold)
+    {
     }
 
-    // finally, use the saved best splitting
-    return bestPlane;
-  }
+    FixedIterationsSAHKDTreeBalancer::FixedIterationsSAHKDTreeBalancer(ASizeT geometryNodesSizeThresholdIn)
+        : geometryNodesSizeThreshold(geometryNodesSizeThresholdIn)
+    {
+    }
+
+    FixedIterationsSAHKDTreeBalancer::~FixedIterationsSAHKDTreeBalancer() = default;
+
+    const KDTreePlane FixedIterationsSAHKDTreeBalancer::
+    findSplitter(const KDTreeBuildParameters& parameters, const ASizeT, const AxisAlignedBoundingBox& bounding,
+                 const PGeometryNodeList& geometry, const KDTreePlane*)
+    const
+    {
+        const ASizeT maxAxis = argmax3(extents(bounding));
+
+        Float bestCost = std::numeric_limits<Float>::max();
+        auto bestPlane = KDTreePlane(Half<Float>(), maxAxis);
+
+        std::vector<Float> candidates;
+
+        if (geometry.size() >= geometryNodesSizeThreshold)
+        {
+            const Float norm = reciprocal(static_cast<Float>(geometryNodesSizeThreshold + One<ASizeT>()));
+            candidates.reserve(geometryNodesSizeThreshold);
+
+            for (ASizeT i = Zero<ASizeT>(); i < geometryNodesSizeThreshold; ++i)
+            {
+                const Float4 testPosition =
+                    mix(bounding.minimum, bounding.maximum, static_cast<Float>(i + One<ASizeT>()) * norm);
+                candidates.push_back(testPosition[maxAxis]);
+            }
+        }
+        else
+        {
+            candidates.reserve(geometry.size());
+            for (const auto* geometryNode : geometry)
+            {
+                candidates.push_back(geometryNodeMaximumPredicate(*geometryNode)[maxAxis]);
+            }
+        }
+
+        sweepFindBestSplit(parameters, maxAxis, geometry, bounding, candidates, bestCost, bestPlane);
+
+        return bestPlane;
+    }
 }

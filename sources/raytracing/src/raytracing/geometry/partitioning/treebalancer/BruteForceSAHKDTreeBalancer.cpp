@@ -2,30 +2,34 @@
 #include "../../../../stdafx.h"
 
 #include <limits>
+#include <vector>
 
-namespace raytracer {
-  BruteForceSAHKDTreeBalancer::~BruteForceSAHKDTreeBalancer() = default;
+namespace raytracer
+{
+    BruteForceSAHKDTreeBalancer::~BruteForceSAHKDTreeBalancer() = default;
 
-  const KDTreePlane BruteForceSAHKDTreeBalancer::
-      findSplitter(const KDTreeBuildParameters &parameters, const ASizeT, const AxisAlignedBoundingBox &bounding, const PGeometryNodeList &geometry, const KDTreePlane *)
-          const {
-    // get the geometry stuff
-    const Float4 parentExtents = extents(bounding);
-    const ASizeT maxAxis = argmax3(parentExtents);
+    const KDTreePlane BruteForceSAHKDTreeBalancer::
+    findSplitter(const KDTreeBuildParameters& parameters, ASizeT, const AxisAlignedBoundingBox& bounding,
+                 const PGeometryNodeList& geometry, const KDTreePlane*)
+    const
+    {
+        const auto maxAxis = argmax3(extents(bounding));
 
-    // remember the best split and its associated costs
-    // initialize it with the mid-point and assume worst costs for it
-    Float bestCost = std::numeric_limits<Float>::max();
-    auto bestPlane = KDTreePlane(Half<Float>(), maxAxis);
+        auto bestCost = std::numeric_limits<Float>::max();
+        auto bestPlane = KDTreePlane(Half<Float>(), maxAxis);
 
-    for (auto it = geometry.cbegin(); it != geometry.cend(); ++it) {
-      const AxisAlignedBoundingBox nodeBounding = geometryNodeBox(**it);
-      testSplit(parameters, nodeBounding.minimum, maxAxis, geometry, bounding, bestCost, bestPlane);
-      testSplit(parameters, center(nodeBounding), maxAxis, geometry, bounding, bestCost, bestPlane);
-      testSplit(parameters, nodeBounding.maximum, maxAxis, geometry, bounding, bestCost, bestPlane);
+        std::vector<Float> candidates;
+        candidates.reserve(geometry.size() * 3);
+        for (const auto* node : geometry)
+        {
+            const auto nodeBounding = geometryNodeBox(*node);
+            candidates.push_back(nodeBounding.minimum[maxAxis]);
+            candidates.push_back(center(nodeBounding)[maxAxis]);
+            candidates.push_back(nodeBounding.maximum[maxAxis]);
+        }
+
+        sweepFindBestSplit(parameters, maxAxis, geometry, bounding, candidates, bestCost, bestPlane);
+
+        return bestPlane;
     }
-
-    // finally, use the saved best splitting
-    return bestPlane;
-  }
 }

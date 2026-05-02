@@ -117,20 +117,20 @@ Normal logs right after start:
 [0.000] - INFO Epsilon : Machine epsilon for double is 2.22045e-16
 [0.000] - INFO Main : Working directory: D:\edu.schwabe.raytracer\data
 [0.003] - INFO Mesh : Loaded 36961 bytes from file meshes/teapot.off
-[0.977] - INFO KDTree : Built KD-tree for 1452 nodes in 3092386559 cycles
-[0.977] - INFO Mesh : loaded meshes/teapot.off: 726 vertices, 1452 faces
-[0.977] - INFO Scene : Building culling tree for scene ...
-[0.977] - INFO KDTree : Built KD-tree for 8 nodes in 77 cycles
-[0.977] - INFO Scene : done
-[0.999] - INFO UI : Resizing output to 512x512
-[1.001] - INFO Raytracer : Raytrace 1 (512x512):
-[1.054] - INFO Raytracer : Duration: 0.0523223s
-[1.145] - INFO UI : primaryRays 262144/0
-[1.145] - INFO UI : secondaryRays 121821/17871
-[1.145] - INFO UI : shadowRays 253286/253005
-[1.145] - INFO UI : objectShadowRays 231066/199568
-[1.145] - INFO UI : Saving ray-traced image ...
-[1.156] - INFO UI : ray-traced.png
+[0.015] - INFO KDTree : Built KD-tree for 1452 nodes in 26285435 cycles
+[0.015] - INFO Mesh : loaded meshes/teapot.off: 726 vertices, 1452 faces
+[0.015] - INFO Scene : Building culling tree for scene ...
+[0.015] - INFO KDTree : Built KD-tree for 8 nodes in 91 cycles
+[0.015] - INFO Scene : done
+[0.035] - INFO UI : Resizing output to 512x512
+[0.037] - INFO Raytracer : Raytrace 1 (512x512):
+[0.078] - INFO Raytracer : Duration: 0.0418014s
+[0.182] - INFO UI : primaryRays 262144/0
+[0.182] - INFO UI : secondaryRays 121821/17871
+[0.182] - INFO UI : shadowRays 253286/253005
+[0.182] - INFO UI : objectShadowRays 231066/199568
+[0.182] - INFO UI : Saving ray-traced image ...
+[0.193] - INFO UI : ray-traced.png
 ```
 
 Baseline numbers incorporate:
@@ -140,6 +140,7 @@ Baseline numbers incorporate:
 - FMA3 intrinsics
 - Packed arithmetic functions refactoring
 - Switching to BruteForceSAHKDTreeBalancer as default
+- Implement sweep-based SAH KD-tree partitioning
 
 ## Code Style
 

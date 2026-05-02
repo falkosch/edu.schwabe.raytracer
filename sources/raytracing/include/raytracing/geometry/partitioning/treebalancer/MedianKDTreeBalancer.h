@@ -2,19 +2,21 @@
 
 #include "SamplingKDTreeBalancer.h"
 
-namespace raytracer {
-  using namespace vectorization;
-  using namespace primitives;
+namespace raytracer
+{
+    using namespace vectorization;
+    using namespace primitives;
 
-  class MedianKDTreeBalancer : public SamplingKDTreeBalancer {
-  public:
-    MedianKDTreeBalancer();
+    class MedianKDTreeBalancer : public SamplingKDTreeBalancer
+    {
+    public:
+        MedianKDTreeBalancer();
 
-    virtual ~MedianKDTreeBalancer();
+        ~MedianKDTreeBalancer() override;
 
-    const KDTreePlane findSplitter(
-        const KDTreeBuildParameters &parameters, const ASizeT treeDepth, const AxisAlignedBoundingBox &bounding,
-        const PGeometryNodeList &geometry, const KDTreePlane *parentSplitter
-    ) const;
-  };
+        const KDTreePlane findSplitter(
+            const KDTreeBuildParameters& parameters, ASizeT treeDepth, const AxisAlignedBoundingBox& bounding,
+            const PGeometryNodeList& geometry, const KDTreePlane* parentSplitter
+        ) const;
+    };
 }
