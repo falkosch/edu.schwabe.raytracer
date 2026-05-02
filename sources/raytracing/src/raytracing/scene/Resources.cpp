@@ -45,8 +45,8 @@ namespace raytracer {
         // auto balancer = std::make_unique<MaxAxisKDTreeBalancer>();
         // auto balancer = std::make_unique<MedianKDTreeBalancer>();
         // auto balancer = std::make_unique<ArithmeticMeanKDTreeBalancer>();
-        auto balancer = std::make_unique<FixedIterationsSAHKDTreeBalancer>(5);
-        // auto balancer = std::make_unique<BruteForceSAHKDTreeBalancer>();
+        // auto balancer = std::make_unique<FixedIterationsSAHKDTreeBalancer>(5);
+        auto balancer = std::make_unique<BruteForceSAHKDTreeBalancer>();
 
         auto newMesh = Mesh::loadFromOffFile(file, hasRevertedNormals(file), std::move(traverser), std::move(balancer));
         auto *ptr = newMesh.get();

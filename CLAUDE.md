@@ -110,27 +110,36 @@ only the last one takes effect. Use this pattern for any scene mutation that mus
 
 ### Regression Tests
 
-Normal logs right after start, baseline numbers incorporate LTCG fix, FMA3 intrinsics, packed arithmetic functions
-refactoring, CMake Unity compilation mode:
+Normal logs right after start:
 
 ```
 [0.000] - INFO Epsilon : Machine epsilon for float is 1.19209e-07
 [0.000] - INFO Epsilon : Machine epsilon for double is 2.22045e-16
 [0.000] - INFO Main : Working directory: D:\edu.schwabe.raytracer\data
 [0.003] - INFO Mesh : Loaded 36961 bytes from file meshes/teapot.off
-[0.018] - INFO Mesh : loaded meshes/teapot.off: 726 vertices, 1452 faces
-[0.018] - INFO Scene : Building culling tree for scene ...
-[0.018] - INFO Scene : done
-[0.043] - INFO UI : Resizing output to 512x512
-[0.045] - INFO Raytracer : Raytrace 1 (512x512):
-[0.084] - INFO Raytracer : Duration: 0.0388637s
-[0.199] - INFO UI : primaryRays 262144/0
-[0.199] - INFO UI : secondaryRays 121821/17871
-[0.199] - INFO UI : shadowRays 253286/253005
-[0.199] - INFO UI : objectShadowRays 231066/199568
-[0.199] - INFO UI : Saving ray-traced image ...
-[0.209] - INFO UI : ray-traced.png
+[0.977] - INFO KDTree : Built KD-tree for 1452 nodes in 3092386559 cycles
+[0.977] - INFO Mesh : loaded meshes/teapot.off: 726 vertices, 1452 faces
+[0.977] - INFO Scene : Building culling tree for scene ...
+[0.977] - INFO KDTree : Built KD-tree for 8 nodes in 77 cycles
+[0.977] - INFO Scene : done
+[0.999] - INFO UI : Resizing output to 512x512
+[1.001] - INFO Raytracer : Raytrace 1 (512x512):
+[1.054] - INFO Raytracer : Duration: 0.0523223s
+[1.145] - INFO UI : primaryRays 262144/0
+[1.145] - INFO UI : secondaryRays 121821/17871
+[1.145] - INFO UI : shadowRays 253286/253005
+[1.145] - INFO UI : objectShadowRays 231066/199568
+[1.145] - INFO UI : Saving ray-traced image ...
+[1.156] - INFO UI : ray-traced.png
 ```
+
+Baseline numbers incorporate:
+
+- CMake Unity compilation mode
+- LTCG fix (MSVC Whole Program Optimization now working correctly)
+- FMA3 intrinsics
+- Packed arithmetic functions refactoring
+- Switching to BruteForceSAHKDTreeBalancer as default
 
 ## Code Style
 

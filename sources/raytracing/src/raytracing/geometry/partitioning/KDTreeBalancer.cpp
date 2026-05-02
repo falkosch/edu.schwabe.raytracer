@@ -2,8 +2,13 @@
 #include "../../../stdafx.h"
 
 #include <cassert>
+#include <intrin.h>
+#include <logging.h>
 #include <numeric>
 #include <omp.h>
+#include <sstream>
+
+static const auto Log = logging::scope("KDTree");
 
 namespace raytracer {
   KDTreeBalancer::~KDTreeBalancer() = default;
@@ -52,7 +57,16 @@ namespace raytracer {
     root->rootBounding = KDTreeBounding::findMinimumBoundingOfGeometry(rootGeometry);
     root->rootNode.geometryNodes = std::make_unique<PGeometryNodeList>(rootGeometry);
 
+    const auto cycles0 = __rdtsc();
+
     build(parameters, Zero<ASizeT>(), nullptr, root->rootBounding, root->rootNode);
+
+    const auto cycles1 = __rdtsc();
+    Log.info([n = rootGeometry.size(), c = cycles1 - cycles0] {
+      std::ostringstream oss;
+      oss << "Built KD-tree for " << n << " nodes in " << c << " cycles";
+      return oss.str();
+    });
 
     return root;
   }

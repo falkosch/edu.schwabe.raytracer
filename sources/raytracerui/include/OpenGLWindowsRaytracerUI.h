@@ -35,11 +35,11 @@ namespace raytracerui
 
     bool showLog{false};
 
-    int balancerIndex{0};
+    int balancerIndex{1};
 
     int sceneBalancerThreshold{25};
 
-    int meshBalancerIndex{0};
+    int meshBalancerIndex{1};
 
     int meshBalancerThreshold{5};
 
