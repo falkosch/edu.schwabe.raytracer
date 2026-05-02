@@ -50,7 +50,7 @@ namespace raytracer {
 
     void trace();
 
-    static Float4 applyBRDF(const BRDFParameters &brdf);
+    static RGBS applyBRDF(const BRDFParameters &brdf);
 
     static IlluminatedIntersection trace(const Raytrace &raytrace, RaytracerCache &cache);
 

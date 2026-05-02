@@ -13,6 +13,7 @@ set(SOURCES
         src/raytracing/common/Bitmap.cpp
         src/raytracing/common/HDRImage.cpp
         src/raytracing/common/PNGWriter.cpp
+        src/raytracing/common/RGBS.cpp
         src/raytracing/common/RefractionIndices.cpp
         src/raytracing/common/StatisticsCookie.cpp
         src/raytracing/common/Tools.cpp
@@ -80,8 +81,9 @@ set(HEADERS
         include/raytracing/RaytracerPackets.h
         include/raytracing/common/Bitmap.h
         include/raytracing/common/HDRImage.h
-        include/raytracing/common/PNGWriter.h
         include/raytracing/common/Image.h
+        include/raytracing/common/PNGWriter.h
+        include/raytracing/common/RGBS.h
         include/raytracing/common/RefractionIndices.h
         include/raytracing/common/StatisticsCookie.h
         include/raytracing/common/Tools.h

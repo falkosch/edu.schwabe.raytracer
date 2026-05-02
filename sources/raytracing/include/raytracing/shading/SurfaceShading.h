@@ -1,16 +1,16 @@
 #pragma once
 
-#include <vectorization.h>
+#include "../common/RGBS.h"
 
 namespace raytracer {
   using namespace vectorization;
 
   struct SurfaceShading {
-    Float4 diffusion;
+    RGBS diffusion;
 
-    Float4 reflectance;
+    RGBS reflectance;
 
-    Float4 specular;
+    RGBS specular;
 
     Float4 shininess;
 
@@ -18,13 +18,13 @@ namespace raytracer {
 
     Float4 refractionEta;
 
-    Float4 emittance;
+    RGBS emittance;
 
     SurfaceShading();
 
     SurfaceShading(
-        const Float4 &diffusion, const Float4 &reflectance, const Float4 &specular, const Float4 &shininess,
-        const Float4 &transmittanceIn, const Float4 &refractionEta, const Float4 &emittance
+        const RGBS &diffusion, const RGBS &reflectance, const RGBS &specular, const Float4 &shininess,
+        const Float4 &transmittanceIn, const Float4 &refractionEta, const RGBS &emittance
     );
   };
 }

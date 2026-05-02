@@ -23,11 +23,11 @@ namespace raytracer {
     backgroundShader = std::move(value);
   }
 
-  Float4 SceneShader::getAmbientLight() const {
+  RGBS SceneShader::getAmbientLight() const {
     return ambientLight;
   }
 
-  void SceneShader::setAmbientLight(const Float4 &value) {
+  void SceneShader::setAmbientLight(const RGBS &value) {
     ambientLight = value;
   }
 
@@ -39,9 +39,9 @@ namespace raytracer {
     return lights;
   }
 
-  Float4 SceneShader::sampleBackground(const Float4 &rayDirection) const {
-    const Float4 t = backgroundShader->sample(*this, rayDirection);
-    return t * wwww(t);
+  RGBS SceneShader::sampleBackground(const Float4 &rayDirection) const {
+    const RGBS t = backgroundShader->sample(*this, rayDirection);
+    return t * t.scalev();
   }
 
   // Computes the lighting of a facet in the scene.
@@ -133,7 +133,7 @@ namespace raytracer {
 #endif
 
       // Diffuse and specular reflection inbound intensity of this light source
-      lighting.diffuse += litAreaFraction * attenuatedDiffuseIntensity * light.emittance;
+      lighting.diffuse += litAreaFraction * attenuatedDiffuseIntensity * light.emittance.value;
       lighting.specular += litAreaFraction
                            * phongSpecularIntensityPerReflectedIncident(
                                intersection.reflectedDirection, normalizedLightDirection, shininess

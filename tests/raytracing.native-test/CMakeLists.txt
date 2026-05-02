@@ -1,22 +1,23 @@
 project("raytracing.native-test" LANGUAGES CXX VERSION 1.0.0)
 
 set(SOURCES
-        src/raytracing/geometry/forms/Sphere_test.cpp
+        src/raytracing/common/Bitmap_test.cpp
+        src/raytracing/common/HDRImage_test.cpp
+        src/raytracing/common/RGBS_test.cpp
         src/raytracing/geometry/forms/Box_test.cpp
         src/raytracing/geometry/forms/Plane_test.cpp
+        src/raytracing/geometry/forms/Sphere_test.cpp
         src/raytracing/geometry/forms/meshes/Mesh_test.cpp
         src/raytracing/geometry/partitioning/Balancer_test.cpp
         src/raytracing/geometry/partitioning/Traverser_test.cpp
-        src/raytracing/shading/Fresnel_test.cpp
-        src/raytracing/shading/BeerLambert_test.cpp
-        src/raytracing/shading/Phong_test.cpp
-        src/raytracing/shading/BRDF_test.cpp
-        src/raytracing/shading/IntersectionNormalShader_test.cpp
-        src/raytracing/shading/HDRImageShader_test.cpp
-        src/raytracing/shading/EnvironmentShader_test.cpp
         src/raytracing/scene/Camera_test.cpp
-        src/raytracing/common/Bitmap_test.cpp
-        src/raytracing/common/HDRImage_test.cpp
+        src/raytracing/shading/BRDF_test.cpp
+        src/raytracing/shading/BeerLambert_test.cpp
+        src/raytracing/shading/EnvironmentShader_test.cpp
+        src/raytracing/shading/Fresnel_test.cpp
+        src/raytracing/shading/HDRImageShader_test.cpp
+        src/raytracing/shading/IntersectionNormalShader_test.cpp
+        src/raytracing/shading/Phong_test.cpp
 )
 
 set(HEADERS

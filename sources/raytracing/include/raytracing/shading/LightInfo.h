@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../common/RGBS.h"
 #include "../geometry/ObjectGeometry.h"
 
 namespace raytracer {
@@ -8,8 +9,8 @@ namespace raytracer {
   // Lighting info for emission.
   struct LightInfo {
     Float4 position;
-    Float4 emittance;
-    Float4 glare;
+    RGBS emittance;
+    RGBS glare;
 
     // describes the fall-off of the lighting intensity over distance: x
     // is the constant, y is the linear, and z is the quadratic factor in

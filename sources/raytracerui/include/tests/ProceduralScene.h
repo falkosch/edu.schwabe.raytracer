@@ -11,8 +11,8 @@ namespace raytracerui {
   template <int LightsPerAxis = 3, int ObjectsPerAxis = 10>
   struct ProceduralScene {
     static void setupLightScene(Scene &scene, Resources & /*resources*/) {
-      scene.setBackgroundShader(std::make_unique<ConstShader<SceneShader, Float4, Float4>>(Float4(1.f, 1.f, 1.f, 0.f)));
-      scene.setAmbientLight(Float4(0.f, 0.f, 0.f, 0.f));
+      scene.setBackgroundShader(std::make_unique<ConstShader<SceneShader, Float4, RGBS>>(RGBS(1.f, 1.f, 1.f, 0.f)));
+      scene.setAmbientLight(RGBS::black());
 
       auto emittanceScale = reciprocal(Float4(LightsPerAxis * LightsPerAxis * LightsPerAxis + 1.f));
       for (auto z{-LightsPerAxis}; z <= LightsPerAxis; ++z) {

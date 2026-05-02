@@ -7,7 +7,7 @@ namespace raytracer
     {
     }
 
-    LightShading::LightShading(const Float4& ambientIn)
+    LightShading::LightShading(const RGBS& ambientIn)
         : ambient(ambientIn), diffuse(), specular(), reflected(), transmitted()
     {
     }

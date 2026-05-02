@@ -1,6 +1,6 @@
 #pragma once
 
-#include <vectorization.h>
+#include "common/RGBS.h"
 
 namespace raytracer {
   using namespace vectorization;
@@ -8,10 +8,10 @@ namespace raytracer {
   struct IlluminatedIntersection {
     Float4 depth;
 
-    Float4 color;
+    RGBS color;
 
-    IlluminatedIntersection(Float depth, const Float4 &color);
+    IlluminatedIntersection(Float depth, const RGBS &color);
 
-    IlluminatedIntersection(const Float4 &depth, const Float4 &color);
+    IlluminatedIntersection(const Float4 &depth, const RGBS &color);
   };
 }

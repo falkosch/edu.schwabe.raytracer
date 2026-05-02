@@ -16,7 +16,7 @@ namespace raytracer {
 
   class SceneShader : public SceneGeometry, public Shader<SceneShaderContainment, SceneIntersection, LightShading> {
   public:
-    typedef Shader<SceneShader, Float4, Float4> BackgroundShader;
+    typedef Shader<SceneShader, Float4, RGBS> BackgroundShader;
     typedef std::vector<std::unique_ptr<LightInfo>> LightsCollection;
 
     SceneShader();
@@ -28,14 +28,14 @@ namespace raytracer {
     const BackgroundShader *getBackgroundShader() const;
     void setBackgroundShader(std::unique_ptr<const BackgroundShader> value);
 
-    Float4 getAmbientLight() const;
-    void setAmbientLight(const Float4 &value);
+    RGBS getAmbientLight() const;
+    void setAmbientLight(const RGBS &value);
 
     const LightsCollection &getLights() const;
     LightsCollection &getLights();
 
     // Samples the lighting of a facet in the scene.
-    Float4 sampleBackground(const Float4 &rayDirection) const;
+    RGBS sampleBackground(const Float4 &rayDirection) const;
 
     // Samples the lighting of a facet in the scene.
     LightShading
@@ -55,7 +55,7 @@ namespace raytracer {
   private:
     std::unique_ptr<const BackgroundShader> backgroundShader;
 
-    Float4 ambientLight;
+    RGBS ambientLight;
     LightsCollection lights;
 
     Float4 computeLitAreaFraction(

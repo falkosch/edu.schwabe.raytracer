@@ -26,9 +26,9 @@ namespace raytracer::test {
 
       const auto color = shader.sample(sceneShader, Float4{0.0f, 1.0f, 0.0f, 0.0f});
 
-      Assert::AreEqual(0.25f, x(color), 1e-6f, L"r", LINE_INFO());
-      Assert::AreEqual(0.5f, y(color), 1e-6f, L"g", LINE_INFO());
-      Assert::AreEqual(0.75f, z(color), 1e-6f, L"b", LINE_INFO());
+      Assert::AreEqual(0.25f, x(color.value), 1e-6f, L"r", LINE_INFO());
+      Assert::AreEqual(0.5f, y(color.value), 1e-6f, L"g", LINE_INFO());
+      Assert::AreEqual(0.75f, z(color.value), 1e-6f, L"b", LINE_INFO());
     }
 
     TEST_METHOD(rayDirectionXZSelectsTexel) {
@@ -42,20 +42,20 @@ namespace raytracer::test {
 
       // direction (-1, *, -1) -> texCoords (0, 0) -> data[0]
       auto color = shader.sample(sceneShader, Float4{-1.0f, 0.0f, -1.0f, 0.0f});
-      Assert::AreEqual(1.0f, x(color), 1e-6f, L"(-1,*,-1) -> data[0] r", LINE_INFO());
+      Assert::AreEqual(1.0f, x(color.value), 1e-6f, L"(-1,*,-1) -> data[0] r", LINE_INFO());
 
       // direction (0, *, -1) -> texCoords (0.5, 0) -> data[1]
       color = shader.sample(sceneShader, Float4{0.0f, 0.0f, -1.0f, 0.0f});
-      Assert::AreEqual(1.0f, y(color), 1e-6f, L"(0,*,-1) -> data[1] g", LINE_INFO());
+      Assert::AreEqual(1.0f, y(color.value), 1e-6f, L"(0,*,-1) -> data[1] g", LINE_INFO());
 
       // direction (-1, *, 0) -> texCoords (0, 0.5) -> data[2]
       color = shader.sample(sceneShader, Float4{-1.0f, 0.0f, 0.0f, 0.0f});
-      Assert::AreEqual(1.0f, z(color), 1e-6f, L"(-1,*,0) -> data[2] b", LINE_INFO());
+      Assert::AreEqual(1.0f, z(color.value), 1e-6f, L"(-1,*,0) -> data[2] b", LINE_INFO());
 
       // direction (0, *, 0) -> texCoords (0.5, 0.5) -> data[3]
       color = shader.sample(sceneShader, Float4{0.0f, 0.0f, 0.0f, 0.0f});
-      Assert::AreEqual(1.0f, x(color), 1e-6f, L"(0,*,0) -> data[3] r", LINE_INFO());
-      Assert::AreEqual(1.0f, y(color), 1e-6f, L"(0,*,0) -> data[3] g", LINE_INFO());
+      Assert::AreEqual(1.0f, x(color.value), 1e-6f, L"(0,*,0) -> data[3] r", LINE_INFO());
+      Assert::AreEqual(1.0f, y(color.value), 1e-6f, L"(0,*,0) -> data[3] g", LINE_INFO());
     }
 
     TEST_METHOD(yComponentIsIgnored) {
@@ -71,10 +71,10 @@ namespace raytracer::test {
       const auto b = shader.sample(sceneShader, Float4{0.3f, 1.0f, 0.7f, 0.0f});
       const auto c = shader.sample(sceneShader, Float4{0.3f, 100.0f, 0.7f, 0.0f});
 
-      Assert::AreEqual(x(a), x(b), 1e-6f, L"y=-1 vs y=1 r", LINE_INFO());
-      Assert::AreEqual(y(a), y(b), 1e-6f, L"y=-1 vs y=1 g", LINE_INFO());
-      Assert::AreEqual(z(a), z(b), 1e-6f, L"y=-1 vs y=1 b", LINE_INFO());
-      Assert::AreEqual(x(a), x(c), 1e-6f, L"y=-1 vs y=100 r", LINE_INFO());
+      Assert::AreEqual(x(a.value), x(b.value), 1e-6f, L"y=-1 vs y=1 r", LINE_INFO());
+      Assert::AreEqual(y(a.value), y(b.value), 1e-6f, L"y=-1 vs y=1 g", LINE_INFO());
+      Assert::AreEqual(z(a.value), z(b.value), 1e-6f, L"y=-1 vs y=1 b", LINE_INFO());
+      Assert::AreEqual(x(a.value), x(c.value), 1e-6f, L"y=-1 vs y=100 r", LINE_INFO());
     }
 
     TEST_METHOD(preservesHDRRangeValues) {
@@ -85,9 +85,9 @@ namespace raytracer::test {
 
       const auto color = shader.sample(sceneShader, Float4{0.0f, 0.0f, 0.0f, 0.0f});
 
-      Assert::AreEqual(8.0f, x(color), 1e-6f, L"value > 1 preserved", LINE_INFO());
-      Assert::AreEqual(-0.5f, y(color), 1e-6f, L"negative preserved", LINE_INFO());
-      Assert::AreEqual(250.0f, z(color), 1e-6f, L"large value preserved", LINE_INFO());
+      Assert::AreEqual(8.0f, x(color.value), 1e-6f, L"value > 1 preserved", LINE_INFO());
+      Assert::AreEqual(-0.5f, y(color.value), 1e-6f, L"negative preserved", LINE_INFO());
+      Assert::AreEqual(250.0f, z(color.value), 1e-6f, L"large value preserved", LINE_INFO());
     }
 
     TEST_METHOD(operatorMatchesSample) {
@@ -103,10 +103,10 @@ namespace raytracer::test {
       const auto a = shader.sample(sceneShader, direction);
       const auto b = shader(sceneShader, direction);
 
-      Assert::AreEqual(x(a), x(b), 1e-6f, L"x", LINE_INFO());
-      Assert::AreEqual(y(a), y(b), 1e-6f, L"y", LINE_INFO());
-      Assert::AreEqual(z(a), z(b), 1e-6f, L"z", LINE_INFO());
-      Assert::AreEqual(w(a), w(b), 1e-6f, L"w", LINE_INFO());
+      Assert::AreEqual(x(a.value), x(b.value), 1e-6f, L"x", LINE_INFO());
+      Assert::AreEqual(y(a.value), y(b.value), 1e-6f, L"y", LINE_INFO());
+      Assert::AreEqual(z(a.value), z(b.value), 1e-6f, L"z", LINE_INFO());
+      Assert::AreEqual(w(a.value), w(b.value), 1e-6f, L"w", LINE_INFO());
     }
 
     TEST_METHOD(extremeRayDirectionWrapsAtEdges) {
@@ -122,8 +122,8 @@ namespace raytracer::test {
 
       const auto color = shader.sample(sceneShader, Float4{1.0f, 0.0f, 1.0f, 0.0f});
 
-      Assert::AreEqual(0.9f, x(color), 1e-6f, L"+x +z wraps to data[0] r", LINE_INFO());
-      Assert::AreEqual(0.0f, y(color), 1e-6f, L"+x +z wraps to data[0] g", LINE_INFO());
+      Assert::AreEqual(0.9f, x(color.value), 1e-6f, L"+x +z wraps to data[0] r", LINE_INFO());
+      Assert::AreEqual(0.0f, y(color.value), 1e-6f, L"+x +z wraps to data[0] g", LINE_INFO());
     }
   };
 }

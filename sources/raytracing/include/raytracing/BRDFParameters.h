@@ -22,10 +22,10 @@ namespace raytracer {
     Float4 transmissionDirection;
 
     // Fresnel reflectance coefficient = 1 - transmittance coefficient
-    Float4 reflectanceCoefficient;
+    RGBS reflectanceCoefficient;
 
     // Light absorption weight in material
-    Float4 fractionTransmitted;
+    RGBS fractionTransmitted;
 
     // Distance from ray-origin to scene-intersection
     Float viewDistance;

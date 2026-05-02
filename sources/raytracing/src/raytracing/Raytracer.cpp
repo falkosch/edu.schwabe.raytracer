@@ -244,7 +244,7 @@ namespace raytracer
                         static_cast<ASizeT>(outOfReach(packedRaytrace.raytrace.rayCast, x(hit.depth)));
 
                     // Sample colour into output
-                    packets.samplePixel(packedRaytrace.outputPixel, hit.color);
+                    packets.samplePixel(packedRaytrace.outputPixel, hit.color.value);
 
                     auto imagePtrIndex = packedRaytrace.outputPixel - cache.configuration.image->getData();
 
@@ -382,7 +382,7 @@ namespace raytracer
 
         // check whether it would even make a difference in the image
         auto reflectionVisibilityIndex =
-            incidentRaytrace.visibilityIndex * brdf.reflectanceCoefficient * max3v(brdf.surface.reflectance);
+            incidentRaytrace.visibilityIndex * brdf.reflectanceCoefficient.value * max3v(brdf.surface.reflectance.value);
         if (x(reflectionVisibilityIndex) < cache.configuration.visibilityCutoff)
         {
             brdf.lighting.reflected = Zero<Float4>();
@@ -439,7 +439,7 @@ namespace raytracer
         // or whether it is a total internal reflection (transmissionDirection = 0)
         auto transmissionVisibilityIndex =
             Float4(incidentRaytrace.visibilityIndex) * fractionTransmitted * (One<Float4>() - brdf.
-                reflectanceCoefficient);
+                reflectanceCoefficient.value);
         if (x(transmissionVisibilityIndex) < cache.configuration.visibilityCutoff)
         {
             brdf.lighting.transmitted = Zero<Float4>();
@@ -470,7 +470,7 @@ namespace raytracer
             static_cast<ASizeT>(outOfReach(refractedRaytrace.rayCast, x(refractedHit.depth)));
     }
 
-    Float4 Raytracer::applyBRDF(const BRDFParameters& brdf)
+    RGBS Raytracer::applyBRDF(const BRDFParameters& brdf)
     {
         // https://en.wikipedia.org/wiki/Phong_reflection_model
         const auto ambient = brdf.surface.diffusion * brdf.lighting.ambient;
@@ -485,6 +485,6 @@ namespace raytracer
         const auto reflection = brdf.surface.reflectance * brdf.lighting.reflected;
         const auto transmitted = brdf.fractionTransmitted * brdf.lighting.transmitted;
 
-        return brdf.surface.emittance + phong + mix(transmitted, reflection, brdf.reflectanceCoefficient);
+        return brdf.surface.emittance + phong + mix(transmitted.value, reflection.value, brdf.reflectanceCoefficient.value);
     }
 }

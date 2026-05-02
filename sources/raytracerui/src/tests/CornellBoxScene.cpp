@@ -189,14 +189,14 @@ namespace raytracerui {
     TestResources::setup(resources);
 
     scene.setBackgroundShader(
-        std::make_unique<ConstShader<SceneShader, Float4, Float4>>(Float4(1.0f, 1.0f, 1.0f, 0.0f))
+        std::make_unique<ConstShader<SceneShader, Float4, RGBS>>(Float4(1.0f, 1.0f, 1.0f, 0.0f))
     );
-    scene.setAmbientLight(Float4(0.0f, 0.0f, 0.0f, 0.0f));
+    scene.setAmbientLight(RGBS(0.0f, 0.0f, 0.0f, 0.0f));
 
     auto light = std::make_unique<LightInfo>();
     light->position = Float4(0.0f, 0.98f, 0.0f, 1.0f);
-    light->emittance = Float4(1.0f, 0.9f, 0.8f, 1.0f);
-    light->glare = Float4(4.0f, 4.0f, 4.0f, 1.0f);
+    light->emittance = RGBS(1.0f, 0.9f, 0.8f, 1.0f);
+    light->glare = RGBS(4.0f, 4.0f, 4.0f, 1.0f);
     light->attenuationFactors = Float4(0.0f, 0.13f, 1.0f, 1.0f);
     scene.getLights().push_back(std::move(light));
 

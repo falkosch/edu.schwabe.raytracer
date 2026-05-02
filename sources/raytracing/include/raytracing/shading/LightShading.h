@@ -1,19 +1,19 @@
 #pragma once
 
-#include <vectorization.h>
+#include "../common/RGBS.h"
 
 namespace raytracer {
   using namespace vectorization;
 
   struct LightShading {
-    Float4 ambient;
-    Float4 diffuse;
-    Float4 specular;
-    Float4 reflected;
-    Float4 transmitted;
+    RGBS ambient;
+    RGBS diffuse;
+    RGBS specular;
+    RGBS reflected;
+    RGBS transmitted;
 
     LightShading();
 
-    explicit LightShading(const Float4 &ambient);
+    explicit LightShading(const RGBS &ambient);
   };
 }
