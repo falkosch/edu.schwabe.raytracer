@@ -20,4 +20,12 @@ namespace vectorization {
   PackedFloat2_128 sqrt(const PackedFloat2_128 &values) noexcept {
     return _mm_sqrt_pd(values);
   }
+
+  PackedFloat8_256 sqrt(const PackedFloat8_256 &values) noexcept {
+    return _mm256_sqrt_ps(values);
+  }
+
+  PackedFloat4_256 sqrt(const PackedFloat4_256 &values) noexcept {
+    return _mm256_sqrt_pd(values);
+  }
 }

@@ -18,4 +18,12 @@ namespace vectorization {
   PackedFloat2_128 fract(const PackedFloat2_128 &values) noexcept {
     return _mm_sub_pd(values, floor(values));
   }
+
+  PackedFloat8_256 fract(const PackedFloat8_256 &values) noexcept {
+    return _mm256_sub_ps(values, floor(values));
+  }
+
+  PackedFloat4_256 fract(const PackedFloat4_256 &values) noexcept {
+    return _mm256_sub_pd(values, floor(values));
+  }
 }

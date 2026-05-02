@@ -51,11 +51,13 @@ Most of the low-level plumbing is already in place, which lowers the cost of add
 - **`PackedTypes<T, N>` specializations** in `architecture/meta_packed_types.h` exist for **all** planned types'
   underlying native primitives (e.g. `PackedTypes<Float_32, 8>::Type = PackedFloat8_256`,
   `PackedTypes<UInt_8, 16>::Type = PackedInts_128`). A new wrapper type consumes these — no native-type work needed.
-- **Cross-cutting category headers** already exist for most widths:
-    - `accessors/` — `component_{128d,128i,128s,256d,256s}.h`, `replace_component_{128d,128i,128s,256d,256s}.h`
-    - `blends/` — `blend_{128d,128s,256d,256s}.h`, `blend_masked_{128d,128i,128s,256d,256i,256s,scalar}.h`
-    - `swizzles/` — `swizzle_{128d,128s,256d,256s}.h`
-    - `swizzled_blends/` — full `swizzled_blend_*` and `swizzled_blend_masked_*` set for float widths
+- **Cross-cutting category headers** already exist for all widths:
+    - `accessors/` — `component_{128d,128i,128s,256d,256i,256s}.h`,
+      `replace_component_{128d,128i,128s,256d,256i,256s}.h`
+    - `blends/` — `blend_{128d,128s,256d,256i,256s}.h`,
+      `blend_masked_{128d,128i,128s,256d,256i,256s,scalar}.h`
+    - `swizzles/` — `swizzle_{128d,128s,256d,256i,256s}.h`
+    - `swizzled_blends/` — full `swizzled_blend_*` and `swizzled_blend_masked_*` set for float widths and 256i
     - `selects/` — `selects_{128d,128i,128s,256d,256i,256s,generic,scalar}.h`
     - `constants/masks/` — `mask_{all,none,x,y,z,w,xy,yz,zw,xyz,yzw,xyzw}.h` with specializations for
       `PackedFloat{2,4}_128`, `PackedFloat{4,8}_256`
@@ -65,12 +67,20 @@ Most of the low-level plumbing is already in place, which lowers the cost of add
 
 ### Still missing (prerequisites for specific types)
 
-- `component_256i.h`, `replace_component_256i.h`, `blend_256i.h`, `swizzle_128i.h`, `swizzle_256i.h`,
-  `swizzled_blend_*_128i.h`, `swizzled_blend_*_256i.h` — needed for 128i/256i wrapper types
-  (overlaps with `unused-256bit-integer-infrastructure.md`)
+- `swizzle_128i.h`, `swizzled_blend_*_128i.h` — needed for 128i wrapper types
 - `mask_{all,none,x,...}` specializations for new packed types (e.g. `PackedInts_128` for int types,
   `PackedFloat*` variants that don't match existing)
 - 8-bit and 16-bit width helpers have **no** cross-cutting headers today — much bigger undertaking
+
+### Recently completed prerequisites
+
+- **256i basic-tier infrastructure**: `component_256i`, `replace_component_256i`, `blend_256i`, `swizzle_256i`,
+  `swizzled_blend_256i`, `swizzled_blend_masked_256i` — all with AVX2-native + AVX-fallback paths
+- **Basic-tier `PackedFloat8_256` + `PackedFloat4_256` functions**: All 18 previously-declared-but-unimplemented
+  overloads (abs, ceil, clamp, copysign, divide, floor, fract, isNaN, max, min, mix, modulo, reciprocal, round,
+  rsqrt, sign, sqr, sqrt) now have implementations
+- **`v_i32_8`**: Full 8×int32 wrapper type with three-tier SSE/AVX/AVX2 support (prerequisite for `v_f32_8`'s
+  `VectorBoolType`)
 
 ## Per-type file set (template based on current `v_f32_4`)
 
@@ -203,17 +213,20 @@ call it **~1500–2500 LOC** including tests and boilerplate per type):
 
 ## Suggested implementation order (updated)
 
-1. **`v_f32_8`** — highest ROI: reuses existing 256s infrastructure, unlocks 8-lane SIMD trig via `avx_mathfun`,
-   opens the door to wider primary-ray packets in the raytracer. Enables a real perf story for the raytracerui.
-2. **`v_f64_2` / `v_f64_4`** — float API symmetry. Reuse 128d/256d infrastructure. No SIMD trig, but completes
+1. ~~**`v_i32_8`**~~ — **DONE.** Full three-tier SSE/AVX/AVX2 implementation. Prerequisite for `v_f32_8`.
+2. **`v_f32_8`** — highest ROI: reuses existing 256s infrastructure, unlocks 8-lane SIMD trig via `avx_mathfun`,
+   opens the door to wider primary-ray packets in the raytracer. `VectorBoolType = v_i32_8` (now available).
+   No `*3` partial-lane variants (homogeneous W semantic doesn't apply at 8 lanes). Add `Float8` alias to
+   `api_type_definitions.h`. Same three-tier SSE/AVX/AVX2 pattern as `v_i32_8`.
+3. **`v_ui32_8`** — unsigned counterpart to `v_i32_8`. Same pattern, reduced function surface (no sign-dependent
+   ops like `isNegative`, `abs`).
+4. **`v_f64_2` / `v_f64_4`** — float API symmetry. Reuse 128d/256d infrastructure. No SIMD trig, but completes
    the double-precision surface and is a prerequisite if the raytracer ever adopts double for numerically
    sensitive stages (e.g. geometric intersection tests).
-3. **`v_i32_8` / `v_ui32_8`** — requires the 256i helpers from `unused-256bit-integer-infrastructure.md` first;
-   then adds wrapper types. Unlocks 256-bit integer use in the raytracer (wider tile/pixel masks, etc.).
-4. **`v_i64_2` / `v_ui64_4` / `v_i64_4`** — 64-bit integer variants; low urgency.
-5. **16-bit and 8-bit types** — most specialized, least urgent. These require entirely new cross-cutting helper
+5. **`v_i64_2` / `v_ui64_4` / `v_i64_4`** — 64-bit integer variants; low urgency.
+6. **16-bit and 8-bit types** — most specialized, least urgent. These require entirely new cross-cutting helper
    headers (there are no `blend_128_16`/`swizzle_128_8` files today) and would roughly double the per-type effort.
-6. **Integer matrices (`m_ui32_4x4`, `m_i32_4x4`)** — only after the underlying integer vector types are solid.
+7. **Integer matrices (`m_ui32_4x4`, `m_i32_4x4`)** — only after the underlying integer vector types are solid.
 
 ## Related backlog items
 

@@ -56,4 +56,12 @@ namespace vectorization {
   PackedFloat2_128 min(const PackedFloat2_128 &a, const PackedFloat2_128 &b) noexcept {
     return _mm_min_pd(a, b);
   }
+
+  PackedFloat8_256 min(const PackedFloat8_256 &a, const PackedFloat8_256 &b) noexcept {
+    return _mm256_min_ps(a, b);
+  }
+
+  PackedFloat4_256 min(const PackedFloat4_256 &a, const PackedFloat4_256 &b) noexcept {
+    return _mm256_min_pd(a, b);
+  }
 }

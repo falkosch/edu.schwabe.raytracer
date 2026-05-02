@@ -60,4 +60,14 @@ namespace vectorization {
   clamp(const PackedFloat2_128 &values, const PackedFloat2_128 &lower, const PackedFloat2_128 &upper) noexcept {
     return _mm_max_pd(lower, _mm_min_pd(values, upper));
   }
+
+  PackedFloat8_256
+  clamp(const PackedFloat8_256 &values, const PackedFloat8_256 &lower, const PackedFloat8_256 &upper) noexcept {
+    return _mm256_max_ps(lower, _mm256_min_ps(values, upper));
+  }
+
+  PackedFloat4_256
+  clamp(const PackedFloat4_256 &values, const PackedFloat4_256 &lower, const PackedFloat4_256 &upper) noexcept {
+    return _mm256_max_pd(lower, _mm256_min_pd(values, upper));
+  }
 }

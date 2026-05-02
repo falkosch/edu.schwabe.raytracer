@@ -21,4 +21,12 @@ namespace vectorization {
   Float_64 copySign(const Float_64 value) noexcept {
     return x(copySign(_mm_set_sd(value)));
   }
+
+  PackedFloat8_256 copySign(const PackedFloat8_256 &values) noexcept {
+    return _mm256_or_ps(One<PackedFloat8_256>(), _mm256_and_ps(NegativeZero<PackedFloat8_256>(), values));
+  }
+
+  PackedFloat4_256 copySign(const PackedFloat4_256 &values) noexcept {
+    return _mm256_or_pd(One<PackedFloat4_256>(), _mm256_and_pd(NegativeZero<PackedFloat4_256>(), values));
+  }
 }

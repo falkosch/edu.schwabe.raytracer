@@ -57,4 +57,23 @@ namespace vectorization {
     // double-packed rcp-op not available in SSE or AVX
     return _mm_div_pd(One<PackedFloat2_128>(), values);
   }
+
+  PackedFloat8_256 reciprocal(const PackedFloat8_256 &values) noexcept {
+#ifdef VECTORIZATION_APPROXIMATIONS
+#ifdef VECTORIZATION_FINE_APPROXIMATIONS
+    const auto two = Two<PackedFloat8_256>();
+    const auto x0 = _mm256_rcp_ps(values);
+    const auto x1 = multiply(negativeMultiplyAdd(values, x0, two), x0);
+    return multiply(negativeMultiplyAdd(values, x1, two), x1);
+#else
+    return _mm256_rcp_ps(values);
+#endif
+#else
+    return _mm256_div_ps(One<PackedFloat8_256>(), values);
+#endif
+  }
+
+  PackedFloat4_256 reciprocal(const PackedFloat4_256 &values) noexcept {
+    return _mm256_div_pd(One<PackedFloat4_256>(), values);
+  }
 }

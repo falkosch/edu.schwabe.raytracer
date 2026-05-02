@@ -6,6 +6,8 @@
 #include "vectorization/accessors/component_128s.h"
 #include "vectorization/blends/blend_masked_128d.h"
 #include "vectorization/blends/blend_masked_128s.h"
+#include "vectorization/blends/blend_masked_256d.h"
+#include "vectorization/blends/blend_masked_256s.h"
 #include "vectorization/constants/masks.h"
 #include "vectorization/constants/values.h"
 
@@ -53,6 +55,21 @@ namespace vectorization {
     return blendMasked(
         copySign(values), Zero<PackedFloat2_128>(),
         _mm_cmpeq_pd(Zero<PackedFloat2_128>(), _mm_andnot_pd(NegativeZero<PackedFloat2_128>(), values))
+    );
+  }
+
+  // _CMP_EQ_UQ: NaN input produces sign(NaN)=0, matching the 128-bit _mm_cmpeq_ps unordered behavior
+  PackedFloat8_256 sign(const PackedFloat8_256 &values) noexcept {
+    return blendMasked(
+        copySign(values), Zero<PackedFloat8_256>(),
+        _mm256_cmp_ps(Zero<PackedFloat8_256>(), _mm256_andnot_ps(NegativeZero<PackedFloat8_256>(), values), _CMP_EQ_UQ)
+    );
+  }
+
+  PackedFloat4_256 sign(const PackedFloat4_256 &values) noexcept {
+    return blendMasked(
+        copySign(values), Zero<PackedFloat4_256>(),
+        _mm256_cmp_pd(Zero<PackedFloat4_256>(), _mm256_andnot_pd(NegativeZero<PackedFloat4_256>(), values), _CMP_EQ_UQ)
     );
   }
 }

@@ -9,6 +9,7 @@
 #include "blends/blend_128d.h"
 #include "blends/blend_128s.h"
 #include "blends/blend_256d.h"
+#include "blends/blend_256i.h"
 #include "blends/blend_256s.h"
 
 #include "blends/blend_masked_scalar.h"

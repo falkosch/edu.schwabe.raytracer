@@ -44,4 +44,12 @@ namespace vectorization {
   PackedFloat2_128 abs(const PackedFloat2_128 &values) noexcept {
     return _mm_andnot_pd(NegativeZero<PackedFloat2_128>(), values);
   }
+
+  PackedFloat8_256 abs(const PackedFloat8_256 &values) noexcept {
+    return _mm256_andnot_ps(NegativeZero<PackedFloat8_256>(), values);
+  }
+
+  PackedFloat4_256 abs(const PackedFloat4_256 &values) noexcept {
+    return _mm256_andnot_pd(NegativeZero<PackedFloat4_256>(), values);
+  }
 }

@@ -86,4 +86,23 @@ namespace vectorization {
   PackedFloat2_128 divide(const PackedFloat2_128 &a, const PackedFloat2_128 &b) noexcept {
     return _mm_div_pd(a, b);
   }
+
+  PackedFloat8_256 divide(const PackedFloat8_256 &a, const PackedFloat8_256 &b) noexcept {
+#ifdef VECTORIZATION_APPROXIMATIONS
+#ifdef VECTORIZATION_FINE_APPROXIMATIONS
+    const auto two = Two<PackedFloat8_256>();
+    const auto x0 = _mm256_rcp_ps(b);
+    const auto x1 = multiply(negativeMultiplyAdd(b, x0, two), x0);
+    return multiply(a, multiply(negativeMultiplyAdd(b, x1, two), x1));
+#else
+    return _mm256_mul_ps(a, _mm256_rcp_ps(b));
+#endif
+#else
+    return _mm256_div_ps(a, b);
+#endif
+  }
+
+  PackedFloat4_256 divide(const PackedFloat4_256 &a, const PackedFloat4_256 &b) noexcept {
+    return _mm256_div_pd(a, b);
+  }
 }

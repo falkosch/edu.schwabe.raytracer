@@ -12,5 +12,8 @@
 #include "swizzled_blends/swizzled_blend_masked_256d.h"
 #include "swizzled_blends/swizzled_blend_256d.h"
 
+#include "swizzled_blends/swizzled_blend_masked_256i.h"
+#include "swizzled_blends/swizzled_blend_256i.h"
+
 #include "swizzled_blends/swizzled_blend_masked_256s.h"
 #include "swizzled_blends/swizzled_blend_256s.h"

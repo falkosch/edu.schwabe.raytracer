@@ -20,4 +20,12 @@ namespace vectorization {
   PackedFloat2_128 ceil(const PackedFloat2_128 &values) noexcept {
     return _mm_round_pd(values, _MM_FROUND_TO_POS_INF);
   }
+
+  PackedFloat8_256 ceil(const PackedFloat8_256 &values) noexcept {
+    return _mm256_round_ps(values, _MM_FROUND_TO_POS_INF);
+  }
+
+  PackedFloat4_256 ceil(const PackedFloat4_256 &values) noexcept {
+    return _mm256_round_pd(values, _MM_FROUND_TO_POS_INF);
+  }
 }

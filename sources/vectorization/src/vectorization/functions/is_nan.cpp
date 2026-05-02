@@ -34,4 +34,20 @@ namespace vectorization {
   PackedFloat2_128 isNaN(const PackedFloat2_128 &a, const PackedFloat2_128 &b) noexcept {
     return _mm_cmpunord_pd(a, b);
   }
+
+  PackedFloat8_256 isNaN(const PackedFloat8_256 &values) noexcept {
+    return _mm256_cmp_ps(values, values, _CMP_UNORD_Q);
+  }
+
+  PackedFloat8_256 isNaN(const PackedFloat8_256 &a, const PackedFloat8_256 &b) noexcept {
+    return _mm256_cmp_ps(a, b, _CMP_UNORD_Q);
+  }
+
+  PackedFloat4_256 isNaN(const PackedFloat4_256 &values) noexcept {
+    return _mm256_cmp_pd(values, values, _CMP_UNORD_Q);
+  }
+
+  PackedFloat4_256 isNaN(const PackedFloat4_256 &a, const PackedFloat4_256 &b) noexcept {
+    return _mm256_cmp_pd(a, b, _CMP_UNORD_Q);
+  }
 }

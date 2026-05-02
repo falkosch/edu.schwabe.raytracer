@@ -20,4 +20,12 @@ namespace vectorization {
   PackedFloat2_128 round(const PackedFloat2_128 &values) noexcept {
     return _mm_round_pd(values, _MM_FROUND_TO_NEAREST_INT);
   }
+
+  PackedFloat8_256 round(const PackedFloat8_256 &values) noexcept {
+    return _mm256_round_ps(values, _MM_FROUND_TO_NEAREST_INT);
+  }
+
+  PackedFloat4_256 round(const PackedFloat4_256 &values) noexcept {
+    return _mm256_round_pd(values, _MM_FROUND_TO_NEAREST_INT);
+  }
 }

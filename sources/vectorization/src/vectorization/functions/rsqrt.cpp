@@ -56,4 +56,24 @@ namespace vectorization {
   PackedFloat2_128 rsqrt(const PackedFloat2_128 &values) noexcept {
     return reciprocal(sqrt(values));
   }
+
+  PackedFloat8_256 rsqrt(const PackedFloat8_256 &values) noexcept {
+#ifdef VECTORIZATION_APPROXIMATIONS
+#ifdef VECTORIZATION_FINE_APPROXIMATIONS
+    const auto half = Half<PackedFloat8_256>();
+    const auto oneHalf = OneHalf<PackedFloat8_256>();
+    const auto x0 = _mm256_rsqrt_ps(values);
+    const auto x1 = multiply(negativeMultiplyAdd(half, multiply(values, multiply(x0, x0)), oneHalf), x0);
+    return multiply(negativeMultiplyAdd(half, multiply(values, multiply(x1, x1)), oneHalf), x1);
+#else
+    return _mm256_rsqrt_ps(values);
+#endif
+#else
+    return reciprocal(sqrt(values));
+#endif
+  }
+
+  PackedFloat4_256 rsqrt(const PackedFloat4_256 &values) noexcept {
+    return reciprocal(sqrt(values));
+  }
 }

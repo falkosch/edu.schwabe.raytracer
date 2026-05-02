@@ -29,4 +29,19 @@ namespace vectorization {
     return multiplyAdd(subtract(y, x), factor, x);
   }
 
+  PackedFloat8_256 mix(const PackedFloat8_256 &x, const PackedFloat8_256 &y, const Float_32 factor) noexcept {
+    return mix(x, y, _mm256_set1_ps(factor));
+  }
+
+  PackedFloat8_256 mix(const PackedFloat8_256 &x, const PackedFloat8_256 &y, const PackedFloat8_256 &factor) noexcept {
+    return multiplyAdd(subtract(y, x), factor, x);
+  }
+
+  PackedFloat4_256 mix(const PackedFloat4_256 &x, const PackedFloat4_256 &y, const Float_64 factor) noexcept {
+    return mix(x, y, _mm256_set1_pd(factor));
+  }
+
+  PackedFloat4_256 mix(const PackedFloat4_256 &x, const PackedFloat4_256 &y, const PackedFloat4_256 &factor) noexcept {
+    return multiplyAdd(subtract(y, x), factor, x);
+  }
 }
