@@ -10,7 +10,7 @@ namespace vectorization {
 
   template <bool SelectX1, bool SelectX2, bool SelectX3, bool SelectX4,
             bool SelectX5, bool SelectX6, bool SelectX7, bool SelectX8>
-  v_i32_8 blend(const v_i32_8 &a, const v_i32_8 &b) noexcept {
+  v_ui32_8 blend(const v_ui32_8 &a, const v_ui32_8 &b) noexcept {
 #if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
     return blend<SelectX1, SelectX2, SelectX3, SelectX4, SelectX5, SelectX6, SelectX7, SelectX8>(
         a.components, b.components
@@ -22,10 +22,10 @@ namespace vectorization {
   }
 
   template <>
-  v_i32_8 blend<false, false, false, false, false, false, false, false>(const v_i32_8 &a, const v_i32_8 &) noexcept;
+  v_ui32_8 blend<false, false, false, false, false, false, false, false>(const v_ui32_8 &a, const v_ui32_8 &) noexcept;
 
   template <>
-  v_i32_8 blend<true, true, true, true, true, true, true, true>(const v_i32_8 &, const v_i32_8 &b) noexcept;
+  v_ui32_8 blend<true, true, true, true, true, true, true, true>(const v_ui32_8 &, const v_ui32_8 &b) noexcept;
 
-  v_i32_8 blendMasked(const v_i32_8 &a, const v_i32_8 &b, const v_i32_8 &mask) noexcept;
+  v_ui32_8 blendMasked(const v_ui32_8 &a, const v_ui32_8 &b, const v_ui32_8 &mask) noexcept;
 }

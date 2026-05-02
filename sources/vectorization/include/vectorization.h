@@ -15,7 +15,9 @@
 #include "vectorization/functions.h"
 
 #include "vectorization/v_i32_4.h"
+#include "vectorization/v_i32_8.h"
 #include "vectorization/v_ui32_4.h"
+#include "vectorization/v_ui32_8.h"
 #include "vectorization/v_ui64_2.h"
 
 #include "vectorization/v_f32_4.h"

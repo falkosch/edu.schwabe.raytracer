@@ -79,8 +79,10 @@ Most of the low-level plumbing is already in place, which lowers the cost of add
 - **Basic-tier `PackedFloat8_256` + `PackedFloat4_256` functions**: All 18 previously-declared-but-unimplemented
   overloads (abs, ceil, clamp, copysign, divide, floor, fract, isNaN, max, min, mix, modulo, reciprocal, round,
   rsqrt, sign, sqr, sqrt) now have implementations
-- **`v_i32_8`**: Full 8×int32 wrapper type with three-tier SSE/AVX/AVX2 support (prerequisite for `v_f32_8`'s
-  `VectorBoolType`)
+- **`v_i32_8`**: Full 8×int32 wrapper type with three-tier SSE/AVX/AVX2 support and tests (prerequisite for
+  `v_f32_8`'s `VectorBoolType`)
+- **`v_ui32_8`**: Full 8×uint32 wrapper type with three-tier SSE/AVX/AVX2 support and tests. Unsigned min/max
+  (`_mm256_min_epu32`/`_mm256_max_epu32`), logical right shift (`_mm256_srlv_epi32`), no sign-dependent functions.
 
 ## Per-type file set (template based on current `v_f32_4`)
 
@@ -213,13 +215,13 @@ call it **~1500–2500 LOC** including tests and boilerplate per type):
 
 ## Suggested implementation order (updated)
 
-1. ~~**`v_i32_8`**~~ — **DONE.** Full three-tier SSE/AVX/AVX2 implementation. Prerequisite for `v_f32_8`.
-2. **`v_f32_8`** — highest ROI: reuses existing 256s infrastructure, unlocks 8-lane SIMD trig via `avx_mathfun`,
+1. ~~**`v_i32_8`**~~ — **DONE.** Full three-tier SSE/AVX/AVX2 implementation with tests. Prerequisite for `v_f32_8`.
+2. ~~**`v_ui32_8`**~~ — **DONE.** Unsigned counterpart to `v_i32_8` with tests. Three-tier SSE/AVX/AVX2, reduced
+   function surface (no `isNegative`, `abs`, unary `-`; unsigned min/max/shift).
+3. **`v_f32_8`** — highest ROI: reuses existing 256s infrastructure, unlocks 8-lane SIMD trig via `avx_mathfun`,
    opens the door to wider primary-ray packets in the raytracer. `VectorBoolType = v_i32_8` (now available).
    No `*3` partial-lane variants (homogeneous W semantic doesn't apply at 8 lanes). Add `Float8` alias to
    `api_type_definitions.h`. Same three-tier SSE/AVX/AVX2 pattern as `v_i32_8`.
-3. **`v_ui32_8`** — unsigned counterpart to `v_i32_8`. Same pattern, reduced function surface (no sign-dependent
-   ops like `isNegative`, `abs`).
 4. **`v_f64_2` / `v_f64_4`** — float API symmetry. Reuse 128d/256d infrastructure. No SIMD trig, but completes
    the double-precision surface and is a prerequisite if the raytracer ever adopts double for numerically
    sensitive stages (e.g. geometric intersection tests).
@@ -230,8 +232,8 @@ call it **~1500–2500 LOC** including tests and boilerplate per type):
 
 ## Related backlog items
 
-- **`unused-256bit-integer-infrastructure.md`** — prerequisite for `v_i32_8` / `v_ui32_8`. Finish the 256i
-  accessor/swizzle/blend helpers before starting those wrapper types.
+- ~~**`unused-256bit-integer-infrastructure.md`**~~ — **COMPLETED AND REMOVED.** All 256i infrastructure, `v_i32_8`,
+  and `v_ui32_8` are implemented with full test suites.
 - **`header-only-pch-migration.md`** — if migration lands first, new types should be born header-only (inline) to
   benefit from cross-library inlining. Otherwise retrofit later.
 - **`soa-mesh-layout.md` / `simd-batch-triangle-test.md`** — would become *much* more attractive once `v_f32_8`

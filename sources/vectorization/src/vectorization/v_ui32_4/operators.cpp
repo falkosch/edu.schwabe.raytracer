@@ -55,11 +55,11 @@ namespace vectorization {
   }
 
   v_ui32_4 operator<(const v_ui32_4 &a, const v_ui32_4 &b) noexcept {
-    return _mm_cmplt_epi32(a.components, b.components);
+    return ~(a >= b);
   }
 
   v_ui32_4 operator>(const v_ui32_4 &a, const v_ui32_4 &b) noexcept {
-    return _mm_cmpgt_epi32(a.components, b.components);
+    return ~(a <= b);
   }
 
   v_ui32_4 operator<=(const v_ui32_4 &a, const v_ui32_4 &b) noexcept {

@@ -133,6 +133,46 @@ namespace vectorization::test {
       Assert::AreEqual(MaskAll<v_ui32_4::BoolType>(), w(actual), L"'>' value mismatch", LINE_INFO());
     }
 
+    TEST_METHOD(testLessThanWithHighBitValues) {
+      const v_ui32_4 a{0x80000000u, 1u, 0xFFFFFFFFu, 0u};
+      const v_ui32_4 b{1u, 0x80000000u, 0u, 0xFFFFFFFFu};
+      const auto actual = a < b;
+      Assert::AreEqual(UInt_32{0}, x(actual), L"0x80000000 < 1 must be false", LINE_INFO());
+      Assert::AreEqual(MaskAll<v_ui32_4::BoolType>(), y(actual), L"1 < 0x80000000 must be true", LINE_INFO());
+      Assert::AreEqual(UInt_32{0}, z(actual), L"0xFFFFFFFF < 0 must be false", LINE_INFO());
+      Assert::AreEqual(MaskAll<v_ui32_4::BoolType>(), w(actual), L"0 < 0xFFFFFFFF must be true", LINE_INFO());
+    }
+
+    TEST_METHOD(testGreaterThanWithHighBitValues) {
+      const v_ui32_4 a{0x80000000u, 1u, 0xFFFFFFFFu, 0u};
+      const v_ui32_4 b{1u, 0x80000000u, 0u, 0xFFFFFFFFu};
+      const auto actual = a > b;
+      Assert::AreEqual(MaskAll<v_ui32_4::BoolType>(), x(actual), L"0x80000000 > 1 must be true", LINE_INFO());
+      Assert::AreEqual(UInt_32{0}, y(actual), L"1 > 0x80000000 must be false", LINE_INFO());
+      Assert::AreEqual(MaskAll<v_ui32_4::BoolType>(), z(actual), L"0xFFFFFFFF > 0 must be true", LINE_INFO());
+      Assert::AreEqual(UInt_32{0}, w(actual), L"0 > 0xFFFFFFFF must be false", LINE_INFO());
+    }
+
+    TEST_METHOD(testLessThanOrEqualWithHighBitValues) {
+      const v_ui32_4 a{0x80000000u, 0x80000000u, 0xFFFFFFFFu, 0u};
+      const v_ui32_4 b{0x80000000u, 0x80000001u, 0xFFFFFFFEu, 0u};
+      const auto result = a <= b;
+      Assert::AreEqual(MaskAll<v_ui32_4::BoolType>(), x(result), L"equal values", LINE_INFO());
+      Assert::AreEqual(MaskAll<v_ui32_4::BoolType>(), y(result), L"0x80000000 <= 0x80000001", LINE_INFO());
+      Assert::AreEqual(UInt_32{0}, z(result), L"0xFFFFFFFF <= 0xFFFFFFFE false", LINE_INFO());
+      Assert::AreEqual(MaskAll<v_ui32_4::BoolType>(), w(result), L"0 <= 0", LINE_INFO());
+    }
+
+    TEST_METHOD(testGreaterThanOrEqualWithHighBitValues) {
+      const v_ui32_4 a{0x80000000u, 0x80000001u, 0xFFFFFFFEu, 0u};
+      const v_ui32_4 b{0x80000000u, 0x80000000u, 0xFFFFFFFFu, 0u};
+      const auto result = a >= b;
+      Assert::AreEqual(MaskAll<v_ui32_4::BoolType>(), x(result), L"equal values", LINE_INFO());
+      Assert::AreEqual(MaskAll<v_ui32_4::BoolType>(), y(result), L"0x80000001 >= 0x80000000", LINE_INFO());
+      Assert::AreEqual(UInt_32{0}, z(result), L"0xFFFFFFFE >= 0xFFFFFFFF false", LINE_INFO());
+      Assert::AreEqual(MaskAll<v_ui32_4::BoolType>(), w(result), L"0 >= 0", LINE_INFO());
+    }
+
     TEST_METHOD(testCompoundAddAssignOperator) {
       v_ui32_4 actual{1u, 2u, 3u, 4u};
       actual += v_ui32_4{10u, 20u, 30u, 40u};
