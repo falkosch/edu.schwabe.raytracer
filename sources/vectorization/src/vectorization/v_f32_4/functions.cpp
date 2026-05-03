@@ -203,7 +203,7 @@ namespace vectorization
 
     v_f32_4 distancev(const v_f32_4& a, const v_f32_4& b) noexcept
     {
-        return lengthv(b - a);
+        return lengthv(a - b);
     }
 
     v_f32_4::ValueType distance(const v_f32_4& a, const v_f32_4& b) noexcept

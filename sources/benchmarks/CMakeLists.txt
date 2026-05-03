@@ -1,8 +1,8 @@
 project(benchmarks LANGUAGES CXX VERSION 1.0.0)
 
 set(SOURCES
-        src/main.cpp
         src/intersection_benchmarks.cpp
+        src/main.cpp
 )
 
 set(HEADERS

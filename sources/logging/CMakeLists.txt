@@ -2,8 +2,8 @@ project(logging LANGUAGES CXX VERSION 1.0.0)
 
 set(SOURCES
         src/logging/DisplayBuffer.cpp
-        src/logging/Logger.cpp
         src/logging/LogScope.cpp
+        src/logging/Logger.cpp
 )
 
 set(HEADERS
@@ -11,8 +11,8 @@ set(HEADERS
         include/logging/DisplayBuffer.h
         include/logging/LogEntry.h
         include/logging/LogLevel.h
-        include/logging/Logger.h
         include/logging/LogScope.h
+        include/logging/Logger.h
 )
 
 add_library(${PROJECT_NAME} STATIC ${SOURCES} ${HEADERS})

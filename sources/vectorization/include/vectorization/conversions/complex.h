@@ -20,11 +20,11 @@
 // #include "vectorization/v_f32_4x4.h"
 #include "vectorization/m_f32_4x4.h"
 #include "vectorization/v_ui64_2.h"
-// #include "vectorization/v_ui64_4.h"
-// #include "vectorization/v_i64_2.h"
-// #include "vectorization/v_i64_4.h"
-// #include "vectorization/v_f64_2.h"
-// #include "vectorization/v_f64_4.h"
+#include "vectorization/v_ui64_4.h"
+#include "vectorization/v_i64_2.h"
+#include "vectorization/v_i64_4.h"
+#include "vectorization/v_f64_2.h"
+#include "vectorization/v_f64_4.h"
 
 namespace vectorization {
   template <>

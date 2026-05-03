@@ -4,7 +4,7 @@
 namespace raytracer
 {
   Camera::Camera()
-    : projectionMatrix(Identity<Float44>()), viewMatrix(Zero<Float44>()), worldPosition(), vfNearTopLeft(),
+    : projectionMatrix(Identity<MFloat4x4>()), viewMatrix(Zero<MFloat4x4>()), worldPosition(), vfNearTopLeft(),
       vfNearRightDirection(), vfNearBottomDirection(), vfFarTopLeft(), vfFarRightDirection(), vfFarBottomDirection()
   {
     resetView();
@@ -20,16 +20,16 @@ namespace raytracer
 
   void Camera::resetView()
   {
-    viewMatrix = Identity<Float44>();
+    viewMatrix = Identity<MFloat4x4>();
     updateView();
   }
 
-  const Float44& Camera::getViewMatrix() const
+  const MFloat4x4& Camera::getViewMatrix() const
   {
     return viewMatrix;
   }
 
-  void Camera::setViewMatrix(const Float44& matrix)
+  void Camera::setViewMatrix(const MFloat4x4& matrix)
   {
     viewMatrix = matrix;
     updateView();
@@ -37,7 +37,7 @@ namespace raytracer
 
   void Camera::translate(const Float3& translationIn)
   {
-    const Float44 transViewMatrix = transpose(this->viewMatrix);
+    const MFloat4x4 transViewMatrix = transpose(this->viewMatrix);
     this->viewMatrix =
       transpose(replaceRow<VectorIndices::W>(transViewMatrix, transViewMatrix.row3 + convert<Float4>(translationIn)));
     updateView();
@@ -45,9 +45,9 @@ namespace raytracer
 
   void Camera::rotate(const Float3& rotationIn)
   {
-    const Float44 rotateMatrix = vectorization::rotate(
+    const MFloat4x4 rotateMatrix = vectorization::rotate(
       vectorization::rotate(
-        vectorization::rotate(Identity<Float44>(), z(rotationIn), OneZ<Float4>()), y(rotationIn),
+        vectorization::rotate(Identity<MFloat4x4>(), z(rotationIn), OneZ<Float4>()), y(rotationIn),
         OneX<Float4>()
       ), // Switch of X and Y rotation vectors is okay
       x(rotationIn), OneY<Float4>()
@@ -58,7 +58,7 @@ namespace raytracer
 
   void Camera::scale(const Float3& scaleIn)
   {
-    const Float44 scaleMatrix = vectorization::scale(Identity<Float44>(), convert<Float4>(scaleIn));
+    const MFloat4x4 scaleMatrix = vectorization::scale(Identity<MFloat4x4>(), convert<Float4>(scaleIn));
     this->viewMatrix = this->viewMatrix * scaleMatrix;
     updateView();
   }
@@ -100,8 +100,8 @@ namespace raytracer
 
   void Camera::updateView()
   {
-    const Float44 tViewMatrix = this->viewMatrix;
-    const Float44 tInverseViewProjectionMatrix = inverse(this->projectionMatrix * tViewMatrix);
+    const MFloat4x4 tViewMatrix = this->viewMatrix;
+    const MFloat4x4 tInverseViewProjectionMatrix = inverse(this->projectionMatrix * tViewMatrix);
 
     this->worldPosition = inverse(tViewMatrix) * OneW<Float4>();
 

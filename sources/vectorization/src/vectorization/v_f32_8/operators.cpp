@@ -3,7 +3,9 @@
 #include "vectorization/v_f32_8/accessors.h"
 #include "vectorization/v_f32_8/constants.h"
 
+#if VECTORIZATION_INTRINSICS_LEVEL < VECTORIZATION_AVX2
 #include <bit>
+#endif
 
 #include "vectorization/functions/add.h"
 #include "vectorization/functions/divide.h"

@@ -157,6 +157,28 @@ set(SOURCES
         src/vectorization/v_f32_8/swizzled_blends.cpp
         src/vectorization/v_f32_8/swizzles.cpp
         src/vectorization/v_f32_8/type.cpp
+        src/vectorization/v_f64_2/accessors.cpp
+        src/vectorization/v_f64_2/blends.cpp
+        src/vectorization/v_f64_2/constants.cpp
+        src/vectorization/v_f64_2/conversions.cpp
+        src/vectorization/v_f64_2/functions.cpp
+        src/vectorization/v_f64_2/functions_trigonometry.cpp
+        src/vectorization/v_f64_2/operators.cpp
+        src/vectorization/v_f64_2/selects.cpp
+        src/vectorization/v_f64_2/swizzled_blends.cpp
+        src/vectorization/v_f64_2/swizzles.cpp
+        src/vectorization/v_f64_2/type.cpp
+        src/vectorization/v_f64_4/accessors.cpp
+        src/vectorization/v_f64_4/blends.cpp
+        src/vectorization/v_f64_4/constants.cpp
+        src/vectorization/v_f64_4/conversions.cpp
+        src/vectorization/v_f64_4/functions.cpp
+        src/vectorization/v_f64_4/functions_trigonometry.cpp
+        src/vectorization/v_f64_4/operators.cpp
+        src/vectorization/v_f64_4/selects.cpp
+        src/vectorization/v_f64_4/swizzled_blends.cpp
+        src/vectorization/v_f64_4/swizzles.cpp
+        src/vectorization/v_f64_4/type.cpp
         src/vectorization/v_i32_4/accessors.cpp
         src/vectorization/v_i32_4/blends.cpp
         src/vectorization/v_i32_4/constants.cpp
@@ -173,6 +195,22 @@ set(SOURCES
         src/vectorization/v_i32_8/swizzled_blends.cpp
         src/vectorization/v_i32_8/swizzles.cpp
         src/vectorization/v_i32_8/type.cpp
+        src/vectorization/v_i64_2/accessors.cpp
+        src/vectorization/v_i64_2/blends.cpp
+        src/vectorization/v_i64_2/constants.cpp
+        src/vectorization/v_i64_2/functions.cpp
+        src/vectorization/v_i64_2/operators.cpp
+        src/vectorization/v_i64_2/swizzled_blends.cpp
+        src/vectorization/v_i64_2/swizzles.cpp
+        src/vectorization/v_i64_2/type.cpp
+        src/vectorization/v_i64_4/accessors.cpp
+        src/vectorization/v_i64_4/blends.cpp
+        src/vectorization/v_i64_4/constants.cpp
+        src/vectorization/v_i64_4/functions.cpp
+        src/vectorization/v_i64_4/operators.cpp
+        src/vectorization/v_i64_4/swizzled_blends.cpp
+        src/vectorization/v_i64_4/swizzles.cpp
+        src/vectorization/v_i64_4/type.cpp
         src/vectorization/v_ui32_4/accessors.cpp
         src/vectorization/v_ui32_4/blends.cpp
         src/vectorization/v_ui32_4/constants.cpp
@@ -197,6 +235,14 @@ set(SOURCES
         src/vectorization/v_ui64_2/swizzled_blends.cpp
         src/vectorization/v_ui64_2/swizzles.cpp
         src/vectorization/v_ui64_2/type.cpp
+        src/vectorization/v_ui64_4/accessors.cpp
+        src/vectorization/v_ui64_4/blends.cpp
+        src/vectorization/v_ui64_4/constants.cpp
+        src/vectorization/v_ui64_4/functions.cpp
+        src/vectorization/v_ui64_4/operators.cpp
+        src/vectorization/v_ui64_4/swizzled_blends.cpp
+        src/vectorization/v_ui64_4/swizzles.cpp
+        src/vectorization/v_ui64_4/type.cpp
 )
 
 set(HEADERS
@@ -394,6 +440,32 @@ set(HEADERS
         include/vectorization/v_f32_8/swizzled_blends.h
         include/vectorization/v_f32_8/swizzles.h
         include/vectorization/v_f32_8/type.h
+        include/vectorization/v_f64_2.h
+        include/vectorization/v_f64_2/accessors.h
+        include/vectorization/v_f64_2/api.h
+        include/vectorization/v_f64_2/blends.h
+        include/vectorization/v_f64_2/constants.h
+        include/vectorization/v_f64_2/conversions.h
+        include/vectorization/v_f64_2/functions.h
+        include/vectorization/v_f64_2/functions_trigonometry.h
+        include/vectorization/v_f64_2/operators.h
+        include/vectorization/v_f64_2/selects.h
+        include/vectorization/v_f64_2/swizzled_blends.h
+        include/vectorization/v_f64_2/swizzles.h
+        include/vectorization/v_f64_2/type.h
+        include/vectorization/v_f64_4.h
+        include/vectorization/v_f64_4/accessors.h
+        include/vectorization/v_f64_4/api.h
+        include/vectorization/v_f64_4/blends.h
+        include/vectorization/v_f64_4/constants.h
+        include/vectorization/v_f64_4/conversions.h
+        include/vectorization/v_f64_4/functions.h
+        include/vectorization/v_f64_4/functions_trigonometry.h
+        include/vectorization/v_f64_4/operators.h
+        include/vectorization/v_f64_4/selects.h
+        include/vectorization/v_f64_4/swizzled_blends.h
+        include/vectorization/v_f64_4/swizzles.h
+        include/vectorization/v_f64_4/type.h
         include/vectorization/v_i32_4.h
         include/vectorization/v_i32_4/accessors.h
         include/vectorization/v_i32_4/api.h
@@ -414,6 +486,26 @@ set(HEADERS
         include/vectorization/v_i32_8/swizzled_blends.h
         include/vectorization/v_i32_8/swizzles.h
         include/vectorization/v_i32_8/type.h
+        include/vectorization/v_i64_2.h
+        include/vectorization/v_i64_2/accessors.h
+        include/vectorization/v_i64_2/api.h
+        include/vectorization/v_i64_2/blends.h
+        include/vectorization/v_i64_2/constants.h
+        include/vectorization/v_i64_2/functions.h
+        include/vectorization/v_i64_2/operators.h
+        include/vectorization/v_i64_2/swizzled_blends.h
+        include/vectorization/v_i64_2/swizzles.h
+        include/vectorization/v_i64_2/type.h
+        include/vectorization/v_i64_4.h
+        include/vectorization/v_i64_4/accessors.h
+        include/vectorization/v_i64_4/api.h
+        include/vectorization/v_i64_4/blends.h
+        include/vectorization/v_i64_4/constants.h
+        include/vectorization/v_i64_4/functions.h
+        include/vectorization/v_i64_4/operators.h
+        include/vectorization/v_i64_4/swizzled_blends.h
+        include/vectorization/v_i64_4/swizzles.h
+        include/vectorization/v_i64_4/type.h
         include/vectorization/v_ui32_4.h
         include/vectorization/v_ui32_4/accessors.h
         include/vectorization/v_ui32_4/api.h
@@ -444,6 +536,16 @@ set(HEADERS
         include/vectorization/v_ui64_2/swizzled_blends.h
         include/vectorization/v_ui64_2/swizzles.h
         include/vectorization/v_ui64_2/type.h
+        include/vectorization/v_ui64_4.h
+        include/vectorization/v_ui64_4/accessors.h
+        include/vectorization/v_ui64_4/api.h
+        include/vectorization/v_ui64_4/blends.h
+        include/vectorization/v_ui64_4/constants.h
+        include/vectorization/v_ui64_4/functions.h
+        include/vectorization/v_ui64_4/operators.h
+        include/vectorization/v_ui64_4/swizzled_blends.h
+        include/vectorization/v_ui64_4/swizzles.h
+        include/vectorization/v_ui64_4/type.h
 )
 
 set(THIRD_PARTY

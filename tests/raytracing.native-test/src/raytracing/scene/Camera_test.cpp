@@ -197,7 +197,7 @@ namespace raytracer::test {
 
     TEST_METHOD(setViewMatrixOverwritesView) {
       Camera camera{};
-      const auto custom = Identity<Float44>();
+      const auto custom = Identity<MFloat4x4>();
       camera.setViewMatrix(custom);
       const auto& view = camera.getViewMatrix();
       Assert::AreEqual(1.0f, x(view.row0), L"row0 x", LINE_INFO());

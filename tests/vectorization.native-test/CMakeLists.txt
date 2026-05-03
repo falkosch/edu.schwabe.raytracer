@@ -138,6 +138,36 @@ set(SOURCES
         src/vectorization/v_f32_8/swizzled_blends_test.cpp
         src/vectorization/v_f32_8/swizzles_test.cpp
         src/vectorization/v_f32_8/type_test.cpp
+        src/vectorization/v_i64_2/accessors_test.cpp
+        src/vectorization/v_i64_2/blends_test.cpp
+        src/vectorization/v_i64_2/constants_test.cpp
+        src/vectorization/v_i64_2/functions_test.cpp
+        src/vectorization/v_i64_2/operators_test.cpp
+        src/vectorization/v_i64_2/swizzles_test.cpp
+        src/vectorization/v_i64_2/type_test.cpp
+        src/vectorization/v_i64_4/accessors_test.cpp
+        src/vectorization/v_i64_4/blends_test.cpp
+        src/vectorization/v_i64_4/constants_test.cpp
+        src/vectorization/v_i64_4/functions_test.cpp
+        src/vectorization/v_i64_4/operators_test.cpp
+        src/vectorization/v_i64_4/swizzles_test.cpp
+        src/vectorization/v_i64_4/type_test.cpp
+        src/vectorization/v_f64_2/accessors_test.cpp
+        src/vectorization/v_f64_2/blends_test.cpp
+        src/vectorization/v_f64_2/constants_test.cpp
+        src/vectorization/v_f64_2/functions_test.cpp
+        src/vectorization/v_f64_2/functions_trigonometry_test.cpp
+        src/vectorization/v_f64_2/operators_test.cpp
+        src/vectorization/v_f64_2/swizzles_test.cpp
+        src/vectorization/v_f64_2/type_test.cpp
+        src/vectorization/v_f64_4/accessors_test.cpp
+        src/vectorization/v_f64_4/blends_test.cpp
+        src/vectorization/v_f64_4/constants_test.cpp
+        src/vectorization/v_f64_4/functions_test.cpp
+        src/vectorization/v_f64_4/functions_trigonometry_test.cpp
+        src/vectorization/v_f64_4/operators_test.cpp
+        src/vectorization/v_f64_4/swizzles_test.cpp
+        src/vectorization/v_f64_4/type_test.cpp
         src/vectorization/v_i32_4/accessors_test.cpp
         src/vectorization/v_i32_4/blends_test.cpp
         src/vectorization/v_i32_4/constants_test.cpp
@@ -181,6 +211,13 @@ set(SOURCES
         src/vectorization/v_ui64_2/swizzled_blends_test.cpp
         src/vectorization/v_ui64_2/swizzles_test.cpp
         src/vectorization/v_ui64_2/type_test.cpp
+        src/vectorization/v_ui64_4/accessors_test.cpp
+        src/vectorization/v_ui64_4/blends_test.cpp
+        src/vectorization/v_ui64_4/constants_test.cpp
+        src/vectorization/v_ui64_4/functions_test.cpp
+        src/vectorization/v_ui64_4/operators_test.cpp
+        src/vectorization/v_ui64_4/swizzles_test.cpp
+        src/vectorization/v_ui64_4/type_test.cpp
 )
 
 set(HEADERS

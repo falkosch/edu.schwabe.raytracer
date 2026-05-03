@@ -36,11 +36,11 @@ namespace raytracer
     void ObjectGeometry::updateModelMatrix()
     {
         // transforms are applied in reverse order, like in OGL!
-        const Float44 tModelMatrix = vectorization::scale(
+        const MFloat4x4 tModelMatrix = vectorization::scale(
             vectorization::rotate(
                 vectorization::rotate(
                     vectorization::rotate(
-                        vectorization::translate(Identity<Float44>(), convert<Float4>(transformInfo.translation)),
+                        vectorization::translate(Identity<MFloat4x4>(), convert<Float4>(transformInfo.translation)),
                         z(transformInfo.rotation), OneZ<Float4>()
                     ),
                     y(transformInfo.rotation), OneY<Float4>()

@@ -8,7 +8,7 @@ namespace raytracer
 
   class Camera
   {
-    Float44 projectionMatrix, viewMatrix;
+    MFloat4x4 projectionMatrix, viewMatrix;
 
     Float4 worldPosition;
 
@@ -29,9 +29,9 @@ namespace raytracer
 
     void resetView();
 
-    const Float44& getViewMatrix() const;
+    const MFloat4x4& getViewMatrix() const;
 
-    void setViewMatrix(const Float44& matrix);
+    void setViewMatrix(const MFloat4x4& matrix);
 
     void rotate(const Float3& rotation);
 

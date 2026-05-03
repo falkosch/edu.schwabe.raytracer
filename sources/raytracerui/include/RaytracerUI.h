@@ -32,7 +32,7 @@ namespace raytracerui
 
     std::unique_ptr<const Bitmap> output;
 
-    Float44 initialViewMatrix;
+    MFloat4x4 initialViewMatrix;
 
     Raytracer* raytracer;
 

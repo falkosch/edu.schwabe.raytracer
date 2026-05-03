@@ -33,6 +33,9 @@ Both semantics should hold across all C++ wrapper types equally.
 | v_i32_8   | `(v_i32_8, v_i32_8)`                 | `_mm256_sllv_epi32`/loop  | YES      |
 | v_ui32_8  | `(v_ui32_8, v_ui32_8)`               | `_mm256_srlv_epi32`/loop  | YES      |
 | v_f32_8   | `(v_f32_8, v_i32_8)`                 | `_mm256_sllv_epi32`/loop  | YES      |
+| v_i64_4   | no shift operators                   | —                         | MISSING  |
+| v_f64_2   | no shift operators                   | —                         | N/A      |
+| v_f64_4   | `(v_f64_4, v_i64_4)`                 | `_mm256_sllv_epi64`/loop  | YES      |
 
 ### Required changes
 
