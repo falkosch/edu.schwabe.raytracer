@@ -16,7 +16,7 @@
 // #include "vectorization/v_i32_8.h"
 // #include "vectorization/m_i32_4x4.h"
 #include "vectorization/v_f32_4.h"
-// #include "vectorization/v_f32_8.h"
+#include "vectorization/v_f32_8.h"
 // #include "vectorization/v_f32_4x4.h"
 #include "vectorization/m_f32_4x4.h"
 #include "vectorization/v_ui64_2.h"

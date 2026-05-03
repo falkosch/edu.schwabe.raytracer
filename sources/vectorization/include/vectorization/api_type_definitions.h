@@ -5,6 +5,7 @@
 #include "v_ui64_2.h"
 
 #include "v_f32_4.h"
+#include "v_f32_8.h"
 #include "v_f32_4x4.h"
 
 #include "m_f32_4x4.h"
@@ -50,6 +51,8 @@ namespace vectorization {
   using Float2_32 = v_f32_4;
   using Float3_32 = v_f32_4;
   using Float4_32 = v_f32_4;
+
+  using Float8_32 = v_f32_8;
 
   // using Float1_64 = v_f64_2;
   // using Float2_64 = v_f64_2;
@@ -117,6 +120,8 @@ namespace vectorization {
   using Float2 = Float2_32;
   using Float3 = Float3_32;
   using Float4 = Float4_32;
+
+  using Float8 = Float8_32;
 
   // using UInt44 = m_ui32_4x4;
   // using Int44 = m_i32_4x4;

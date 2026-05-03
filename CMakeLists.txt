@@ -58,7 +58,7 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     endforeach ()
 
     add_compile_options(/permissive- /W4 /wd4514 /wd4710 /wd4711 /wd4820 /wd4068)
-    add_compile_options(/arch:AVX2 /openmp /GS- /fp:fast /Zp16 /sdl- /Oi /Gy)
+    add_compile_options(/arch:SSE4.2 /openmp /GS- /fp:fast /Zp16 /sdl- /Oi /Gy)
     add_compile_options($<$<CONFIG:Release>:/O2>)
     add_compile_options($<$<AND:$<CONFIG:Release>,$<NOT:$<BOOL:${COVERAGE}>>>:/Oy>)
     add_compile_options($<$<CONFIG:Release>:/GL>)

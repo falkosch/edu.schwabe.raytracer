@@ -218,10 +218,9 @@ call it **~1500–2500 LOC** including tests and boilerplate per type):
 1. ~~**`v_i32_8`**~~ — **DONE.** Full three-tier SSE/AVX/AVX2 implementation with tests. Prerequisite for `v_f32_8`.
 2. ~~**`v_ui32_8`**~~ — **DONE.** Unsigned counterpart to `v_i32_8` with tests. Three-tier SSE/AVX/AVX2, reduced
    function surface (no `isNegative`, `abs`, unary `-`; unsigned min/max/shift).
-3. **`v_f32_8`** — highest ROI: reuses existing 256s infrastructure, unlocks 8-lane SIMD trig via `avx_mathfun`,
-   opens the door to wider primary-ray packets in the raytracer. `VectorBoolType = v_i32_8` (now available).
-   No `*3` partial-lane variants (homogeneous W semantic doesn't apply at 8 lanes). Add `Float8` alias to
-   `api_type_definitions.h`. Same three-tier SSE/AVX/AVX2 pattern as `v_i32_8`.
+3. ~~**`v_f32_8`**~~ — **DONE.** Full 2-tier AVX/SSE implementation with 8-lane SIMD trig via `avx_mathfun`,
+   99 tests, `Float8`/`Float8_32` aliases. Includes horizontal reductions (dot, length, normalize, distance),
+   element-wise ops, FMA variants, and trigonometry. No `*3` partial-lane variants.
 4. **`v_f64_2` / `v_f64_4`** — float API symmetry. Reuse 128d/256d infrastructure. No SIMD trig, but completes
    the double-precision surface and is a prerequisite if the raytracer ever adopts double for numerically
    sensitive stages (e.g. geometric intersection tests).
@@ -234,7 +233,7 @@ call it **~1500–2500 LOC** including tests and boilerplate per type):
 
 - ~~**`unused-256bit-integer-infrastructure.md`**~~ — **COMPLETED AND REMOVED.** All 256i infrastructure, `v_i32_8`,
   and `v_ui32_8` are implemented with full test suites.
-- **`header-only-pch-migration.md`** — if migration lands first, new types should be born header-only (inline) to
-  benefit from cross-library inlining. Otherwise retrofit later.
+- ~~**`header-only-pch-migration.md`**~~ — **COMPLETED AND REMOVED.** PCH added to all targets; header-only
+  migration not needed (LTCG handles cross-library inlining).
 - **`soa-mesh-layout.md` / `simd-batch-triangle-test.md`** — would become *much* more attractive once `v_f32_8`
   exists (process 8 triangles per ray in one SIMD op instead of 4).

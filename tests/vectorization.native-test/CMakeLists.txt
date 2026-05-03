@@ -69,11 +69,11 @@ set(SOURCES
         src/vectorization/functions/broadcast_test.cpp
         src/vectorization/functions/horizontal_add_test.cpp
         src/vectorization/functions/horizontal_subtract_test.cpp
-        src/vectorization/functions/multiply_test.cpp
         src/vectorization/functions/multiply_add_sub_test.cpp
         src/vectorization/functions/multiply_add_test.cpp
         src/vectorization/functions/multiply_sub_add_test.cpp
         src/vectorization/functions/multiply_sub_test.cpp
+        src/vectorization/functions/multiply_test.cpp
         src/vectorization/functions/negative_multiply_add_test.cpp
         src/vectorization/functions/negative_multiply_sub_test.cpp
         src/vectorization/functions/subtract_test.cpp
@@ -126,14 +126,18 @@ set(SOURCES
         src/vectorization/v_f32_4x4/functions_test.cpp
         src/vectorization/v_f32_4x4/operators_test.cpp
         src/vectorization/v_f32_4x4/type_test.cpp
-        src/vectorization/v_i32_8/accessors_test.cpp
-        src/vectorization/v_i32_8/blends_test.cpp
-        src/vectorization/v_i32_8/constants_test.cpp
-        src/vectorization/v_i32_8/functions_test.cpp
-        src/vectorization/v_i32_8/operators_test.cpp
-        src/vectorization/v_i32_8/swizzled_blends_test.cpp
-        src/vectorization/v_i32_8/swizzles_test.cpp
-        src/vectorization/v_i32_8/type_test.cpp
+        src/vectorization/v_f32_8/accessors_test.cpp
+        src/vectorization/v_f32_8/blends_test.cpp
+        src/vectorization/v_f32_8/constants_test.cpp
+        src/vectorization/v_f32_8/conversions_test.cpp
+        src/vectorization/v_f32_8/functions_test.cpp
+        src/vectorization/v_f32_8/functions_trigonometry_test.cpp
+        src/vectorization/v_f32_8/operators_test.cpp
+        src/vectorization/v_f32_8/selects_test.cpp
+        src/vectorization/v_f32_8/special_values_test.cpp
+        src/vectorization/v_f32_8/swizzled_blends_test.cpp
+        src/vectorization/v_f32_8/swizzles_test.cpp
+        src/vectorization/v_f32_8/type_test.cpp
         src/vectorization/v_i32_4/accessors_test.cpp
         src/vectorization/v_i32_4/blends_test.cpp
         src/vectorization/v_i32_4/constants_test.cpp
@@ -143,14 +147,14 @@ set(SOURCES
         src/vectorization/v_i32_4/swizzled_blends_test.cpp
         src/vectorization/v_i32_4/swizzles_test.cpp
         src/vectorization/v_i32_4/type_test.cpp
-        src/vectorization/v_ui32_8/accessors_test.cpp
-        src/vectorization/v_ui32_8/blends_test.cpp
-        src/vectorization/v_ui32_8/constants_test.cpp
-        src/vectorization/v_ui32_8/functions_test.cpp
-        src/vectorization/v_ui32_8/operators_test.cpp
-        src/vectorization/v_ui32_8/swizzled_blends_test.cpp
-        src/vectorization/v_ui32_8/swizzles_test.cpp
-        src/vectorization/v_ui32_8/type_test.cpp
+        src/vectorization/v_i32_8/accessors_test.cpp
+        src/vectorization/v_i32_8/blends_test.cpp
+        src/vectorization/v_i32_8/constants_test.cpp
+        src/vectorization/v_i32_8/functions_test.cpp
+        src/vectorization/v_i32_8/operators_test.cpp
+        src/vectorization/v_i32_8/swizzled_blends_test.cpp
+        src/vectorization/v_i32_8/swizzles_test.cpp
+        src/vectorization/v_i32_8/type_test.cpp
         src/vectorization/v_ui32_4/accessors_test.cpp
         src/vectorization/v_ui32_4/blends_test.cpp
         src/vectorization/v_ui32_4/constants_test.cpp
@@ -160,6 +164,14 @@ set(SOURCES
         src/vectorization/v_ui32_4/swizzled_blends_test.cpp
         src/vectorization/v_ui32_4/swizzles_test.cpp
         src/vectorization/v_ui32_4/type_test.cpp
+        src/vectorization/v_ui32_8/accessors_test.cpp
+        src/vectorization/v_ui32_8/blends_test.cpp
+        src/vectorization/v_ui32_8/constants_test.cpp
+        src/vectorization/v_ui32_8/functions_test.cpp
+        src/vectorization/v_ui32_8/operators_test.cpp
+        src/vectorization/v_ui32_8/swizzled_blends_test.cpp
+        src/vectorization/v_ui32_8/swizzles_test.cpp
+        src/vectorization/v_ui32_8/type_test.cpp
         src/vectorization/v_ui64_2/accessors_test.cpp
         src/vectorization/v_ui64_2/blends_test.cpp
         src/vectorization/v_ui64_2/constants_test.cpp

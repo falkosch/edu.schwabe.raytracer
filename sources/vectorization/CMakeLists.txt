@@ -5,12 +5,12 @@ set(SOURCES
         src/vectorization/accessors/component_128i.cpp
         src/vectorization/accessors/component_128s.cpp
         src/vectorization/accessors/component_256d.cpp
+        src/vectorization/accessors/component_256i.cpp
         src/vectorization/accessors/component_256s.cpp
         src/vectorization/accessors/replace_component_128d.cpp
         src/vectorization/accessors/replace_component_128i.cpp
         src/vectorization/accessors/replace_component_128s.cpp
         src/vectorization/accessors/replace_component_256d.cpp
-        src/vectorization/accessors/component_256i.cpp
         src/vectorization/accessors/replace_component_256i.cpp
         src/vectorization/accessors/replace_component_256s.cpp
         src/vectorization/architecture/compiler_intrinsics.cpp
@@ -18,12 +18,12 @@ set(SOURCES
         src/vectorization/blends/blend_128d.cpp
         src/vectorization/blends/blend_128s.cpp
         src/vectorization/blends/blend_256d.cpp
+        src/vectorization/blends/blend_256i.cpp
         src/vectorization/blends/blend_256s.cpp
         src/vectorization/blends/blend_masked_128d.cpp
         src/vectorization/blends/blend_masked_128i.cpp
         src/vectorization/blends/blend_masked_128s.cpp
         src/vectorization/blends/blend_masked_256d.cpp
-        src/vectorization/blends/blend_256i.cpp
         src/vectorization/blends/blend_masked_256i.cpp
         src/vectorization/blends/blend_masked_256s.cpp
         src/vectorization/blends/blend_masked_scalar.cpp
@@ -146,14 +146,17 @@ set(SOURCES
         src/vectorization/v_f32_4x4/functions.cpp
         src/vectorization/v_f32_4x4/operators.cpp
         src/vectorization/v_f32_4x4/type.cpp
-        src/vectorization/v_i32_8/accessors.cpp
-        src/vectorization/v_i32_8/blends.cpp
-        src/vectorization/v_i32_8/constants.cpp
-        src/vectorization/v_i32_8/functions.cpp
-        src/vectorization/v_i32_8/operators.cpp
-        src/vectorization/v_i32_8/swizzled_blends.cpp
-        src/vectorization/v_i32_8/swizzles.cpp
-        src/vectorization/v_i32_8/type.cpp
+        src/vectorization/v_f32_8/accessors.cpp
+        src/vectorization/v_f32_8/blends.cpp
+        src/vectorization/v_f32_8/constants.cpp
+        src/vectorization/v_f32_8/conversions.cpp
+        src/vectorization/v_f32_8/functions.cpp
+        src/vectorization/v_f32_8/functions_trigonometry.cpp
+        src/vectorization/v_f32_8/operators.cpp
+        src/vectorization/v_f32_8/selects.cpp
+        src/vectorization/v_f32_8/swizzled_blends.cpp
+        src/vectorization/v_f32_8/swizzles.cpp
+        src/vectorization/v_f32_8/type.cpp
         src/vectorization/v_i32_4/accessors.cpp
         src/vectorization/v_i32_4/blends.cpp
         src/vectorization/v_i32_4/constants.cpp
@@ -162,14 +165,14 @@ set(SOURCES
         src/vectorization/v_i32_4/swizzled_blends.cpp
         src/vectorization/v_i32_4/swizzles.cpp
         src/vectorization/v_i32_4/type.cpp
-        src/vectorization/v_ui32_8/accessors.cpp
-        src/vectorization/v_ui32_8/blends.cpp
-        src/vectorization/v_ui32_8/constants.cpp
-        src/vectorization/v_ui32_8/functions.cpp
-        src/vectorization/v_ui32_8/operators.cpp
-        src/vectorization/v_ui32_8/swizzled_blends.cpp
-        src/vectorization/v_ui32_8/swizzles.cpp
-        src/vectorization/v_ui32_8/type.cpp
+        src/vectorization/v_i32_8/accessors.cpp
+        src/vectorization/v_i32_8/blends.cpp
+        src/vectorization/v_i32_8/constants.cpp
+        src/vectorization/v_i32_8/functions.cpp
+        src/vectorization/v_i32_8/operators.cpp
+        src/vectorization/v_i32_8/swizzled_blends.cpp
+        src/vectorization/v_i32_8/swizzles.cpp
+        src/vectorization/v_i32_8/type.cpp
         src/vectorization/v_ui32_4/accessors.cpp
         src/vectorization/v_ui32_4/blends.cpp
         src/vectorization/v_ui32_4/constants.cpp
@@ -178,6 +181,14 @@ set(SOURCES
         src/vectorization/v_ui32_4/swizzled_blends.cpp
         src/vectorization/v_ui32_4/swizzles.cpp
         src/vectorization/v_ui32_4/type.cpp
+        src/vectorization/v_ui32_8/accessors.cpp
+        src/vectorization/v_ui32_8/blends.cpp
+        src/vectorization/v_ui32_8/constants.cpp
+        src/vectorization/v_ui32_8/functions.cpp
+        src/vectorization/v_ui32_8/operators.cpp
+        src/vectorization/v_ui32_8/swizzled_blends.cpp
+        src/vectorization/v_ui32_8/swizzles.cpp
+        src/vectorization/v_ui32_8/type.cpp
         src/vectorization/v_ui64_2/accessors.cpp
         src/vectorization/v_ui64_2/blends.cpp
         src/vectorization/v_ui64_2/constants.cpp
@@ -215,12 +226,12 @@ set(HEADERS
         include/vectorization/blends/blend_128d.h
         include/vectorization/blends/blend_128s.h
         include/vectorization/blends/blend_256d.h
+        include/vectorization/blends/blend_256i.h
         include/vectorization/blends/blend_256s.h
         include/vectorization/blends/blend_masked_128d.h
         include/vectorization/blends/blend_masked_128i.h
         include/vectorization/blends/blend_masked_128s.h
         include/vectorization/blends/blend_masked_256d.h
-        include/vectorization/blends/blend_256i.h
         include/vectorization/blends/blend_masked_256i.h
         include/vectorization/blends/blend_masked_256s.h
         include/vectorization/blends/blend_masked_scalar.h
@@ -335,13 +346,13 @@ set(HEADERS
         include/vectorization/swizzled_blends/swizzled_blend_128s.h
         include/vectorization/swizzled_blends/swizzled_blend_1x1_128d.h
         include/vectorization/swizzled_blends/swizzled_blend_256d.h
+        include/vectorization/swizzled_blends/swizzled_blend_256i.h
         include/vectorization/swizzled_blends/swizzled_blend_256s.h
         include/vectorization/swizzled_blends/swizzled_blend_2x2_128s.h
         include/vectorization/swizzled_blends/swizzled_blend_2x2_256d.h
         include/vectorization/swizzled_blends/swizzled_blend_masked_128d.h
         include/vectorization/swizzled_blends/swizzled_blend_masked_128s.h
         include/vectorization/swizzled_blends/swizzled_blend_masked_256d.h
-        include/vectorization/swizzled_blends/swizzled_blend_256i.h
         include/vectorization/swizzled_blends/swizzled_blend_masked_256i.h
         include/vectorization/swizzled_blends/swizzled_blend_masked_256s.h
         include/vectorization/swizzles.h
@@ -370,16 +381,19 @@ set(HEADERS
         include/vectorization/v_f32_4x4/functions.h
         include/vectorization/v_f32_4x4/operators.h
         include/vectorization/v_f32_4x4/type.h
-        include/vectorization/v_i32_8.h
-        include/vectorization/v_i32_8/accessors.h
-        include/vectorization/v_i32_8/api.h
-        include/vectorization/v_i32_8/blends.h
-        include/vectorization/v_i32_8/constants.h
-        include/vectorization/v_i32_8/functions.h
-        include/vectorization/v_i32_8/operators.h
-        include/vectorization/v_i32_8/swizzled_blends.h
-        include/vectorization/v_i32_8/swizzles.h
-        include/vectorization/v_i32_8/type.h
+        include/vectorization/v_f32_8.h
+        include/vectorization/v_f32_8/accessors.h
+        include/vectorization/v_f32_8/api.h
+        include/vectorization/v_f32_8/blends.h
+        include/vectorization/v_f32_8/constants.h
+        include/vectorization/v_f32_8/conversions.h
+        include/vectorization/v_f32_8/functions.h
+        include/vectorization/v_f32_8/functions_trigonometry.h
+        include/vectorization/v_f32_8/operators.h
+        include/vectorization/v_f32_8/selects.h
+        include/vectorization/v_f32_8/swizzled_blends.h
+        include/vectorization/v_f32_8/swizzles.h
+        include/vectorization/v_f32_8/type.h
         include/vectorization/v_i32_4.h
         include/vectorization/v_i32_4/accessors.h
         include/vectorization/v_i32_4/api.h
@@ -390,16 +404,16 @@ set(HEADERS
         include/vectorization/v_i32_4/swizzled_blends.h
         include/vectorization/v_i32_4/swizzles.h
         include/vectorization/v_i32_4/type.h
-        include/vectorization/v_ui32_8.h
-        include/vectorization/v_ui32_8/accessors.h
-        include/vectorization/v_ui32_8/api.h
-        include/vectorization/v_ui32_8/blends.h
-        include/vectorization/v_ui32_8/constants.h
-        include/vectorization/v_ui32_8/functions.h
-        include/vectorization/v_ui32_8/operators.h
-        include/vectorization/v_ui32_8/swizzled_blends.h
-        include/vectorization/v_ui32_8/swizzles.h
-        include/vectorization/v_ui32_8/type.h
+        include/vectorization/v_i32_8.h
+        include/vectorization/v_i32_8/accessors.h
+        include/vectorization/v_i32_8/api.h
+        include/vectorization/v_i32_8/blends.h
+        include/vectorization/v_i32_8/constants.h
+        include/vectorization/v_i32_8/functions.h
+        include/vectorization/v_i32_8/operators.h
+        include/vectorization/v_i32_8/swizzled_blends.h
+        include/vectorization/v_i32_8/swizzles.h
+        include/vectorization/v_i32_8/type.h
         include/vectorization/v_ui32_4.h
         include/vectorization/v_ui32_4/accessors.h
         include/vectorization/v_ui32_4/api.h
@@ -410,6 +424,16 @@ set(HEADERS
         include/vectorization/v_ui32_4/swizzled_blends.h
         include/vectorization/v_ui32_4/swizzles.h
         include/vectorization/v_ui32_4/type.h
+        include/vectorization/v_ui32_8.h
+        include/vectorization/v_ui32_8/accessors.h
+        include/vectorization/v_ui32_8/api.h
+        include/vectorization/v_ui32_8/blends.h
+        include/vectorization/v_ui32_8/constants.h
+        include/vectorization/v_ui32_8/functions.h
+        include/vectorization/v_ui32_8/operators.h
+        include/vectorization/v_ui32_8/swizzled_blends.h
+        include/vectorization/v_ui32_8/swizzles.h
+        include/vectorization/v_ui32_8/type.h
         include/vectorization/v_ui64_2.h
         include/vectorization/v_ui64_2/accessors.h
         include/vectorization/v_ui64_2/api.h

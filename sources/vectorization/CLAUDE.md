@@ -16,7 +16,7 @@ SIMD wrapper library over SSE4.2/AVX2/FMA intrinsics based on a 3-tier architect
 | Tier       | Paths                                                                                                               |
 |------------|---------------------------------------------------------------------------------------------------------------------|
 | Basic tier | `architecture/`, `functions/`, `accessors/`, `blends/`, `selects/`, `swizzles/`, `swizzled_blends/`,   `constants/` |
-| Mid tier   | `v_f32_4/`, `v_i32_4/`, `v_i32_8/`, `v_ui32_4/`, `v_ui32_8/`, `v_ui64_2/`, `m_f32_4x4/`                             |
+| Mid tier   | `v_f32_4/`, `v_f32_8/`, `v_i32_4/`, `v_i32_8/`, `v_ui32_4/`, `v_ui32_8/`, `v_ui64_2/`, `m_f32_4x4/`                 |
 | API tier   | `api_type_definitions.h`                                                                                            |
 
 Consumers of the library CAN broad-include via `#include <vectorization.h>`.
@@ -34,15 +34,16 @@ Consumers of the library CAN broad-include via `#include <vectorization.h>`.
 
 ### High-level vector types
 
-| Type        | Packed type        | Description              |
-|-------------|--------------------|--------------------------| 
-| `v_f32_4`   | `PackedFloat4_128` | 4-wide float vector      |
-| `v_i32_4`   | `PackedInts_128`   | 4-wide signed int        |
-| `v_i32_8`   | `PackedInts_256`   | 8-wide signed int        |
-| `v_ui32_4`  | `PackedInts_128`   | 4-wide unsigned int      |
-| `v_ui32_8`  | `PackedInts_256`   | 8-wide unsigned int      |
-| `v_ui64_2`  | `PackedInts_128`   | 2-wide unsigned int64    |
-| `m_f32_4x4` | 4x `v_f32_4`       | 4x4 float matrix         |
+| Type        | Packed type        | Description           |
+|-------------|--------------------|-----------------------| 
+| `v_f32_4`   | `PackedFloat4_128` | 4-wide float vector   |
+| `v_f32_8`   | `PackedFloat8_256` | 8-wide float vector   |
+| `v_i32_4`   | `PackedInts_128`   | 4-wide signed int     |
+| `v_i32_8`   | `PackedInts_256`   | 8-wide signed int     |
+| `v_ui32_4`  | `PackedInts_128`   | 4-wide unsigned int   |
+| `v_ui32_8`  | `PackedInts_256`   | 8-wide unsigned int   |
+| `v_ui64_2`  | `PackedInts_128`   | 2-wide unsigned int64 |
+| `m_f32_4x4` | 4x `v_f32_4`       | 4x4 float matrix      |
 
 ## Development guidelines
 
@@ -50,6 +51,8 @@ Consumers of the library CAN broad-include via `#include <vectorization.h>`.
 - C++ wrapper types SHOULD be exposed via alias types in the API tier.
 - Inside `vectorization/`, compilation units MUST use narrow includes and SHOULD NOT use the aggregator headers at top
   level.
+
+### Third-party dependencies
 
 ### 256-bit overloads
 
