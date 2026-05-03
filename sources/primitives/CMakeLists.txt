@@ -19,6 +19,7 @@ set(HEADERS
         include/primitives/Ray.h
         include/primitives/RayCast.h
         include/primitives/SplittingPlane.h
+        src/stdafx.h
 )
 
 add_library(${PROJECT_NAME} STATIC ${SOURCES} ${HEADERS})
@@ -30,6 +31,8 @@ add_dependencies(${PROJECT_NAME} vectorization)
 target_link_libraries(${PROJECT_NAME} PUBLIC vectorization)
 
 target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
+
+target_precompile_headers(${PROJECT_NAME} PRIVATE src/stdafx.h)
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE _LIB)
 

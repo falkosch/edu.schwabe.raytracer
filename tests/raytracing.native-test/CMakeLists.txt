@@ -22,6 +22,7 @@ set(SOURCES
 
 set(HEADERS
         include/raytracing_tests.h
+        src/stdafx.h
 )
 
 add_library(${PROJECT_NAME} SHARED ${SOURCES} ${HEADERS})
@@ -39,6 +40,8 @@ target_include_directories(${PROJECT_NAME}
         "$ENV{VCInstallDir}/Auxiliary/VS/UnitTest/include"
         "${CMAKE_CURRENT_SOURCE_DIR}/include"
 )
+
+target_precompile_headers(${PROJECT_NAME} PRIVATE src/stdafx.h)
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 

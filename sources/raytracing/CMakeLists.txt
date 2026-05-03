@@ -160,6 +160,10 @@ target_link_libraries(${PROJECT_NAME} PUBLIC vectorization primitives ole32 wind
 
 target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
+set_source_files_properties(src/raytracing/common/PNGWriter.cpp PROPERTIES SKIP_PRECOMPILE_HEADERS ON)
+
+target_precompile_headers(${PROJECT_NAME} PRIVATE src/stdafx.h)
+
 target_compile_definitions(${PROJECT_NAME} PRIVATE _LIB)
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
