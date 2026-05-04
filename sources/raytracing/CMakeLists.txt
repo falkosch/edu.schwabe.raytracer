@@ -63,6 +63,9 @@ set(SOURCES
         src/raytracing/shading/SceneShaderContainment.cpp
         src/raytracing/shading/SurfaceShading.cpp
         src/raytracing/shading/TextureTransformInfo.cpp
+        src/raytracing/shading/brdf/ggx.cpp
+        src/raytracing/shading/color/primaries.cpp
+        src/raytracing/shading/color/view_transform.cpp
         src/raytracing/shading/shaders/EnvironmentShader.cpp
         src/raytracing/shading/shaders/HDRImageShader.cpp
         src/raytracing/shading/shaders/IntersectionNormalShader.cpp
@@ -140,6 +143,9 @@ set(HEADERS
         include/raytracing/shading/Shader.h
         include/raytracing/shading/SurfaceShading.h
         include/raytracing/shading/TextureTransformInfo.h
+        include/raytracing/shading/brdf/ggx.h
+        include/raytracing/shading/color/primaries.h
+        include/raytracing/shading/color/view_transform.h
         include/raytracing/shading/shaders/ConcatenatingShader.h
         include/raytracing/shading/shaders/ConstShader.h
         include/raytracing/shading/shaders/EnvironmentShader.h

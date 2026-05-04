@@ -10,61 +10,69 @@
 
 namespace raytracerui
 {
-  using namespace vectorization;
-  using namespace raytracer;
+    using namespace vectorization;
+    using namespace raytracer;
 
-  class OpenGLWindowsRaytracerUI : public WindowsRaytracerUI
-  {
-    HDC hDC;
+    class OpenGLWindowsRaytracerUI : public WindowsRaytracerUI
+    {
+        HDC hDC;
 
-    HGLRC hGLRC;
+        HGLRC hGLRC;
 
-    GLuint outputSurface;
+        GLuint outputSurface;
 
-    std::mutex pendingMutex;
+        std::mutex pendingMutex;
 
-    RaytraceConfiguration pendingConfig{};
+        RaytraceConfiguration pendingConfig{};
 
-    bool hasPendingResult{false};
+        bool hasPendingResult{false};
 
-    bool showControls{false};
+        bool showControls{false};
 
-    bool showMetrics{false};
+        bool showMetrics{false};
 
-    bool showConfig{false};
+        bool showConfig{false};
 
-    bool showLog{false};
+        bool showLog{false};
 
-    int balancerIndex{1};
+        int balancerIndex{1};
 
-    int sceneBalancerThreshold{25};
+        int sceneBalancerThreshold{25};
 
-    int meshBalancerIndex{1};
+        int meshBalancerIndex{1};
 
-    int meshBalancerThreshold{5};
+        int meshBalancerThreshold{5};
 
-  protected:
-    void reshape(const Int2& newSize) override;
+        int sceneIndex{0};
 
-    void display() override;
+        Scene* scene{};
 
-    void repaint() override;
+        Resources* resources{};
 
-    void onRenderComplete() override;
+    protected:
+        void reshape(const Size2& newSize) override;
 
-    void onTogglePanel(WPARAM key) override;
+        void display() override;
 
-    LRESULT forwardInputMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) override;
+        void repaint() override;
 
-  private:
-    void renderUI();
+        void onRenderComplete() override;
 
-  public:
+        void onTogglePanel(WPARAM key) override;
 
-    OpenGLWindowsRaytracerUI(Raytracer& raytracer, const RaytraceParameters& parameters, ASizeT fastPreviewSize);
+        LRESULT forwardInputMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) override;
 
-    ~OpenGLWindowsRaytracerUI() override;
+    private:
+        void renderUI();
 
-    void notifyUpdate(const RaytraceConfiguration& configuration) override;
-  };
+    public:
+        OpenGLWindowsRaytracerUI(
+            Raytracer& raytracer, const RaytraceParameters& parameters, const Size2& fastPreviewSize,
+            Scene& scene, Resources& resources
+        );
+
+        ~OpenGLWindowsRaytracerUI() override;
+
+        void notifyUpdate(const RaytraceConfiguration& configuration) override;
+    };
 }

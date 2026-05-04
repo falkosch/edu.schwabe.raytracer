@@ -11,7 +11,7 @@ namespace raytracerui {
   template <int LightsPerAxis = 3, int ObjectsPerAxis = 10>
   struct ProceduralScene {
     static void setupLightScene(Scene &scene, Resources & /*resources*/) {
-      scene.setBackgroundShader(std::make_unique<ConstShader<SceneShader, Float4, RGBS>>(RGBS(1.f, 1.f, 1.f, 0.f)));
+      scene.setBackgroundShader(std::make_unique<ConstShader<SceneShader, Float4, RGBS>>(RGBS(0.f, 0.f, 0.f)));
       scene.setAmbientLight(RGBS::black());
 
       auto emittanceScale = reciprocal(Float4(LightsPerAxis * LightsPerAxis * LightsPerAxis + 1.f));
@@ -21,7 +21,7 @@ namespace raytracerui {
             auto light = std::make_unique<LightInfo>();
             auto position = convert<Float4>(Int4(x, y, z));
             light->position = oneW(position * Float4(4.f));
-            light->emittance = oneW(abs(position * emittanceScale) + emittanceScale);
+            light->emittance = zeroW(abs(position * emittanceScale) + emittanceScale);
             light->attenuationFactors = Float4(1.f, 1.f, 0.f, 1.f);
             scene.getLights().push_back(std::move(light));
           }
@@ -50,12 +50,12 @@ namespace raytracerui {
             sceneObject->scaleTexture(Float2(1.f, 1.f));
             sceneObject->rotateTexture(0.f);
             sceneObject->translateTexture(Float2(0.f, 0.f));
-            sceneObject->setEmittanceShader(std::make_unique<Resources::ConstMaterialShader>(Float4(1.f, 1.f, 1.f, 0.f)));
+            sceneObject->setEmittanceShader(std::make_unique<Resources::ConstMaterialShader>(Float4(0.f, 0.f, 0.f, 0.f)));
             sceneObject->setDiffusionShader(std::make_unique<HDRImageShader>(*resources.getPPM("marble")));
-            sceneObject->setReflectanceShader(std::make_unique<Resources::ConstMaterialShader>(Float4(1.f, 1.f, 1.f, .2f)));
-            sceneObject->setSpecularShader(std::make_unique<Resources::ConstMaterialShader>(Float4(1.f, 1.f, 1.f, .2f)));
-            sceneObject->setShininessShader(std::make_unique<Resources::ConstMaterialShader>(Float4(1.f, 1.f, 1.f, 32.f)));
-            sceneObject->setTransmittanceShader(std::make_unique<Resources::ConstMaterialShader>(Float4(1.f, 1.f, 1.f, 0.f)));
+            sceneObject->setReflectanceShader(std::make_unique<Resources::ConstMaterialShader>(Float4(.2f, .2f, .2f, 0.f)));
+            sceneObject->setSpecularShader(std::make_unique<Resources::ConstMaterialShader>(Float4(.2f, .2f, .2f, 0.f)));
+            sceneObject->setRoughnessShader(std::make_unique<Resources::ConstMaterialShader>(Float4(.3f, .3f, .3f, 0.f)));
+            sceneObject->setTransmittanceShader(std::make_unique<Resources::ConstMaterialShader>(Float4(0.f, 0.f, 0.f, 0.f)));
             sceneObject->setRefractionEtaShader(std::make_unique<Resources::ConstMaterialShader>(
                 RefractionIndices::refractionEta(RefractionIndices::Vacuum, RefractionIndices::Water)
             ));

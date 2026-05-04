@@ -11,7 +11,7 @@ namespace raytracer
     {
     }
 
-    RGBS::RGBS(const Float r, const Float g, const Float b, const Float s) noexcept : value(r, g, b, s)
+    RGBS::RGBS(const Float r, const Float g, const Float b) noexcept : value(r, g, b, Zero<Float>())
     {
     }
 
@@ -22,22 +22,12 @@ namespace raytracer
 
     RGBS RGBS::white() noexcept
     {
-        return {One<Float4>()};
+        return {Float4{One<Float>(), One<Float>(), One<Float>(), Zero<Float>()}};
     }
 
     Float4 RGBS::rgb() const noexcept
     {
         return zeroW(value);
-    }
-
-    Float RGBS::scale() const noexcept
-    {
-        return w(value);
-    }
-
-    RGBS RGBS::scalev() const noexcept
-    {
-        return {wwww(value)};
     }
 
     RGBS RGBS::operator+(const RGBS& other) const noexcept

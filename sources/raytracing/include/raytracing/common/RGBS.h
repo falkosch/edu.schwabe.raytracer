@@ -14,17 +14,13 @@ namespace raytracer
 
         RGBS(const Float4& v) noexcept;
 
-        RGBS(Float r, Float g, Float b, Float s) noexcept;
+        RGBS(Float r, Float g, Float b) noexcept;
 
         static RGBS black() noexcept;
 
         static RGBS white() noexcept;
 
         Float4 rgb() const noexcept;
-
-        Float scale() const noexcept;
-
-        RGBS scalev() const noexcept;
 
         RGBS operator+(const RGBS& other) const noexcept;
 

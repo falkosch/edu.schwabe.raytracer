@@ -4,48 +4,50 @@
 
 #include <memory>
 
-namespace raytracer {
-  using namespace vectorization;
+namespace raytracer
+{
+    using namespace vectorization;
 
-  class HDRImage : public Image<Float4> {
-  public:
-    typedef Float4 VectorType;
-    typedef const VectorType (*const SelectorFunction)(const VectorType &, const VectorType &);
+    class HDRImage : public Image<Float4>
+    {
+    public:
+        typedef Float4 VectorType;
+        typedef const VectorType (*const SelectorFunction)(const VectorType&, const VectorType&);
 
-  private:
-    Size2 resolution;
+    private:
+        Size2 resolution;
 
-    Float4 resolutionf;
+        Float4 resolutionf;
 
-    std::unique_ptr<VectorType[]> data;
+        std::unique_ptr<VectorType[]> data;
 
-    void init();
+        void init();
 
-  public:
-    HDRImage();
+    public:
+        HDRImage();
 
-    HDRImage(const Size2 &resolution);
+        explicit HDRImage(const Size2& resolution);
 
-    HDRImage(const Bitmap &bitmap);
+        explicit HDRImage(const Bitmap& bitmap, bool srgbColorConversion = true);
 
-    virtual ~HDRImage();
+        ~HDRImage() override;
 
-    VectorType* getData();
+        VectorType* getData();
 
-    const VectorType* getData() const;
+        const VectorType* getData() const;
 
-    VectorType &operator[](const ASizeT index);
+        VectorType& operator[](ASizeT index) override;
 
-    const VectorType &operator[](const ASizeT index) const;
+        const VectorType& operator[](ASizeT index) const override;
 
-    const Size2 getResolution() const;
+        const Size2 getResolution() const override;
 
-    void minMax(VectorType& min, VectorType& max, SelectorFunction minSelector, SelectorFunction maxSelector) const;
+        void minMax(VectorType& min, VectorType& max, SelectorFunction minSelector, SelectorFunction maxSelector) const;
 
-    void normalizeEachChannel();
+        void normalizeEachChannel();
 
-    void compressChannels();
+        void compressChannels();
 
-    const Float4 sampleBilinear(const Float4 &texCoords) const;
-  };
+        Float4 sampleBilinear(const Float4& texCoords) const;
+    };
 }

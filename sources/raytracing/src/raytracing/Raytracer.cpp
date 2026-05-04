@@ -91,7 +91,8 @@ namespace raytracer
             LARGE_INTEGER frequency, start, stop;
             QueryPerformanceFrequency(&frequency);
 
-            Log.info([id = running.runId, rx = x(running.resolution), ry = y(running.resolution)] {
+            Log.info([id = running.runId, rx = x(running.resolution), ry = y(running.resolution)]
+            {
                 return "Raytrace " + std::to_string(id) + " (" + std::to_string(rx) + "x" + std::to_string(ry) + "):";
             });
 
@@ -102,7 +103,8 @@ namespace raytracer
             const auto timeDuration = static_cast<Int_64>(stop.QuadPart - start.QuadPart);
             const auto timeFrequency = static_cast<Int_64>(frequency.QuadPart);
             running.durationSeconds = convert<Float_64>(timeDuration) / convert<Float_64>(timeFrequency);
-            Log.info([d = running.durationSeconds] {
+            Log.info([d = running.durationSeconds]
+            {
                 std::ostringstream oss;
                 oss << "Duration: " << d << "s";
                 return oss.str();
@@ -341,7 +343,8 @@ namespace raytracer
         brdf.lighting = cache.configuration.sceneShader->sampleLighting(
             raytrace, SceneShader::adaptedVisibilityCutoff(cache.configuration.visibilityCutoff,
                                                            raytrace.visibilityIndex),
-            brdf.surface.shininess, brdf.intersection, cache.shadowCache, cache.statistics
+            x(brdf.surface.roughness), zeroW(brdf.surface.specular.value),
+            brdf.intersection, cache.shadowCache, cache.statistics
         );
 
         cache.statistics.shadingTicks += __rdtsc() - shadingStart;
@@ -382,7 +385,8 @@ namespace raytracer
 
         // check whether it would even make a difference in the image
         auto reflectionVisibilityIndex =
-            incidentRaytrace.visibilityIndex * brdf.reflectanceCoefficient.value * max3v(brdf.surface.reflectance.value);
+            incidentRaytrace.visibilityIndex * brdf.reflectanceCoefficient.value *
+            max3v(brdf.surface.reflectance.value);
         if (x(reflectionVisibilityIndex) < cache.configuration.visibilityCutoff)
         {
             brdf.lighting.reflected = Zero<Float4>();
@@ -472,19 +476,14 @@ namespace raytracer
 
     RGBS Raytracer::applyBRDF(const BRDFParameters& brdf)
     {
-        // https://en.wikipedia.org/wiki/Phong_reflection_model
         const auto ambient = brdf.surface.diffusion * brdf.lighting.ambient;
         const auto diffuse = brdf.surface.diffusion * brdf.lighting.diffuse;
-        const auto specularReflection = brdf.surface.specular * brdf.lighting.specular;
-        const auto phong = ambient + diffuse + specularReflection;
+        const auto directLighting = ambient + diffuse + brdf.lighting.specular;
 
-        // Transmittance model: Absorption coefficient/Beer-Lambert-law
-        // http://tog.acm.org/resources/RTNews/html/rtnv10n1.html#art3
-        // http://en.wikipedia.org/wiki/Absorption_coefficient
-        // http://en.wikipedia.org/wiki/Beer%E2%80%93Lambert_law
         const auto reflection = brdf.surface.reflectance * brdf.lighting.reflected;
         const auto transmitted = brdf.fractionTransmitted * brdf.lighting.transmitted;
 
-        return brdf.surface.emittance + phong + mix(transmitted.value, reflection.value, brdf.reflectanceCoefficient.value);
+        return brdf.surface.emittance + directLighting + mix(transmitted.value, reflection.value,
+                                                             brdf.reflectanceCoefficient.value);
     }
 }

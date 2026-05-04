@@ -9,31 +9,38 @@
 #include <map>
 #include <memory>
 
-namespace raytracer {
-  using namespace vectorization;
+namespace raytracer
+{
+    using namespace vectorization;
 
-  class Resources {
-  public:
-    typedef ConstShader<ObjectShader, FacetIntersection, Float4> ConstMaterialShader;
+    class Resources
+    {
+    public:
+        typedef ConstShader<ObjectShader, FacetIntersection, Float4> ConstMaterialShader;
 
-    typedef MultiplyByConstShader<ObjectShader, FacetIntersection, Float4, ObjectShader::MaterialShader>
+        typedef MultiplyByConstShader<ObjectShader, FacetIntersection, Float4, ObjectShader::MaterialShader>
         MultiplyByConstMaterialShader;
 
-    Resources();
+        Resources();
 
-    virtual ~Resources();
+        virtual ~Resources();
 
-    std::map<std::string, std::unique_ptr<Mesh>> meshes;
+        std::map<std::string, std::unique_ptr<Mesh>> meshes;
 
-    std::map<std::string, std::unique_ptr<HDRImage>> textures;
+        std::map<std::string, std::unique_ptr<HDRImage>> textures;
 
-    Mesh *getMesh(const std::string &identifier);
+        Mesh* getMesh(const std::string& identifier);
 
-    HDRImage *getPPM(const std::string &identifier);
+        HDRImage* getPPM(const std::string& identifier);
 
-  protected:
-    std::vector<std::string, AlignedAllocator<std::string>> revertedNormalsCheckList;
+        HDRImage* getLinearPPM(const std::string& identifier);
 
-    bool hasRevertedNormals(const std::string& identifier) const;
-  };
+    private:
+        HDRImage* loadPPM(const std::string& identifier, const std::string& cacheKey, bool srgbColorConversion);
+
+    protected:
+        std::vector<std::string, AlignedAllocator<std::string>> revertedNormalsCheckList;
+
+        bool hasRevertedNormals(const std::string& identifier) const;
+    };
 }

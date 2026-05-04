@@ -6,47 +6,47 @@
 
 namespace raytracerui
 {
-  using namespace vectorization;
-  using namespace raytracer;
+    using namespace vectorization;
+    using namespace raytracer;
 
-  class RaytracerUI : public RaytraceObserver
-  {
-  protected:
-    RaytraceParameters parameters;
+    class RaytracerUI : public RaytraceObserver
+    {
+    protected:
+        RaytraceParameters parameters;
 
-    Int2 screenSize;
+        Size2 screenSize;
 
-    ASizeT fastPreviewSize;
+        Size2 fastPreviewSize;
 
-    ASizeT showMapIndex;
+        ASizeT showMapIndex;
 
-    bool disableFastPreview;
+        bool disableFastPreview;
 
-    ASizeT frameCount;
+        ASizeT frameCount;
 
-    StatisticsCookie lastStatistics;
+        StatisticsCookie lastStatistics;
 
-    Float_64 lastRenderDuration{};
+        Float_64 lastRenderDuration{};
 
-    std::shared_ptr<const HDRImage> outputHDR;
+        std::shared_ptr<const HDRImage> outputHDR;
 
-    std::unique_ptr<const Bitmap> output;
+        std::unique_ptr<const Bitmap> output;
 
-    MFloat4x4 initialViewMatrix;
+        MFloat4x4 initialViewMatrix;
 
-    Raytracer* raytracer;
+        Raytracer* raytracer;
 
-    virtual void reshape(const Int2& newSize);
+        virtual void reshape(const Size2& newSize);
 
-  public:
-    RaytracerUI(Raytracer& raytracer, const RaytraceParameters& parameters, ASizeT& fastPreviewSize);
+    public:
+        RaytracerUI(Raytracer& raytracer, const RaytraceParameters& parameters, const Size2& fastPreviewSize);
 
-    ~RaytracerUI() override;
+        ~RaytracerUI() override;
 
-    virtual void triggerRaytracing(bool fastPreview);
+        virtual void triggerRaytracing(bool fastPreview);
 
-    void notifyUpdate(const RaytraceConfiguration& configuration) override;
+        void notifyUpdate(const RaytraceConfiguration& configuration) override;
 
-    std::shared_ptr<const HDRImage> selectOutputImage(const RaytraceConfiguration& configuration) const;
-  };
+        std::shared_ptr<const HDRImage> selectOutputImage(const RaytraceConfiguration& configuration) const;
+    };
 }

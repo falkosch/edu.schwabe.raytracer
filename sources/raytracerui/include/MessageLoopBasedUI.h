@@ -2,11 +2,13 @@
 
 #include <windows.h>
 
-namespace raytracerui {
-  class MessageLoopBasedUI {
-  public:
-    virtual ~MessageLoopBasedUI();
+namespace raytracerui
+{
+    class MessageLoopBasedUI
+    {
+    public:
+        virtual ~MessageLoopBasedUI();
 
-    virtual WPARAM run() = 0;
-  };
+        virtual WPARAM run() = 0;
+    };
 }

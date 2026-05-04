@@ -10,77 +10,80 @@
 
 #include <vector>
 
-namespace raytracer {
-  using namespace vectorization;
-  using namespace primitives;
+namespace raytracer
+{
+    using namespace vectorization;
+    using namespace primitives;
 
-  class SceneShader : public SceneGeometry, public Shader<SceneShaderContainment, SceneIntersection, LightShading> {
-  public:
-    typedef Shader<SceneShader, Float4, RGBS> BackgroundShader;
-    typedef std::vector<std::unique_ptr<LightInfo>> LightsCollection;
+    class SceneShader : public SceneGeometry, public Shader<SceneShaderContainment, SceneIntersection, LightShading>
+    {
+    public:
+        typedef Shader<SceneShader, Float4, RGBS> BackgroundShader;
+        typedef std::vector<std::unique_ptr<LightInfo>> LightsCollection;
 
-    SceneShader();
+        SceneShader();
 
-    explicit SceneShader(std::unique_ptr<const KDTreeTraverser<SceneIntersection>> treeTraverser);
+        explicit SceneShader(std::unique_ptr<const KDTreeTraverser<SceneIntersection>> treeTraverser);
 
-    ~SceneShader() override;
+        ~SceneShader() override;
 
-    const BackgroundShader *getBackgroundShader() const;
-    void setBackgroundShader(std::unique_ptr<const BackgroundShader> value);
+        const BackgroundShader* getBackgroundShader() const;
+        void setBackgroundShader(std::unique_ptr<const BackgroundShader> value);
 
-    RGBS getAmbientLight() const;
-    void setAmbientLight(const RGBS &value);
+        RGBS getAmbientLight() const;
+        void setAmbientLight(const RGBS& value);
 
-    const LightsCollection &getLights() const;
-    LightsCollection &getLights();
+        const LightsCollection& getLights() const;
+        LightsCollection& getLights();
 
-    // Samples the lighting of a facet in the scene.
-    RGBS sampleBackground(const Float4 &rayDirection) const;
+        // Samples the lighting of a facet in the scene.
+        RGBS sampleBackground(const Float4& rayDirection) const;
 
-    // Samples the lighting of a facet in the scene.
-    LightShading
-    sample(const SceneShaderContainment &containment, const SceneIntersection &intersection) const override;
+        // Samples the lighting of a facet in the scene.
+        LightShading
+        sample(const SceneShaderContainment& containment, const SceneIntersection& intersection) const override;
 
-    // Computes the lighting of a facet in the scene.
-    LightShading sampleLighting(
-        const Raytrace &incidentRay, const Float4 &adaptedVisibilityCutoff, const Float4 &shininess,
-        const SceneIntersection &intersection, PerLightShadowCache::ShadowCacheType &shadowCache,
-        StatisticsCookie &statistics
-    ) const;
+        // Computes the lighting of a facet in the scene.
+        LightShading sampleLighting(
+            const Raytrace& incidentRay, const Float4& adaptedVisibilityCutoff,
+            Float roughness, const Float4& F0,
+            const SceneIntersection& intersection, PerLightShadowCache::ShadowCacheType& shadowCache,
+            StatisticsCookie& statistics
+        ) const;
 
-    // Scale visibilityCutoff according to the current visibilityIndex, which allows us to filter out unnecessary
-    // lighting that doesn't add visible changes to the scene.
-    static Float4 adaptedVisibilityCutoff(Float visibilityCutoff, Float visibilityIndex);
+        // Scale visibilityCutoff according to the current visibilityIndex, which allows us to filter out unnecessary
+        // lighting that doesn't add visible changes to the scene.
+        static Float4 adaptedVisibilityCutoff(Float visibilityCutoff, Float visibilityIndex);
 
-  private:
-    std::unique_ptr<const BackgroundShader> backgroundShader;
+    private:
+        std::unique_ptr<const BackgroundShader> backgroundShader;
 
-    RGBS ambientLight;
-    LightsCollection lights;
+        RGBS ambientLight;
+        LightsCollection lights;
 
-    Float4 computeLitAreaFraction(
-        const RayCast &shadowRay, const SceneIntersection &intersection, const ASizeT lightIndex,
-        PerLightShadowCache::ShadowCacheType &shadowCache, StatisticsCookie &statistics
-    ) const;
+        Float4 computeLitAreaFraction(
+            const RayCast& shadowRay, const SceneIntersection& intersection, ASizeT lightIndex,
+            PerLightShadowCache::ShadowCacheType& shadowCache, StatisticsCookie& statistics
+        ) const;
 
-    // Calculates the diffuse intensity according to Lambert's cosine law (Lambertian reflection). Vector
-    // lightDirection is the direction from the facet to the light source. Vector normal is the normal-vector
-    // at the facet.
-    static Float4 lambertDiffuseIntensity(const Float4 &lightDirection, const Float4 &normal);
+        // Calculates the diffuse intensity according to Lambert's cosine law (Lambertian reflection). Vector
+        // lightDirection is the direction from the facet to the light source. Vector normal is the normal-vector
+        // at the facet.
+        static Float4 lambertDiffuseIntensity(const Float4& lightDirection, const Float4& normal);
 
-    // Calculates the attenuated diffuse intensity. Vector attenuationFactors contain the light attenuation
-    // over distance in empty space-based parameters with z-component as quadratic (Inverse-square-law; generally
-    // for ideal point lights), y-component as linear (for spotlights) and x-component as a constant (planar lights)
-    // falloff factor.
-    static Float4 attenuateDiffuseIntensity(
-        const Float4 &attenuationFactors, const Float4 &lightDistance, const Float4 &diffuseIntensity
-    );
+        // Calculates the attenuated diffuse intensity. Vector attenuationFactors contain the light attenuation
+        // over distance in empty space-based parameters with z-component as quadratic (Inverse-square-law; generally
+        // for ideal point lights), y-component as linear (for spotlights) and x-component as a constant (planar lights)
+        // falloff factor.
+        static Float4 attenuateDiffuseIntensity(
+            const Float4& attenuationFactors, const Float4& lightDistance, const Float4& diffuseIntensity
+        );
 
-    // Calculates the specular intensity according to Phong's lighting model but assumes a pre-given incident
-    // vector that is the reflected vector of the incident vector. Vector lightDirection is the direction from
-    // the facet to the light source. Vector shininess determines the smoothness of the facet.
-    static Float4 phongSpecularIntensityPerReflectedIncident(
-        const Float4 &reflectedIncidentDirection, const Float4 &lightDirection, const Float4 &shininess
-    );
-  };
+        // Calculates the specular intensity according to Phong's lighting model but assumes a pre-given incident
+        // vector that is the reflected vector of the incident vector. Vector lightDirection is the direction from
+        // the facet to the light source. Vector shininess determines the smoothness of the facet.
+        static Float4 phongSpecularIntensityPerReflectedIncident(
+            const Float4& reflectedIncidentDirection, const Float4& lightDirection, const Float4& shininess
+        );
+    };
 }

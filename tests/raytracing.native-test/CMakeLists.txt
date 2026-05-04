@@ -18,6 +18,9 @@ set(SOURCES
         src/raytracing/shading/HDRImageShader_test.cpp
         src/raytracing/shading/IntersectionNormalShader_test.cpp
         src/raytracing/shading/Phong_test.cpp
+        src/raytracing/shading/brdf/ggx_test.cpp
+        src/raytracing/shading/color/primaries_test.cpp
+        src/raytracing/shading/color/view_transform_test.cpp
 )
 
 set(HEADERS
