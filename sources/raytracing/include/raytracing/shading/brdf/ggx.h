@@ -10,7 +10,7 @@ namespace raytracer::brdf
     Float ggxD(Float NoH, Float alpha) noexcept;
 
     // Smith height-correlated geometry term for GGX
-    Float ggxG(Float NoV, Float NoL, Float alpha) noexcept;
+    Float ggxG_smith(Float NoV, Float NoL, Float alpha) noexcept;
 
     // Full GGX microfacet BRDF: D * G * F / (4 * NoV * NoL)
     // N, V, L are unit vectors; alpha is roughness^2; F0 is reflectance at normal incidence (RGB).

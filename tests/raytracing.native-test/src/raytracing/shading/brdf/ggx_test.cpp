@@ -36,24 +36,24 @@ namespace raytracer::test
             }
         }
 
-        TEST_METHOD(ggxGNonNegative)
+        TEST_METHOD(ggxG_smithNonNegative)
         {
             for (Float a = 0.1f; a <= 1.0f; a += 0.1f)
             {
-                const auto g = ggxG(0.5f, 0.5f, a);
+                const auto g = ggxG_smith(0.5f, 0.5f, a);
                 Assert::IsTrue(g >= 0.0f, L"G always non-negative", LINE_INFO());
             }
         }
 
-        TEST_METHOD(ggxGMaxAtGrazingIsBounded)
+        TEST_METHOD(ggxG_smithMaxAtGrazingIsBounded)
         {
-            const auto g = ggxG(1.0f, 1.0f, 0.5f);
+            const auto g = ggxG_smith(1.0f, 1.0f, 0.5f);
             Assert::IsTrue(g <= 1.0f + 1e-5f, L"G bounded by 1", LINE_INFO());
         }
 
-        TEST_METHOD(ggxGZeroWhenLBelowHorizon)
+        TEST_METHOD(ggxG_smithZeroWhenLBelowHorizon)
         {
-            const auto g = ggxG(0.5f, 0.0f, 0.5f);
+            const auto g = ggxG_smith(0.5f, 0.0f, 0.5f);
             Assert::AreEqual(0.0f, g, 1e-7f, L"G=0 when NoL=0", LINE_INFO());
         }
 

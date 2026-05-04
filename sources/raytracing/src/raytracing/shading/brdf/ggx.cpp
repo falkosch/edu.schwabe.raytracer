@@ -12,7 +12,7 @@ namespace raytracer::brdf
         return divide(a2, Pi<Float>() * sqr(sqr(NoH) * (a2 - One<Float>()) + One<Float>()));
     }
 
-    Float ggxG(const Float NoV, const Float NoL, const Float alpha) noexcept
+    Float ggxG_smith(const Float NoV, const Float NoL, const Float alpha) noexcept
     {
         const auto a2 = sqr(alpha);
         const auto oneMinusA2 = One<Float>() - a2;
@@ -43,7 +43,7 @@ namespace raytracer::brdf
         const auto H = normalize3(V + L);
         const auto NoH = max(dot3(N, H), Zero<Float>());
         const auto D = ggxD(NoH, alpha);
-        const auto G = ggxG(NoV, NoL, alpha);
+        const auto G = ggxG_smith(NoV, NoL, alpha);
         const auto VoH = max(dot3(V, H), Zero<Float>());
         const auto F = schlickFresnel(F0, VoH);
 
