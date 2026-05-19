@@ -32,7 +32,7 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 
     add_compile_definitions(_WIN32)
     add_compile_options(-Wall -Wextra -pedantic -Wno-ignored-qualifiers -Wno-unknown-pragmas)
-    add_compile_options(-g3 -march=native -fopenmp -ffp-contract=fast -fassociative-math -freciprocal-math -fno-signed-zeros)
+    add_compile_options(-g3 -march=native -fopenmp -fno-exceptions -ffp-contract=fast -fassociative-math -freciprocal-math -fno-signed-zeros)
 
     add_link_options(-g3 -fopenmp)
 
@@ -55,6 +55,7 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     foreach (CompilerFlag ${CompilerFlags})
         string(REGEX REPLACE "/[wW][0-9]" "" ${CompilerFlag} "${${CompilerFlag}}")
         string(REPLACE "/MD" "/MT" ${CompilerFlag} "${${CompilerFlag}}")
+        string(REGEX REPLACE "/EH[ascr-]+" "" ${CompilerFlag} "${${CompilerFlag}}")
     endforeach ()
 
     add_compile_options(/permissive- /W4 /wd4514 /wd4710 /wd4711 /wd4820 /wd4068)
@@ -79,6 +80,7 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
         foreach (CompilerFlag ${CompilerFlags})
             string(REGEX REPLACE "/[wW][0-9]" "" ${CompilerFlag} "${${CompilerFlag}}")
             string(REPLACE "/MD" "/MT" ${CompilerFlag} "${${CompilerFlag}}")
+            string(REGEX REPLACE "/EH[ascr-]+" "" ${CompilerFlag} "${${CompilerFlag}}")
         endforeach ()
 
         add_compile_options(/W4 /wd4514 /wd4710 /wd4711 /wd4820 /wd4068)
@@ -104,7 +106,7 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
         endforeach ()
 
         add_compile_options(-Wall -Wextra -pedantic -Wno-ignored-qualifiers -Wno-unknown-pragmas)
-        add_compile_options(-march=native -fopenmp -ffp-contract=fast -fassociative-math -freciprocal-math -fno-signed-zeros)
+        add_compile_options(-march=native -fopenmp -fno-exceptions -ffp-contract=fast -fassociative-math -freciprocal-math -fno-signed-zeros)
 
         add_link_options(-fopenmp)
 
