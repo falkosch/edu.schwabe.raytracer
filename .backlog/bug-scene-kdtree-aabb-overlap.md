@@ -15,6 +15,7 @@ traversal structure in some screen regions (top-left, top-right) but gaps in oth
 rays that should intersect the dragon's bounding box.
 
 Ray statistics confirm:
+
 - `secondaryRays 0/0` — no reflections/refractions traced
 - `shadowRays 1310720/1310720` — all shadow rays miss (only the background Plane is hit)
 - The dragon mesh (100400 faces, 50184 vertices) loads and builds its internal KD-tree
@@ -32,6 +33,7 @@ The bug is resolution-sensitive: at 512×271 (16:9) the gaps are clearly visible
 ## Root cause (confirmed)
 
 The bug is in `NaiveKDTreeTraverser::findNearestIntersection` at the root AABB check:
+
 ```cpp
 if (!overlaps(rayCast, root.rootBounding)) {
     return rayCast.maxDistance;  // ← falsely rejects valid rays
@@ -69,22 +71,20 @@ root AABB is large enough that most rays pass the root check regardless of NaN
 artifacts. With 1 object (DragonScene), the root AABB is tight and the NaN-induced
 false rejections become visible.
 
-## Suggested fix
+## Attempted fixes (2026-05-26, did not resolve)
 
-Zero the W component of the AABB before the slab test in
-`computeBoxIntersectionCoefficients`:
-```cpp
-const auto safeMin = zeroW(box.minimum);
-const auto safeMax = zeroW(box.maximum);
-const auto pMin = (safeMin - ray.origin) * ray.reciprocalDirection;
-const auto pMax = (safeMax - ray.origin) * ray.reciprocalDirection;
-```
+1. **`transform()` W=0**: Changed `One<Float4>()` to `Zero<Float4>()` in the translation
+   extraction swizzle so the AABB carries W=0 after transform. Dragon still invisible.
+2. **`computeBoxIntersectionCoefficients` zeroW**: Zeroed W on all inputs (box min/max,
+   ray origin, reciprocal direction) in both the single-box and dual-box overloads.
+   Dragon still invisible.
 
-Or fix the source: ensure `AxisAlignedBoundingBox::transform()` sets W to 0 in both
-minimum and maximum.
-
-Either fix should be validated with the DragonScene test case and with existing
-vectorization/raytracing test suites.
+Both fixes targeted the W-component NaN hypothesis. Since neither resolved the symptom,
+the root cause described above is either incomplete or incorrect. **Further investigation
+is needed** — start by instrumenting the actual overlap/intersection calls for the
+DragonScene root AABB to confirm whether the slab test is truly the rejection site, or
+whether the issue is elsewhere (e.g. KD-tree construction, scene graph building, mesh
+bounding box computation, or the brute-force bypass test being stale).
 
 ## Affected files
 

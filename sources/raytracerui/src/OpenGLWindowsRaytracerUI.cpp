@@ -31,7 +31,7 @@ static const auto Log = logging::scope("UI");
 
 namespace raytracerui
 {
-    std::unique_ptr<const KDTreeBalancer> createBalancer(int index, int threshold)
+    std::unique_ptr<const KDTreeBalancer> createBalancer(const int index, const int threshold)
     {
         switch (index)
         {
@@ -46,22 +46,23 @@ namespace raytracerui
     }
 
     const Float4_32 QUAD_VERTICES[] = {
-        Float4_32(0.f, 0.f, 0.f, 1.f), Float4_32(0.f, 1.f, 0.f, 1.f), Float4_32(1.f, 1.f, 0.f, 1.f),
+        Float4_32(0.f, 0.f, 0.f, 1.f),
+        Float4_32(0.f, 1.f, 0.f, 1.f),
+        Float4_32(1.f, 1.f, 0.f, 1.f),
         Float4_32(1.f, 0.f, 0.f, 1.f)
     };
 
     const Float4_32 QUAD_TEX_COORDS[] = {Float4_32(1.f, 1.f, 1.f, 0.f), Float4_32(0.f, 0.f, 0.f, 1.f)};
 
     OpenGLWindowsRaytracerUI::OpenGLWindowsRaytracerUI(
-        Raytracer& raytracerIn, const RaytraceParameters& parametersIn, const Size2& fastPreviewSizeIn,
-        Scene& sceneIn, Resources& resourcesIn
-    )
-        : WindowsRaytracerUI(raytracerIn, parametersIn, fastPreviewSizeIn), hDC(), hGLRC(), outputSurface(),
-          scene(&sceneIn), resources(&resourcesIn)
+        Raytracer& raytracer, const RaytraceParameters& parameters, const Size2& fastPreviewSize, Scene& scene,
+        Resources& resources)
+        : WindowsRaytracerUI(raytracer, parameters, fastPreviewSize), hDC(), hGLRC(), outputSurface(), scene(&scene),
+          resources(&resources)
     {
         // set the pixel format for the device context
         hDC = GetDC(hWnd);
-        PIXELFORMATDESCRIPTOR pfd{
+        constexpr PIXELFORMATDESCRIPTOR pfd{
             sizeof(PIXELFORMATDESCRIPTOR),
             1,
             PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER,
@@ -189,13 +190,14 @@ namespace raytracerui
         repaint();
     }
 
-    LRESULT OpenGLWindowsRaytracerUI::forwardInputMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+    LRESULT OpenGLWindowsRaytracerUI::forwardInputMessage(
+        HWND hwnd, const UINT msg, const WPARAM wParam, const LPARAM lParam)
     {
         ImGui_ImplWin32_WndProcHandler(hwnd, msg, wParam, lParam);
 
         // Repaint after input when ImGui panels are visible so hover/focus state stays fresh.
         const auto& io = ImGui::GetIO();
-        const bool hasVisiblePanels = showControls || showMetrics || showConfig || showLog;
+        const auto hasVisiblePanels = showControls || showMetrics || showConfig || showLog;
         switch (msg)
         {
         case WM_LBUTTONDOWN:
@@ -282,8 +284,7 @@ namespace raytracerui
                             static_cast<size_t>(x(parameters.resolution)),
                             static_cast<size_t>(y(parameters.resolution)));
 
-                const auto totalTicks = static_cast<double>(s.intersectionTicks + s.shadingTicks);
-                if (totalTicks > 0.0)
+                if (const auto totalTicks = static_cast<double>(s.intersectionTicks + s.shadingTicks); totalTicks > 0.0)
                 {
                     ImGui::Text("Intersection: %.1f%%  Shading: %.1f%%",
                                 100.0 * static_cast<double>(s.intersectionTicks) / totalTicks,
@@ -293,7 +294,7 @@ namespace raytracerui
                 // Ray Statistics
                 ImGui::SeparatorText("Ray Statistics");
 
-                auto rayLine = [](const char* label, ASizeT total, ASizeT missed)
+                const auto rayLine = [](const char* label, const ASizeT total, const ASizeT missed)
                 {
                     if (total > Zero<ASizeT>())
                     {
@@ -311,8 +312,7 @@ namespace raytracerui
                 rayLine("Shadow:", s.shadowRays, s.missedShadowRays);
                 rayLine("Obj Shadow:", s.objectShadowRays, s.objectMissedShadowRays);
 
-                const auto primaryHits = s.primaryRays - s.missedPrimaryRays;
-                if (primaryHits > Zero<ASizeT>())
+                if (const auto primaryHits = s.primaryRays - s.missedPrimaryRays; primaryHits > Zero<ASizeT>())
                 {
                     ImGui::Text("Avg bounces/hit: %.2f",
                                 static_cast<double>(s.secondaryRays) / static_cast<double>(primaryHits));
@@ -351,7 +351,9 @@ namespace raytracerui
                         for (const auto& obj : scene->getSceneObjects())
                         {
                             if (const auto* form = obj->getForm())
+                            {
                                 totalFaces += form->getFaceCount();
+                            }
                         }
                         ImGui::Text("Faces:   %zu", static_cast<size_t>(totalFaces));
 
@@ -380,7 +382,7 @@ namespace raytracerui
             {
                 bool changed = false;
 
-                auto samplingFactor = static_cast<float>(parameters.samplingFactor);
+                auto samplingFactor = parameters.samplingFactor;
                 if (ImGui::SliderFloat("Sampling Factor", &samplingFactor, 0.125f, 4.0f, "%.3f"))
                 {
                     parameters.samplingFactor = samplingFactor;
@@ -463,10 +465,9 @@ namespace raytracerui
                     sceneBalancerChanged |= ImGui::SliderInt("Scene SAH threshold", &sceneBalancerThreshold, 1, 100);
                 if (sceneBalancerChanged && scene)
                 {
-                    auto balancer = std::make_shared<std::unique_ptr<const KDTreeBalancer>>(
+                    const auto balancer = std::make_shared<std::unique_ptr<const KDTreeBalancer>>(
                         createBalancer(balancerIndex, sceneBalancerThreshold));
-                    auto* s = scene;
-                    raytracer->enqueueWork([s, balancer]
+                    raytracer->enqueueWork([s = scene, balancer]
                     {
                         s->setTreeBalancer(std::move(*balancer));
                     });
@@ -501,7 +502,7 @@ namespace raytracerui
                     changed = true;
                 }
 
-                auto fov = static_cast<float>(parameters.perspectiveFOV);
+                auto fov = parameters.perspectiveFOV;
                 if (ImGui::SliderFloat("Field of View", &fov, 10.0f, 120.0f, "%.0f deg"))
                 {
                     parameters.perspectiveFOV = fov;
@@ -576,11 +577,11 @@ namespace raytracerui
 
                 ImGui::BeginChild("LogScroll", ImVec2(0, 0), false, ImGuiWindowFlags_HorizontalScrollbar);
 
-                const auto lines = logging::Logger::instance().displayBuffer().snapshot();
-                for (const auto& line : lines)
+                for (const auto lines = logging::Logger::instance().displayBuffer().snapshot();
+                     const auto& [level, text] : lines)
                 {
                     ImVec4 color;
-                    switch (line.level)
+                    switch (level)
                     {
                     case logging::LogLevel::Error: color = ImVec4(1.0f, 0.3f, 0.3f, 1.0f);
                         break;
@@ -590,12 +591,14 @@ namespace raytracerui
                         break;
                     }
                     ImGui::PushStyleColor(ImGuiCol_Text, color);
-                    ImGui::TextUnformatted(line.text.c_str());
+                    ImGui::TextUnformatted(text.c_str());
                     ImGui::PopStyleColor();
                 }
 
                 if (ImGui::GetScrollY() >= ImGui::GetScrollMaxY())
+                {
                     ImGui::SetScrollHereY(1.0f);
+                }
 
                 ImGui::EndChild();
             }

@@ -21,7 +21,7 @@ namespace raytracer
 {
     Raytracer::Raytracer()
         : runId(0), running(), current(), mutex(), workAvailable(),
-          workerThread([this](std::stop_token stopToken) { workerLoop(stopToken); })
+          workerThread([this](const std::stop_token& stopToken) { workerLoop(stopToken); })
     {
     }
 
@@ -57,7 +57,7 @@ namespace raytracer
         // Kept for interface compatibility.
     }
 
-    void Raytracer::workerLoop(std::stop_token stopToken)
+    void Raytracer::workerLoop(const std::stop_token& stopToken)
     {
         while (!stopToken.stop_requested())
         {
@@ -103,12 +103,7 @@ namespace raytracer
             const auto timeDuration = static_cast<Int_64>(stop.QuadPart - start.QuadPart);
             const auto timeFrequency = static_cast<Int_64>(frequency.QuadPart);
             running.durationSeconds = convert<Float_64>(timeDuration) / convert<Float_64>(timeFrequency);
-            Log.info([d = running.durationSeconds]
-            {
-                std::ostringstream oss;
-                oss << "Duration: " << d << "s";
-                return oss.str();
-            });
+            Log.info([d = running.durationSeconds] { return "Duration: " + std::to_string(d) + "s"; });
 
             running.observer->notifyUpdate(running);
         }
@@ -120,12 +115,10 @@ namespace raytracer
         assert(parameters.camera);
         assert(parameters.sceneShader);
 
-        const auto newRunId = ++runId;
-
-        const auto samplingResolution =
-            max(One<Size2>(), convert<Size2>(convert<Float4>(parameters.resolution) * parameters.samplingFactor));
-
         {
+            const auto newRunId = ++runId;
+            const auto samplingResolution =
+                max(One<Size2>(), convert<Size2>(convert<Float4>(parameters.resolution) * parameters.samplingFactor));
             std::lock_guard lock(mutex);
 
             // build raytrace configuration
@@ -177,12 +170,12 @@ namespace raytracer
         const int packetIndex, const RaytracerPackets& packets, const RaytraceConfiguration& configuration
     )
     {
-        auto nearPlanePixel = packets.packetStartOf(packetIndex);
-        auto minPacketLength = packets.clampPacketLength(configuration.resolution, nearPlanePixel);
+        const auto nearPlanePixel = packets.packetStartOf(packetIndex);
+        const auto minPacketLength = packets.clampPacketLength(configuration.resolution, nearPlanePixel);
 
         // iterate over camera-pixels cp in packet
-        auto pixelsCount = RaytracerPackets::packetPixelsCount(minPacketLength);
-        auto subSamplesCount = packets.pixelSubSamplesCount();
+        const auto pixelsCount = RaytracerPackets::packetPixelsCount(minPacketLength);
+        const auto subSamplesCount = packets.pixelSubSamplesCount();
 
         auto list = PackedRaytrace::ListType();
         list.reserve(pixelsCount * subSamplesCount);
@@ -190,23 +183,23 @@ namespace raytracer
         for (auto cp = Zero<Size2::ValueType>(); cp < pixelsCount; cp++)
         {
             // address camera-point cp to output pixel
-            auto cpXY = RaytracerPackets::coordsOfPixel(cp, nearPlanePixel, minPacketLength);
-            auto cpXYf = convert<Float4>(cpXY);
-            auto nearTL = packets.pixelNearTopLeft(cpXYf);
-            auto farTL = packets.pixelFarTopLeft(cpXYf);
-            auto imageIndex = RaytracerPackets::imageIndexOfPixel(cpXY, configuration.image->getResolution());
-            auto outputPixel = &configuration.image->getData()[imageIndex];
+            const auto cpXY = RaytracerPackets::coordsOfPixel(cp, nearPlanePixel, minPacketLength);
+            const auto cpXYf = convert<Float4>(cpXY);
+            const auto nearTL = packets.pixelNearTopLeft(cpXYf);
+            const auto farTL = packets.pixelFarTopLeft(cpXYf);
+            const auto imageIndex = RaytracerPackets::imageIndexOfPixel(cpXY, configuration.image->getResolution());
+            const auto outputPixel = &configuration.image->getData()[imageIndex];
 
             // generate super sampling rays
             for (auto s = Zero<Size2::ValueType>(); s < subSamplesCount;)
             {
                 // interpolate the camera-point's top-left on the view-plane
-                auto newRay = packets.setupRayOfSampleInPixel(s++, nearTL, farTL);
-                auto newRayCast = RayCast(
+                const auto newRay = packets.setupRayOfSampleInPixel(s++, nearTL, farTL);
+                const auto newRayCast = RayCast(
                     newRay, cullingOrientationToMask(configuration.cullingOrientation), Zero<Size2>(),
                     configuration.maxDistance
                 );
-                auto newRaytrace = Raytrace(newRayCast, nullptr, Zero<ASizeT>(), One<Float>());
+                const auto newRaytrace = Raytrace(newRayCast, nullptr, Zero<ASizeT>(), One<Float>());
                 list.emplace_back(newRaytrace, outputPixel);
             }
         }
@@ -221,7 +214,7 @@ namespace raytracer
      */
     void Raytracer::trace()
     {
-        auto packets = RaytracerPackets(running);
+        const auto packets = RaytracerPackets(running);
 
 #pragma omp parallel
         {
@@ -233,26 +226,26 @@ namespace raytracer
 #pragma omp for schedule(static, 1) nowait
             for (int p = Zero<int>(); p < packets.getPacketCount(); ++p)
             {
-                auto packedRaytraces = constructPackedRaytracesList(p, packets, cache.configuration);
+                const auto packedRaytraces = constructPackedRaytracesList(p, packets, cache.configuration);
                 cache.statistics.primaryRays += packedRaytraces.size();
 
                 for (const auto& packedRaytrace : packedRaytraces)
                 {
                     // Timing for each pixel: Read start-time
-                    auto start = perPixelTiming();
+                    const auto start = perPixelTiming();
 
-                    auto hit = trace(packedRaytrace.raytrace, cache);
+                    const auto hit = trace(packedRaytrace.raytrace, cache);
                     cache.statistics.missedPrimaryRays +=
                         static_cast<ASizeT>(outOfReach(packedRaytrace.raytrace.rayCast, x(hit.depth)));
 
                     // Sample colour into output
                     packets.samplePixel(packedRaytrace.outputPixel, hit.color.value);
 
-                    auto imagePtrIndex = packedRaytrace.outputPixel - cache.configuration.image->getData();
+                    const auto imagePtrIndex = packedRaytrace.outputPixel - cache.configuration.image->getData();
 
                     // Fill depth information and store it in depthMap
-                    auto pixelDepthMask = x_yzw(Infinity<Float4>(), NegativeInfinity<Float4>());
-                    auto depth = packets.superSampledPixelDepth(
+                    const auto pixelDepthMask = x_yzw(Infinity<Float4>(), NegativeInfinity<Float4>());
+                    const auto depth = packets.superSampledPixelDepth(
                         RaytracerPackets::samplePixelDepth(pixelDepthMask, hit.depth));
                     store(depth, cache.configuration.depthMap->getData() + imagePtrIndex);
 
@@ -280,9 +273,9 @@ namespace raytracer
         Float4 cosPhi;
         if (enteringLessDense)
         {
-            auto etaItoT = xxxx(eta);
-            auto etaItoTMulNdotI = etaItoT * negNdotI;
-            auto cosSqrPhiT = One<v_f32_4>() - multiplySub(etaItoT, etaItoT, etaItoTMulNdotI * etaItoTMulNdotI);
+            const auto etaItoT = xxxx(eta);
+            const auto etaItoTMulNdotI = etaItoT * negNdotI;
+            const auto cosSqrPhiT = One<v_f32_4>() - multiplySub(etaItoT, etaItoT, etaItoTMulNdotI * etaItoTMulNdotI);
             assert(!isNegative(cosSqrPhiT));
             cosPhi = sqrt(cosSqrPhiT);
         }
@@ -293,12 +286,12 @@ namespace raytracer
 
         // Schlick approximation for polarized light refraction/reflection model:
         // R0 = ((eta_i - eta_t) / (eta_i + eta_t))²
-        auto refractions = addSubtract(zzzz(eta), wwww(eta));
-        auto sqrtR0 = xxxx(refractions) / yyyy(refractions);
-        auto R0 = sqrtR0 * sqrtR0;
-        auto oneSubCosPhi = One<Float4>() - cosPhi;
-        auto sqrOneSubCosPhi = oneSubCosPhi * oneSubCosPhi;
-        auto reflectance = multiplyAdd(One<Float4>() - R0, oneSubCosPhi * sqrOneSubCosPhi * sqrOneSubCosPhi, R0);
+        const auto refractions = addSubtract(zzzz(eta), wwww(eta));
+        const auto sqrtR0 = xxxx(refractions) / yyyy(refractions);
+        const auto R0 = sqrtR0 * sqrtR0;
+        const auto oneSubCosPhi = One<Float4>() - cosPhi;
+        const auto sqrOneSubCosPhi = oneSubCosPhi * oneSubCosPhi;
+        const auto reflectance = multiplyAdd(One<Float4>() - R0, oneSubCosPhi * sqrOneSubCosPhi * sqrOneSubCosPhi, R0);
         return reflectance;
     }
 
@@ -337,7 +330,7 @@ namespace raytracer
         const auto shadingStart = __rdtsc();
 
         assert(brdf.intersection.object);
-        auto& objectShader = *dynamic_cast<const ObjectShader*const>(brdf.intersection.object);
+        const auto& objectShader = *dynamic_cast<const ObjectShader*const>(brdf.intersection.object);
         brdf.surface = objectShader(*cache.configuration.sceneShader, brdf.intersection);
 
         brdf.lighting = cache.configuration.sceneShader->sampleLighting(
@@ -384,7 +377,7 @@ namespace raytracer
         }
 
         // check whether it would even make a difference in the image
-        auto reflectionVisibilityIndex =
+        const auto reflectionVisibilityIndex =
             incidentRaytrace.visibilityIndex * brdf.reflectanceCoefficient.value *
             max3v(brdf.surface.reflectance.value);
         if (x(reflectionVisibilityIndex) < cache.configuration.visibilityCutoff)
@@ -393,17 +386,17 @@ namespace raytracer
             return;
         }
 
-        auto reflectedRay = Ray(brdf.intersection.vertex, brdf.intersection.reflectedDirection);
-        auto reflectedRayCast = RayCast(
+        const auto reflectedRay = Ray(brdf.intersection.vertex, brdf.intersection.reflectedDirection);
+        const auto reflectedRayCast = RayCast(
             reflectedRay, incidentRaytrace.rayCast.cullingMask,
             Size2(reinterpret_cast<ASizeT>(brdf.intersection.object), reinterpret_cast<ASizeT>(brdf.intersection.node)),
             maxDistance
         );
-        auto reflectedRaytrace = Raytrace(
+        const auto reflectedRaytrace = Raytrace(
             reflectedRayCast, &brdf.intersection, incidentRaytrace.traceDepth + One<ASizeT>(),
             x(reflectionVisibilityIndex)
         );
-        auto reflectedHit = trace(reflectedRaytrace, cache);
+        const auto reflectedHit = trace(reflectedRaytrace, cache);
 
         brdf.lighting.reflected = reflectedHit.color;
 
@@ -433,15 +426,15 @@ namespace raytracer
         else
         {
             // least possible transmitted fraction of material
-            auto minDepth = Float4(std::numeric_limits<Float4::ValueType>::min());
-            auto maxTransmittance = max3v(brdf.surface.transmittance);
+            const auto minDepth = Float4(std::numeric_limits<Float4::ValueType>::min());
+            const auto maxTransmittance = max3v(brdf.surface.transmittance);
             fractionTransmitted = vectorization::exp(-minDepth / maxTransmittance);
         }
         brdf.fractionTransmitted = fractionTransmitted;
 
         // check whether it would even make a difference in the image,
         // or whether it is a total internal reflection (transmissionDirection = 0)
-        auto transmissionVisibilityIndex =
+        const auto transmissionVisibilityIndex =
             Float4(incidentRaytrace.visibilityIndex) * fractionTransmitted * (One<Float4>() - brdf.
                 reflectanceCoefficient.value);
         if (x(transmissionVisibilityIndex) < cache.configuration.visibilityCutoff)
@@ -450,18 +443,18 @@ namespace raytracer
             return;
         }
 
-        auto refractedRay = Ray(brdf.intersection.vertex, transmittedDirection);
-        auto refractedRayCast = RayCast(
+        const auto refractedRay = Ray(brdf.intersection.vertex, transmittedDirection);
+        const auto refractedRayCast = RayCast(
             refractedRay, cullingOrientationToMask(-cullingOrientation(incidentRaytrace.rayCast)),
             Size2(reinterpret_cast<ASizeT>(brdf.intersection.object), reinterpret_cast<ASizeT>(brdf.intersection.node)),
             maxDistance
         );
-        auto refractedRaytrace = Raytrace(
+        const auto refractedRaytrace = Raytrace(
             refractedRayCast, &brdf.intersection, incidentRaytrace.traceDepth + One<ASizeT>(),
             x(transmissionVisibilityIndex)
         );
 
-        auto refractedHit = trace(refractedRaytrace, cache);
+        const auto refractedHit = trace(refractedRaytrace, cache);
         brdf.lighting.transmitted = refractedHit.color;
         // now that we have the transmission distance through the material, recompute the fractionTransmitted coefficient
         if (!leavingMaterial)

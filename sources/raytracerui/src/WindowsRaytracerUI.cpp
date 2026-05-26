@@ -380,14 +380,13 @@ namespace raytracerui
     }
 
     LRESULT CALLBACK
-    WindowsRaytracerUI::DelegatingWndProc(const HWND hWnd, const UINT msg, const WPARAM wParam, const LPARAM lParam)
+    WindowsRaytracerUI::DelegatingWndProc(const HWND hwnd, const UINT msg, const WPARAM wparam, const LPARAM lparam)
     {
-        const auto targetedUIIterator = createUIs.find(hWnd);
-        if (targetedUIIterator != createUIs.end())
+        if (const auto targetedUIIterator = createUIs.find(hwnd); targetedUIIterator != createUIs.end())
         {
-            return targetedUIIterator->second->WndProc(msg, wParam, lParam);
+            return targetedUIIterator->second->WndProc(msg, wparam, lparam);
         }
-        return DefWindowProc(hWnd, msg, wParam, lParam);
+        return DefWindowProc(hwnd, msg, wparam, lparam);
     }
 
     Int2 WindowsRaytracerUI::getXY(const LPARAM lParam)

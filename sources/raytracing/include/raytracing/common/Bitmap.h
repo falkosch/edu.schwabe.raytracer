@@ -17,7 +17,7 @@ namespace raytracer
   public:
     typedef struct _BitmapVectorType
     {
-      static const ASizeT SIZE = VectorSizes::Z;
+      static constexpr ASizeT SIZE = VectorSizes::Z;
       typedef UInt_8 ValueType;
       typedef UInt_8 BoolType;
     } VectorType;
@@ -45,21 +45,21 @@ namespace raytracer
       init();
       const auto BMIN = Int4(convert<Int4::ValueType>(BitmapValueLimits::lowest()));
       const auto BMAX = Int4(convert<Int4::ValueType>(BitmapValueLimits::max()));
-      const ImageVectorType VMIN = convert<ImageVectorType>(BMIN);
-      const ImageVectorType VMAX = convert<ImageVectorType>(BMAX);
-      const int heighti = convert<int>(y(resolution));
+      const auto VMIN = convert<ImageVectorType>(BMIN);
+      const auto VMAX = convert<ImageVectorType>(BMAX);
+      const auto heighti = convert<int>(y(resolution));
 
 #pragma omp parallel for
-      for (int yi = Zero<int>(); yi < heighti; ++yi)
+      for (auto yi = Zero<int>(); yi < heighti; ++yi)
       {
-        const ASizeT sy = convert<ASizeT>(yi);
-        const ASizeT rx = x(resolution);
-        const ASizeT scanlineIn = sy * rx;
-        const ASizeT scanlineOut = sy * stride;
+        const auto sy = convert<ASizeT>(yi);
+        const auto rx = x(resolution);
+        const auto scanlineIn = sy * rx;
+        const auto scanlineOut = sy * stride;
 
-        for (ASizeT sx = Zero<ASizeT>(); sx < rx; ++sx)
+        for (auto sx = Zero<ASizeT>(); sx < rx; ++sx)
         {
-          const Int4 scaled = clamp(convert<Int4>(image[scanlineIn + sx] * VMAX + VMIN), BMIN, BMAX);
+          const auto scaled = clamp(convert<Int4>(image[scanlineIn + sx] * VMAX + VMIN), BMIN, BMAX);
           BitmapValueType* dataOut = &data[scanlineOut + sx * VectorType::SIZE];
           // need to swap r,g,b to b,g,r
           *(dataOut++) = convert<BitmapValueType>(z(scaled)); // blue
@@ -69,19 +69,19 @@ namespace raytracer
       }
     }
 
-    virtual ~Bitmap();
+    ~Bitmap();
 
-    VectorType::ValueType& operator[](const ASizeT index);
+    VectorType::ValueType& operator[](ASizeT index);
 
-    const VectorType::ValueType& operator[](const ASizeT index) const;
+    const VectorType::ValueType& operator[](ASizeT index) const;
 
-    const Size2 getResolution() const;
+    Size2 getResolution() const;
 
     ASizeT getStride() const;
 
-    const BITMAPINFO getBITMAPINFO() const;
+    BITMAPINFO getBITMAPINFO() const;
 
-    const BITMAP getBITMAP() const;
+    BITMAP getBITMAP() const;
 
     bool saveAsBMP(const std::string& filename) const;
 

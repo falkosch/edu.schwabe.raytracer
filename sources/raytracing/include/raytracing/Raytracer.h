@@ -46,7 +46,7 @@ namespace raytracer {
 
     std::jthread workerThread;
 
-    void workerLoop(std::stop_token stopToken);
+    void workerLoop(const std::stop_token& stopToken);
 
     void trace();
 

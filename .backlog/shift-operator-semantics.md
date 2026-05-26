@@ -25,24 +25,24 @@ Both semantics should hold across all C++ wrapper types equally.
 
 ### Affected types
 
-| Type      | Current `<<`/`>>` signature          | Current intrinsic         | Correct? |
-|-----------|--------------------------------------|---------------------------|----------|
-| v_f32_4   | `(v_f32_4, v_i32_4)`                 | `_mm_sll_epi32`           | NO (I2)  |
-| v_i32_4   | `(v_i32_4, v_i32_4)`                 | (check)                   | NO (I2)  |
-| v_ui32_4  | `(v_ui32_4, v_ui32_4)`               | (check)                   | NO (I2)  |
-| v_i32_8   | `(v_i32_8, v_i32_8)`                 | `_mm256_sllv_epi32`/loop  | YES      |
-| v_ui32_8  | `(v_ui32_8, v_ui32_8)`               | `_mm256_srlv_epi32`/loop  | YES      |
-| v_f32_8   | `(v_f32_8, v_i32_8)`                 | `_mm256_sllv_epi32`/loop  | YES      |
-| v_i64_4   | no shift operators                   | —                         | MISSING  |
-| v_f64_2   | no shift operators                   | —                         | N/A      |
-| v_f64_4   | `(v_f64_4, v_i64_4)`                 | `_mm256_sllv_epi64`/loop  | YES      |
+| Type     | Current `<<`/`>>` signature | Current intrinsic        | Correct? |
+|----------|-----------------------------|--------------------------|----------|
+| v_f32_4  | `(v_f32_4, v_i32_4)`        | `_mm_sll_epi32`          | NO (I2)  |
+| v_i32_4  | `(v_i32_4, v_i32_4)`        | (check)                  | NO (I2)  |
+| v_ui32_4 | `(v_ui32_4, v_ui32_4)`      | (check)                  | NO (I2)  |
+| v_i32_8  | `(v_i32_8, v_i32_8)`        | `_mm256_sllv_epi32`/loop | YES      |
+| v_ui32_8 | `(v_ui32_8, v_ui32_8)`      | `_mm256_srlv_epi32`/loop | YES      |
+| v_f32_8  | `(v_f32_8, v_i32_8)`        | `_mm256_sllv_epi32`/loop | YES      |
+| v_i64_4  | no shift operators          | —                        | MISSING  |
+| v_f64_2  | no shift operators          | —                        | N/A      |
+| v_f64_4  | `(v_f64_4, v_i64_4)`        | `_mm256_sllv_epi64`/loop | YES      |
 
 ### Required changes
 
 1. Add scalar-operand overloads (`v << int`) to all types for I1 semantics (broadcast + uniform shift)
 2. Fix 128-bit types' vector overloads to implement true per-lane shift (I2):
-   - SSE4 has no per-lane variable shift — requires scalar loop or SSE4.1 `_mm_insert_epi32` tricks
-   - Or accept scalar loop for 128-bit per-lane shift (matches v_i32_8's non-AVX2 pattern)
+    - SSE4 has no per-lane variable shift — requires scalar loop or SSE4.1 `_mm_insert_epi32` tricks
+    - Or accept scalar loop for 128-bit per-lane shift (matches v_i32_8's non-AVX2 pattern)
 3. Ensure right-shift (`>>`) follows same semantics (arithmetic for signed, logical for unsigned/float)
 
 ## Priority

@@ -12,44 +12,44 @@
 #include <string>
 #include <thread>
 
-namespace logging {
+namespace logging
+{
+    class Logger
+    {
+    public:
+        static Logger& instance();
 
-  class Logger {
-  public:
-    static Logger &instance();
+        void enqueue(LogEntry entry);
 
-    void enqueue(LogEntry entry);
+        void setLogFile(const std::string& path);
 
-    void setLogFile(const std::string &path);
+        void start();
 
-    void start();
+        void stop();
 
-    void stop();
+        DisplayBuffer& displayBuffer();
 
-    DisplayBuffer &displayBuffer();
+    private:
+        Logger();
+        ~Logger();
 
-  private:
-    Logger();
-    ~Logger();
+        Logger(const Logger&) = delete;
+        Logger& operator=(const Logger&) = delete;
 
-    Logger(const Logger &) = delete;
-    Logger &operator=(const Logger &) = delete;
+        std::chrono::steady_clock::time_point startTime_;
 
-    std::chrono::steady_clock::time_point startTime_;
+        std::queue<LogEntry> queue_;
+        mutable std::mutex mutex_;
+        std::condition_variable_any cv_;
 
-    std::queue<LogEntry> queue_;
-    mutable std::mutex mutex_;
-    std::condition_variable_any cv_;
+        std::jthread workerThread_;
+        std::atomic<bool> started_{false};
 
-    std::jthread workerThread_;
-    std::atomic<bool> started_{false};
+        std::ofstream logFile_;
+        DisplayBuffer displayBuffer_;
 
-    std::ofstream logFile_;
-    DisplayBuffer displayBuffer_;
-
-    void workerLoop(std::stop_token stopToken);
-    void processEntry(LogEntry &entry);
-    std::string formatEntry(LogEntry &entry);
-  };
-
+        void workerLoop(const std::stop_token& stopToken);
+        void processEntry(const LogEntry& entry);
+        std::string formatEntry(const LogEntry& entry) const;
+    };
 }

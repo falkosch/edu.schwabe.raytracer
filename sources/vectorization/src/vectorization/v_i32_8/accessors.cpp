@@ -7,9 +7,11 @@
 #include "vectorization/accessors/replace_component_256i.h"
 #endif
 
-namespace vectorization {
+namespace vectorization
+{
   template <>
-  v_i32_8::ValueType component<VectorIndices::X1>(const v_i32_8 &v) noexcept {
+  v_i32_8::ValueType component<VectorIndices::X1>(const v_i32_8& v) noexcept
+  {
 #if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
     return component<VectorIndices::X1>(v.components);
 #else
@@ -18,7 +20,8 @@ namespace vectorization {
   }
 
   template <>
-  v_i32_8::ValueType component<VectorIndices::X2>(const v_i32_8 &v) noexcept {
+  v_i32_8::ValueType component<VectorIndices::X2>(const v_i32_8& v) noexcept
+  {
 #if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
     return component<VectorIndices::X2>(v.components);
 #else
@@ -27,7 +30,8 @@ namespace vectorization {
   }
 
   template <>
-  v_i32_8::ValueType component<VectorIndices::X3>(const v_i32_8 &v) noexcept {
+  v_i32_8::ValueType component<VectorIndices::X3>(const v_i32_8& v) noexcept
+  {
 #if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
     return component<VectorIndices::X3>(v.components);
 #else
@@ -36,7 +40,8 @@ namespace vectorization {
   }
 
   template <>
-  v_i32_8::ValueType component<VectorIndices::X4>(const v_i32_8 &v) noexcept {
+  v_i32_8::ValueType component<VectorIndices::X4>(const v_i32_8& v) noexcept
+  {
 #if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
     return component<VectorIndices::X4>(v.components);
 #else
@@ -45,7 +50,8 @@ namespace vectorization {
   }
 
   template <>
-  v_i32_8::ValueType component<VectorIndices::X5>(const v_i32_8 &v) noexcept {
+  v_i32_8::ValueType component<VectorIndices::X5>(const v_i32_8& v) noexcept
+  {
 #if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
     return component<VectorIndices::X5>(v.components);
 #else
@@ -54,7 +60,8 @@ namespace vectorization {
   }
 
   template <>
-  v_i32_8::ValueType component<VectorIndices::X6>(const v_i32_8 &v) noexcept {
+  v_i32_8::ValueType component<VectorIndices::X6>(const v_i32_8& v) noexcept
+  {
 #if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
     return component<VectorIndices::X6>(v.components);
 #else
@@ -63,7 +70,8 @@ namespace vectorization {
   }
 
   template <>
-  v_i32_8::ValueType component<VectorIndices::X7>(const v_i32_8 &v) noexcept {
+  v_i32_8::ValueType component<VectorIndices::X7>(const v_i32_8& v) noexcept
+  {
 #if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
     return component<VectorIndices::X7>(v.components);
 #else
@@ -72,7 +80,8 @@ namespace vectorization {
   }
 
   template <>
-  v_i32_8::ValueType component<VectorIndices::X8>(const v_i32_8 &v) noexcept {
+  v_i32_8::ValueType component<VectorIndices::X8>(const v_i32_8& v) noexcept
+  {
 #if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
     return component<VectorIndices::X8>(v.components);
 #else
@@ -80,17 +89,18 @@ namespace vectorization {
 #endif
   }
 
-  v_i32_8::ValueType x1(const v_i32_8 &v) noexcept { return component<VectorIndices::X1>(v); }
-  v_i32_8::ValueType x2(const v_i32_8 &v) noexcept { return component<VectorIndices::X2>(v); }
-  v_i32_8::ValueType x3(const v_i32_8 &v) noexcept { return component<VectorIndices::X3>(v); }
-  v_i32_8::ValueType x4(const v_i32_8 &v) noexcept { return component<VectorIndices::X4>(v); }
-  v_i32_8::ValueType x5(const v_i32_8 &v) noexcept { return component<VectorIndices::X5>(v); }
-  v_i32_8::ValueType x6(const v_i32_8 &v) noexcept { return component<VectorIndices::X6>(v); }
-  v_i32_8::ValueType x7(const v_i32_8 &v) noexcept { return component<VectorIndices::X7>(v); }
-  v_i32_8::ValueType x8(const v_i32_8 &v) noexcept { return component<VectorIndices::X8>(v); }
+  v_i32_8::ValueType x1(const v_i32_8& v) noexcept { return component<VectorIndices::X1>(v); }
+  v_i32_8::ValueType x2(const v_i32_8& v) noexcept { return component<VectorIndices::X2>(v); }
+  v_i32_8::ValueType x3(const v_i32_8& v) noexcept { return component<VectorIndices::X3>(v); }
+  v_i32_8::ValueType x4(const v_i32_8& v) noexcept { return component<VectorIndices::X4>(v); }
+  v_i32_8::ValueType x5(const v_i32_8& v) noexcept { return component<VectorIndices::X5>(v); }
+  v_i32_8::ValueType x6(const v_i32_8& v) noexcept { return component<VectorIndices::X6>(v); }
+  v_i32_8::ValueType x7(const v_i32_8& v) noexcept { return component<VectorIndices::X7>(v); }
+  v_i32_8::ValueType x8(const v_i32_8& v) noexcept { return component<VectorIndices::X8>(v); }
 
   template <>
-  v_i32_8 replaceComponent<VectorIndices::X1>(const v_i32_8 &v, const v_i32_8::ValueType s) noexcept {
+  v_i32_8 replaceComponent<VectorIndices::X1>(const v_i32_8& v, const v_i32_8::ValueType s) noexcept
+  {
 #if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
     return replaceComponent<VectorIndices::X1>(v.components, s);
 #else
@@ -99,7 +109,8 @@ namespace vectorization {
   }
 
   template <>
-  v_i32_8 replaceComponent<VectorIndices::X2>(const v_i32_8 &v, const v_i32_8::ValueType s) noexcept {
+  v_i32_8 replaceComponent<VectorIndices::X2>(const v_i32_8& v, const v_i32_8::ValueType s) noexcept
+  {
 #if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
     return replaceComponent<VectorIndices::X2>(v.components, s);
 #else
@@ -108,7 +119,8 @@ namespace vectorization {
   }
 
   template <>
-  v_i32_8 replaceComponent<VectorIndices::X3>(const v_i32_8 &v, const v_i32_8::ValueType s) noexcept {
+  v_i32_8 replaceComponent<VectorIndices::X3>(const v_i32_8& v, const v_i32_8::ValueType s) noexcept
+  {
 #if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
     return replaceComponent<VectorIndices::X3>(v.components, s);
 #else
@@ -117,7 +129,8 @@ namespace vectorization {
   }
 
   template <>
-  v_i32_8 replaceComponent<VectorIndices::X4>(const v_i32_8 &v, const v_i32_8::ValueType s) noexcept {
+  v_i32_8 replaceComponent<VectorIndices::X4>(const v_i32_8& v, const v_i32_8::ValueType s) noexcept
+  {
 #if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
     return replaceComponent<VectorIndices::X4>(v.components, s);
 #else
@@ -126,7 +139,8 @@ namespace vectorization {
   }
 
   template <>
-  v_i32_8 replaceComponent<VectorIndices::X5>(const v_i32_8 &v, const v_i32_8::ValueType s) noexcept {
+  v_i32_8 replaceComponent<VectorIndices::X5>(const v_i32_8& v, const v_i32_8::ValueType s) noexcept
+  {
 #if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
     return replaceComponent<VectorIndices::X5>(v.components, s);
 #else
@@ -135,7 +149,8 @@ namespace vectorization {
   }
 
   template <>
-  v_i32_8 replaceComponent<VectorIndices::X6>(const v_i32_8 &v, const v_i32_8::ValueType s) noexcept {
+  v_i32_8 replaceComponent<VectorIndices::X6>(const v_i32_8& v, const v_i32_8::ValueType s) noexcept
+  {
 #if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
     return replaceComponent<VectorIndices::X6>(v.components, s);
 #else
@@ -144,7 +159,8 @@ namespace vectorization {
   }
 
   template <>
-  v_i32_8 replaceComponent<VectorIndices::X7>(const v_i32_8 &v, const v_i32_8::ValueType s) noexcept {
+  v_i32_8 replaceComponent<VectorIndices::X7>(const v_i32_8& v, const v_i32_8::ValueType s) noexcept
+  {
 #if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
     return replaceComponent<VectorIndices::X7>(v.components, s);
 #else
@@ -153,7 +169,8 @@ namespace vectorization {
   }
 
   template <>
-  v_i32_8 replaceComponent<VectorIndices::X8>(const v_i32_8 &v, const v_i32_8::ValueType s) noexcept {
+  v_i32_8 replaceComponent<VectorIndices::X8>(const v_i32_8& v, const v_i32_8::ValueType s) noexcept
+  {
 #if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
     return replaceComponent<VectorIndices::X8>(v.components, s);
 #else
@@ -161,12 +178,43 @@ namespace vectorization {
 #endif
   }
 
-  v_i32_8 replaceX1(const v_i32_8 &v, v_i32_8::ValueType s) noexcept { return replaceComponent<VectorIndices::X1>(v, s); }
-  v_i32_8 replaceX2(const v_i32_8 &v, v_i32_8::ValueType s) noexcept { return replaceComponent<VectorIndices::X2>(v, s); }
-  v_i32_8 replaceX3(const v_i32_8 &v, v_i32_8::ValueType s) noexcept { return replaceComponent<VectorIndices::X3>(v, s); }
-  v_i32_8 replaceX4(const v_i32_8 &v, v_i32_8::ValueType s) noexcept { return replaceComponent<VectorIndices::X4>(v, s); }
-  v_i32_8 replaceX5(const v_i32_8 &v, v_i32_8::ValueType s) noexcept { return replaceComponent<VectorIndices::X5>(v, s); }
-  v_i32_8 replaceX6(const v_i32_8 &v, v_i32_8::ValueType s) noexcept { return replaceComponent<VectorIndices::X6>(v, s); }
-  v_i32_8 replaceX7(const v_i32_8 &v, v_i32_8::ValueType s) noexcept { return replaceComponent<VectorIndices::X7>(v, s); }
-  v_i32_8 replaceX8(const v_i32_8 &v, v_i32_8::ValueType s) noexcept { return replaceComponent<VectorIndices::X8>(v, s); }
+  v_i32_8 replaceX1(const v_i32_8& v, const v_i32_8::ValueType s) noexcept
+  {
+    return replaceComponent<VectorIndices::X1>(v, s);
+  }
+
+  v_i32_8 replaceX2(const v_i32_8& v, const v_i32_8::ValueType s) noexcept
+  {
+    return replaceComponent<VectorIndices::X2>(v, s);
+  }
+
+  v_i32_8 replaceX3(const v_i32_8& v, const v_i32_8::ValueType s) noexcept
+  {
+    return replaceComponent<VectorIndices::X3>(v, s);
+  }
+
+  v_i32_8 replaceX4(const v_i32_8& v, const v_i32_8::ValueType s) noexcept
+  {
+    return replaceComponent<VectorIndices::X4>(v, s);
+  }
+
+  v_i32_8 replaceX5(const v_i32_8& v, const v_i32_8::ValueType s) noexcept
+  {
+    return replaceComponent<VectorIndices::X5>(v, s);
+  }
+
+  v_i32_8 replaceX6(const v_i32_8& v, const v_i32_8::ValueType s) noexcept
+  {
+    return replaceComponent<VectorIndices::X6>(v, s);
+  }
+
+  v_i32_8 replaceX7(const v_i32_8& v, const v_i32_8::ValueType s) noexcept
+  {
+    return replaceComponent<VectorIndices::X7>(v, s);
+  }
+
+  v_i32_8 replaceX8(const v_i32_8& v, const v_i32_8::ValueType s) noexcept
+  {
+    return replaceComponent<VectorIndices::X8>(v, s);
+  }
 }

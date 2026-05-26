@@ -3,35 +3,42 @@
 #include "../../common/noise/NoiseGenerator.h"
 #include "../ObjectShader.h"
 
-namespace raytracer {
-  using namespace vectorization;
+namespace raytracer
+{
+    using namespace vectorization;
 
-  template <ASizeT OctavesCount>
-  class NoiseGeneratorMap : public Shader<ObjectShader, FacetIntersection, Float4> {
-    const NoiseGenerator *generator;
+    template <ASizeT OctavesCount>
+    class NoiseGeneratorMap : public Shader<ObjectShader, FacetIntersection, Float4>
+    {
+        const NoiseGenerator* generator;
 
-  public:
-    NoiseGeneratorMap(const NoiseGenerator &generatorIn) : generator(&generatorIn) {
-    }
+    public:
+        NoiseGeneratorMap(const NoiseGenerator& generatorIn) : generator(&generatorIn)
+        {
+        }
 
-    virtual ~NoiseGeneratorMap() {
-    }
+        ~NoiseGeneratorMap() override = default;
 
-     Float4 sample(const ObjectShader &objectShader, const FacetIntersection &intersection) const {
-      return (*this)(objectShader, intersection);
-    }
+        Float4 sample(const ObjectShader& objectShader, const FacetIntersection& intersection) const override
+        {
+            return (*this)(objectShader, intersection);
+        }
 
-     Float4 operator()(const ObjectShader & /*objectShader*/, const FacetIntersection &intersection) const {
-      Float4 noise = Zero<Float4>();
-      Float4 frequency = One<Float4>();
+        Float4 operator()(const ObjectShader& /*objectShader*/, const FacetIntersection& intersection) const override
+        {
+            auto noise = Zero<Float4>();
+            auto frequency = One<Float4>();
 
-      for (ASizeT i = Zero<ASizeT>(); i < OctavesCount; ++i) {
-        noise =
-            noise * Half<Float4>() + Float4(vectorization::sin(generator->noise4(intersection.texCoords * frequency)));
-        frequency += frequency;
-      }
+            for (auto i = Zero<ASizeT>(); i < OctavesCount; ++i)
+            {
+                noise =
+                    noise * Half<Float4>() + Float4(
+                        vectorization::sin(generator->noise4(intersection.texCoords * frequency)));
+                frequency += frequency;
+            }
 
-      return replaceW(clamp(noise * Half<Float4>() + Half<Float4>(), Zero<Float4>(), One<Float4>()), One<Float>());
-     }
-  };
+            return replaceW(clamp(noise * Half<Float4>() + Half<Float4>(), Zero<Float4>(), One<Float4>()),
+                            One<Float>());
+        }
+    };
 }

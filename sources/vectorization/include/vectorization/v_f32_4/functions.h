@@ -70,7 +70,7 @@ namespace vectorization
 
 
     v_f32_4 mix(const v_f32_4& a, const v_f32_4& b, const v_f32_4& factor) noexcept;
-    v_f32_4 mix(const v_f32_4& a, const v_f32_4& b, const v_f32_4::ValueType factor) noexcept;
+    v_f32_4 mix(const v_f32_4& a, const v_f32_4& b, v_f32_4::ValueType factor) noexcept;
 
 
     v_f32_4 multiplyAdd(const v_f32_4& a, const v_f32_4& b, const v_f32_4& c) noexcept;

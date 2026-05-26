@@ -12,7 +12,8 @@ static const auto Log = logging::scope("PNG");
 
 namespace raytracer
 {
-  bool savePNG(const std::string& filename, int width, int height, int stride, const unsigned char* bgrData)
+  bool savePNG(const std::string& filename, const int width, const int height, const int stride,
+               const unsigned char* bgrData)
   {
     using Microsoft::WRL::ComPtr;
 
@@ -36,7 +37,7 @@ namespace raytracer
     }
 
     const int wideLen = MultiByteToWideChar(CP_UTF8, 0, filename.c_str(), -1, nullptr, 0);
-    auto wideFilename = std::make_unique<wchar_t[]>(wideLen);
+    const auto wideFilename = std::make_unique<wchar_t[]>(wideLen);
     MultiByteToWideChar(CP_UTF8, 0, filename.c_str(), -1, wideFilename.get(), wideLen);
 
     ComPtr<IWICStream> stream;
@@ -75,9 +76,11 @@ namespace raytracer
 
     // BMP data is stored bottom-up, but PNG expects top-down — write rows in reverse
     const auto strideBytes = static_cast<UINT>(stride);
-    for (UINT row = 0; row < h; ++row) {
+    for (UINT row = 0; row < h; ++row)
+    {
       const auto srcRow = (h - 1 - row) * strideBytes;
-      if (FAILED(frame->WritePixels(1, strideBytes, strideBytes, const_cast<BYTE *>(bgrData + srcRow)))) {
+      if (FAILED(frame->WritePixels(1, strideBytes, strideBytes, const_cast<BYTE *>(bgrData + srcRow))))
+      {
         Log.error([r = row] { return "PNG pixel write failed at row " + std::to_string(r); });
         CoUninitialize();
         return false;

@@ -4,14 +4,18 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-SSE/AVX-vectorized Whitted-style raytracer written in C++23. Windows-only UI (Win32 API + OpenGL). Educational/hobby
-project. Uses OpenMP for parallelization. Key compiler flags: `/arch:AVX2 /fp:fast` (MSVC), `-march=native` (GCC).
+SSE/AVX-vectorized raytracer written in C++23. Windows-only UI (Win32 API + OpenGL + ImGui). Educational/hobby project.
+Uses OpenMP for parallelization. Exceptions are globally disabled (`-fno-exceptions` / stripped `/EH`); targets that
+need them (e.g. mesh loading) opt in via `target_compile_options`.
+
+Compiler flags: `/arch:SSE4.2 /fp:fast` (MSVC), `/arch:AVX2` (clang-cl), `-march=native` (GCC/Clang).
+The vectorization library auto-bumps its intrinsics level when the compiler defines `__AVX__`/`__AVX2__`.
 
 ## Build Commands
 
 ### Windows (Visual Studio)
 
-Open with Visual Studio using CMake integration (CMakeSettings.json provided). Dependencies via vcpkg (GLEW).
+Open with Visual Studio using CMake integration (CMakeSettings.json provided). Dependencies via vcpkg (GLEW, ImGui).
 Requires `VCPKG_DIR` environment variable pointing to the directory containing `vcpkg.exe` (also add to `PATH`).
 
 ### CMake directly (Windows/MSVC with Ninja)
@@ -46,49 +50,63 @@ vstest.console.exe build-release/tests/vectorization.native-test/vectorization.n
 
 ## Architecture
 
-Four libraries with a strict dependency chain:
+Six libraries with dependency chain:
 
 ```
-raytracerui (executable, Win32+OpenGL)
+raytracerui (executable, Win32+OpenGL+ImGui)
     └── raytracing (static lib)
             ├── primitives (static lib)
             │       └── vectorization (static lib)
+            │               └── logging (static lib)
             └── vectorization
+benchmarks (executable) ─── raytracing, logging
 ```
 
 ### vectorization (`sources/vectorization/`)
 
-SIMD wrapper library over SSE4/AVX/FMA intrinsics. Core types:
+SIMD wrapper library over SSE4.2/AVX2/FMA intrinsics. See `sources/vectorization/CLAUDE.md` for full details.
 
-- `v_f32_4` — 4-wide float vector (128-bit SSE)
-- `v_i32_4`, `v_ui32_4` — 4-wide integer vectors
-- `v_ui64_2` — 2-wide uint64 vector
-- `m_f32_4x4` — 4x4 float matrix
+Mid-tier vector types: `v_f32_4`, `v_f32_8`, `v_f64_2`, `v_f64_4`, `v_i32_4`, `v_i32_8`, `v_i64_2`, `v_i64_4`,
+`v_ui32_4`, `v_ui32_8`, `v_ui64_2`, `v_ui64_4`, `m_f32_4x4`.
 
-Operations are split into many small files by category (accessors, blends, swizzles, selects, constants, math).
-SIMD width suffixes: `128d` (2×f64), `128s` (4×f32), `256d` (4×f64), `256s` (8×f32), `128i`/`256i` (integer).
-Third-party transcendental math in `3rdparty/` (sse_mathfun.h, avx_mathfun.h).
+API tier aliases (`Float4`, `MFloat4x4`, etc.) default to single precision; define
+`VECTORIZATION_HIGH_PRECISION` to switch to double.
 
 ### primitives (`sources/primitives/`)
 
-Geometric types: Ray, RayCast, AxisAlignedBoundingBox, BoundingSphere, Facet, FacetEdges, SplittingPlane.
+Ray-casting primitives with SIMD intersection tests. Types: Ray, RayCast (ray + culling + self-occlusion),
+AxisAlignedBoundingBox, BoundingSphere, Facet (Havel triangle test), FacetEdges (Moeller-Trumbore), SplittingPlane.
 
 ### raytracing (`sources/raytracing/`)
 
-Core engine with subsystems:
+Core engine. Rendering pipeline: ACEScg-linear working space, GGX microfacet BRDF with VNDF importance sampling,
+Schlick-Fresnel reflectance, Beer-Lambert absorption. View transform: ACEScg -> XYZ -> sRGB-linear -> AgX -> sRGB.
 
-- **Scene**: Scene, SceneObject, Camera, Resources
-- **Forms**: Sphere, Box, Plane, Mesh (with texture coords)
-- **KD-Tree partitioning**: Multiple balancer strategies (SAH variants, median, arithmetic mean, etc.) and traversers (
-  naive, voxelization)
-- **Shading**: BRDF, Schlick-Fresnel refraction, Beer-Lambert, Phong specular. Shader types: environment, HDR image,
-  intersection normal
-- **Utilities**: Bitmap, HDRImage, Perlin/Simplex noise, statistics
+- **Scene**: Scene, SceneObject, Camera, Resources (OFF mesh loading, HDR/PPM textures)
+- **Forms**: Sphere, Box, Plane, Mesh (triangle mesh with KD-tree acceleration)
+- **KD-Tree**: Balancers (BruteForceSAH, FixedIterationsSAH, Median, ArithmeticMean, MaxAxis, RotatingAxis) and
+  traversers (Naive recursive, Voxelization-based)
+- **Shading**: SceneShader (per-light Lambert diffuse + Phong specular + attenuation + shadow cache),
+  ObjectShader (7 material channels: diffusion, reflectance, specular, roughness, transmittance, refractionEta,
+  emittance), concrete shaders (Const, HDRImage, EnvironmentMap, IntersectionNormal, NoiseGeneratorMap)
+- **Color**: sRGB/ACEScg/Rec.2020 primaries, Bradford chromatic adaptation, AgX and ACES filmic view transforms
+- **Utilities**: RGBS color type, Bitmap, HDRImage, Perlin/Simplex noise, StatisticsCookie, RaytracerPackets
 
 ### raytracerui (`sources/raytracerui/`)
 
-Win32 application entry point (`src/main.cpp`). Predefined test scenes: CornellBox, Dragon, Procedural, TestScene1/2,
-TestLight. Configuration constants defined in main.cpp (FAST_PREVIEW_SIZE, MAX_TRACE_DEPTH, RAY_PACKET_SIZE).
+Win32+OpenGL+ImGui application. Predefined scenes: CornellBox (default), Dragon, Procedural, TestScene1/2, TestLight.
+Runtime-configurable: KD-tree balancer, trace depth, super-sampling, ray packet size, FOV, interaction mode
+(Camera/Object/Light), display mode (image/timing/depth). ImGui panels toggled via F1-F4.
+
+### logging (`sources/logging/`)
+
+Thread-safe logging with dedicated worker thread. LogScope produces lazy-evaluated LogEntries; Logger singleton
+routes to stdout/stderr/file/DisplayBuffer. DisplayBuffer is a 10k-line circular buffer for UI display.
+
+### benchmarks (`sources/benchmarks/`)
+
+RDTSC-based intersection micro-benchmarks. Pins to single core, measures cycles/intersection for AABB, Sphere,
+Plane, and Mesh facet intersections across 4 ray directions.
 
 ## Threading Model
 
@@ -106,7 +124,7 @@ only the last one takes effect. Use this pattern for any scene mutation that mus
 - Tests live in `tests/vectorization.native-test/` — covers all vectorization operations
 - **Windows/VS**: Uses MS CppUnitTest (`<CppUnitTest.h>`). Tests build as a shared library (.dll) for VS Test Explorer.
   Uses `TEST_CLASS(NameTest)` / `TEST_METHOD(camelCaseAction)` macros, assertions via `Assert::AreEqual()` etc.
-- Test file naming mirrors source: `component_128d.cpp` → `component_128d_test.cpp`
+- Test file naming mirrors source: `component_128d.cpp` -> `component_128d_test.cpp`
 
 ### Regression Tests
 
@@ -133,16 +151,8 @@ Normal logs right after start:
 [0.196] - INFO UI : ray-traced.png
 ```
 
-Baseline numbers incorporate:
-
-- CMake Unity compilation mode
-- LTCG fix (MSVC Whole Program Optimization now working correctly)
-- FMA3 intrinsics
-- Packed arithmetic functions refactoring
-- Switching to BruteForceSAHKDTreeBalancer as default
-- Implement sweep-based SAH KD-tree partitioning
-- RGBS color type refactoring
-- Use precompiled headers in builds
+Baseline numbers incorporate: CMake Unity compilation, LTCG, FMA3 intrinsics, BruteForceSAH default balancer,
+sweep-based SAH partitioning, RGBS color type, precompiled headers.
 
 ## Code Style
 

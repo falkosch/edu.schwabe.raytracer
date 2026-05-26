@@ -205,13 +205,13 @@ Cross-cutting test files (non-type-specific) may also need to grow:
 Rough sizing based on the `v_f32_4` reference (12 headers + 11 sources + 12 tests ≈ **35 files per type**,
 call it **~1500–2500 LOC** including tests and boilerplate per type):
 
-| Tier                                         | Types                                        | Approx. files |
-|----------------------------------------------|----------------------------------------------|---------------|
-| Reuses existing width helpers                | `v_f32_8`, `v_f64_2`, `v_f64_4`              | ~35 each      |
-| Needs 256i helpers first                     | `v_i32_8`, `v_ui32_8`, `v_i64_4`, `v_ui64_4` | ~35 + shared  |
-| Needs 128i swizzle/swizzled-blend            | `v_i64_2`                                    | ~35 + shared  |
-| Needs entirely new 8/16-bit category helpers | `v_{i,ui}{8,16}_*`                           | ~50+ each     |
-| Matrix types                                 | `m_{i,ui}32_4x4`                             | ~25 each      |
+| Tier                                         | Types                                            | Status          |
+|----------------------------------------------|--------------------------------------------------|-----------------|
+| ~~Reuses existing width helpers~~            | ~~`v_f32_8`, `v_f64_2`, `v_f64_4`~~              | **ALL DONE**    |
+| ~~Needs 256i helpers first~~                 | ~~`v_i32_8`, `v_ui32_8`, `v_i64_4`, `v_ui64_4`~~ | **ALL DONE**    |
+| ~~Needs 128i swizzle/swizzled-blend~~        | ~~`v_i64_2`~~                                    | **DONE**        |
+| Needs entirely new 8/16-bit category helpers | `v_{i,ui}{8,16}_*`                               | ~50+ files each |
+| Matrix types                                 | `m_{i,ui}32_4x4`                                 | ~25 files each  |
 
 ## Suggested implementation order (updated)
 
@@ -221,13 +221,16 @@ call it **~1500–2500 LOC** including tests and boilerplate per type):
 3. ~~**`v_f32_8`**~~ — **DONE.** Full 2-tier AVX/SSE implementation with 8-lane SIMD trig via `avx_mathfun`,
    99 tests, `Float8`/`Float8_32` aliases. Includes horizontal reductions (dot, length, normalize, distance),
    element-wise ops, FMA variants, and trigonometry. No `*3` partial-lane variants.
-4. **`v_f64_2` / `v_f64_4`** — float API symmetry. Reuse 128d/256d infrastructure. No SIMD trig, but completes
-   the double-precision surface and is a prerequisite if the raytracer ever adopts double for numerically
-   sensitive stages (e.g. geometric intersection tests).
-5. **`v_i64_2` / `v_ui64_4` / `v_i64_4`** — 64-bit integer variants; low urgency.
+4. ~~**`v_f64_2` / `v_f64_4`**~~ — **DONE.** 2-wide and 4-wide float64 vectors with full operation surface
+   (accessors, blends, swizzles, selects, conversions, functions, trigonometry via scalar fallback). API aliases
+   `Float1_64`/`Float2_64` -> `v_f64_2`, `Float3_64`/`Float4_64` -> `v_f64_4`.
+5. ~~**`v_i64_2` / `v_i64_4` / `v_ui64_4`**~~ — **DONE.** 64-bit integer vectors implemented with full operation
+   surface. `v_i64_2` (2-wide signed), `v_i64_4` (4-wide signed), `v_ui64_4` (4-wide unsigned). API aliases
+   `Int1_64`..`Int4_64` -> `v_i64_4`, `UInt3_64`/`UInt4_64` -> `v_ui64_4`.
 6. **16-bit and 8-bit types** — most specialized, least urgent. These require entirely new cross-cutting helper
    headers (there are no `blend_128_16`/`swizzle_128_8` files today) and would roughly double the per-type effort.
 7. **Integer matrices (`m_ui32_4x4`, `m_i32_4x4`)** — only after the underlying integer vector types are solid.
+   API aliases are commented out in `api_type_definitions.h`.
 
 ## Related backlog items
 

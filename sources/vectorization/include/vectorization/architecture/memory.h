@@ -72,8 +72,7 @@ namespace vectorization
             {
                 return nullptr;
             }
-            constexpr auto maxLength = static_cast<size_type>(-1) / sizeof(T);
-            if (arrayLength > maxLength)
+            if (constexpr auto maxLength = static_cast<size_type>(-1) / sizeof(T); arrayLength > maxLength)
             {
                 throw std::bad_array_new_length();
             }
@@ -92,7 +91,7 @@ namespace vectorization
         {
             if (allocated != nullptr)
             {
-                void* vp = reinterpret_cast<void*>(allocated);
+                auto vp = reinterpret_cast<void*>(allocated);
                 vectorization::free(vp);
             }
         }
