@@ -98,8 +98,8 @@ namespace vectorization
 
     v_f32_4 horizontalSumv(const v_f32_4& v) noexcept
     {
-        const v_f32_4 t = v + zwzw(v);
-        return t + yyww(t);
+        const auto t = xxzz(v) + yyww(v);
+        return xyxy(t) + zwzw(t);
     }
 
     v_f32_4::ValueType horizontalSum(const v_f32_4& v) noexcept
@@ -109,7 +109,7 @@ namespace vectorization
 
     v_f32_4 horizontalSum3v(const v_f32_4& v) noexcept
     {
-        return horizontalSumv(zeroW(v));
+        return xxxx(v) + yyyy(v) + zzzz(v);
     }
 
     v_f32_4::ValueType horizontalSum3(const v_f32_4& v) noexcept

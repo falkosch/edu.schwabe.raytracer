@@ -7,7 +7,8 @@ namespace raytracer
 
     StatisticsCookie::StatisticsCookie()
         : primaryRays(), missedPrimaryRays(), secondaryRays(), missedSecondaryRays(), shadowRays(), missedShadowRays(),
-          objectShadowRays(), objectMissedShadowRays(), kdTreeNodesVisited(), intersectionTicks(), shadingTicks()
+          objectShadowRays(), objectMissedShadowRays(), kdTreeNodesVisited(), sceneRootOverlapMisses(),
+          intersectionTicks(), shadingTicks()
     {
     }
 
@@ -22,6 +23,7 @@ namespace raytracer
         this->objectShadowRays += other.objectShadowRays;
         this->objectMissedShadowRays += other.objectMissedShadowRays;
         this->kdTreeNodesVisited += other.kdTreeNodesVisited;
+        this->sceneRootOverlapMisses += other.sceneRootOverlapMisses;
         this->intersectionTicks += other.intersectionTicks;
         this->shadingTicks += other.shadingTicks;
     }

@@ -9,36 +9,36 @@
 
 namespace raytracer
 {
-  using namespace vectorization;
-  using namespace primitives;
+    using namespace vectorization;
+    using namespace primitives;
 
-  class Scene : public SceneShader
-  {
-  public:
-    typedef std::vector<std::unique_ptr<SceneObject>> SceneList;
+    class Scene : public SceneShader
+    {
+    public:
+        typedef std::vector<std::unique_ptr<SceneObject>> SceneList;
 
-    Scene();
+        Scene();
 
-    Scene(
-      std::unique_ptr<const KDTreeTraverser<SceneIntersection>> treeTraverser,
-      std::unique_ptr<const KDTreeBalancer> treeBalancer
-    );
+        Scene(
+            std::unique_ptr<const KDTreeTraverser<SceneIntersection>> treeTraverser,
+            std::unique_ptr<const KDTreeBalancer> treeBalancer
+        );
 
-    ~Scene() override;
+        ~Scene() override;
 
-    const SceneList& getSceneObjects() const;
+        const SceneList& getSceneObjects() const;
 
-    SceneList& getSceneObjects();
+        SceneList& getSceneObjects();
 
-    void buildSceneGraph() override;
+        void buildSceneGraph() override;
 
-    void setTreeBalancer(std::unique_ptr<const KDTreeBalancer> balancer);
+        void setTreeBalancer(std::unique_ptr<const KDTreeBalancer> balancer);
 
-    void setMeshTreeBalancer(const std::function<std::unique_ptr<const KDTreeBalancer>()>& balancerFactory);
+        void setMeshTreeBalancer(const std::function<std::unique_ptr<const KDTreeBalancer>()>& balancerFactory) const;
 
-  protected:
-    SceneList sceneObjects;
+    protected:
+        SceneList sceneObjects;
 
-    std::unique_ptr<const KDTreeBalancer> treeBalancer;
-  };
+        std::unique_ptr<const KDTreeBalancer> treeBalancer;
+    };
 }

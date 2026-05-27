@@ -10,11 +10,10 @@ static const auto Log = logging::scope("UI");
 
 namespace raytracerui
 {
-    RaytracerUI::RaytracerUI(Raytracer& raytracerIn, const RaytraceParameters& parametersIn,
-                             const Size2& fastPreviewSizeIn)
-        : parameters(parametersIn), screenSize(One<Size2>()), fastPreviewSize(fastPreviewSizeIn), showMapIndex(),
+    RaytracerUI::RaytracerUI(Raytracer& raytracer, const RaytraceParameters& parameters, const Size2& fastPreviewSize)
+        : parameters(parameters), screenSize(One<Size2>()), fastPreviewSize(fastPreviewSize), showMapIndex(),
           disableFastPreview(), frameCount(), outputHDR(), output(),
-          initialViewMatrix(parametersIn.camera->getViewMatrix()), raytracer(&raytracerIn)
+          initialViewMatrix(parameters.camera->getViewMatrix()), raytracer(&raytracer)
     {
         this->parameters.observer = this;
     }
@@ -70,6 +69,10 @@ namespace raytracerui
         {
             return "objectShadowRays " + std::to_string(osr) + "/" + std::to_string(omr);
         });
+        Log.info([kv = s.kdTreeNodesVisited, rom = s.sceneRootOverlapMisses]
+        {
+            return "kdTree nodesVisited=" + std::to_string(kv) + " rootOverlapMisses=" + std::to_string(rom);
+        });
 
         outputHDR = selectOutputImage(configuration);
 
@@ -78,7 +81,7 @@ namespace raytracerui
             static const auto acescgToSRGB = color::XYZToSRGBLinear() * color::ACEScgToXYZ();
             const auto resolution = outputHDR->getResolution();
             const auto count = static_cast<int>(x(resolution) * y(resolution));
-            auto displayImage = std::make_shared<HDRImage>(resolution);
+            const auto displayImage = std::make_shared<HDRImage>(resolution);
 #pragma omp parallel for
             for (int i = 0; i < count; ++i)
             {
