@@ -195,37 +195,57 @@ namespace vectorization::test {
     }
 
     TEST_METHOD(shiftLeft) {
-      const v_f32_8 a(1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f);
-      const v_i32_8 shift(1);
-      const auto r = a << shift;
-      // Bit-shifting float interpreted as int, then back to float
-      // Just verify it doesn't crash and produces a result
-      (void)x1(r);
-      (void)x8(r);
+      const v_f32_8 given(1.0f);
+      const v_i32_8 shift(0, 1, 2, 3, 4, 0, 0, 0);
+      const auto actual = given << shift;
+      Assert::AreEqual(1.0f, x1(actual), L"'<<' by 0 preserves value", LINE_INFO());
+      Assert::AreNotEqual(1.0f, x2(actual), L"'<<' by 1 changes value", LINE_INFO());
+      Assert::AreNotEqual(0.0f, x3(actual), L"'<<' by 2 non-zero", LINE_INFO());
+    }
+
+    TEST_METHOD(shiftLeftScalar) {
+      const v_f32_8 given(1.0f);
+      const auto unshifted = given << Int_32{0};
+      Assert::IsTrue(allTrue(given == unshifted), L"'<<' by 0 preserves all lanes", LINE_INFO());
+      const auto shifted = given << UInt_32{1};
+      Assert::IsFalse(allTrue(given == shifted), L"'<<' by 1 changes value", LINE_INFO());
     }
 
     TEST_METHOD(shiftRight) {
-      const v_f32_8 a(1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f);
+      const v_f32_8 given(1.0f);
+      const v_i32_8 shift(0, 1, 2, 3, 4, 0, 0, 0);
+      const auto actual = given >> shift;
+      Assert::AreEqual(1.0f, x1(actual), L"'>>' by 0 preserves value", LINE_INFO());
+      Assert::AreNotEqual(1.0f, x2(actual), L"'>>' by 1 changes value", LINE_INFO());
+    }
+
+    TEST_METHOD(shiftRightIsLogical) {
+      const v_f32_8 given(-1.0f);
       const v_i32_8 shift(1);
-      const auto r = a >> shift;
-      (void)x1(r);
-      (void)x8(r);
+      const auto actual = given >> shift;
+      Assert::IsTrue(x1(actual) >= 0.0f, L"'>>' on float must be logical (positive result)", LINE_INFO());
+    }
+
+    TEST_METHOD(shiftByZeroPreservesValue) {
+      const v_f32_8 given(1.0f, -2.0f, 3.0f, -4.0f, 5.0f, -6.0f, 7.0f, -8.0f);
+      Assert::IsTrue(allTrue(given == (given << Int_32{0})), L"'<<' by 0 preserves value", LINE_INFO());
+      Assert::IsTrue(allTrue(given == (given >> Int_32{0})), L"'>>' by 0 preserves value", LINE_INFO());
     }
 
     TEST_METHOD(compoundShiftLeft) {
-      v_f32_8 a(1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f);
-      const v_i32_8 shift(1);
+      v_f32_8 a(1.0f);
+      const v_i32_8 shift(1, 0, 2, 0, 3, 0, 4, 0);
+      const auto expected = a << shift;
       a <<= shift;
-      (void)x1(a);
-      (void)x8(a);
+      Assert::IsTrue(allTrue(expected == a), L"'<<=' value mismatch", LINE_INFO());
     }
 
     TEST_METHOD(compoundShiftRight) {
-      v_f32_8 a(1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f);
-      const v_i32_8 shift(1);
+      v_f32_8 a(1.0f);
+      const v_i32_8 shift(1, 0, 2, 0, 3, 0, 4, 0);
+      const auto expected = a >> shift;
       a >>= shift;
-      (void)x1(a);
-      (void)x8(a);
+      Assert::IsTrue(allTrue(expected == a), L"'>>=' value mismatch", LINE_INFO());
     }
 
     TEST_METHOD(equalityTrue) {
@@ -357,22 +377,20 @@ namespace vectorization::test {
       Assert::AreEqual(0.5f, x8(r), 1e-5f, L"12.5%3", LINE_INFO());
     }
 
-    TEST_METHOD(shiftLeftPerLane) {
-      const v_f32_8 a(1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f);
-      const v_i32_8 shift(1);
-      const auto r = a << shift;
-      // Bit-shift left by 1 on float bit pattern (doubles the exponent contribution)
-      // 1.0f = 0x3F800000, << 1 = 0x7F000000 = very large float
-      Assert::AreNotEqual(0.0f, x1(r), L"non-zero result", LINE_INFO());
-      Assert::AreNotEqual(0.0f, x8(r), L"non-zero result x8", LINE_INFO());
+    TEST_METHOD(shiftLeftCrossSignedness) {
+      const v_f32_8 given(1.0f);
+      const v_ui32_8 shift{0u, 1u, 2u, 3u, 4u, 0u, 0u, 0u};
+      const auto actual = given << shift;
+      Assert::AreEqual(1.0f, x1(actual), L"'<<' cross-sign by 0 preserves value", LINE_INFO());
+      Assert::AreNotEqual(1.0f, x2(actual), L"'<<' cross-sign by 1 changes value", LINE_INFO());
     }
 
-    TEST_METHOD(shiftRightPerLane) {
-      const v_f32_8 a(1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f);
-      const v_i32_8 shift(1);
-      const auto r = a >> shift;
-      Assert::AreNotEqual(0.0f, x1(r), L"non-zero result", LINE_INFO());
-      Assert::AreNotEqual(0.0f, x8(r), L"non-zero result x8", LINE_INFO());
+    TEST_METHOD(shiftRightCrossSignedness) {
+      const v_f32_8 given(1.0f);
+      const v_ui32_8 shift{0u, 1u, 2u, 3u, 4u, 0u, 0u, 0u};
+      const auto actual = given >> shift;
+      Assert::AreEqual(1.0f, x1(actual), L"'>>' cross-sign by 0 preserves value", LINE_INFO());
+      Assert::AreNotEqual(1.0f, x2(actual), L"'>>' cross-sign by 1 changes value", LINE_INFO());
     }
   };
 }

@@ -92,6 +92,71 @@ namespace vectorization::test {
       Assert::AreEqual(3.0, y(a), L"'/=' Y mismatch", LINE_INFO());
     }
 
+    TEST_METHOD(testLeftShiftOperator) {
+      const v_f64_2 given = One<v_f64_2>();
+      const v_ui64_2 shift{0ULL, 1ULL};
+      const auto actual = given << shift;
+      // 1.0 = 0x3FF0000000000000, << 0 = same, << 1 = 0x7FE0000000000000
+      Assert::AreEqual(1.0, x(actual), L"'<<' lane 0 (shift 0) should preserve value", LINE_INFO());
+      Assert::AreNotEqual(1.0, y(actual), L"'<<' lane 1 (shift 1) should change value", LINE_INFO());
+      Assert::AreNotEqual(0.0, y(actual), L"'<<' lane 1 should be non-zero", LINE_INFO());
+    }
+
+    TEST_METHOD(testLeftShiftScalarOperator) {
+      const v_f64_2 given = One<v_f64_2>();
+      const auto shifted = given << UInt_64{1};
+      const auto unshifted = given << UInt_64{0};
+      Assert::AreEqual(1.0, x(unshifted), L"'<<' by 0 preserves value", LINE_INFO());
+      Assert::AreNotEqual(1.0, x(shifted), L"'<<' by 1 changes value", LINE_INFO());
+    }
+
+    TEST_METHOD(testLeftShiftCrossSignednessOperator) {
+      const v_f64_2 given = One<v_f64_2>();
+      const v_i64_2 shift{0LL, 1LL};
+      const auto actual = given << shift;
+      Assert::AreEqual(1.0, x(actual), L"'<<' cross-sign lane 0 mismatch", LINE_INFO());
+      Assert::AreNotEqual(1.0, y(actual), L"'<<' cross-sign lane 1 mismatch", LINE_INFO());
+    }
+
+    TEST_METHOD(testRightShiftOperator) {
+      const v_f64_2 given = One<v_f64_2>();
+      const v_ui64_2 shift{0ULL, 1ULL};
+      const auto actual = given >> shift;
+      Assert::AreEqual(1.0, x(actual), L"'>>' lane 0 (shift 0) should preserve value", LINE_INFO());
+      Assert::AreNotEqual(1.0, y(actual), L"'>>' lane 1 (shift 1) should change value", LINE_INFO());
+    }
+
+    TEST_METHOD(testRightShiftIsLogical) {
+      const v_f64_2 given{-1.0, -2.0};
+      const v_ui64_2 shift{1ULL, 1ULL};
+      const auto actual = given >> shift;
+      Assert::IsTrue(x(actual) > 0.0 || x(actual) == 0.0, L"'>>' on float must be logical (positive result)", LINE_INFO());
+    }
+
+    TEST_METHOD(testShiftByZeroPreservesValue) {
+      const v_f64_2 given{1.0, -2.0};
+      Assert::IsTrue(allTrue(given == (given << UInt_64{0})), L"'<<' by 0 preserves value", LINE_INFO());
+      Assert::IsTrue(allTrue(given == (given >> UInt_64{0})), L"'>>' by 0 preserves value", LINE_INFO());
+    }
+
+    TEST_METHOD(testCompoundLeftShiftAssignOperator) {
+      auto a = One<v_f64_2>();
+      const v_ui64_2 shift{1ULL, 0ULL};
+      const auto expected = a << shift;
+      a <<= shift;
+      Assert::AreEqual(x(expected), x(a), L"'<<=' X mismatch", LINE_INFO());
+      Assert::AreEqual(y(expected), y(a), L"'<<=' Y mismatch", LINE_INFO());
+    }
+
+    TEST_METHOD(testCompoundRightShiftAssignOperator) {
+      auto a = One<v_f64_2>();
+      const v_ui64_2 shift{1ULL, 0ULL};
+      const auto expected = a >> shift;
+      a >>= shift;
+      Assert::AreEqual(x(expected), x(a), L"'>>=' X mismatch", LINE_INFO());
+      Assert::AreEqual(y(expected), y(a), L"'>>=' Y mismatch", LINE_INFO());
+    }
+
     TEST_METHOD(testModuloOperator) {
       const v_f64_2 a{5.5, 7.0};
       const v_f64_2 b{2.0, 3.0};

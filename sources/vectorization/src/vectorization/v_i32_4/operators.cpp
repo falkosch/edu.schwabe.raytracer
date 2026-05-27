@@ -1,5 +1,9 @@
 #include "vectorization/v_i32_4.h"
 
+#include "vectorization/functions/bitwise.h"
+#include "vectorization/functions/shift.h"
+#include "vectorization/v_ui32_4/type.h"
+
 namespace vectorization {
   v_i32_4 operator-(const v_i32_4 &v) noexcept {
     return _mm_sub_epi32(Zero<v_i32_4::PackedType>(), v.components);
@@ -10,7 +14,7 @@ namespace vectorization {
   }
 
   v_i32_4 operator~(const v_i32_4 &v) noexcept {
-    return _mm_andnot_si128(v.components, MaskAll<v_i32_4::PackedType>());
+    return bitwiseNot(v.components);
   }
 
   v_i32_4 operator+(const v_i32_4 &a, const v_i32_4 &b) noexcept {
@@ -34,23 +38,47 @@ namespace vectorization {
   }
 
   v_i32_4 operator&(const v_i32_4 &a, const v_i32_4 &b) noexcept {
-    return _mm_and_si128(a.components, b.components);
+    return bitwiseAnd(a.components, b.components);
   }
 
   v_i32_4 operator|(const v_i32_4 &a, const v_i32_4 &b) noexcept {
-    return _mm_or_si128(a.components, b.components);
+    return bitwiseOr(a.components, b.components);
   }
 
   v_i32_4 operator^(const v_i32_4 &a, const v_i32_4 &b) noexcept {
-    return _mm_xor_si128(a.components, b.components);
+    return bitwiseXor(a.components, b.components);
+  }
+
+  v_i32_4 operator<<(const v_i32_4 &a, const Int_32 count) noexcept {
+    return shiftLeft32(a.components, count);
+  }
+
+  v_i32_4 operator<<(const v_i32_4 &a, const UInt_32 count) noexcept {
+    return shiftLeft32(a.components, count);
   }
 
   v_i32_4 operator<<(const v_i32_4 &a, const v_i32_4 &b) noexcept {
-    return _mm_sll_epi32(a.components, b.components);
+    return shiftLeft32(a.components, b.components);
+  }
+
+  v_i32_4 operator<<(const v_i32_4 &a, const v_ui32_4 &b) noexcept {
+    return shiftLeft32(a.components, b.components);
+  }
+
+  v_i32_4 operator>>(const v_i32_4 &a, const Int_32 count) noexcept {
+    return shiftRightArithmetic32(a.components, count);
+  }
+
+  v_i32_4 operator>>(const v_i32_4 &a, const UInt_32 count) noexcept {
+    return shiftRightArithmetic32(a.components, count);
   }
 
   v_i32_4 operator>>(const v_i32_4 &a, const v_i32_4 &b) noexcept {
-    return _mm_srl_epi32(a.components, b.components);
+    return shiftRightArithmetic32(a.components, b.components);
+  }
+
+  v_i32_4 operator>>(const v_i32_4 &a, const v_ui32_4 &b) noexcept {
+    return shiftRightArithmetic32(a.components, b.components);
   }
 
   v_i32_4 operator<(const v_i32_4 &a, const v_i32_4 &b) noexcept {
@@ -109,11 +137,13 @@ namespace vectorization {
     return a = a ^ b;
   }
 
-  v_i32_4 &operator<<=(v_i32_4 &a, const v_i32_4 &b) noexcept {
-    return a = a << b;
-  }
+  v_i32_4 &operator<<=(v_i32_4 &a, const Int_32 count) noexcept { return a = a << count; }
+  v_i32_4 &operator<<=(v_i32_4 &a, const UInt_32 count) noexcept { return a = a << count; }
+  v_i32_4 &operator<<=(v_i32_4 &a, const v_i32_4 &b) noexcept { return a = a << b; }
+  v_i32_4 &operator<<=(v_i32_4 &a, const v_ui32_4 &b) noexcept { return a = a << b; }
 
-  v_i32_4 &operator>>=(v_i32_4 &a, const v_i32_4 &b) noexcept {
-    return a = a >> b;
-  }
+  v_i32_4 &operator>>=(v_i32_4 &a, const Int_32 count) noexcept { return a = a >> count; }
+  v_i32_4 &operator>>=(v_i32_4 &a, const UInt_32 count) noexcept { return a = a >> count; }
+  v_i32_4 &operator>>=(v_i32_4 &a, const v_i32_4 &b) noexcept { return a = a >> b; }
+  v_i32_4 &operator>>=(v_i32_4 &a, const v_ui32_4 &b) noexcept { return a = a >> b; }
 }

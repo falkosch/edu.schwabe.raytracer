@@ -1,5 +1,9 @@
 #include "vectorization/v_i64_2.h"
 
+#include "vectorization/functions/bitwise.h"
+#include "vectorization/functions/shift.h"
+#include "vectorization/v_ui64_2/type.h"
+
 namespace vectorization {
   v_i64_2 operator-(const v_i64_2 &vector) noexcept {
     return _mm_sub_epi64(_mm_setzero_si128(), vector.components);
@@ -10,7 +14,7 @@ namespace vectorization {
   }
 
   v_i64_2 operator~(const v_i64_2 &vector) noexcept {
-    return _mm_andnot_si128(vector.components, MaskAll<v_i64_2::PackedType>());
+    return bitwiseNot(vector.components);
   }
 
   v_i64_2 operator+(const v_i64_2 &a, const v_i64_2 &b) noexcept {
@@ -34,23 +38,47 @@ namespace vectorization {
   }
 
   v_i64_2 operator&(const v_i64_2 &a, const v_i64_2 &b) noexcept {
-    return _mm_and_si128(a.components, b.components);
+    return bitwiseAnd(a.components, b.components);
   }
 
   v_i64_2 operator|(const v_i64_2 &a, const v_i64_2 &b) noexcept {
-    return _mm_or_si128(a.components, b.components);
+    return bitwiseOr(a.components, b.components);
   }
 
   v_i64_2 operator^(const v_i64_2 &a, const v_i64_2 &b) noexcept {
-    return _mm_xor_si128(a.components, b.components);
+    return bitwiseXor(a.components, b.components);
+  }
+
+  v_i64_2 operator<<(const v_i64_2 &a, const Int_64 count) noexcept {
+    return shiftLeft64(a.components, count);
+  }
+
+  v_i64_2 operator<<(const v_i64_2 &a, const UInt_64 count) noexcept {
+    return shiftLeft64(a.components, count);
   }
 
   v_i64_2 operator<<(const v_i64_2 &a, const v_i64_2 &b) noexcept {
-    return _mm_sll_epi64(a.components, b.components);
+    return shiftLeft64(a.components, b.components);
+  }
+
+  v_i64_2 operator<<(const v_i64_2 &a, const v_ui64_2 &b) noexcept {
+    return shiftLeft64(a.components, b.components);
+  }
+
+  v_i64_2 operator>>(const v_i64_2 &a, const Int_64 count) noexcept {
+    return shiftRightArithmetic64(a.components, count);
+  }
+
+  v_i64_2 operator>>(const v_i64_2 &a, const UInt_64 count) noexcept {
+    return shiftRightArithmetic64(a.components, count);
   }
 
   v_i64_2 operator>>(const v_i64_2 &a, const v_i64_2 &b) noexcept {
-    return v_i64_2(x(a) >> x(b), y(a) >> y(b));
+    return shiftRightArithmetic64(a.components, b.components);
+  }
+
+  v_i64_2 operator>>(const v_i64_2 &a, const v_ui64_2 &b) noexcept {
+    return shiftRightArithmetic64(a.components, b.components);
   }
 
   v_i64_2 operator<(const v_i64_2 &a, const v_i64_2 &b) noexcept {
@@ -111,11 +139,13 @@ namespace vectorization {
     return a = a ^ b;
   }
 
-  v_i64_2 &operator<<=(v_i64_2 &a, const v_i64_2 &b) noexcept {
-    return a = a << b;
-  }
+  v_i64_2 &operator<<=(v_i64_2 &a, const Int_64 count) noexcept { return a = a << count; }
+  v_i64_2 &operator<<=(v_i64_2 &a, const UInt_64 count) noexcept { return a = a << count; }
+  v_i64_2 &operator<<=(v_i64_2 &a, const v_i64_2 &b) noexcept { return a = a << b; }
+  v_i64_2 &operator<<=(v_i64_2 &a, const v_ui64_2 &b) noexcept { return a = a << b; }
 
-  v_i64_2 &operator>>=(v_i64_2 &a, const v_i64_2 &b) noexcept {
-    return a = a >> b;
-  }
+  v_i64_2 &operator>>=(v_i64_2 &a, const Int_64 count) noexcept { return a = a >> count; }
+  v_i64_2 &operator>>=(v_i64_2 &a, const UInt_64 count) noexcept { return a = a >> count; }
+  v_i64_2 &operator>>=(v_i64_2 &a, const v_i64_2 &b) noexcept { return a = a >> b; }
+  v_i64_2 &operator>>=(v_i64_2 &a, const v_ui64_2 &b) noexcept { return a = a >> b; }
 }

@@ -2,28 +2,30 @@
 
 #include "vectorization/v_f32_4/accessors.h"
 
-#include "vectorization/constants/masks.h"
 #include "vectorization/constants/values.h"
 #include "vectorization/functions/add.h"
+#include "vectorization/functions/bitwise.h"
 #include "vectorization/functions/broadcast.h"
+#include "vectorization/functions/compare.h"
 #include "vectorization/functions/divide.h"
 #include "vectorization/functions/modulo.h"
 #include "vectorization/functions/multiply.h"
+#include "vectorization/functions/negate.h"
+#include "vectorization/functions/shift.h"
 #include "vectorization/functions/subtract.h"
+#include "vectorization/v_ui32_4/type.h"
 
 namespace vectorization {
-  // http://fastcpp.blogspot.de/2011/03/changing-sign-of-float-values-using-sse.html
   v_f32_4 operator-(const v_f32_4 &v) noexcept {
-    return _mm_xor_ps(NegativeZero<v_f32_4::PackedType>(), v.components);
+    return negate(v.components);
   }
 
   v_f32_4 operator~(const v_f32_4 &v) noexcept {
-    return _mm_xor_ps(MaskAll<v_f32_4::PackedType>(), v.components);
+    return bitwiseNot(v.components);
   }
 
   v_f32_4::VectorBoolType operator!(const v_f32_4 &v) noexcept {
-    // Use float comparison so -0.0 == +0.0 (IEEE-754 compliant)
-    return _mm_castps_si128(_mm_cmpeq_ps(v.components, Zero<v_f32_4::PackedType>()));
+    return _mm_castps_si128(compareEqual(v.components, Zero<v_f32_4::PackedType>()));
   }
 
   v_f32_4 operator+(const v_f32_4 &a, const v_f32_4 &b) noexcept {
@@ -79,23 +81,47 @@ namespace vectorization {
   }
 
   v_f32_4 operator&(const v_f32_4 &a, const v_f32_4 &b) noexcept {
-    return _mm_and_ps(a.components, b.components);
+    return bitwiseAnd(a.components, b.components);
   }
 
   v_f32_4 operator|(const v_f32_4 &a, const v_f32_4 &b) noexcept {
-    return _mm_or_ps(a.components, b.components);
+    return bitwiseOr(a.components, b.components);
   }
 
   v_f32_4 operator^(const v_f32_4 &a, const v_f32_4 &b) noexcept {
-    return _mm_xor_ps(a.components, b.components);
+    return bitwiseXor(a.components, b.components);
   }
 
-  v_f32_4 operator<<(const v_f32_4 &a, const v_f32_4::VectorBoolType &b) noexcept {
-    return _mm_castsi128_ps(_mm_sll_epi32(_mm_castps_si128(a.components), b.components));
+  v_f32_4 operator<<(const v_f32_4 &a, const Int_32 count) noexcept {
+    return _mm_castsi128_ps(shiftLeft32(_mm_castps_si128(a.components), count));
   }
 
-  v_f32_4 operator>>(const v_f32_4 &a, const v_f32_4::VectorBoolType &b) noexcept {
-    return _mm_castsi128_ps(_mm_srl_epi32(_mm_castps_si128(a.components), b.components));
+  v_f32_4 operator<<(const v_f32_4 &a, const UInt_32 count) noexcept {
+    return _mm_castsi128_ps(shiftLeft32(_mm_castps_si128(a.components), count));
+  }
+
+  v_f32_4 operator<<(const v_f32_4 &a, const v_i32_4 &b) noexcept {
+    return _mm_castsi128_ps(shiftLeft32(_mm_castps_si128(a.components), b.components));
+  }
+
+  v_f32_4 operator<<(const v_f32_4 &a, const v_ui32_4 &b) noexcept {
+    return _mm_castsi128_ps(shiftLeft32(_mm_castps_si128(a.components), b.components));
+  }
+
+  v_f32_4 operator>>(const v_f32_4 &a, const Int_32 count) noexcept {
+    return _mm_castsi128_ps(shiftRightLogical32(_mm_castps_si128(a.components), count));
+  }
+
+  v_f32_4 operator>>(const v_f32_4 &a, const UInt_32 count) noexcept {
+    return _mm_castsi128_ps(shiftRightLogical32(_mm_castps_si128(a.components), count));
+  }
+
+  v_f32_4 operator>>(const v_f32_4 &a, const v_i32_4 &b) noexcept {
+    return _mm_castsi128_ps(shiftRightLogical32(_mm_castps_si128(a.components), b.components));
+  }
+
+  v_f32_4 operator>>(const v_f32_4 &a, const v_ui32_4 &b) noexcept {
+    return _mm_castsi128_ps(shiftRightLogical32(_mm_castps_si128(a.components), b.components));
   }
 
   v_f32_4 &operator+=(v_f32_4 &a, const v_f32_4 &b) noexcept {
@@ -130,36 +156,38 @@ namespace vectorization {
     return a = a ^ b;
   }
 
-  v_f32_4 &operator<<=(v_f32_4 &a, const v_f32_4::VectorBoolType &b) noexcept {
-    return a = a << b;
-  }
+  v_f32_4 &operator<<=(v_f32_4 &a, const Int_32 count) noexcept { return a = a << count; }
+  v_f32_4 &operator<<=(v_f32_4 &a, const UInt_32 count) noexcept { return a = a << count; }
+  v_f32_4 &operator<<=(v_f32_4 &a, const v_i32_4 &b) noexcept { return a = a << b; }
+  v_f32_4 &operator<<=(v_f32_4 &a, const v_ui32_4 &b) noexcept { return a = a << b; }
 
-  v_f32_4 &operator>>=(v_f32_4 &a, const v_f32_4::VectorBoolType &b) noexcept {
-    return a = a >> b;
-  }
+  v_f32_4 &operator>>=(v_f32_4 &a, const Int_32 count) noexcept { return a = a >> count; }
+  v_f32_4 &operator>>=(v_f32_4 &a, const UInt_32 count) noexcept { return a = a >> count; }
+  v_f32_4 &operator>>=(v_f32_4 &a, const v_i32_4 &b) noexcept { return a = a >> b; }
+  v_f32_4 &operator>>=(v_f32_4 &a, const v_ui32_4 &b) noexcept { return a = a >> b; }
 
   v_f32_4::VectorBoolType operator<(const v_f32_4 &a, const v_f32_4 &b) noexcept {
-    return _mm_castps_si128(_mm_cmplt_ps(a.components, b.components));
+    return _mm_castps_si128(compareLess(a.components, b.components));
   }
 
   v_f32_4::VectorBoolType operator>(const v_f32_4 &a, const v_f32_4 &b) noexcept {
-    return _mm_castps_si128(_mm_cmpgt_ps(a.components, b.components));
+    return _mm_castps_si128(compareGreater(a.components, b.components));
   }
 
   v_f32_4::VectorBoolType operator<=(const v_f32_4 &a, const v_f32_4 &b) noexcept {
-    return _mm_castps_si128(_mm_cmple_ps(a.components, b.components));
+    return _mm_castps_si128(compareLessEqual(a.components, b.components));
   }
 
   v_f32_4::VectorBoolType operator>=(const v_f32_4 &a, const v_f32_4 &b) noexcept {
-    return _mm_castps_si128(_mm_cmpge_ps(a.components, b.components));
+    return _mm_castps_si128(compareGreaterEqual(a.components, b.components));
   }
 
   v_f32_4::VectorBoolType operator==(const v_f32_4 &a, const v_f32_4 &b) noexcept {
-    return _mm_castps_si128(_mm_cmpeq_ps(a.components, b.components));
+    return _mm_castps_si128(compareEqual(a.components, b.components));
   }
 
   v_f32_4::VectorBoolType operator!=(const v_f32_4 &a, const v_f32_4 &b) noexcept {
-    return _mm_castps_si128(_mm_cmpneq_ps(a.components, b.components));
+    return _mm_castps_si128(compareNotEqual(a.components, b.components));
   }
 
   std::ostream &operator<<(std::ostream &stream, const v_f32_4 &v) {

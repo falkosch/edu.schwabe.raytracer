@@ -68,6 +68,8 @@ set(SOURCES
         src/vectorization/functions/abs.cpp
         src/vectorization/functions/acos.cpp
         src/vectorization/functions/add.cpp
+        src/vectorization/functions/bitwise.cpp
+        src/vectorization/functions/compare.cpp
         src/vectorization/functions/add_subtract.cpp
         src/vectorization/functions/atan2.cpp
         src/vectorization/functions/bitcount.cpp
@@ -90,11 +92,13 @@ set(SOURCES
         src/vectorization/functions/mix.cpp
         src/vectorization/functions/modpad.cpp
         src/vectorization/functions/modulo.cpp
+        src/vectorization/functions/movemask.cpp
         src/vectorization/functions/multiply.cpp
         src/vectorization/functions/multiply_add.cpp
         src/vectorization/functions/multiply_add_sub.cpp
         src/vectorization/functions/multiply_sub.cpp
         src/vectorization/functions/multiply_sub_add.cpp
+        src/vectorization/functions/negate.cpp
         src/vectorization/functions/negative_multiply_add.cpp
         src/vectorization/functions/negative_multiply_sub.cpp
         src/vectorization/functions/pow.cpp
@@ -102,6 +106,7 @@ set(SOURCES
         src/vectorization/functions/round.cpp
         src/vectorization/functions/round_down.cpp
         src/vectorization/functions/rsqrt.cpp
+        src/vectorization/functions/shift.cpp
         src/vectorization/functions/sign.cpp
         src/vectorization/functions/sin.cpp
         src/vectorization/functions/sqr.cpp
@@ -327,6 +332,8 @@ set(HEADERS
         include/vectorization/functions/abs.h
         include/vectorization/functions/acos.h
         include/vectorization/functions/add.h
+        include/vectorization/functions/bitwise.h
+        include/vectorization/functions/compare.h
         include/vectorization/functions/add_subtract.h
         include/vectorization/functions/atan2.h
         include/vectorization/functions/bitcount.h
@@ -350,11 +357,13 @@ set(HEADERS
         include/vectorization/functions/mix.h
         include/vectorization/functions/modpad.h
         include/vectorization/functions/modulo.h
+        include/vectorization/functions/movemask.h
         include/vectorization/functions/multiply.h
         include/vectorization/functions/multiply_add.h
         include/vectorization/functions/multiply_add_sub.h
         include/vectorization/functions/multiply_sub.h
         include/vectorization/functions/multiply_sub_add.h
+        include/vectorization/functions/negate.h
         include/vectorization/functions/negative_multiply_add.h
         include/vectorization/functions/negative_multiply_sub.h
         include/vectorization/functions/pow.h
@@ -362,6 +371,7 @@ set(HEADERS
         include/vectorization/functions/round.h
         include/vectorization/functions/round_down.h
         include/vectorization/functions/rsqrt.h
+        include/vectorization/functions/shift.h
         include/vectorization/functions/sign.h
         include/vectorization/functions/sin.h
         include/vectorization/functions/sqr.h

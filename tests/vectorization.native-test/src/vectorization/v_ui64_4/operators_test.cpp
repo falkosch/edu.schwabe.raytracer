@@ -56,6 +56,35 @@ namespace vectorization::test {
       Assert::IsTrue(allTrue(Zero<v_ui64_4>() == actual), L"'^' op value mismatch", LINE_INFO());
     }
 
+    TEST_METHOD(testLeftShiftOperator) {
+      const v_ui64_4 given{1ULL, 2ULL, 4ULL, 8ULL};
+      const v_ui64_4 shift{0ULL, 1ULL, 2ULL, 3ULL};
+      const v_ui64_4 expected{1ULL, 4ULL, 16ULL, 64ULL};
+      Assert::IsTrue(allTrue(expected == (given << shift)), L"'<<' op per-lane mismatch", LINE_INFO());
+    }
+
+    TEST_METHOD(testLeftShiftScalarOperator) {
+      const v_ui64_4 given{1ULL, 2ULL, 4ULL, 8ULL};
+      const v_ui64_4 expected{2ULL, 4ULL, 8ULL, 16ULL};
+      Assert::IsTrue(allTrue(expected == (given << Int_64{1})), L"'<<' signed scalar mismatch", LINE_INFO());
+      Assert::IsTrue(allTrue(expected == (given << UInt_64{1})), L"'<<' unsigned scalar mismatch", LINE_INFO());
+    }
+
+    TEST_METHOD(testLeftShiftCrossSignednessOperator) {
+      const v_ui64_4 given{1ULL, 2ULL, 4ULL, 8ULL};
+      const v_i64_4 shift{0LL, 1LL, 2LL, 3LL};
+      const v_ui64_4 expected{1ULL, 4ULL, 16ULL, 64ULL};
+      Assert::IsTrue(allTrue(expected == (given << shift)), L"'<<' cross-sign mismatch", LINE_INFO());
+    }
+
+    TEST_METHOD(testCompoundLeftShiftAssignOperator) {
+      v_ui64_4 actual{1ULL, 2ULL, 4ULL, 8ULL};
+      const v_ui64_4 shift{0ULL, 1ULL, 2ULL, 3ULL};
+      const auto expected = actual << shift;
+      actual <<= shift;
+      Assert::IsTrue(allTrue(expected == actual), L"'<<=' op value mismatch", LINE_INFO());
+    }
+
     TEST_METHOD(testLogicalRightShiftOperator) {
       const v_ui64_4 a{16ULL, 32ULL, 64ULL, 128ULL};
       const v_ui64_4 b{1ULL, 2ULL, 3ULL, 4ULL};
@@ -68,6 +97,20 @@ namespace vectorization::test {
       const v_ui64_4 b{UInt_64{1}};
       const v_ui64_4 expected{std::numeric_limits<UInt_64>::max() >> 1};
       Assert::IsTrue(allTrue(expected == (a >> b)), L"'>>' high bit should not sign-extend", LINE_INFO());
+    }
+
+    TEST_METHOD(testRightShiftScalarOperator) {
+      const v_ui64_4 given{16ULL, 32ULL, 64ULL, 128ULL};
+      const v_ui64_4 expected{8ULL, 16ULL, 32ULL, 64ULL};
+      Assert::IsTrue(allTrue(expected == (given >> Int_64{1})), L"'>>' signed scalar mismatch", LINE_INFO());
+      Assert::IsTrue(allTrue(expected == (given >> UInt_64{1})), L"'>>' unsigned scalar mismatch", LINE_INFO());
+    }
+
+    TEST_METHOD(testRightShiftCrossSignednessOperator) {
+      const v_ui64_4 given{16ULL, 32ULL, 64ULL, 128ULL};
+      const v_i64_4 shift{1LL, 2LL, 3LL, 4LL};
+      const v_ui64_4 expected{8ULL, 8ULL, 8ULL, 8ULL};
+      Assert::IsTrue(allTrue(expected == (given >> shift)), L"'>>' cross-sign mismatch", LINE_INFO());
     }
 
     TEST_METHOD(testEqualsOperator) {

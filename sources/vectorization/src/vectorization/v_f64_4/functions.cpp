@@ -29,6 +29,7 @@
 #include "vectorization/functions/reciprocal.h"
 #include "vectorization/functions/round.h"
 #include "vectorization/functions/rsqrt.h"
+#include "vectorization/functions/movemask.h"
 #include "vectorization/functions/sqrt.h"
 
 namespace vectorization {
@@ -212,10 +213,10 @@ namespace vectorization {
 
   v_f64_4::BoolType isNegative(const v_f64_4 &v) noexcept {
 #if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
-    return _mm256_movemask_pd(v.components);
+    return movemask(v.components);
 #else
-    return _mm_movemask_pd(v.components.lo)
-        | (_mm_movemask_pd(v.components.hi) << 2);
+    return movemask(v.components.lo)
+        | (movemask(v.components.hi) << 2);
 #endif
   }
 
@@ -323,10 +324,10 @@ namespace vectorization {
 
   bool anyTrue(const v_f64_4 &v) noexcept {
 #if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
-    return _mm256_movemask_pd(v.components) != 0;
+    return movemask(v.components) != 0;
 #else
-    return _mm_movemask_pd(v.components.lo) != 0
-        || _mm_movemask_pd(v.components.hi) != 0;
+    return movemask(v.components.lo) != 0
+        || movemask(v.components.hi) != 0;
 #endif
   }
 
@@ -336,19 +337,19 @@ namespace vectorization {
 
   bool allTrue(const v_f64_4 &v) noexcept {
 #if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
-    return _mm256_movemask_pd(v.components) == 0xF;
+    return movemask(v.components) == 0xF;
 #else
-    return _mm_movemask_pd(v.components.lo) == 0x3
-        && _mm_movemask_pd(v.components.hi) == 0x3;
+    return movemask(v.components.lo) == 0x3
+        && movemask(v.components.hi) == 0x3;
 #endif
   }
 
   bool allFalse(const v_f64_4 &v) noexcept {
 #if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
-    return _mm256_movemask_pd(v.components) == 0;
+    return movemask(v.components) == 0;
 #else
-    return _mm_movemask_pd(v.components.lo) == 0
-        && _mm_movemask_pd(v.components.hi) == 0;
+    return movemask(v.components.lo) == 0
+        && movemask(v.components.hi) == 0;
 #endif
   }
 }

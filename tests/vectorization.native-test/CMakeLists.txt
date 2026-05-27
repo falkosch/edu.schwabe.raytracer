@@ -66,16 +66,21 @@ set(SOURCES
         src/vectorization/constants/values/zero_test.cpp
         src/vectorization/functions/add_subtract_test.cpp
         src/vectorization/functions/add_test.cpp
+        src/vectorization/functions/bitwise_test.cpp
         src/vectorization/functions/broadcast_test.cpp
+        src/vectorization/functions/compare_test.cpp
         src/vectorization/functions/horizontal_add_test.cpp
         src/vectorization/functions/horizontal_subtract_test.cpp
+        src/vectorization/functions/movemask_test.cpp
         src/vectorization/functions/multiply_add_sub_test.cpp
         src/vectorization/functions/multiply_add_test.cpp
         src/vectorization/functions/multiply_sub_add_test.cpp
         src/vectorization/functions/multiply_sub_test.cpp
         src/vectorization/functions/multiply_test.cpp
+        src/vectorization/functions/negate_test.cpp
         src/vectorization/functions/negative_multiply_add_test.cpp
         src/vectorization/functions/negative_multiply_sub_test.cpp
+        src/vectorization/functions/shift_test.cpp
         src/vectorization/functions/subtract_test.cpp
         src/vectorization/m_f32_4x4/accessors_test.cpp
         src/vectorization/m_f32_4x4/constants_test.cpp

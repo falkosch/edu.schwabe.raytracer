@@ -2,6 +2,9 @@
 
 #include "vectorization/v_ui32_8/accessors.h"
 #include "vectorization/v_ui32_8/constants.h"
+#include "vectorization/functions/bitwise.h"
+#include "vectorization/functions/shift.h"
+#include "vectorization/v_i32_8/type.h"
 
 namespace vectorization {
   v_ui32_8 operator!(const v_ui32_8 &v) noexcept {
@@ -20,18 +23,9 @@ namespace vectorization {
 
   v_ui32_8 operator~(const v_ui32_8 &v) noexcept {
 #if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX2
-    const auto allOnes = _mm256_cmpeq_epi32(v.components, v.components);
-    return _mm256_xor_si256(v.components, allOnes);
-#elif VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
-    const auto lo = _mm256_castsi256_si128(v.components);
-    const auto hi = _mm256_extractf128_si256(v.components, 1);
-    const auto allOnes = _mm_cmpeq_epi32(lo, lo);
-    const auto rlo = _mm_xor_si128(lo, allOnes);
-    const auto rhi = _mm_xor_si128(hi, allOnes);
-    return _mm256_insertf128_si256(_mm256_castsi128_si256(rlo), rhi, 1);
+    return bitwiseNot(v.components);
 #else
-    const auto allOnes = _mm_cmpeq_epi32(v.components.lo, v.components.lo);
-    return {{_mm_xor_si128(v.components.lo, allOnes), _mm_xor_si128(v.components.hi, allOnes)}};
+    return {{bitwiseNot(v.components.lo), bitwiseNot(v.components.hi)}};
 #endif
   }
 
@@ -73,59 +67,89 @@ namespace vectorization {
 
   v_ui32_8 operator&(const v_ui32_8 &a, const v_ui32_8 &b) noexcept {
 #if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX2
-    return _mm256_and_si256(a.components, b.components);
-#elif VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
-    const auto lo = _mm_and_si128(_mm256_castsi256_si128(a.components), _mm256_castsi256_si128(b.components));
-    const auto hi = _mm_and_si128(_mm256_extractf128_si256(a.components, 1), _mm256_extractf128_si256(b.components, 1));
-    return _mm256_insertf128_si256(_mm256_castsi128_si256(lo), hi, 1);
+    return bitwiseAnd(a.components, b.components);
 #else
-    return {{_mm_and_si128(a.components.lo, b.components.lo), _mm_and_si128(a.components.hi, b.components.hi)}};
+    return {{bitwiseAnd(a.components.lo, b.components.lo), bitwiseAnd(a.components.hi, b.components.hi)}};
 #endif
   }
 
   v_ui32_8 operator|(const v_ui32_8 &a, const v_ui32_8 &b) noexcept {
 #if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX2
-    return _mm256_or_si256(a.components, b.components);
-#elif VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
-    const auto lo = _mm_or_si128(_mm256_castsi256_si128(a.components), _mm256_castsi256_si128(b.components));
-    const auto hi = _mm_or_si128(_mm256_extractf128_si256(a.components, 1), _mm256_extractf128_si256(b.components, 1));
-    return _mm256_insertf128_si256(_mm256_castsi128_si256(lo), hi, 1);
+    return bitwiseOr(a.components, b.components);
 #else
-    return {{_mm_or_si128(a.components.lo, b.components.lo), _mm_or_si128(a.components.hi, b.components.hi)}};
+    return {{bitwiseOr(a.components.lo, b.components.lo), bitwiseOr(a.components.hi, b.components.hi)}};
 #endif
   }
 
   v_ui32_8 operator^(const v_ui32_8 &a, const v_ui32_8 &b) noexcept {
 #if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX2
-    return _mm256_xor_si256(a.components, b.components);
-#elif VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
-    const auto lo = _mm_xor_si128(_mm256_castsi256_si128(a.components), _mm256_castsi256_si128(b.components));
-    const auto hi = _mm_xor_si128(_mm256_extractf128_si256(a.components, 1), _mm256_extractf128_si256(b.components, 1));
-    return _mm256_insertf128_si256(_mm256_castsi128_si256(lo), hi, 1);
+    return bitwiseXor(a.components, b.components);
 #else
-    return {{_mm_xor_si128(a.components.lo, b.components.lo), _mm_xor_si128(a.components.hi, b.components.hi)}};
+    return {{bitwiseXor(a.components.lo, b.components.lo), bitwiseXor(a.components.hi, b.components.hi)}};
+#endif
+  }
+
+  v_ui32_8 operator<<(const v_ui32_8 &a, const Int_32 count) noexcept {
+#if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
+    return shiftLeft32(a.components, count);
+#else
+    return {{shiftLeft32(a.components.lo, count), shiftLeft32(a.components.hi, count)}};
+#endif
+  }
+
+  v_ui32_8 operator<<(const v_ui32_8 &a, const UInt_32 count) noexcept {
+#if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
+    return shiftLeft32(a.components, count);
+#else
+    return {{shiftLeft32(a.components.lo, count), shiftLeft32(a.components.hi, count)}};
+#endif
+  }
+
+  v_ui32_8 operator<<(const v_ui32_8 &a, const v_i32_8 &b) noexcept {
+#if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
+    return shiftLeft32(a.components, b.components);
+#else
+    return {{shiftLeft32(a.components.lo, b.components.lo), shiftLeft32(a.components.hi, b.components.hi)}};
 #endif
   }
 
   v_ui32_8 operator<<(const v_ui32_8 &a, const v_ui32_8 &b) noexcept {
-#if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX2
-    return _mm256_sllv_epi32(a.components, b.components);
+#if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
+    return shiftLeft32(a.components, b.components);
 #else
-    v_ui32_8 result;
-    for (ASizeT i = 0; i < v_ui32_8::SIZE; ++i)
-      result[i] = a[i] << b[i];
-    return result;
+    return {{shiftLeft32(a.components.lo, b.components.lo), shiftLeft32(a.components.hi, b.components.hi)}};
+#endif
+  }
+
+  v_ui32_8 operator>>(const v_ui32_8 &a, const Int_32 count) noexcept {
+#if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
+    return shiftRightLogical32(a.components, count);
+#else
+    return {{shiftRightLogical32(a.components.lo, count), shiftRightLogical32(a.components.hi, count)}};
+#endif
+  }
+
+  v_ui32_8 operator>>(const v_ui32_8 &a, const UInt_32 count) noexcept {
+#if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
+    return shiftRightLogical32(a.components, count);
+#else
+    return {{shiftRightLogical32(a.components.lo, count), shiftRightLogical32(a.components.hi, count)}};
+#endif
+  }
+
+  v_ui32_8 operator>>(const v_ui32_8 &a, const v_i32_8 &b) noexcept {
+#if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
+    return shiftRightLogical32(a.components, b.components);
+#else
+    return {{shiftRightLogical32(a.components.lo, b.components.lo), shiftRightLogical32(a.components.hi, b.components.hi)}};
 #endif
   }
 
   v_ui32_8 operator>>(const v_ui32_8 &a, const v_ui32_8 &b) noexcept {
-#if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX2
-    return _mm256_srlv_epi32(a.components, b.components);
+#if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
+    return shiftRightLogical32(a.components, b.components);
 #else
-    v_ui32_8 result;
-    for (ASizeT i = 0; i < v_ui32_8::SIZE; ++i)
-      result[i] = a[i] >> b[i];
-    return result;
+    return {{shiftRightLogical32(a.components.lo, b.components.lo), shiftRightLogical32(a.components.hi, b.components.hi)}};
 #endif
   }
 
@@ -193,7 +217,14 @@ namespace vectorization {
   v_ui32_8 &operator&=(v_ui32_8 &a, const v_ui32_8 &b) noexcept { return a = a & b; }
   v_ui32_8 &operator|=(v_ui32_8 &a, const v_ui32_8 &b) noexcept { return a = a | b; }
   v_ui32_8 &operator^=(v_ui32_8 &a, const v_ui32_8 &b) noexcept { return a = a ^ b; }
+  v_ui32_8 &operator<<=(v_ui32_8 &a, const Int_32 count) noexcept { return a = a << count; }
+  v_ui32_8 &operator<<=(v_ui32_8 &a, const UInt_32 count) noexcept { return a = a << count; }
+  v_ui32_8 &operator<<=(v_ui32_8 &a, const v_i32_8 &b) noexcept { return a = a << b; }
   v_ui32_8 &operator<<=(v_ui32_8 &a, const v_ui32_8 &b) noexcept { return a = a << b; }
+
+  v_ui32_8 &operator>>=(v_ui32_8 &a, const Int_32 count) noexcept { return a = a >> count; }
+  v_ui32_8 &operator>>=(v_ui32_8 &a, const UInt_32 count) noexcept { return a = a >> count; }
+  v_ui32_8 &operator>>=(v_ui32_8 &a, const v_i32_8 &b) noexcept { return a = a >> b; }
   v_ui32_8 &operator>>=(v_ui32_8 &a, const v_ui32_8 &b) noexcept { return a = a >> b; }
 
   std::ostream &operator<<(std::ostream &stream, const v_ui32_8 &v) {

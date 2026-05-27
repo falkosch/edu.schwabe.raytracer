@@ -19,6 +19,7 @@
 #include "vectorization/functions/max.h"
 #include "vectorization/functions/min.h"
 #include "vectorization/functions/mix.h"
+#include "vectorization/functions/movemask.h"
 #include "vectorization/functions/modulo.h"
 #include "vectorization/functions/multiply_add.h"
 #include "vectorization/functions/multiply_add_sub.h"
@@ -138,7 +139,7 @@ namespace vectorization {
   }
 
   v_f64_2::BoolType isNegative(const v_f64_2 &v) noexcept {
-    return static_cast<v_f64_2::BoolType>(_mm_movemask_pd(v.components));
+    return static_cast<v_f64_2::BoolType>(movemask(v.components));
   }
 
   v_f64_2::VectorBoolType isNaN(const v_f64_2 &v) noexcept {
@@ -194,7 +195,7 @@ namespace vectorization {
   }
 
   bool anyTrue(const v_f64_2 &v) noexcept {
-    return _mm_movemask_pd(v.components) != 0;
+    return movemask(v.components) != 0;
   }
 
   bool anyFalse(const v_f64_2 &v) noexcept {
@@ -202,10 +203,10 @@ namespace vectorization {
   }
 
   bool allTrue(const v_f64_2 &v) noexcept {
-    return _mm_movemask_pd(v.components) == 0x3;
+    return movemask(v.components) == 0x3;
   }
 
   bool allFalse(const v_f64_2 &v) noexcept {
-    return _mm_movemask_pd(v.components) == 0;
+    return movemask(v.components) == 0;
   }
 }

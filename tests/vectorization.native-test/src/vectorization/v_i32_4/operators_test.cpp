@@ -82,18 +82,16 @@ namespace vectorization::test {
 
     TEST_METHOD(testLeftShiftOperator) {
       const v_i32_4 given{1, 2, 4, 8};
-      // _mm_sll_epi32 reads the shift count from the low 64-bit element
-      const v_i32_4 shift{1, 0, 0, 0};
-      const v_i32_4 expected{2, 4, 8, 16};
-      Assert::IsTrue(allTrue(expected == (given << shift)), L"'<<' op value mismatch", LINE_INFO());
+      const v_i32_4 shift{0, 1, 2, 3};
+      const v_i32_4 expected{1, 4, 16, 64};
+      Assert::IsTrue(allTrue(expected == (given << shift)), L"'<<' op per-lane mismatch", LINE_INFO());
     }
 
     TEST_METHOD(testRightShiftOperator) {
-      const v_i32_4 given{2, 4, 8, 16};
-      // _mm_sra_epi32 reads the shift count from the low 64-bit element
-      const v_i32_4 shift{1, 0, 0, 0};
-      const v_i32_4 expected{1, 2, 4, 8};
-      Assert::IsTrue(allTrue(expected == (given >> shift)), L"'>>' op value mismatch", LINE_INFO());
+      const v_i32_4 given{-8, -16, -32, -64};
+      const v_i32_4 shift{1, 2, 3, 4};
+      const v_i32_4 expected{-4, -4, -4, -4};
+      Assert::IsTrue(allTrue(expected == (given >> shift)), L"'>>' op arithmetic shift mismatch", LINE_INFO());
     }
 
     TEST_METHOD(testEqualsOperator) {

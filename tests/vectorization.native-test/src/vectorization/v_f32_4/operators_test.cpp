@@ -293,34 +293,23 @@ namespace vectorization::test {
       Assert::AreEqual(w(expected), w(actual), L"'^' op W mismatch", LINE_INFO());
     }
 
-    // "<<"
     TEST_METHOD(testLeftShiftOperator) {
       const v_f32_4 given = One<v_f32_4>();
-      // _mm_sll_epi32 reads the shift count from the low 64-bit element
-      const v_f32_4::VectorBoolType shift{1, 0, 0, 0};
+      const v_i32_4 shift{0, 1, 2, 3};
       const auto actual = given << shift;
-      // Shifting the bit pattern of 1.0f (0x3F800000) left by 1 gives 0x7F000000
-      const auto expected = v_f32_4(_mm_castsi128_ps(_mm_slli_epi32(_mm_castps_si128(given.components), 1)));
-
-      Assert::AreEqual(x(expected), x(actual), L"'<<' op X mismatch", LINE_INFO());
-      Assert::AreEqual(y(expected), y(actual), L"'<<' op Y mismatch", LINE_INFO());
-      Assert::AreEqual(z(expected), z(actual), L"'<<' op Z mismatch", LINE_INFO());
-      Assert::AreEqual(w(expected), w(actual), L"'<<' op W mismatch", LINE_INFO());
+      // 0x3F800000 << {0,1,2,3} = {0x3F800000, 0x7F000000, 0xFE000000, 0xFC000000}
+      const auto expected = v_f32_4(_mm_castsi128_ps(_mm_set_epi32(
+          static_cast<Int_32>(0xFC000000u), static_cast<Int_32>(0xFE000000u), 0x7F000000, 0x3F800000)));
+      Assert::IsTrue(allTrue(expected == actual), L"'<<' op per-lane mismatch", LINE_INFO());
     }
 
-    // ">>"
     TEST_METHOD(testRightShiftOperator) {
       const v_f32_4 given = One<v_f32_4>();
-      // _mm_srl_epi32 reads the shift count from the low 64-bit element
-      const v_f32_4::VectorBoolType shift{1, 0, 0, 0};
+      const v_i32_4 shift{0, 1, 2, 3};
       const auto actual = given >> shift;
-      // Shifting the bit pattern of 1.0f (0x3F800000) right by 1 gives 0x1FC00000
-      const auto expected = v_f32_4(_mm_castsi128_ps(_mm_srli_epi32(_mm_castps_si128(given.components), 1)));
-
-      Assert::AreEqual(x(expected), x(actual), L"'>>' op X mismatch", LINE_INFO());
-      Assert::AreEqual(y(expected), y(actual), L"'>>' op Y mismatch", LINE_INFO());
-      Assert::AreEqual(z(expected), z(actual), L"'>>' op Z mismatch", LINE_INFO());
-      Assert::AreEqual(w(expected), w(actual), L"'>>' op W mismatch", LINE_INFO());
+      // 0x3F800000 >> {0,1,2,3} = {0x3F800000, 0x1FC00000, 0x0FE00000, 0x07F00000}
+      const auto expected = v_f32_4(_mm_castsi128_ps(_mm_set_epi32(0x07F00000, 0x0FE00000, 0x1FC00000, 0x3F800000)));
+      Assert::IsTrue(allTrue(expected == actual), L"'>>' op per-lane mismatch", LINE_INFO());
     }
 
     // "<"

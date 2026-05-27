@@ -59,6 +59,64 @@ namespace vectorization::test {
       Assert::IsTrue(allTrue(Zero<v_i64_4>() == actual), L"'^' op value mismatch", LINE_INFO());
     }
 
+    TEST_METHOD(testLeftShiftOperator) {
+      const v_i64_4 given{1LL, 2LL, 4LL, 8LL};
+      const v_i64_4 shift{0LL, 1LL, 2LL, 3LL};
+      const v_i64_4 expected{1LL, 4LL, 16LL, 64LL};
+      Assert::IsTrue(allTrue(expected == (given << shift)), L"'<<' op per-lane mismatch", LINE_INFO());
+    }
+
+    TEST_METHOD(testLeftShiftScalarOperator) {
+      const v_i64_4 given{1LL, 2LL, 4LL, 8LL};
+      const v_i64_4 expected{2LL, 4LL, 8LL, 16LL};
+      Assert::IsTrue(allTrue(expected == (given << Int_64{1})), L"'<<' scalar mismatch", LINE_INFO());
+      Assert::IsTrue(allTrue(expected == (given << UInt_64{1})), L"'<<' unsigned scalar mismatch", LINE_INFO());
+    }
+
+    TEST_METHOD(testLeftShiftCrossSignednessOperator) {
+      const v_i64_4 given{1LL, 2LL, 4LL, 8LL};
+      const v_ui64_4 shift{0ULL, 1ULL, 2ULL, 3ULL};
+      const v_i64_4 expected{1LL, 4LL, 16LL, 64LL};
+      Assert::IsTrue(allTrue(expected == (given << shift)), L"'<<' cross-sign mismatch", LINE_INFO());
+    }
+
+    TEST_METHOD(testRightShiftOperator) {
+      const v_i64_4 given{-8LL, -16LL, -32LL, -64LL};
+      const v_i64_4 shift{1LL, 2LL, 3LL, 4LL};
+      const v_i64_4 expected{-4LL, -4LL, -4LL, -4LL};
+      Assert::IsTrue(allTrue(expected == (given >> shift)), L"'>>' op arithmetic shift mismatch", LINE_INFO());
+    }
+
+    TEST_METHOD(testRightShiftIsArithmetic) {
+      const v_i64_4 given{Int_64{-1}};
+      const v_i64_4 shift{1LL, 8LL, 16LL, 32LL};
+      const v_i64_4 expected{Int_64{-1}};
+      Assert::IsTrue(allTrue(expected == (given >> shift)), L"'>>' must sign-extend", LINE_INFO());
+    }
+
+    TEST_METHOD(testRightShiftScalarOperator) {
+      const v_i64_4 given{-16LL, -32LL, -64LL, -128LL};
+      const v_i64_4 expected{-8LL, -16LL, -32LL, -64LL};
+      Assert::IsTrue(allTrue(expected == (given >> Int_64{1})), L"'>>' scalar mismatch", LINE_INFO());
+      Assert::IsTrue(allTrue(expected == (given >> UInt_64{1})), L"'>>' unsigned scalar mismatch", LINE_INFO());
+    }
+
+    TEST_METHOD(testCompoundLeftShiftAssignOperator) {
+      v_i64_4 actual{1LL, 2LL, 4LL, 8LL};
+      const v_i64_4 shift{0LL, 1LL, 2LL, 3LL};
+      const auto expected = actual << shift;
+      actual <<= shift;
+      Assert::IsTrue(allTrue(expected == actual), L"'<<=' op value mismatch", LINE_INFO());
+    }
+
+    TEST_METHOD(testCompoundRightShiftAssignOperator) {
+      v_i64_4 actual{-8LL, -16LL, -32LL, -64LL};
+      const v_i64_4 shift{1LL, 2LL, 3LL, 4LL};
+      const auto expected = actual >> shift;
+      actual >>= shift;
+      Assert::IsTrue(allTrue(expected == actual), L"'>>=' op value mismatch", LINE_INFO());
+    }
+
     TEST_METHOD(testEqualsOperator) {
       const v_i64_4 a{10LL, 20LL, 30LL, 40LL};
       const v_i64_4 b{10LL, 99LL, 30LL, 99LL};

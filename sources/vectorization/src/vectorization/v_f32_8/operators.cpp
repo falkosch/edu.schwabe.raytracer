@@ -1,44 +1,43 @@
 #include "vectorization/v_f32_8/operators.h"
 
 #include "vectorization/v_f32_8/accessors.h"
-#include "vectorization/v_f32_8/constants.h"
 
-#if VECTORIZATION_INTRINSICS_LEVEL < VECTORIZATION_AVX2
-#include <bit>
-#endif
-
+#include "vectorization/constants/values.h"
 #include "vectorization/functions/add.h"
+#include "vectorization/functions/bitwise.h"
+#include "vectorization/functions/compare.h"
 #include "vectorization/functions/divide.h"
 #include "vectorization/functions/modulo.h"
 #include "vectorization/functions/multiply.h"
+#include "vectorization/functions/negate.h"
+#include "vectorization/functions/shift.h"
 #include "vectorization/functions/subtract.h"
+#include "vectorization/v_ui32_8/type.h"
 
 namespace vectorization {
   v_f32_8 operator-(const v_f32_8 &v) noexcept {
 #if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
-    return _mm256_xor_ps(NegativeZero<v_f32_8::PackedType>(), v.components);
+    return negate(v.components);
 #else
-    const auto nz = NegativeZero<v_f32_8::HalfPackedType>();
-    return {{_mm_xor_ps(nz, v.components.lo), _mm_xor_ps(nz, v.components.hi)}};
+    return {{negate(v.components.lo), negate(v.components.hi)}};
 #endif
   }
 
   v_f32_8 operator~(const v_f32_8 &v) noexcept {
 #if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
-    return _mm256_xor_ps(MaskAll<v_f32_8::PackedType>(), v.components);
+    return bitwiseNot(v.components);
 #else
-    const auto m = MaskAll<v_f32_8::HalfPackedType>();
-    return {{_mm_xor_ps(m, v.components.lo), _mm_xor_ps(m, v.components.hi)}};
+    return {{bitwiseNot(v.components.lo), bitwiseNot(v.components.hi)}};
 #endif
   }
 
   v_f32_8::VectorBoolType operator!(const v_f32_8 &v) noexcept {
 #if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
-    return _mm256_castps_si256(_mm256_cmp_ps(v.components, Zero<v_f32_8::PackedType>(), _CMP_EQ_OQ));
+    return _mm256_castps_si256(compareEqual(v.components, Zero<v_f32_8::PackedType>()));
 #else
     const auto z = Zero<v_f32_8::HalfPackedType>();
-    return {{_mm_castps_si128(_mm_cmpeq_ps(v.components.lo, z)),
-             _mm_castps_si128(_mm_cmpeq_ps(v.components.hi, z))}};
+    return {{_mm_castps_si128(compareEqual(v.components.lo, z)),
+             _mm_castps_si128(compareEqual(v.components.hi, z))}};
 #endif
   }
 
@@ -116,51 +115,97 @@ namespace vectorization {
 
   v_f32_8 operator&(const v_f32_8 &a, const v_f32_8 &b) noexcept {
 #if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
-    return _mm256_and_ps(a.components, b.components);
+    return bitwiseAnd(a.components, b.components);
 #else
-    return {{_mm_and_ps(a.components.lo, b.components.lo), _mm_and_ps(a.components.hi, b.components.hi)}};
+    return {{bitwiseAnd(a.components.lo, b.components.lo), bitwiseAnd(a.components.hi, b.components.hi)}};
 #endif
   }
 
   v_f32_8 operator|(const v_f32_8 &a, const v_f32_8 &b) noexcept {
 #if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
-    return _mm256_or_ps(a.components, b.components);
+    return bitwiseOr(a.components, b.components);
 #else
-    return {{_mm_or_ps(a.components.lo, b.components.lo), _mm_or_ps(a.components.hi, b.components.hi)}};
+    return {{bitwiseOr(a.components.lo, b.components.lo), bitwiseOr(a.components.hi, b.components.hi)}};
 #endif
   }
 
   v_f32_8 operator^(const v_f32_8 &a, const v_f32_8 &b) noexcept {
 #if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
-    return _mm256_xor_ps(a.components, b.components);
+    return bitwiseXor(a.components, b.components);
 #else
-    return {{_mm_xor_ps(a.components.lo, b.components.lo), _mm_xor_ps(a.components.hi, b.components.hi)}};
+    return {{bitwiseXor(a.components.lo, b.components.lo), bitwiseXor(a.components.hi, b.components.hi)}};
 #endif
   }
 
-  v_f32_8 operator<<(const v_f32_8 &a, const v_f32_8::VectorBoolType &b) noexcept {
-#if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX2
-    return _mm256_castsi256_ps(_mm256_sllv_epi32(_mm256_castps_si256(a.components), b.components));
+  v_f32_8 operator<<(const v_f32_8 &a, const Int_32 count) noexcept {
+#if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
+    return _mm256_castsi256_ps(shiftLeft32(_mm256_castps_si256(a.components), count));
 #else
-    v_f32_8 result;
-    for (ASizeT i = 0; i < v_f32_8::SIZE; ++i) {
-      const auto bits = std::bit_cast<Int_32>(a[i]);
-      result[i] = std::bit_cast<Float_32>(bits << b[i]);
-    }
-    return result;
+    return {{_mm_castsi128_ps(shiftLeft32(_mm_castps_si128(a.components.lo), count)),
+             _mm_castsi128_ps(shiftLeft32(_mm_castps_si128(a.components.hi), count))}};
 #endif
   }
 
-  v_f32_8 operator>>(const v_f32_8 &a, const v_f32_8::VectorBoolType &b) noexcept {
-#if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX2
-    return _mm256_castsi256_ps(_mm256_srlv_epi32(_mm256_castps_si256(a.components), b.components));
+  v_f32_8 operator<<(const v_f32_8 &a, const UInt_32 count) noexcept {
+#if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
+    return _mm256_castsi256_ps(shiftLeft32(_mm256_castps_si256(a.components), count));
 #else
-    v_f32_8 result;
-    for (ASizeT i = 0; i < v_f32_8::SIZE; ++i) {
-      const auto bits = std::bit_cast<Int_32>(a[i]);
-      result[i] = std::bit_cast<Float_32>(static_cast<Int_32>(static_cast<UInt_32>(bits) >> b[i]));
-    }
-    return result;
+    return {{_mm_castsi128_ps(shiftLeft32(_mm_castps_si128(a.components.lo), count)),
+             _mm_castsi128_ps(shiftLeft32(_mm_castps_si128(a.components.hi), count))}};
+#endif
+  }
+
+  v_f32_8 operator<<(const v_f32_8 &a, const v_i32_8 &b) noexcept {
+#if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
+    return _mm256_castsi256_ps(shiftLeft32(_mm256_castps_si256(a.components), b.components));
+#else
+    return {{_mm_castsi128_ps(shiftLeft32(_mm_castps_si128(a.components.lo), b.components.lo)),
+             _mm_castsi128_ps(shiftLeft32(_mm_castps_si128(a.components.hi), b.components.hi))}};
+#endif
+  }
+
+  v_f32_8 operator<<(const v_f32_8 &a, const v_ui32_8 &b) noexcept {
+#if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
+    return _mm256_castsi256_ps(shiftLeft32(_mm256_castps_si256(a.components), b.components));
+#else
+    return {{_mm_castsi128_ps(shiftLeft32(_mm_castps_si128(a.components.lo), b.components.lo)),
+             _mm_castsi128_ps(shiftLeft32(_mm_castps_si128(a.components.hi), b.components.hi))}};
+#endif
+  }
+
+  v_f32_8 operator>>(const v_f32_8 &a, const Int_32 count) noexcept {
+#if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
+    return _mm256_castsi256_ps(shiftRightLogical32(_mm256_castps_si256(a.components), count));
+#else
+    return {{_mm_castsi128_ps(shiftRightLogical32(_mm_castps_si128(a.components.lo), count)),
+             _mm_castsi128_ps(shiftRightLogical32(_mm_castps_si128(a.components.hi), count))}};
+#endif
+  }
+
+  v_f32_8 operator>>(const v_f32_8 &a, const UInt_32 count) noexcept {
+#if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
+    return _mm256_castsi256_ps(shiftRightLogical32(_mm256_castps_si256(a.components), count));
+#else
+    return {{_mm_castsi128_ps(shiftRightLogical32(_mm_castps_si128(a.components.lo), count)),
+             _mm_castsi128_ps(shiftRightLogical32(_mm_castps_si128(a.components.hi), count))}};
+#endif
+  }
+
+  v_f32_8 operator>>(const v_f32_8 &a, const v_i32_8 &b) noexcept {
+#if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
+    return _mm256_castsi256_ps(shiftRightLogical32(_mm256_castps_si256(a.components), b.components));
+#else
+    return {{_mm_castsi128_ps(shiftRightLogical32(_mm_castps_si128(a.components.lo), b.components.lo)),
+             _mm_castsi128_ps(shiftRightLogical32(_mm_castps_si128(a.components.hi), b.components.hi))}};
+#endif
+  }
+
+  v_f32_8 operator>>(const v_f32_8 &a, const v_ui32_8 &b) noexcept {
+#if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
+    return _mm256_castsi256_ps(shiftRightLogical32(_mm256_castps_si256(a.components), b.components));
+#else
+    return {{_mm_castsi128_ps(shiftRightLogical32(_mm_castps_si128(a.components.lo), b.components.lo)),
+             _mm_castsi128_ps(shiftRightLogical32(_mm_castps_si128(a.components.hi), b.components.hi))}};
 #endif
   }
 
@@ -172,60 +217,67 @@ namespace vectorization {
   v_f32_8 &operator&=(v_f32_8 &a, const v_f32_8 &b) noexcept { return a = a & b; }
   v_f32_8 &operator|=(v_f32_8 &a, const v_f32_8 &b) noexcept { return a = a | b; }
   v_f32_8 &operator^=(v_f32_8 &a, const v_f32_8 &b) noexcept { return a = a ^ b; }
-  v_f32_8 &operator<<=(v_f32_8 &a, const v_f32_8::VectorBoolType &b) noexcept { return a = a << b; }
-  v_f32_8 &operator>>=(v_f32_8 &a, const v_f32_8::VectorBoolType &b) noexcept { return a = a >> b; }
+  v_f32_8 &operator<<=(v_f32_8 &a, const Int_32 count) noexcept { return a = a << count; }
+  v_f32_8 &operator<<=(v_f32_8 &a, const UInt_32 count) noexcept { return a = a << count; }
+  v_f32_8 &operator<<=(v_f32_8 &a, const v_i32_8 &b) noexcept { return a = a << b; }
+  v_f32_8 &operator<<=(v_f32_8 &a, const v_ui32_8 &b) noexcept { return a = a << b; }
+
+  v_f32_8 &operator>>=(v_f32_8 &a, const Int_32 count) noexcept { return a = a >> count; }
+  v_f32_8 &operator>>=(v_f32_8 &a, const UInt_32 count) noexcept { return a = a >> count; }
+  v_f32_8 &operator>>=(v_f32_8 &a, const v_i32_8 &b) noexcept { return a = a >> b; }
+  v_f32_8 &operator>>=(v_f32_8 &a, const v_ui32_8 &b) noexcept { return a = a >> b; }
 
   v_f32_8::VectorBoolType operator<(const v_f32_8 &a, const v_f32_8 &b) noexcept {
 #if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
-    return _mm256_castps_si256(_mm256_cmp_ps(a.components, b.components, _CMP_LT_OS));
+    return _mm256_castps_si256(compareLess(a.components, b.components));
 #else
-    return {{_mm_castps_si128(_mm_cmplt_ps(a.components.lo, b.components.lo)),
-             _mm_castps_si128(_mm_cmplt_ps(a.components.hi, b.components.hi))}};
+    return {{_mm_castps_si128(compareLess(a.components.lo, b.components.lo)),
+             _mm_castps_si128(compareLess(a.components.hi, b.components.hi))}};
 #endif
   }
 
   v_f32_8::VectorBoolType operator>(const v_f32_8 &a, const v_f32_8 &b) noexcept {
 #if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
-    return _mm256_castps_si256(_mm256_cmp_ps(a.components, b.components, _CMP_GT_OS));
+    return _mm256_castps_si256(compareGreater(a.components, b.components));
 #else
-    return {{_mm_castps_si128(_mm_cmpgt_ps(a.components.lo, b.components.lo)),
-             _mm_castps_si128(_mm_cmpgt_ps(a.components.hi, b.components.hi))}};
+    return {{_mm_castps_si128(compareGreater(a.components.lo, b.components.lo)),
+             _mm_castps_si128(compareGreater(a.components.hi, b.components.hi))}};
 #endif
   }
 
   v_f32_8::VectorBoolType operator<=(const v_f32_8 &a, const v_f32_8 &b) noexcept {
 #if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
-    return _mm256_castps_si256(_mm256_cmp_ps(a.components, b.components, _CMP_LE_OS));
+    return _mm256_castps_si256(compareLessEqual(a.components, b.components));
 #else
-    return {{_mm_castps_si128(_mm_cmple_ps(a.components.lo, b.components.lo)),
-             _mm_castps_si128(_mm_cmple_ps(a.components.hi, b.components.hi))}};
+    return {{_mm_castps_si128(compareLessEqual(a.components.lo, b.components.lo)),
+             _mm_castps_si128(compareLessEqual(a.components.hi, b.components.hi))}};
 #endif
   }
 
   v_f32_8::VectorBoolType operator>=(const v_f32_8 &a, const v_f32_8 &b) noexcept {
 #if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
-    return _mm256_castps_si256(_mm256_cmp_ps(a.components, b.components, _CMP_GE_OS));
+    return _mm256_castps_si256(compareGreaterEqual(a.components, b.components));
 #else
-    return {{_mm_castps_si128(_mm_cmpge_ps(a.components.lo, b.components.lo)),
-             _mm_castps_si128(_mm_cmpge_ps(a.components.hi, b.components.hi))}};
+    return {{_mm_castps_si128(compareGreaterEqual(a.components.lo, b.components.lo)),
+             _mm_castps_si128(compareGreaterEqual(a.components.hi, b.components.hi))}};
 #endif
   }
 
   v_f32_8::VectorBoolType operator==(const v_f32_8 &a, const v_f32_8 &b) noexcept {
 #if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
-    return _mm256_castps_si256(_mm256_cmp_ps(a.components, b.components, _CMP_EQ_OQ));
+    return _mm256_castps_si256(compareEqual(a.components, b.components));
 #else
-    return {{_mm_castps_si128(_mm_cmpeq_ps(a.components.lo, b.components.lo)),
-             _mm_castps_si128(_mm_cmpeq_ps(a.components.hi, b.components.hi))}};
+    return {{_mm_castps_si128(compareEqual(a.components.lo, b.components.lo)),
+             _mm_castps_si128(compareEqual(a.components.hi, b.components.hi))}};
 #endif
   }
 
   v_f32_8::VectorBoolType operator!=(const v_f32_8 &a, const v_f32_8 &b) noexcept {
 #if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
-    return _mm256_castps_si256(_mm256_cmp_ps(a.components, b.components, _CMP_NEQ_UQ));
+    return _mm256_castps_si256(compareNotEqual(a.components, b.components));
 #else
-    return {{_mm_castps_si128(_mm_cmpneq_ps(a.components.lo, b.components.lo)),
-             _mm_castps_si128(_mm_cmpneq_ps(a.components.hi, b.components.hi))}};
+    return {{_mm_castps_si128(compareNotEqual(a.components.lo, b.components.lo)),
+             _mm_castps_si128(compareNotEqual(a.components.hi, b.components.hi))}};
 #endif
   }
 

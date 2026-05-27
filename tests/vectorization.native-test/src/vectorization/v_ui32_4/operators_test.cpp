@@ -75,18 +75,16 @@ namespace vectorization::test {
 
     TEST_METHOD(testLeftShiftOperator) {
       const v_ui32_4 given{1u, 2u, 4u, 8u};
-      // _mm_sll_epi32 reads the shift count from the low 64-bit element
-      const v_ui32_4 shift{1u, 0u, 0u, 0u};
-      const v_ui32_4 expected{2u, 4u, 8u, 16u};
-      Assert::IsTrue(allTrue(expected == (given << shift)), L"'<<' op value mismatch", LINE_INFO());
+      const v_ui32_4 shift{0u, 1u, 2u, 3u};
+      const v_ui32_4 expected{1u, 4u, 16u, 64u};
+      Assert::IsTrue(allTrue(expected == (given << shift)), L"'<<' op per-lane mismatch", LINE_INFO());
     }
 
     TEST_METHOD(testRightShiftOperator) {
-      const v_ui32_4 given{2u, 4u, 8u, 16u};
-      // _mm_srl_epi32 reads the shift count from the low 64-bit element
-      const v_ui32_4 shift{1u, 0u, 0u, 0u};
-      const v_ui32_4 expected{1u, 2u, 4u, 8u};
-      Assert::IsTrue(allTrue(expected == (given >> shift)), L"'>>' op value mismatch", LINE_INFO());
+      const v_ui32_4 given{UInt_32{0x80000000u}, UInt_32{0x80000000u}, UInt_32{0x80000000u}, UInt_32{0x80000000u}};
+      const v_ui32_4 shift{1u, 2u, 3u, 4u};
+      const v_ui32_4 expected{UInt_32{0x40000000u}, UInt_32{0x20000000u}, UInt_32{0x10000000u}, UInt_32{0x08000000u}};
+      Assert::IsTrue(allTrue(expected == (given >> shift)), L"'>>' op logical shift mismatch", LINE_INFO());
     }
 
     TEST_METHOD(testEqualsOperator) {

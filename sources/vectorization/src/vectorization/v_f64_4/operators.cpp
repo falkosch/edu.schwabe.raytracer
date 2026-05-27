@@ -3,42 +3,41 @@
 #include "vectorization/v_f64_4/accessors.h"
 #include "vectorization/v_f64_4/constants.h"
 
-#if VECTORIZATION_INTRINSICS_LEVEL < VECTORIZATION_AVX2
-#include <bit>
-#endif
-
 #include "vectorization/functions/add.h"
+#include "vectorization/functions/bitwise.h"
+#include "vectorization/functions/compare.h"
 #include "vectorization/functions/divide.h"
 #include "vectorization/functions/modulo.h"
 #include "vectorization/functions/multiply.h"
+#include "vectorization/functions/negate.h"
+#include "vectorization/functions/shift.h"
 #include "vectorization/functions/subtract.h"
+#include "vectorization/v_ui64_4/type.h"
 
 namespace vectorization {
   v_f64_4 operator-(const v_f64_4 &v) noexcept {
 #if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
-    return _mm256_xor_pd(NegativeZero<v_f64_4::PackedType>(), v.components);
+    return negate(v.components);
 #else
-    const auto nz = NegativeZero<v_f64_4::HalfPackedType>();
-    return {{_mm_xor_pd(nz, v.components.lo), _mm_xor_pd(nz, v.components.hi)}};
+    return {{negate(v.components.lo), negate(v.components.hi)}};
 #endif
   }
 
   v_f64_4 operator~(const v_f64_4 &v) noexcept {
 #if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
-    return _mm256_xor_pd(MaskAll<v_f64_4::PackedType>(), v.components);
+    return bitwiseNot(v.components);
 #else
-    const auto m = MaskAll<v_f64_4::HalfPackedType>();
-    return {{_mm_xor_pd(m, v.components.lo), _mm_xor_pd(m, v.components.hi)}};
+    return {{bitwiseNot(v.components.lo), bitwiseNot(v.components.hi)}};
 #endif
   }
 
   v_f64_4::VectorBoolType operator!(const v_f64_4 &v) noexcept {
 #if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
-    return _mm256_castpd_si256(_mm256_cmp_pd(v.components, Zero<v_f64_4::PackedType>(), _CMP_EQ_OQ));
+    return _mm256_castpd_si256(compareEqual(v.components, Zero<v_f64_4::PackedType>()));
 #else
     const auto z = Zero<v_f64_4::HalfPackedType>();
-    return {{_mm_castpd_si128(_mm_cmpeq_pd(v.components.lo, z)),
-             _mm_castpd_si128(_mm_cmpeq_pd(v.components.hi, z))}};
+    return {{_mm_castpd_si128(compareEqual(v.components.lo, z)),
+             _mm_castpd_si128(compareEqual(v.components.hi, z))}};
 #endif
   }
 
@@ -116,51 +115,97 @@ namespace vectorization {
 
   v_f64_4 operator&(const v_f64_4 &a, const v_f64_4 &b) noexcept {
 #if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
-    return _mm256_and_pd(a.components, b.components);
+    return bitwiseAnd(a.components, b.components);
 #else
-    return {{_mm_and_pd(a.components.lo, b.components.lo), _mm_and_pd(a.components.hi, b.components.hi)}};
+    return {{bitwiseAnd(a.components.lo, b.components.lo), bitwiseAnd(a.components.hi, b.components.hi)}};
 #endif
   }
 
   v_f64_4 operator|(const v_f64_4 &a, const v_f64_4 &b) noexcept {
 #if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
-    return _mm256_or_pd(a.components, b.components);
+    return bitwiseOr(a.components, b.components);
 #else
-    return {{_mm_or_pd(a.components.lo, b.components.lo), _mm_or_pd(a.components.hi, b.components.hi)}};
+    return {{bitwiseOr(a.components.lo, b.components.lo), bitwiseOr(a.components.hi, b.components.hi)}};
 #endif
   }
 
   v_f64_4 operator^(const v_f64_4 &a, const v_f64_4 &b) noexcept {
 #if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
-    return _mm256_xor_pd(a.components, b.components);
+    return bitwiseXor(a.components, b.components);
 #else
-    return {{_mm_xor_pd(a.components.lo, b.components.lo), _mm_xor_pd(a.components.hi, b.components.hi)}};
+    return {{bitwiseXor(a.components.lo, b.components.lo), bitwiseXor(a.components.hi, b.components.hi)}};
 #endif
   }
 
-  v_f64_4 operator<<(const v_f64_4 &a, const v_f64_4::VectorBoolType &b) noexcept {
-#if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX2
-    return _mm256_castsi256_pd(_mm256_sllv_epi64(_mm256_castpd_si256(a.components), b.components));
+  v_f64_4 operator<<(const v_f64_4 &a, const Int_64 count) noexcept {
+#if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
+    return _mm256_castsi256_pd(shiftLeft64(_mm256_castpd_si256(a.components), count));
 #else
-    v_f64_4 result;
-    for (ASizeT i = 0; i < v_f64_4::SIZE; ++i) {
-      const auto bits = std::bit_cast<Int_64>(a[i]);
-      result[i] = std::bit_cast<Float_64>(bits << b[i]);
-    }
-    return result;
+    return {{_mm_castsi128_pd(shiftLeft64(_mm_castpd_si128(a.components.lo), count)),
+             _mm_castsi128_pd(shiftLeft64(_mm_castpd_si128(a.components.hi), count))}};
 #endif
   }
 
-  v_f64_4 operator>>(const v_f64_4 &a, const v_f64_4::VectorBoolType &b) noexcept {
-#if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX2
-    return _mm256_castsi256_pd(_mm256_srlv_epi64(_mm256_castpd_si256(a.components), b.components));
+  v_f64_4 operator<<(const v_f64_4 &a, const UInt_64 count) noexcept {
+#if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
+    return _mm256_castsi256_pd(shiftLeft64(_mm256_castpd_si256(a.components), count));
 #else
-    v_f64_4 result;
-    for (ASizeT i = 0; i < v_f64_4::SIZE; ++i) {
-      const auto bits = std::bit_cast<Int_64>(a[i]);
-      result[i] = std::bit_cast<Float_64>(static_cast<Int_64>(static_cast<UInt_64>(bits) >> b[i]));
-    }
-    return result;
+    return {{_mm_castsi128_pd(shiftLeft64(_mm_castpd_si128(a.components.lo), count)),
+             _mm_castsi128_pd(shiftLeft64(_mm_castpd_si128(a.components.hi), count))}};
+#endif
+  }
+
+  v_f64_4 operator<<(const v_f64_4 &a, const v_i64_4 &b) noexcept {
+#if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
+    return _mm256_castsi256_pd(shiftLeft64(_mm256_castpd_si256(a.components), b.components));
+#else
+    return {{_mm_castsi128_pd(shiftLeft64(_mm_castpd_si128(a.components.lo), b.components.lo)),
+             _mm_castsi128_pd(shiftLeft64(_mm_castpd_si128(a.components.hi), b.components.hi))}};
+#endif
+  }
+
+  v_f64_4 operator<<(const v_f64_4 &a, const v_ui64_4 &b) noexcept {
+#if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
+    return _mm256_castsi256_pd(shiftLeft64(_mm256_castpd_si256(a.components), b.components));
+#else
+    return {{_mm_castsi128_pd(shiftLeft64(_mm_castpd_si128(a.components.lo), b.components.lo)),
+             _mm_castsi128_pd(shiftLeft64(_mm_castpd_si128(a.components.hi), b.components.hi))}};
+#endif
+  }
+
+  v_f64_4 operator>>(const v_f64_4 &a, const Int_64 count) noexcept {
+#if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
+    return _mm256_castsi256_pd(shiftRightLogical64(_mm256_castpd_si256(a.components), count));
+#else
+    return {{_mm_castsi128_pd(shiftRightLogical64(_mm_castpd_si128(a.components.lo), count)),
+             _mm_castsi128_pd(shiftRightLogical64(_mm_castpd_si128(a.components.hi), count))}};
+#endif
+  }
+
+  v_f64_4 operator>>(const v_f64_4 &a, const UInt_64 count) noexcept {
+#if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
+    return _mm256_castsi256_pd(shiftRightLogical64(_mm256_castpd_si256(a.components), count));
+#else
+    return {{_mm_castsi128_pd(shiftRightLogical64(_mm_castpd_si128(a.components.lo), count)),
+             _mm_castsi128_pd(shiftRightLogical64(_mm_castpd_si128(a.components.hi), count))}};
+#endif
+  }
+
+  v_f64_4 operator>>(const v_f64_4 &a, const v_i64_4 &b) noexcept {
+#if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
+    return _mm256_castsi256_pd(shiftRightLogical64(_mm256_castpd_si256(a.components), b.components));
+#else
+    return {{_mm_castsi128_pd(shiftRightLogical64(_mm_castpd_si128(a.components.lo), b.components.lo)),
+             _mm_castsi128_pd(shiftRightLogical64(_mm_castpd_si128(a.components.hi), b.components.hi))}};
+#endif
+  }
+
+  v_f64_4 operator>>(const v_f64_4 &a, const v_ui64_4 &b) noexcept {
+#if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
+    return _mm256_castsi256_pd(shiftRightLogical64(_mm256_castpd_si256(a.components), b.components));
+#else
+    return {{_mm_castsi128_pd(shiftRightLogical64(_mm_castpd_si128(a.components.lo), b.components.lo)),
+             _mm_castsi128_pd(shiftRightLogical64(_mm_castpd_si128(a.components.hi), b.components.hi))}};
 #endif
   }
 
@@ -172,60 +217,67 @@ namespace vectorization {
   v_f64_4 &operator&=(v_f64_4 &a, const v_f64_4 &b) noexcept { return a = a & b; }
   v_f64_4 &operator|=(v_f64_4 &a, const v_f64_4 &b) noexcept { return a = a | b; }
   v_f64_4 &operator^=(v_f64_4 &a, const v_f64_4 &b) noexcept { return a = a ^ b; }
-  v_f64_4 &operator<<=(v_f64_4 &a, const v_f64_4::VectorBoolType &b) noexcept { return a = a << b; }
-  v_f64_4 &operator>>=(v_f64_4 &a, const v_f64_4::VectorBoolType &b) noexcept { return a = a >> b; }
+  v_f64_4 &operator<<=(v_f64_4 &a, const Int_64 count) noexcept { return a = a << count; }
+  v_f64_4 &operator<<=(v_f64_4 &a, const UInt_64 count) noexcept { return a = a << count; }
+  v_f64_4 &operator<<=(v_f64_4 &a, const v_i64_4 &b) noexcept { return a = a << b; }
+  v_f64_4 &operator<<=(v_f64_4 &a, const v_ui64_4 &b) noexcept { return a = a << b; }
+
+  v_f64_4 &operator>>=(v_f64_4 &a, const Int_64 count) noexcept { return a = a >> count; }
+  v_f64_4 &operator>>=(v_f64_4 &a, const UInt_64 count) noexcept { return a = a >> count; }
+  v_f64_4 &operator>>=(v_f64_4 &a, const v_i64_4 &b) noexcept { return a = a >> b; }
+  v_f64_4 &operator>>=(v_f64_4 &a, const v_ui64_4 &b) noexcept { return a = a >> b; }
 
   v_f64_4::VectorBoolType operator<(const v_f64_4 &a, const v_f64_4 &b) noexcept {
 #if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
-    return _mm256_castpd_si256(_mm256_cmp_pd(a.components, b.components, _CMP_LT_OS));
+    return _mm256_castpd_si256(compareLess(a.components, b.components));
 #else
-    return {{_mm_castpd_si128(_mm_cmplt_pd(a.components.lo, b.components.lo)),
-             _mm_castpd_si128(_mm_cmplt_pd(a.components.hi, b.components.hi))}};
+    return {{_mm_castpd_si128(compareLess(a.components.lo, b.components.lo)),
+             _mm_castpd_si128(compareLess(a.components.hi, b.components.hi))}};
 #endif
   }
 
   v_f64_4::VectorBoolType operator>(const v_f64_4 &a, const v_f64_4 &b) noexcept {
 #if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
-    return _mm256_castpd_si256(_mm256_cmp_pd(a.components, b.components, _CMP_GT_OS));
+    return _mm256_castpd_si256(compareGreater(a.components, b.components));
 #else
-    return {{_mm_castpd_si128(_mm_cmpgt_pd(a.components.lo, b.components.lo)),
-             _mm_castpd_si128(_mm_cmpgt_pd(a.components.hi, b.components.hi))}};
+    return {{_mm_castpd_si128(compareGreater(a.components.lo, b.components.lo)),
+             _mm_castpd_si128(compareGreater(a.components.hi, b.components.hi))}};
 #endif
   }
 
   v_f64_4::VectorBoolType operator<=(const v_f64_4 &a, const v_f64_4 &b) noexcept {
 #if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
-    return _mm256_castpd_si256(_mm256_cmp_pd(a.components, b.components, _CMP_LE_OS));
+    return _mm256_castpd_si256(compareLessEqual(a.components, b.components));
 #else
-    return {{_mm_castpd_si128(_mm_cmple_pd(a.components.lo, b.components.lo)),
-             _mm_castpd_si128(_mm_cmple_pd(a.components.hi, b.components.hi))}};
+    return {{_mm_castpd_si128(compareLessEqual(a.components.lo, b.components.lo)),
+             _mm_castpd_si128(compareLessEqual(a.components.hi, b.components.hi))}};
 #endif
   }
 
   v_f64_4::VectorBoolType operator>=(const v_f64_4 &a, const v_f64_4 &b) noexcept {
 #if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
-    return _mm256_castpd_si256(_mm256_cmp_pd(a.components, b.components, _CMP_GE_OS));
+    return _mm256_castpd_si256(compareGreaterEqual(a.components, b.components));
 #else
-    return {{_mm_castpd_si128(_mm_cmpge_pd(a.components.lo, b.components.lo)),
-             _mm_castpd_si128(_mm_cmpge_pd(a.components.hi, b.components.hi))}};
+    return {{_mm_castpd_si128(compareGreaterEqual(a.components.lo, b.components.lo)),
+             _mm_castpd_si128(compareGreaterEqual(a.components.hi, b.components.hi))}};
 #endif
   }
 
   v_f64_4::VectorBoolType operator==(const v_f64_4 &a, const v_f64_4 &b) noexcept {
 #if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
-    return _mm256_castpd_si256(_mm256_cmp_pd(a.components, b.components, _CMP_EQ_OQ));
+    return _mm256_castpd_si256(compareEqual(a.components, b.components));
 #else
-    return {{_mm_castpd_si128(_mm_cmpeq_pd(a.components.lo, b.components.lo)),
-             _mm_castpd_si128(_mm_cmpeq_pd(a.components.hi, b.components.hi))}};
+    return {{_mm_castpd_si128(compareEqual(a.components.lo, b.components.lo)),
+             _mm_castpd_si128(compareEqual(a.components.hi, b.components.hi))}};
 #endif
   }
 
   v_f64_4::VectorBoolType operator!=(const v_f64_4 &a, const v_f64_4 &b) noexcept {
 #if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
-    return _mm256_castpd_si256(_mm256_cmp_pd(a.components, b.components, _CMP_NEQ_UQ));
+    return _mm256_castpd_si256(compareNotEqual(a.components, b.components));
 #else
-    return {{_mm_castpd_si128(_mm_cmpneq_pd(a.components.lo, b.components.lo)),
-             _mm_castpd_si128(_mm_cmpneq_pd(a.components.hi, b.components.hi))}};
+    return {{_mm_castpd_si128(compareNotEqual(a.components.lo, b.components.lo)),
+             _mm_castpd_si128(compareNotEqual(a.components.hi, b.components.hi))}};
 #endif
   }
 

@@ -31,6 +31,8 @@
 #include "vectorization/functions/rsqrt.h"
 #include "vectorization/functions/sqrt.h"
 
+#include "vectorization/functions/movemask.h"
+
 namespace vectorization
 {
   v_f32_8 min(const v_f32_8& a, const v_f32_8& b) noexcept
@@ -282,10 +284,10 @@ namespace vectorization
   v_f32_8::BoolType isNegative(const v_f32_8& v) noexcept
   {
 #if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
-    return _mm256_movemask_ps(v.components);
+    return movemask(v.components);
 #else
-    return _mm_movemask_ps(v.components.lo)
-      | (_mm_movemask_ps(v.components.hi) << 4);
+    return movemask(v.components.lo)
+      | (movemask(v.components.hi) << 4);
 #endif
   }
 
@@ -415,10 +417,10 @@ namespace vectorization
   bool anyTrue(const v_f32_8& v) noexcept
   {
 #if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
-    return _mm256_movemask_ps(v.components) != 0;
+    return movemask(v.components) != 0;
 #else
-    return _mm_movemask_ps(v.components.lo) != 0
-      || _mm_movemask_ps(v.components.hi) != 0;
+    return movemask(v.components.lo) != 0
+      || movemask(v.components.hi) != 0;
 #endif
   }
 
@@ -430,20 +432,20 @@ namespace vectorization
   bool allTrue(const v_f32_8& v) noexcept
   {
 #if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
-    return _mm256_movemask_ps(v.components) == 0xFF;
+    return movemask(v.components) == 0xFF;
 #else
-    return _mm_movemask_ps(v.components.lo) == 0xF
-      && _mm_movemask_ps(v.components.hi) == 0xF;
+    return movemask(v.components.lo) == 0xF
+      && movemask(v.components.hi) == 0xF;
 #endif
   }
 
   bool allFalse(const v_f32_8& v) noexcept
   {
 #if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
-    return _mm256_movemask_ps(v.components) == 0;
+    return movemask(v.components) == 0;
 #else
-    return _mm_movemask_ps(v.components.lo) == 0
-      && _mm_movemask_ps(v.components.hi) == 0;
+    return movemask(v.components.lo) == 0
+      && movemask(v.components.hi) == 0;
 #endif
   }
 }

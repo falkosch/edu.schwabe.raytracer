@@ -28,6 +28,7 @@
 #include "vectorization/functions/max.h"
 #include "vectorization/functions/min.h"
 #include "vectorization/functions/mix.h"
+#include "vectorization/functions/movemask.h"
 #include "vectorization/functions/modulo.h"
 #include "vectorization/functions/multiply_add.h"
 #include "vectorization/functions/multiply_add_sub.h"
@@ -354,7 +355,7 @@ namespace vectorization
 
     v_f32_4::BoolType isNegative(const v_f32_4& v) noexcept
     {
-        return _mm_movemask_ps(v.components);
+        return movemask(v.components);
     }
 
     v_f32_4::VectorBoolType isNaN(const v_f32_4& v) noexcept
