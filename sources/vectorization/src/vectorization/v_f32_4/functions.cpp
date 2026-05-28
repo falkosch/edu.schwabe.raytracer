@@ -39,6 +39,7 @@
 #include "vectorization/functions/reciprocal.h"
 #include "vectorization/functions/round.h"
 #include "vectorization/functions/rsqrt.h"
+#include "vectorization/functions/sqr.h"
 #include "vectorization/functions/sqrt.h"
 
 namespace vectorization
@@ -376,6 +377,11 @@ namespace vectorization
     v_f32_4 sqrt(const v_f32_4& v) noexcept
     {
         return sqrt(v.components);
+    }
+
+    v_f32_4 sqr(const v_f32_4& v) noexcept
+    {
+        return sqr(v.components);
     }
 
     v_f32_4 reciprocal(const v_f32_4& v) noexcept

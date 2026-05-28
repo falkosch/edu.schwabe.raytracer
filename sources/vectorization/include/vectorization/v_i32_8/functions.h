@@ -10,6 +10,8 @@ namespace vectorization
 
     v_i32_8 abs(const v_i32_8& v) noexcept;
 
+    v_i32_8 sqr(const v_i32_8& v) noexcept;
+
     v_i32_8 min(const v_i32_8& a, const v_i32_8& b) noexcept;
     v_i32_8 max(const v_i32_8& a, const v_i32_8& b) noexcept;
 

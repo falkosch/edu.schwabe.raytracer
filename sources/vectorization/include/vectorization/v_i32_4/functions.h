@@ -15,6 +15,8 @@ namespace vectorization
 
     v_i32_4 abs(const v_i32_4& v) noexcept;
 
+    v_i32_4 sqr(const v_i32_4& v) noexcept;
+
     v_i32_4 lengthv(const v_i32_4& v) noexcept;
     v_i32_4 length3v(const v_i32_4& v) noexcept;
     v_i32_4::ValueType length(const v_i32_4& v) noexcept;

@@ -95,6 +95,11 @@ namespace vectorization
         return _mm_abs_epi32(v.components);
     }
 
+    v_i32_4 sqr(const v_i32_4& v) noexcept
+    {
+        return v * v;
+    }
+
     v_i32_4 clamp(const v_i32_4& v, const v_i32_4& l, const v_i32_4& m) noexcept
     {
         return max(l, min(v, m));

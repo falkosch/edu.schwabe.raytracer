@@ -10,7 +10,6 @@ namespace vectorization
     v_f32_4 min3v(const v_f32_4& v) noexcept;
     v_f32_4::ValueType min3(const v_f32_4& v) noexcept;
 
-
     v_f32_4 max(const v_f32_4& a, const v_f32_4& b) noexcept;
     v_f32_4 maxv(const v_f32_4& v) noexcept;
     v_f32_4::ValueType max(const v_f32_4& v) noexcept;
@@ -98,30 +97,22 @@ namespace vectorization
     // w(out) = w(a) + w(b);
     v_f32_4 addSubtract(const v_f32_4& a, const v_f32_4& b) noexcept;
 
+    v_f32_4 sqr(const v_f32_4& v) noexcept;
     v_f32_4 sqrt(const v_f32_4& v) noexcept;
-
     v_f32_4 reciprocal(const v_f32_4& v) noexcept;
-
     v_f32_4 rsqrt(const v_f32_4& v) noexcept;
 
     v_f32_4 ceil(const v_f32_4& v) noexcept;
-
     v_f32_4 floor(const v_f32_4& v) noexcept;
-
     v_f32_4 round(const v_f32_4& v) noexcept;
-
     v_f32_4 fract(const v_f32_4& v) noexcept;
 
     v_f32_4 modulo(const v_f32_4& a, const v_f32_4& b) noexcept;
-
     v_f32_4 abs(const v_f32_4& v) noexcept;
-
-    v_f32_4 cross3(const v_f32_4& a, const v_f32_4& b) noexcept;
-
     v_f32_4 clamp(const v_f32_4& v, const v_f32_4& lower, const v_f32_4& upper) noexcept;
 
+    v_f32_4 cross3(const v_f32_4& a, const v_f32_4& b) noexcept;
     v_f32_4 mapOrthogonal(const v_f32_4& v, const v_f32_4& sPlane, const v_f32_4& tPlane) noexcept;
-
     v_f32_4 mapSpherical(const v_f32_4& v) noexcept;
 
     ASizeT argmin3(const v_f32_4& v) noexcept;
