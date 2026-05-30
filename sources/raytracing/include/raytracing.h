@@ -16,3 +16,4 @@
 #include "raytracing/scene/Scene.h"
 #include "raytracing/shading/shaders/EnvironmentShader.h"
 #include "raytracing/shading/shaders/HDRImageShader.h"
+#include "raytracing/shading/shaders/RGBBackgroundShader.h"

@@ -4,6 +4,7 @@
 
 #include "PerLightShadowCache.h"
 #include "Raytrace.h"
+#include "spectral/wavelengths.h"
 
 namespace raytracer
 {
@@ -12,7 +13,8 @@ namespace raytracer
     struct SceneShaderContainment
     {
         Raytrace incidentRay;
-        Float4 F0;
+        // Fresnel reflectance at normal incidence, per wavelength [0,1]
+        spectral::SpectralVector F0;
         Float roughness;
         Float visibilityCutoff;
         PerLightShadowCache::ShadowCacheType* shadowCache;

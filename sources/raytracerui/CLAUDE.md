@@ -24,10 +24,10 @@ MessageLoopBasedUI (abstract, Windows message loop)
 
 ## Scenes (`include/tests/`, `src/tests/`)
 
-- `CornellBoxScene` -- default; classic Cornell box with glass sphere, noise-textured box, teapot mesh
+- `CornellBoxScene` -- default; classic Cornell box with a glass sphere, noise-textured box, teapot mesh
 - `DragonScene` -- dragon mesh with marble texture
 - `TestScene1` -- multi-object with various materials
-- `TestScene2` -- plane + emissive sphere
+- `TestScene2` -- plane and emissive sphere
 - `ProceduralScene<L,O>` -- parametric grid of lights and objects
 
 ## Controls
@@ -40,10 +40,10 @@ MessageLoopBasedUI (abstract, Windows message loop)
 
 ## Image pipeline
 
-HDR output (ACEScg) -> XYZ -> sRGB-linear -> AgX tone map -> sRGB encode -> OpenGL texture.
+HDR output (sRGB-linear from the spectral pipeline) → AgX tone map → sRGB encode → OpenGL texture.
 Display modes: tone-mapped image (0), timing heatmap (1), depth map (2).
 
 ## Thread safety
 
-Render results are marshalled from worker to UI thread via `pendingMutex` + `WM_RENDER_COMPLETE` message.
+Render results are marshaled from worker to UI thread via `pendingMutex` + `WM_RENDER_COMPLETE` message.
 Scene mutations use `Raytracer::enqueueWork()` to serialize with rendering.

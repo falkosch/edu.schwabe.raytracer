@@ -12,54 +12,58 @@
 #include <mutex>
 #include <thread>
 
-namespace raytracer {
-  using namespace vectorization;
+namespace raytracer
+{
+    using namespace vectorization;
 
-  class Raytracer final {
-  public:
-    Raytracer();
+    class Raytracer final
+    {
+    public:
+        Raytracer();
 
-    ~Raytracer();
+        ~Raytracer();
 
-    RaytraceConfiguration getRunning() const;
+        RaytraceConfiguration getRunning() const;
 
-    void requestUpdate();
+        void requestUpdate();
 
-    void trigger(const RaytraceParameters &parameters);
+        void trigger(const RaytraceParameters& parameters);
 
-    void stop();
+        void stop();
 
-    void enqueueWork(std::function<void()> work);
+        void enqueueWork(std::function<void()> work);
 
-  private:
-    std::atomic<ASizeT> runId;
+    private:
+        std::atomic<ASizeT> runId;
 
-    RaytraceConfiguration running;
+        RaytraceConfiguration running;
 
-    RaytraceConfiguration current;
+        RaytraceConfiguration current;
 
-    std::mutex mutex;
+        std::mutex mutex;
 
-    std::condition_variable_any workAvailable;
+        std::condition_variable_any workAvailable;
 
-    std::function<void()> pendingWork;
+        std::function<void()> pendingWork;
 
-    std::jthread workerThread;
+        std::jthread workerThread;
 
-    void workerLoop(const std::stop_token& stopToken);
+        void workerLoop(const std::stop_token& stopToken);
 
-    void trace();
+        void trace();
 
-    static RGBS applyBRDF(const BRDFParameters &brdf);
+        static spectral::Spectrum applyBRDF(const BRDFParameters& brdf);
 
-    static IlluminatedIntersection trace(const Raytrace &raytrace, RaytracerCache &cache);
+        static IlluminatedIntersection trace(const Raytrace& raytrace, RaytracerCache& cache);
 
-    static void
-    traceReflection(const Raytrace &incidentRaytrace, Float maxDistance, RaytracerCache &cache, BRDFParameters &brdf);
+        static void
+        traceReflection(const Raytrace& incidentRaytrace, Float maxDistance, RaytracerCache& cache,
+                        BRDFParameters& brdf);
 
-    static void traceTransmission(
-        const Raytrace &incidentRaytrace, Float maxDistance, bool leavingMaterial, const Float4 &transmittedDirection,
-        RaytracerCache &cache, BRDFParameters &brdf
-    );
-  };
+        static void traceTransmission(
+            const Raytrace& incidentRaytrace, Float maxDistance, bool leavingMaterial,
+            const Float4& transmittedDirection,
+            RaytracerCache& cache, BRDFParameters& brdf
+        );
+    };
 }

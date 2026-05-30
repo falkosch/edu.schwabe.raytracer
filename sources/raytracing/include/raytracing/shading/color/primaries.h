@@ -10,10 +10,6 @@ namespace raytracer::color
     const MFloat4x4& sRGBLinearToXYZ() noexcept;
     const MFloat4x4& XYZToSRGBLinear() noexcept;
 
-    // ACES TB-2014-004 (ACEScg), ~D60 white point
-    const MFloat4x4& ACEScgToXYZ() noexcept;
-    const MFloat4x4& XYZToACEScg() noexcept;
-
     // ITU-R BT.2020 (Rec.2020), D65 white point
     const MFloat4x4& Rec2020LinearToXYZ() noexcept;
     const MFloat4x4& XYZToRec2020Linear() noexcept;

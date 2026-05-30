@@ -58,6 +58,37 @@ namespace vectorization::test {
       Assert::IsTrue(allTrue(given == actual), L"packed type round-trip", LINE_INFO());
     }
 
+    TEST_METHOD(constructsFromHalfPackedTypeBroadcastsToBothHalves) {
+      const v_f32_4 half(11.0f, 22.0f, 33.0f, 44.0f);
+      const v_f32_8 actual(half.components);
+      Assert::AreEqual(11.0f, x1(actual), L"lo lane 0", LINE_INFO());
+      Assert::AreEqual(22.0f, x2(actual), L"lo lane 1", LINE_INFO());
+      Assert::AreEqual(33.0f, x3(actual), L"lo lane 2", LINE_INFO());
+      Assert::AreEqual(44.0f, x4(actual), L"lo lane 3", LINE_INFO());
+      Assert::AreEqual(11.0f, x5(actual), L"hi lane 0 == lo lane 0", LINE_INFO());
+      Assert::AreEqual(22.0f, x6(actual), L"hi lane 1 == lo lane 1", LINE_INFO());
+      Assert::AreEqual(33.0f, x7(actual), L"hi lane 2 == lo lane 2", LINE_INFO());
+      Assert::AreEqual(44.0f, x8(actual), L"hi lane 3 == lo lane 3", LINE_INFO());
+    }
+
+    TEST_METHOD(constructsFromHalfVectorTypeBroadcastsToBothHalves) {
+      const v_f32_4 half(5.0f, 6.0f, 7.0f, 8.0f);
+      const v_f32_8 actual(half);
+      Assert::AreEqual(5.0f, x1(actual), L"lo lane 0", LINE_INFO());
+      Assert::AreEqual(8.0f, x4(actual), L"lo lane 3", LINE_INFO());
+      Assert::AreEqual(5.0f, x5(actual), L"hi lane 0 == lo lane 0", LINE_INFO());
+      Assert::AreEqual(8.0f, x8(actual), L"hi lane 3 == lo lane 3", LINE_INFO());
+    }
+
+    TEST_METHOD(halfBroadcastConstructorEquivalentToBroadcastScalar) {
+      // A uniform half should produce the same result as v_f32_8(scalar).
+      const v_f32_4 uniform(7.0f);
+      const v_f32_8 fromHalf(uniform);
+      const v_f32_8 fromScalar(7.0f);
+      Assert::IsTrue(allTrue(fromHalf == fromScalar), L"uniform half == broadcast scalar",
+                     LINE_INFO());
+    }
+
     TEST_METHOD(readsAtIndex) {
       const v_f32_8 v(10.0f, 20.0f, 30.0f, 40.0f, 50.0f, 60.0f, 70.0f, 80.0f);
       Assert::AreEqual(10.0f, v[0], L"[0]", LINE_INFO());

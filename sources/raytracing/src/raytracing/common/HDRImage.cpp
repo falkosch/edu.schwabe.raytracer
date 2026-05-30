@@ -11,12 +11,6 @@
 
 namespace raytracer
 {
-    static const MFloat4x4& srgbToACEScgMatrix() noexcept
-    {
-        static const auto matrix = color::XYZToACEScg() * color::sRGBLinearToXYZ();
-        return matrix;
-    }
-
     HDRImage::HDRImage() : resolution(One<ASizeT>()), resolutionf(), data()
     {
         init();
@@ -58,7 +52,7 @@ namespace raytracer
                          bitmap[indexIn + Two<ASizeT>()]);
                 const auto normalized = zeroW(convert<Float4>(texel) + OFFSET) * RSCALE;
                 data[scanlineOut + x] = srgbColorConversion
-                                            ? srgbToACEScgMatrix() * color::srgbDecode(normalized)
+                                            ? color::srgbDecode(normalized)
                                             : normalized;
             }
         }

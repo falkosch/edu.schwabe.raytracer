@@ -9,25 +9,27 @@ namespace raytracer::brdf
     Float ggxD(const Float NoH, const Float alpha) noexcept
     {
         const auto a2 = sqr(alpha);
-        return divide(a2, Pi<Float>() * sqr(sqr(NoH) * (a2 - One<Float>()) + One<Float>()));
+        const auto denominator = multiplyAdd(sqr(NoH), a2 - One<Float>(), One<Float>());
+        return divide(a2, Pi<Float>() * sqr(denominator));
     }
 
     Float ggxG_smith(const Float NoV, const Float NoL, const Float alpha) noexcept
     {
         const auto a2 = sqr(alpha);
         const auto oneMinusA2 = One<Float>() - a2;
-        const auto ggxV = NoL * sqrt(sqr(NoV) * oneMinusA2 + a2);
-        const auto ggxL = NoV * sqrt(sqr(NoL) * oneMinusA2 + a2);
-        const auto denom = ggxV + ggxL;
-        if (denom < Epsilon<Float>())
+        const auto ggxV = NoL * sqrt(multiplyAdd(sqr(NoV), oneMinusA2, a2));
+        const auto ggxL = NoV * sqrt(multiplyAdd(sqr(NoL), oneMinusA2, a2));
+        const auto denominator = ggxV + ggxL;
+        if (denominator < Epsilon<Float>())
             return Zero<Float>();
-        return divide(Two<Float>() * NoV * NoL, denom);
+        return divide(Two<Float>() * NoV * NoL, denominator);
     }
 
-    static Float4 schlickFresnel(const Float4& F0, const Float cosTheta) noexcept
+    static Float4 schlickFresnel(const Float4& F0, const Float4& cosTheta) noexcept
     {
-        const auto oneMinusCos = One<Float>() - cosTheta;
-        return F0 + (One<Float4>() - F0) * (sqr(sqr(oneMinusCos)) * oneMinusCos);
+        const auto oneMinusCos = One<Float4>() - cosTheta;
+        const auto pow5 = sqr(sqr(oneMinusCos)) * oneMinusCos;
+        return multiplyAdd(One<Float4>() - F0, pow5, F0);
     }
 
     Float4 evaluateGGX(
@@ -44,10 +46,33 @@ namespace raytracer::brdf
         const auto NoH = max(dot3(N, H), Zero<Float>());
         const auto D = ggxD(NoH, alpha);
         const auto G = ggxG_smith(NoV, NoL, alpha);
-        const auto VoH = max(dot3(V, H), Zero<Float>());
-        const auto F = schlickFresnel(F0, VoH);
+        const auto F = schlickFresnel(F0, max(dot3v(V, H), Zero<Float4>()));
 
         return F * divide(D * G, 4.0f * NoV * NoL);
+    }
+
+    Float evaluateGGX_DG(
+        const Float4& N, const Float4& V, const Float4& L, const Float4& H, const Float alpha
+    ) noexcept
+    {
+        const auto NoV = max(dot3(N, V), Zero<Float>());
+        const auto NoL = max(dot3(N, L), Zero<Float>());
+        if (NoV < Epsilon<Float>() || NoL < Epsilon<Float>())
+            return Zero<Float>();
+
+        const auto NoH = max(dot3(N, H), Zero<Float>());
+        const auto D = ggxD(NoH, alpha);
+        const auto G = ggxG_smith(NoV, NoL, alpha);
+
+        return divide(D * G, 4.0f * NoV * NoL);
+    }
+
+    spectral::SpectralVector schlickFresnelSpectral(const spectral::SpectralVector& F0,
+                                                    const spectral::SpectralVector& cosTheta) noexcept
+    {
+        const auto oneMinusCos = One<spectral::SpectralVector>() - cosTheta;
+        const auto pow5 = sqr(sqr(oneMinusCos)) * oneMinusCos;
+        return multiplyAdd(One<spectral::SpectralVector>() - F0, pow5, F0);
     }
 
     Float4 sampleGGX(const Float4& N, const Float4& V, const Float4& xi, const Float alpha) noexcept

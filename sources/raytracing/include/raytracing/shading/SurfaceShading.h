@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../common/RGBS.h"
+#include "spectral/spectrum.h"
 
 namespace raytracer
 {
@@ -8,25 +8,27 @@ namespace raytracer
 
     struct SurfaceShading
     {
-        RGBS diffusion;
+        spectral::Spectrum diffusion;
 
-        RGBS reflectance;
+        spectral::Spectrum reflectance;
 
-        RGBS specular;
+        spectral::Spectrum specular;
 
         Float4 roughness;
 
-        Float4 transmittance;
+        spectral::Spectrum transmittance;
 
         Float4 refractionEta;
 
-        RGBS emittance;
+        spectral::Spectrum emittance;
 
         SurfaceShading();
 
         SurfaceShading(
-            const RGBS& diffusion, const RGBS& reflectance, const RGBS& specular, const Float4& roughness,
-            const Float4& transmittanceIn, const Float4& refractionEta, const RGBS& emittance
+            const spectral::Spectrum& diffusion, const spectral::Spectrum& reflectance,
+            const spectral::Spectrum& specular, const Float4& roughness,
+            const spectral::Spectrum& transmittance, const Float4& refractionEta,
+            const spectral::Spectrum& emittance
         );
     };
 }

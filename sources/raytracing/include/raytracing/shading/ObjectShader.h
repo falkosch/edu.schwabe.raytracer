@@ -52,6 +52,8 @@ namespace raytracer
 
         SurfaceShading sample(const SceneShader& sceneShader, const SceneIntersection& intersection) const override;
 
+        SurfaceShading shade(const SceneIntersection& intersection, Float heroLambda) const;
+
     protected:
         MFloat4x4 textureMatrix;
 

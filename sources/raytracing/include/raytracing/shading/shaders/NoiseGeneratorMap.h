@@ -19,12 +19,7 @@ namespace raytracer
 
         ~NoiseGeneratorMap() override = default;
 
-        Float4 sample(const ObjectShader& objectShader, const FacetIntersection& intersection) const override
-        {
-            return (*this)(objectShader, intersection);
-        }
-
-        Float4 operator()(const ObjectShader& /*objectShader*/, const FacetIntersection& intersection) const override
+        Float4 sample(const ObjectShader&, const FacetIntersection& intersection) const override
         {
             auto noise = Zero<Float4>();
             auto frequency = One<Float4>();

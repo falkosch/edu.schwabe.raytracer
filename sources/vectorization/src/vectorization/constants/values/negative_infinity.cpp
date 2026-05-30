@@ -5,38 +5,53 @@
 #include "vectorization/accessors/component_128d.h"
 #include "vectorization/accessors/component_128s.h"
 
-namespace vectorization {
-  template <>
-  PackedFloat2_128 NegativeInfinity<PackedFloat2_128>() noexcept {
-    // erase double fraction part (52 bits)
-    return _mm_castsi128_pd(_mm_slli_epi64(MaskAll<PackedInts_128>(), 52));
-  }
+namespace vectorization
+{
+    template <>
+    PackedFloat2_128 NegativeInfinity<PackedFloat2_128>() noexcept
+    {
+        // erase double fraction part (52 bits)
+        return _mm_castsi128_pd(_mm_slli_epi64(MaskAll<PackedInts_128>(), 52));
+    }
 
-  template <>
-  PackedFloat4_128 NegativeInfinity<PackedFloat4_128>() noexcept {
-    // erase fraction part (23 bits)
-    return _mm_castsi128_ps(_mm_slli_epi32(MaskAll<PackedInts_128>(), 23));
-  }
+    template <>
+    PackedFloat4_128 NegativeInfinity<PackedFloat4_128>() noexcept
+    {
+        // erase fraction part (23 bits)
+        return _mm_castsi128_ps(_mm_slli_epi32(MaskAll<PackedInts_128>(), 23));
+    }
 
-  template <>
-  PackedFloat4_256 NegativeInfinity<PackedFloat4_256>() noexcept {
-    const auto v = NegativeInfinity<PackedFloat2_128>();
-    return _mm256_set_m128d(v, v);
-  }
+    template <>
+    PackedFloat4_256 NegativeInfinity<PackedFloat4_256>() noexcept
+    {
+#if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX2
+        return _mm256_castsi256_pd(_mm256_slli_epi64(MaskAll<PackedInts_256>(), 52));
+#else
+        const auto v = NegativeInfinity<PackedFloat2_128>();
+        return _mm256_set_m128d(v, v);
+#endif
+    }
 
-  template <>
-  PackedFloat8_256 NegativeInfinity<PackedFloat8_256>() noexcept {
-    const auto v = NegativeInfinity<PackedFloat4_128>();
-    return _mm256_set_m128(v, v);
-  }
+    template <>
+    PackedFloat8_256 NegativeInfinity<PackedFloat8_256>() noexcept
+    {
+#if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX2
+        return _mm256_castsi256_ps(_mm256_slli_epi32(MaskAll<PackedInts_256>(), 23));
+#else
+        const auto v = NegativeInfinity<PackedFloat4_128>();
+        return _mm256_set_m128(v, v);
+#endif
+    }
 
-  template <>
-  Float_32 NegativeInfinity<Float_32>() noexcept {
-    return x(NegativeInfinity<PackedFloat4_128>());
-  }
+    template <>
+    Float_32 NegativeInfinity<Float_32>() noexcept
+    {
+        return x(NegativeInfinity<PackedFloat4_128>());
+    }
 
-  template <>
-  Float_64 NegativeInfinity<Float_64>() noexcept {
-    return x(NegativeInfinity<PackedFloat2_128>());
-  }
+    template <>
+    Float_64 NegativeInfinity<Float_64>() noexcept
+    {
+        return x(NegativeInfinity<PackedFloat2_128>());
+    }
 }

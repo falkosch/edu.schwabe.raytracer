@@ -7,80 +7,107 @@
 
 #include <limits>
 
-namespace vectorization {
-  template <>
-  Int_8 Two() noexcept {
-    return Int_8{2};
-  }
+namespace vectorization
+{
+    template <>
+    Int_8 Two() noexcept
+    {
+        return Int_8{2};
+    }
 
-  template <>
-  UInt_8 Two() noexcept {
-    return UInt_8{2};
-  }
+    template <>
+    UInt_8 Two() noexcept
+    {
+        return UInt_8{2};
+    }
 
-  template <>
-  Int_16 Two() noexcept {
-    return Int_16{2};
-  }
+    template <>
+    Int_16 Two() noexcept
+    {
+        return Int_16{2};
+    }
 
-  template <>
-  UInt_16 Two() noexcept {
-    return UInt_16{2};
-  }
+    template <>
+    UInt_16 Two() noexcept
+    {
+        return UInt_16{2};
+    }
 
-  template <>
-  Int_32 Two() noexcept {
-    return Int_32{2};
-  }
+    template <>
+    Int_32 Two() noexcept
+    {
+        return Int_32{2};
+    }
 
-  template <>
-  UInt_32 Two() noexcept {
-    return UInt_32{2};
-  }
+    template <>
+    UInt_32 Two() noexcept
+    {
+        return UInt_32{2};
+    }
 
-  template <>
-  Int_64 Two() noexcept {
-    return Int_64{2};
-  }
+    template <>
+    Int_64 Two() noexcept
+    {
+        return Int_64{2};
+    }
 
-  template <>
-  UInt_64 Two() noexcept {
-    return UInt_64{2};
-  }
+    template <>
+    UInt_64 Two() noexcept
+    {
+        return UInt_64{2};
+    }
 
-  template <>
-  PackedFloat4_128 Two<PackedFloat4_128>() noexcept {
-    return _mm_castsi128_ps(_mm_srli_epi32(
-        _mm_slli_epi32(MaskAll<PackedInts_128>(), sizeof(Int_32) * std::numeric_limits<UInt_8>::digits - 1), 1
-    ));
-  }
+    template <>
+    PackedFloat4_128 Two<PackedFloat4_128>() noexcept
+    {
+        return _mm_castsi128_ps(_mm_srli_epi32(
+            _mm_slli_epi32(MaskAll<PackedInts_128>(), sizeof(Int_32) * std::numeric_limits<UInt_8>::digits - 1), 1
+        ));
+    }
 
-  template <>
-  PackedFloat2_128 Two<PackedFloat2_128>() noexcept {
-    return _mm_castsi128_pd(_mm_srli_epi64(
-        _mm_slli_epi64(MaskAll<PackedInts_128>(), sizeof(Int_64) * std::numeric_limits<UInt_8>::digits - 1), 1
-    ));
-  }
+    template <>
+    PackedFloat2_128 Two<PackedFloat2_128>() noexcept
+    {
+        return _mm_castsi128_pd(_mm_srli_epi64(
+            _mm_slli_epi64(MaskAll<PackedInts_128>(), sizeof(Int_64) * std::numeric_limits<UInt_8>::digits - 1), 1
+        ));
+    }
 
-  template <>
-  PackedFloat4_256 Two<PackedFloat4_256>() noexcept {
-    const auto v = Two<PackedFloat2_128>();
-    return _mm256_set_m128d(v, v);
-  }
+    template <>
+    PackedFloat4_256 Two<PackedFloat4_256>() noexcept
+    {
+#if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX2
+        return _mm256_castsi256_pd(_mm256_srli_epi64(
+            _mm256_slli_epi64(MaskAll<PackedInts_256>(), sizeof(Int_64) * std::numeric_limits<UInt_8>::digits - 1), 1
+        ));
+#else
+        const auto v = Two<PackedFloat2_128>();
+        return _mm256_set_m128d(v, v);
+#endif
+    }
 
-  template <>
-  PackedFloat8_256 Two<PackedFloat8_256>() noexcept {
-    const auto v = Two<PackedFloat4_128>();
-    return _mm256_set_m128(v, v);
-  }
+    template <>
+    PackedFloat8_256 Two<PackedFloat8_256>() noexcept
+    {
+#if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX2
+        return _mm256_castsi256_ps(_mm256_srli_epi32(
+            _mm256_slli_epi32(MaskAll<PackedInts_256>(), sizeof(Int_32) * std::numeric_limits<UInt_8>::digits - 1), 1
+        ));
+#else
+        const auto v = Two<PackedFloat4_128>();
+        return _mm256_set_m128(v, v);
+#endif
+    }
 
-  template <>
-  Float_32 Two<Float_32>() noexcept {
-    return x(Two<PackedFloat4_128>());
-  }
+    template <>
+    Float_32 Two<Float_32>() noexcept
+    {
+        return x(Two<PackedFloat4_128>());
+    }
 
-  template <>
-  Float_64 Two<Float_64>() noexcept {
-    return x(Two<PackedFloat2_128>());
-  }
+    template <>
+    Float_64 Two<Float_64>() noexcept
+    {
+        return x(Two<PackedFloat2_128>());
+    }
 }

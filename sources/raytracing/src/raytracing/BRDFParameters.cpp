@@ -3,7 +3,7 @@
 
 namespace raytracer {
   BRDFParameters::BRDFParameters()
-      : intersection(), surface(), lighting(), transmissionDirection(), reflectanceCoefficient(One<Float4>()),
+      : intersection(), surface(), lighting(), transmissionDirection(), reflectanceCoefficient(),
         fractionTransmitted(), viewDistance() {
   }
 }

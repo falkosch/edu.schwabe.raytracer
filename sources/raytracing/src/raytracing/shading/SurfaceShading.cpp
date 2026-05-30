@@ -9,11 +9,13 @@ namespace raytracer
     }
 
     SurfaceShading::SurfaceShading(
-        const RGBS& diffusionIn, const RGBS& reflectanceIn, const RGBS& specularIn, const Float4& roughnessIn,
-        const Float4& transmittanceIn, const Float4& refractionEtaIn, const RGBS& emittanceIn
+        const spectral::Spectrum& diffusion, const spectral::Spectrum& reflectance,
+        const spectral::Spectrum& specular, const Float4& roughness,
+        const spectral::Spectrum& transmittance, const Float4& refractionEta,
+        const spectral::Spectrum& emittance
     )
-        : diffusion(diffusionIn), reflectance(reflectanceIn), specular(specularIn), roughness(roughnessIn),
-          transmittance(transmittanceIn), refractionEta(refractionEtaIn), emittance(emittanceIn)
+        : diffusion(diffusion), reflectance(reflectance), specular(specular), roughness(roughness),
+          transmittance(transmittance), refractionEta(refractionEta), emittance(emittance)
     {
     }
 }

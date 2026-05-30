@@ -70,26 +70,6 @@ namespace raytracer::test {
       Assert::AreEqual(100.0f, z(color), 1e-6f, L"large value preserved", LINE_INFO());
     }
 
-    TEST_METHOD(operatorMatchesSample) {
-      HDRImage image{Size2{2, 2}};
-      image[0] = Float4{0.1f, 0.2f, 0.3f, 1.0f};
-      image[1] = Float4{0.4f, 0.5f, 0.6f, 1.0f};
-      image[2] = Float4{0.7f, 0.8f, 0.9f, 1.0f};
-      image[3] = Float4{1.0f, 0.0f, 0.0f, 1.0f};
-      const HDRImageShader shader{image};
-      const SceneObject object{"test"};
-      FacetIntersection intersection{};
-      intersection.texCoords = Float4{0.25f, 0.25f, 0.0f, 0.0f};
-
-      const auto a = shader.sample(object, intersection);
-      const auto b = shader(object, intersection);
-
-      Assert::AreEqual(x(a), x(b), 1e-6f, L"x", LINE_INFO());
-      Assert::AreEqual(y(a), y(b), 1e-6f, L"y", LINE_INFO());
-      Assert::AreEqual(z(a), z(b), 1e-6f, L"z", LINE_INFO());
-      Assert::AreEqual(w(a), w(b), 1e-6f, L"w", LINE_INFO());
-    }
-
     TEST_METHOD(objectShaderArgumentIsUnused) {
       HDRImage image{Size2{1, 1}};
       image[0] = Float4{0.42f, 0.42f, 0.42f, 1.0f};

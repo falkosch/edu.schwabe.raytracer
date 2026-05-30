@@ -5,8 +5,9 @@
 - **Type:** enabler
 - **Level:** 3 (polarized spectral)
 - **Order:** 2
-- **Depends on:** `illumination-unpolarized-spectral-enabler.md` (the `SpectralSample<N>`
-  template, Jakob-Hanika upsampling, metal IOR tables, CIE conversion utilities)
+- **Depends on:** Level 2 unpolarized spectral pipeline (shipped — provides the
+  `Spectrum` carrier, Smits RGB-to-spectrum upsampling, metal IOR interface, CIE
+  conversion utilities)
 - **Blocks:** `illumination-polarized-spectral.md`,
   `illumination-wave-optics-enabler.md`
 

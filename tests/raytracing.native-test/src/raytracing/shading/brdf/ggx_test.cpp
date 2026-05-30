@@ -10,9 +10,10 @@ namespace raytracer::test
 
     static constexpr Float PI = 3.14159265358979323846f;
 
-    TEST_CLASS(GGXTest)
+    TEST_CLASS (GGXTest)
     {
-    public:
+        public
+        :
         TEST_METHOD(ggxDNormalizesAtNoHOne)
         {
             const auto d = ggxD(1.0f, 0.5f);
@@ -132,6 +133,46 @@ namespace raytracer::test
 
                 Assert::AreEqual(1.0f, len, 1e-5f, L"sampled direction is unit length", LINE_INFO());
             }
+        }
+
+        TEST_METHOD(evaluateGGX_DGMatchesFullWithoutFresnel)
+        {
+            const auto N = Float4{0.0f, 1.0f, 0.0f, 0.0f};
+            const auto V = normalize3(Float4{0.3f, 1.0f, 0.0f, 0.0f});
+            const auto L = normalize3(Float4{-0.3f, 1.0f, 0.0f, 0.0f});
+            const auto F0 = Float4{1.0f, 1.0f, 1.0f, 0.0f};
+
+            const auto H = normalize3(V + L);
+            const auto full = evaluateGGX(N, V, L, F0, 0.5f);
+            const auto dg = evaluateGGX_DG(N, V, L, H, 0.5f);
+
+            Assert::AreEqual(x(full), dg, 1e-5f, L"DG matches full when F0=1", LINE_INFO());
+        }
+
+        TEST_METHOD(evaluateGGX_DGZeroBelowHorizon)
+        {
+            const auto N = Float4{0.0f, 1.0f, 0.0f, 0.0f};
+            const auto V = normalize3(Float4{0.0f, 1.0f, 0.0f, 0.0f});
+            const auto L = normalize3(Float4{0.0f, -1.0f, 0.0f, 0.0f});
+            const auto H = normalize3(V + L);
+
+            Assert::AreEqual(0.0f, evaluateGGX_DG(N, V, L, H, 0.5f), L"zero below horizon", LINE_INFO());
+        }
+
+        TEST_METHOD(schlickFresnelSpectralAtNormalIncidence)
+        {
+            const auto F0 = Float8(0.04f);
+            const auto result = schlickFresnelSpectral(F0, One<Float8>());
+
+            Assert::AreEqual(0.04f, x1(result), 1e-5f, L"F(0°) = F0", LINE_INFO());
+        }
+
+        TEST_METHOD(schlickFresnelSpectralAtGrazing)
+        {
+            const auto F0 = Float8(0.04f);
+            const auto result = schlickFresnelSpectral(F0, Zero<Float8>());
+
+            Assert::AreEqual(1.0f, x1(result), 1e-5f, L"F(90°) = 1", LINE_INFO());
         }
     };
 }

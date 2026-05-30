@@ -24,17 +24,6 @@ namespace raytracer::test
             Assert::AreEqual(z(rgb), z(recovered), 1e-5f, L"B round-trip", LINE_INFO());
         }
 
-        TEST_METHOD(ACEScgToXYZRoundTrip)
-        {
-            const auto rgb = Float4{0.4f, 0.7f, 0.2f, 0.0f};
-            const auto xyz = ACEScgToXYZ() * rgb;
-            const auto recovered = XYZToACEScg() * xyz;
-
-            Assert::AreEqual(x(rgb), x(recovered), 1e-5f, L"R round-trip", LINE_INFO());
-            Assert::AreEqual(y(rgb), y(recovered), 1e-5f, L"G round-trip", LINE_INFO());
-            Assert::AreEqual(z(rgb), z(recovered), 1e-5f, L"B round-trip", LINE_INFO());
-        }
-
         TEST_METHOD(Rec2020ToXYZRoundTrip)
         {
             const auto rgb = Float4{0.6f, 0.1f, 0.9f, 0.0f};

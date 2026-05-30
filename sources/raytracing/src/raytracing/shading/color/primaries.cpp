@@ -17,21 +17,6 @@ namespace raytracer::color
         OneW<Float4>()
     };
 
-    // ACES TB-2014-004 (ACEScg primaries, ACES ~D60 white point)
-    static const MFloat4x4 g_ACEScgToXYZ{
-        Float4{0.6624542f, 0.1340042f, 0.1561877f, 0.0f},
-        Float4{0.2722287f, 0.6740818f, 0.0536895f, 0.0f},
-        Float4{-0.0055746f, 0.0040607f, 1.0103391f, 0.0f},
-        OneW<Float4>()
-    };
-
-    static const MFloat4x4 g_XYZToACEScg{
-        Float4{1.6410234f, -0.3248033f, -0.2364247f, 0.0f},
-        Float4{-0.6636629f, 1.6153316f, 0.0167563f, 0.0f},
-        Float4{0.0117219f, -0.0082844f, 0.9883948f, 0.0f},
-        OneW<Float4>()
-    };
-
     // ITU-R BT.2020 (Rec.2020 primaries, D65 white)
     static const MFloat4x4 g_Rec2020LinearToXYZ{
         Float4{0.6369580f, 0.1446169f, 0.1688810f, 0.0f},
@@ -55,16 +40,6 @@ namespace raytracer::color
     const MFloat4x4& XYZToSRGBLinear() noexcept
     {
         return g_XYZToSRGBLinear;
-    }
-
-    const MFloat4x4& ACEScgToXYZ() noexcept
-    {
-        return g_ACEScgToXYZ;
-    }
-
-    const MFloat4x4& XYZToACEScg() noexcept
-    {
-        return g_XYZToACEScg;
     }
 
     const MFloat4x4& Rec2020LinearToXYZ() noexcept

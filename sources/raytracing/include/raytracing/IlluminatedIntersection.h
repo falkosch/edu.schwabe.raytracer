@@ -1,17 +1,19 @@
 #pragma once
 
-#include "common/RGBS.h"
+#include "shading/spectral/spectrum.h"
 
-namespace raytracer {
-  using namespace vectorization;
+namespace raytracer
+{
+    using namespace vectorization;
 
-  struct IlluminatedIntersection {
-    Float4 depth;
+    struct IlluminatedIntersection
+    {
+        Float4 depth;
 
-    RGBS color;
+        spectral::Spectrum color;
 
-    IlluminatedIntersection(Float depth, const RGBS &color);
+        IlluminatedIntersection(Float depth, const spectral::Spectrum& color);
 
-    IlluminatedIntersection(const Float4 &depth, const RGBS &color);
-  };
+        IlluminatedIntersection(const Float4& depth, const spectral::Spectrum& color);
+    };
 }

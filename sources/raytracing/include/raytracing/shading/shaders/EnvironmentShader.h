@@ -3,21 +3,21 @@
 #include "../../common/HDRImage.h"
 #include "../SceneShader.h"
 
-namespace raytracer {
-  using namespace vectorization;
+namespace raytracer
+{
+    using namespace vectorization;
 
-  class EnvironmentShader final : public Shader<SceneShader, Float4, RGBS> {
-    Size2 resolution;
-    Float4 alignedSize;
-    const HDRImage *environmentImage;
+    class EnvironmentShader final : public Shader<SceneShader, BackgroundQuery, spectral::Spectrum>
+    {
+        Size2 resolution;
+        Float4 alignedSize;
+        const HDRImage* environmentImage;
 
-  public:
-    explicit EnvironmentShader(const HDRImage &image);
+    public:
+        explicit EnvironmentShader(const HDRImage& image);
 
-    ~EnvironmentShader() override;
+        ~EnvironmentShader() override;
 
-    RGBS sample(const SceneShader &sceneShader, const Float4 &rayDirection) const override;
-
-    RGBS operator()(const SceneShader &sceneShader, const Float4 &rayDirection) const override;
-  };
+        spectral::Spectrum sample(const SceneShader& sceneShader, const BackgroundQuery& query) const override;
+    };
 }

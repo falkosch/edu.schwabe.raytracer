@@ -53,6 +53,7 @@ set(SOURCES
         src/raytracing/scene/Resources.cpp
         src/raytracing/scene/Scene.cpp
         src/raytracing/scene/SceneObject.cpp
+        src/raytracing/shading/EmitterSPD.cpp
         src/raytracing/shading/LightInfo.cpp
         src/raytracing/shading/LightShading.cpp
         src/raytracing/shading/ObjectShader.cpp
@@ -69,6 +70,15 @@ set(SOURCES
         src/raytracing/shading/shaders/EnvironmentShader.cpp
         src/raytracing/shading/shaders/HDRImageShader.cpp
         src/raytracing/shading/shaders/IntersectionNormalShader.cpp
+        src/raytracing/shading/shaders/RGBBackgroundShader.cpp
+        src/raytracing/shading/spectral/blackbody.cpp
+        src/raytracing/shading/spectral/cmf.cpp
+        src/raytracing/shading/spectral/conversion.cpp
+        src/raytracing/shading/spectral/illuminants.cpp
+        src/raytracing/shading/spectral/metal_ior.cpp
+        src/raytracing/shading/spectral/smits.cpp
+        src/raytracing/shading/spectral/spectrum.cpp
+        src/raytracing/shading/spectral/wavelengths.cpp
 )
 
 set(HEADERS
@@ -132,10 +142,12 @@ set(HEADERS
         include/raytracing/scene/Resources.h
         include/raytracing/scene/Scene.h
         include/raytracing/scene/SceneObject.h
+        include/raytracing/shading/EmitterSPD.h
         include/raytracing/shading/LightInfo.h
         include/raytracing/shading/LightShading.h
         include/raytracing/shading/ObjectShader.h
         include/raytracing/shading/PerLightShadowCache.h
+        include/raytracing/shading/BackgroundQuery.h
         include/raytracing/shading/Raytrace.h
         include/raytracing/shading/RaytraceBaseParameters.h
         include/raytracing/shading/SceneShader.h
@@ -146,12 +158,21 @@ set(HEADERS
         include/raytracing/shading/brdf/ggx.h
         include/raytracing/shading/color/primaries.h
         include/raytracing/shading/color/view_transform.h
+        include/raytracing/shading/spectral/blackbody.h
+        include/raytracing/shading/spectral/cmf.h
+        include/raytracing/shading/spectral/conversion.h
+        include/raytracing/shading/spectral/illuminants.h
+        include/raytracing/shading/spectral/smits.h
+        include/raytracing/shading/spectral/metal_ior.h
+        include/raytracing/shading/spectral/spectrum.h
+        include/raytracing/shading/spectral/wavelengths.h
         include/raytracing/shading/shaders/ConcatenatingShader.h
         include/raytracing/shading/shaders/ConstShader.h
         include/raytracing/shading/shaders/EnvironmentShader.h
         include/raytracing/shading/shaders/HDRImageShader.h
         include/raytracing/shading/shaders/IntersectionNormalShader.h
         include/raytracing/shading/shaders/MultiplyByConstShader.h
+        include/raytracing/shading/shaders/RGBBackgroundShader.h
         include/raytracing/shading/shaders/NoiseGeneratorMap.h
         src/stdafx.h
 )

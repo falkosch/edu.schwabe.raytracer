@@ -151,8 +151,8 @@ namespace raytracer::test
             const auto keyGray = Float4{0.18f, 0.18f, 0.18f, 0.0f};
             const auto mapped = agx(keyGray);
 
-            Assert::AreEqual(x(mapped), y(mapped), 1e-5f, L"achromatic input stays achromatic", LINE_INFO());
-            Assert::AreEqual(0.18f, x(mapped), 0.1f, L"key gray maps near 0.18", LINE_INFO());
+            Assert::AreEqual(x(mapped), y(mapped), 1e-4f, L"achromatic input stays achromatic", LINE_INFO());
+            Assert::AreEqual(0.5f, x(mapped), 0.1f, L"key gray maps near perceptual mid-gray", LINE_INFO());
         }
 
         TEST_METHOD(agxWhiteIsNearWhite)

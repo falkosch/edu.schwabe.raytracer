@@ -2,6 +2,7 @@
 
 #include "../geometry/SceneGeometry.h"
 
+#include "BackgroundQuery.h"
 #include "LightInfo.h"
 #include "LightShading.h"
 #include "PerLightShadowCache.h"
@@ -18,8 +19,8 @@ namespace raytracer
     class SceneShader : public SceneGeometry, public Shader<SceneShaderContainment, SceneIntersection, LightShading>
     {
     public:
-        typedef Shader<SceneShader, Float4, RGBS> BackgroundShader;
-        typedef std::vector<std::unique_ptr<LightInfo>> LightsCollection;
+        using BackgroundShader = Shader<SceneShader, BackgroundQuery, spectral::Spectrum>;
+        using LightsCollection = std::vector<std::unique_ptr<LightInfo>>;
 
         SceneShader();
 
@@ -37,7 +38,7 @@ namespace raytracer
         LightsCollection& getLights();
 
         // Samples the lighting of a facet in the scene.
-        RGBS sampleBackground(const Float4& rayDirection) const;
+        spectral::Spectrum sampleBackground(const Float4& rayDirection, Float heroLambda) const;
 
         // Samples the lighting of a facet in the scene.
         LightShading
@@ -46,7 +47,7 @@ namespace raytracer
         // Computes the lighting of a facet in the scene.
         LightShading sampleLighting(
             const Raytrace& incidentRay, const Float4& adaptedVisibilityCutoff,
-            Float roughness, const Float4& F0,
+            Float roughness, const spectral::SpectralVector& F0,
             const SceneIntersection& intersection, PerLightShadowCache::ShadowCacheType& shadowCache,
             StatisticsCookie& statistics
         ) const;

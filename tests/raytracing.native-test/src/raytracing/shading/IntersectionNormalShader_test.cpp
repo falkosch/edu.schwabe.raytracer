@@ -64,21 +64,6 @@ namespace raytracer::test {
       Assert::AreEqual(0.5f, z(color), 1e-6f, L"0 -> 0.5", LINE_INFO());
     }
 
-    TEST_METHOD(operatorMatchesSample) {
-      const SceneObject object{"test"};
-      FacetIntersection intersection{};
-      intersection.surfaceNormal = Float4{0.5f, -0.3f, 0.8f, 0.0f};
-      const IntersectionNormalShader shader{};
-
-      const auto a = shader.sample(object, intersection);
-      const auto b = shader(object, intersection);
-
-      Assert::AreEqual(x(a), x(b), 1e-6f, L"x", LINE_INFO());
-      Assert::AreEqual(y(a), y(b), 1e-6f, L"y", LINE_INFO());
-      Assert::AreEqual(z(a), z(b), 1e-6f, L"z", LINE_INFO());
-      Assert::AreEqual(w(a), w(b), 1e-6f, L"w", LINE_INFO());
-    }
-
     TEST_METHOD(arbitraryNormalLinearMapping) {
       // For an arbitrary unit-length normal, each component should map to (n*0.5 + 0.5)
       const Float4 n = normalize3(Float4{0.6f, 0.8f, 0.0f, 0.0f});

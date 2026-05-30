@@ -15,7 +15,5 @@ namespace raytracer {
     ~HDRImageShader() override;
 
     Float4 sample(const ObjectShader &objectShader, const FacetIntersection &intersection) const override;
-
-    Float4 operator()(const ObjectShader &objectShader, const FacetIntersection &intersection) const override;
   };
 }

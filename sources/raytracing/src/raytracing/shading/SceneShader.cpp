@@ -2,7 +2,9 @@
 #include "../../stdafx.h"
 
 #include "raytracing/common/StatisticsCookie.h"
+#include "raytracing/shading/EmitterSPD.h"
 #include "raytracing/shading/brdf/ggx.h"
+#include "raytracing/shading/spectral/spectrum.h"
 
 // #define DISABLE_SHADOWING
 
@@ -49,9 +51,9 @@ namespace raytracer
         return lights;
     }
 
-    RGBS SceneShader::sampleBackground(const Float4& rayDirection) const
+    spectral::Spectrum SceneShader::sampleBackground(const Float4& rayDirection, const Float heroLambda) const
     {
-        return backgroundShader->sample(*this, rayDirection);
+        return backgroundShader->sample(*this, BackgroundQuery{rayDirection, heroLambda});
     }
 
     // Computes the lighting of a facet in the scene.
@@ -105,8 +107,8 @@ namespace raytracer
     }
 
     LightShading SceneShader::sampleLighting(
-        const Raytrace& incidentRay, const Float4& adaptedVisibilityCutoffIn,
-        const Float roughness, const Float4& F0,
+        const Raytrace& incidentRay, const Float4& adaptedVisibilityCutoff,
+        const Float roughness, const spectral::SpectralVector& F0,
         const SceneIntersection& intersection, PerLightShadowCache::ShadowCacheType& shadowCache,
         StatisticsCookie& statistics
     ) const
@@ -122,7 +124,9 @@ namespace raytracer
         const auto V = -incidentRay.rayCast.ray.direction;
         const auto N = intersection.smoothedNormal;
 
-        auto lighting = LightShading(ambientLight);
+        const auto wavelengths = spectral::wavelengthsAt(incidentRay.heroLambda);
+
+        auto lighting = LightShading(spectral::fromRGB(wavelengths, ambientLight.value));
         for (auto it = lights.cbegin(); it != lights.cend(); ++it)
         {
             const LightInfo& light = **it;
@@ -130,18 +134,24 @@ namespace raytracer
             const Float4 normalizedLightDirection = normalize(lightDirection);
 
             if (isNegative(dotv(normalizedLightDirection, intersection.surfaceNormal)))
+            {
                 continue;
+            }
 
             const Float4 diffuseIntensity = lambertDiffuseIntensity(normalizedLightDirection,
                                                                     intersection.smoothedNormal);
-            if (allTrue(diffuseIntensity < adaptedVisibilityCutoffIn))
+            if (allTrue(diffuseIntensity < adaptedVisibilityCutoff))
+            {
                 continue;
+            }
 
             const Float4 lightDistance = lengthv(lightDirection);
             const Float4 attenuatedDiffuseIntensity =
                 attenuateDiffuseIntensity(light.attenuationFactors, lightDistance, diffuseIntensity);
-            if (allTrue(attenuatedDiffuseIntensity < adaptedVisibilityCutoffIn))
+            if (allTrue(attenuatedDiffuseIntensity < adaptedVisibilityCutoff))
+            {
                 continue;
+            }
 
 #ifdef DISABLE_SHADOWING
             const Float4 litAreaFraction = One<Float4>();
@@ -151,16 +161,24 @@ namespace raytracer
             const Float4 litAreaFraction = computeLitAreaFraction(
                 shadowRay, intersection, static_cast<ASizeT>(it - lights.cbegin()), shadowCache, statistics
             );
-            if (allTrue(litAreaFraction < adaptedVisibilityCutoffIn))
+            if (allTrue(litAreaFraction < adaptedVisibilityCutoff))
+            {
                 continue;
+            }
 #endif
 
-            const auto lightContribution = litAreaFraction * attenuatedDiffuseIntensity * light.emittance.value;
+            const auto intensity = Float8(litAreaFraction * attenuatedDiffuseIntensity);
+            const auto spectralEmittance = sampleEmitter(light, wavelengths);
+            const auto lightContribution = spectralEmittance * intensity;
+
             lighting.diffuse += lightContribution;
-            if (!allTrue(F0 <= Zero<Float4>()))
+            if (spectral::spectralMax(F0) > Zero<Float>())
             {
-                lighting.specular += zeroW(brdf::evaluateGGX(N, V, normalizedLightDirection, F0, roughness))
-                    * lightContribution;
+                const auto H = normalize3(V + normalizedLightDirection);
+                const auto VoH = Float8(max(dot3v(V, H), Zero<Float4>()));
+                const auto DG = brdf::evaluateGGX_DG(N, V, normalizedLightDirection, H, roughness);
+                const auto F = brdf::schlickFresnelSpectral(F0, VoH);
+                lighting.specular += lightContribution * (F * DG);
             }
         }
 
@@ -181,9 +199,10 @@ namespace raytracer
         const Float4& attenuationFactors, const Float4& lightDistance, const Float4& diffuseIntensity
     )
     {
-        return diffuseIntensity
-            / multiplyAdd(lightDistance, multiplyAdd(lightDistance, zzzz(attenuationFactors), yyyy(attenuationFactors)),
-                          xxxx(attenuationFactors));
+        return diffuseIntensity / multiplyAdd(
+            lightDistance,
+            multiplyAdd(lightDistance, zzzz(attenuationFactors), yyyy(attenuationFactors)),
+            xxxx(attenuationFactors));
     }
 
     Float4 SceneShader::phongSpecularIntensityPerReflectedIncident(

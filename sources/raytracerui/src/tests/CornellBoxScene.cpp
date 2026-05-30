@@ -143,29 +143,53 @@ namespace raytracerui
         return sceneObject;
     }
 
-    auto smallSphere()
+    auto mirrorSphere()
     {
-        auto sceneObject = std::make_unique<SceneObject>("small sphere");
+        auto sceneObject = std::make_unique<SceneObject>("mirror sphere");
         sceneObject->setForm(std::make_unique<Sphere>());
         sceneObject->scale(Float3(0.35f, 0.35f, 0.35f));
         sceneObject->translate(Float3(0.35f, -0.64f, 0.35f));
         sceneObject->setEmittanceShader(
             std::make_unique<Resources::ConstMaterialShader>(Float4(0.0f, 0.0f, 0.0f, 0.0f)));
         sceneObject->setDiffusionShader(
-            std::make_unique<Resources::ConstMaterialShader>(Float4(0.87f, 0.87f, 0.87f, 0.0f)));
+            std::make_unique<Resources::ConstMaterialShader>(Float4(0.0f, 0.0f, 0.0f, 0.0f)));
         sceneObject->setReflectanceShader(
-            std::make_unique<Resources::ConstMaterialShader>(Float4(0.13f, 0.13f, 0.13f, 0.0f))
-        );
+            std::make_unique<Resources::ConstMaterialShader>(Float4(1.0f, 1.0f, 1.0f, 0.0f)));
         sceneObject->setSpecularShader(
-            std::make_unique<Resources::ConstMaterialShader>(Float4(0.13f, 0.13f, 0.13f, 0.0f)));
+            std::make_unique<Resources::ConstMaterialShader>(Float4(1.0f, 1.0f, 1.0f, 0.0f)));
         sceneObject->setRoughnessShader(
-            std::make_unique<Resources::ConstMaterialShader>(Float4(0.5f, 0.5f, 0.5f, 0.0f)));
+            std::make_unique<Resources::ConstMaterialShader>(Float4(0.0f, 0.0f, 0.0f, 0.0f)));
         sceneObject->setTransmittanceShader(
-            std::make_unique<Resources::ConstMaterialShader>(Float4(0.87f, 0.87f, 0.87f, 0.0f))
-        );
+            std::make_unique<Resources::ConstMaterialShader>(Float4(0.0f, 0.0f, 0.0f, 0.0f)));
         sceneObject->setRefractionEtaShader(
             std::make_unique<Resources::ConstMaterialShader>(
-                RefractionIndices::refractionEta(RefractionIndices::Vacuum, RefractionIndices::Water)
+                RefractionIndices::refractionEta(RefractionIndices::Vacuum, RefractionIndices::Vacuum)
+            )
+        );
+        return sceneObject;
+    }
+
+    auto roughMirrorSphere()
+    {
+        auto sceneObject = std::make_unique<SceneObject>("rough mirror sphere");
+        sceneObject->setForm(std::make_unique<Sphere>());
+        sceneObject->scale(Float3(0.3f, 0.3f, 0.3f));
+        sceneObject->translate(Float3(-0.55f, -0.69f, 0.5f));
+        sceneObject->setEmittanceShader(
+            std::make_unique<Resources::ConstMaterialShader>(Float4(0.0f, 0.0f, 0.0f, 0.0f)));
+        sceneObject->setDiffusionShader(
+            std::make_unique<Resources::ConstMaterialShader>(Float4(0.05f, 0.05f, 0.05f, 0.0f)));
+        sceneObject->setReflectanceShader(
+            std::make_unique<Resources::ConstMaterialShader>(Float4(0.9f, 0.9f, 0.9f, 0.0f)));
+        sceneObject->setSpecularShader(
+            std::make_unique<Resources::ConstMaterialShader>(Float4(0.9f, 0.9f, 0.9f, 0.0f)));
+        sceneObject->setRoughnessShader(
+            std::make_unique<Resources::ConstMaterialShader>(Float4(0.45f, 0.45f, 0.45f, 0.0f)));
+        sceneObject->setTransmittanceShader(
+            std::make_unique<Resources::ConstMaterialShader>(Float4(0.0f, 0.0f, 0.0f, 0.0f)));
+        sceneObject->setRefractionEtaShader(
+            std::make_unique<Resources::ConstMaterialShader>(
+                RefractionIndices::refractionEta(RefractionIndices::Vacuum, RefractionIndices::Vacuum)
             )
         );
         return sceneObject;
@@ -175,7 +199,7 @@ namespace raytracerui
     {
         static PerlinNoiseGenerator perlinNoise{42};
 
-        auto sceneObject = std::make_unique<SceneObject>("large box, perlin noise");
+        auto sceneObject = std::make_unique<SceneObject>("large box, diffuse perlin noise");
         sceneObject->setForm(std::make_unique<Box>());
         sceneObject->scale(Float3(0.35f, 0.60f, 0.35f));
         sceneObject->rotate(Float3(0.0f, 20.0f, 0.0f));
@@ -203,9 +227,9 @@ namespace raytracerui
         return sceneObject;
     }
 
-    auto meshAboveLargeBox(Resources& resources)
+    auto glassTeapot(Resources& resources)
     {
-        auto sceneObject = std::make_unique<SceneObject>("mesh object");
+        auto sceneObject = std::make_unique<SceneObject>("glass teapot");
         sceneObject->setForm(resources.getMesh("teapot"));
         sceneObject->scale(Float3(0.3f, 0.3f, 0.3f));
         sceneObject->rotate(Float3(0.0f, 0.0f, 0.0f));
@@ -213,16 +237,15 @@ namespace raytracerui
         sceneObject->setEmittanceShader(
             std::make_unique<Resources::ConstMaterialShader>(Float4(0.0f, 0.0f, 0.0f, 0.0f)));
         sceneObject->setDiffusionShader(
-            std::make_unique<Resources::ConstMaterialShader>(Float4(0.2f, 0.16f, 0.16f, 0.0f)));
+            std::make_unique<Resources::ConstMaterialShader>(Float4(0.02f, 0.02f, 0.02f, 0.0f)));
         sceneObject->setReflectanceShader(
-            std::make_unique<Resources::ConstMaterialShader>(Float4(0.4f, 0.8f, 0.8f, 0.0f)));
+            std::make_unique<Resources::ConstMaterialShader>(Float4(0.1f, 0.1f, 0.1f, 0.0f)));
         sceneObject->setSpecularShader(
-            std::make_unique<Resources::ConstMaterialShader>(Float4(0.4f, 0.72f, 0.72f, 0.0f)));
+            std::make_unique<Resources::ConstMaterialShader>(Float4(0.5f, 0.5f, 0.5f, 0.0f)));
         sceneObject->setRoughnessShader(
-            std::make_unique<Resources::ConstMaterialShader>(Float4(0.25f, 0.25f, 0.25f, 0.0f)));
+            std::make_unique<Resources::ConstMaterialShader>(Float4(0.05f, 0.05f, 0.05f, 0.0f)));
         sceneObject->setTransmittanceShader(
-            std::make_unique<Resources::ConstMaterialShader>(Float4(0.72f, 0.72f, 0.72f, 0.0f))
-        );
+            std::make_unique<Resources::ConstMaterialShader>(Float4(0.95f, 0.95f, 0.95f, 0.0f)));
         sceneObject->setRefractionEtaShader(
             std::make_unique<Resources::ConstMaterialShader>(
                 RefractionIndices::refractionEta(RefractionIndices::Vacuum, RefractionIndices::Glass)
@@ -235,25 +258,30 @@ namespace raytracerui
     {
         TestResources::setup(resources);
 
-        scene.setBackgroundShader(
-            std::make_unique<ConstShader<SceneShader, Float4, RGBS>>(Float4(0.0f, 0.0f, 0.0f, 0.0f))
-        );
-        scene.setAmbientLight(RGBS(0.0f, 0.0f, 0.0f));
+        scene.setBackgroundShader(std::make_unique<RGBBackgroundShader>(RGBS::black()));
+        scene.setAmbientLight(RGBS::black());
 
-        auto light = std::make_unique<LightInfo>();
-        light->position = Float4(0.0f, 0.98f, 0.0f, 1.0f);
-        light->emittance = RGBS(0.1f, 0.09f, 0.08f);
-        light->glare = RGBS(0.4f, 0.4f, 0.4f);
-        light->attenuationFactors = Float4(0.0f, 0.13f, 1.0f, 1.0f);
-        scene.getLights().push_back(std::move(light));
+        // Warm tungsten ceiling light (~3000K). Was RGB(0.1, 0.09, 0.08).
+        auto ceilingLight = std::make_unique<LightInfo>(LightInfo::blackbody(3000.f, 0.1f));
+        ceilingLight->position = Float4(0.0f, 0.98f, 0.0f, 1.0f);
+        ceilingLight->glare = RGBS(0.4f, 0.4f, 0.4f);
+        ceilingLight->attenuationFactors = Float4(0.0f, 0.13f, 1.0f, 1.0f);
+        scene.getLights().push_back(std::move(ceilingLight));
+
+        // Faint D65 daylight fill from the camera. Was RGB(0.01, 0.01, 0.01).
+        auto cameraLight = std::make_unique<LightInfo>(LightInfo::d65(0.01f));
+        cameraLight->position = Float4(0.0f, 0.0f, 3.2f, 1.0f);
+        cameraLight->attenuationFactors = Float4(0.0f, 0.1f, 1.0f, 1.0f);
+        scene.getLights().push_back(std::move(cameraLight));
 
         scene.getSceneObjects().push_back(ceiling());
         scene.getSceneObjects().push_back(floor());
         scene.getSceneObjects().push_back(backWall());
         scene.getSceneObjects().push_back(rightWall());
         scene.getSceneObjects().push_back(leftWall());
-        scene.getSceneObjects().push_back(smallSphere());
+        scene.getSceneObjects().push_back(mirrorSphere());
+        scene.getSceneObjects().push_back(roughMirrorSphere());
         scene.getSceneObjects().push_back(largeBox());
-        scene.getSceneObjects().push_back(meshAboveLargeBox(resources));
+        scene.getSceneObjects().push_back(glassTeapot(resources));
     }
 }

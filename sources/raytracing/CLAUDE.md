@@ -6,14 +6,15 @@ Core rendering engine. Static library depending on `primitives` and `vectorizati
 
 1. `Raytracer::trigger()` starts a render on the worker thread
 2. `RaytracerPackets` tiles the image into configurable ray packets with optional super-sampling
-3. Primary rays are generated from `Camera` frustum parameters
+3. Primary rays are generated from `Camera` frustum parameters; each sub-sample gets a stratified
+   `heroLambda` for hero-wavelength spectral sampling (Wilkie 2014)
 4. KD-tree traversal finds nearest geometry intersection
-5. `ObjectShader::sample()` evaluates 7 material channels at the intersection point
-6. `SceneShader::sampleLighting()` computes per-light contributions (Lambert diffuse, Phong specular, distance
-   attenuation, shadow rays with per-light caching)
-7. `Raytracer::applyBRDF()` composites: GGX microfacet BRDF, Schlick-Fresnel reflectance, Beer-Lambert absorption
-8. Reflection/transmission rays are traced recursively up to `maxTraceDepth`
-9. Output: HDRImage (ACEScg-linear) + depth map + timing map + StatisticsCookie
+5. `ObjectShader::shade()` evaluates 7 material channels, upsamples RGB to `Spectrum` via Smits
+6. `SceneShader::sampleLighting()` computes per-light contributions in spectral domain (Lambert diffuse,
+   GGX microfacet specular with spectral Schlick-Fresnel, distance attenuation, shadow rays with caching)
+7. `Raytracer::applyBRDF()` composites: spectral BRDF, Fresnel reflectance, Beer-Lambert absorption
+8. Reflection/transmission rays are traced recursively up to `maxTraceDepth`; `heroLambda` propagates
+9. Output: `spectrumToXYZ → xyzToDisplayRGB` per pixel → HDRImage (sRGB-linear) + depth map + timing map
 
 ## Subsystems
 
@@ -59,11 +60,13 @@ Traversers (template on intersection type):
 - `ggxD()` -- Trowbridge-Reitz normal distribution
 - `ggxG_smith()` -- Smith height-correlated geometry term
 - `evaluateGGX()` -- full microfacet BRDF (D * G * F / 4NoVNoL)
+- `evaluateGGX_DG()` -- geometry-only factor (D * G / 4NoVNoL), no Fresnel
+- `schlickFresnelSpectral()` -- per-wavelength Schlick approximation on Spectrum
 - `sampleGGX()` -- VNDF importance sampling (Heitz 2018)
 
 ### Color (`shading/color/`)
 
-- `primaries.h` -- sRGB/ACEScg/Rec.2020 <-> XYZ matrices, Bradford chromatic adaptation
+- `primaries.h` -- sRGB/Rec.2020 <-> XYZ matrices, Bradford chromatic adaptation
 - `view_transform.h` -- `agx()` (Sobotka AgX), `acesFilmic()` (Narkowicz 2015), `srgbEncode()`/`srgbDecode()`
 
 ### Common (`common/`)

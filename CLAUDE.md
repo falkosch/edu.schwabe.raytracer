@@ -79,8 +79,9 @@ AxisAlignedBoundingBox, BoundingSphere, Facet (Havel triangle test), FacetEdges 
 
 ### raytracing (`sources/raytracing/`)
 
-Core engine. Rendering pipeline: ACEScg-linear working space, GGX microfacet BRDF with VNDF importance sampling,
-Schlick-Fresnel reflectance, Beer-Lambert absorption. View transform: ACEScg -> XYZ -> sRGB-linear -> AgX -> sRGB.
+Core engine. Rendering pipeline: hero-wavelength spectral sampling (Wilkie 2014), GGX microfacet BRDF with VNDF
+importance sampling, spectral Schlick-Fresnel reflectance, Beer-Lambert absorption. View transform:
+spectrum -> XYZ -> sRGB-linear -> AgX -> sRGB.
 
 - **Scene**: Scene, SceneObject, Camera, Resources (OFF mesh loading, HDR/PPM textures)
 - **Forms**: Sphere, Box, Plane, Mesh (triangle mesh with KD-tree acceleration)
@@ -89,7 +90,7 @@ Schlick-Fresnel reflectance, Beer-Lambert absorption. View transform: ACEScg -> 
 - **Shading**: SceneShader (per-light Lambert diffuse + Phong specular + attenuation + shadow cache),
   ObjectShader (7 material channels: diffusion, reflectance, specular, roughness, transmittance, refractionEta,
   emittance), concrete shaders (Const, HDRImage, EnvironmentMap, IntersectionNormal, NoiseGeneratorMap)
-- **Color**: sRGB/ACEScg/Rec.2020 primaries, Bradford chromatic adaptation, AgX and ACES filmic view transforms
+- **Color**: sRGB/Rec.2020 primaries, Bradford chromatic adaptation, AgX and ACES filmic view transforms
 - **Utilities**: RGBS color type, Bitmap, HDRImage, Perlin/Simplex noise, StatisticsCookie, RaytracerPackets
 
 ### raytracerui (`sources/raytracerui/`)
@@ -187,3 +188,20 @@ headers (e.g. `PNGWriter.cpp`) must be excluded via `SKIP_PRECOMPILE_HEADERS` to
 
 The `cmake/` directory is a git submodule containing shared CMake modules (including `Catch2Tests.cmake`). Clone with
 `--recurse-submodules`.
+
+## Development Rules
+
+- DO NOT revert user changes — assume they are intentional cleanups. If there is a conflict you cannot
+  resolve, ask the user for feedback instead of silently reverting.
+- When editing a file, change ONLY what was explicitly requested. Do not remove comments, reformat
+  surrounding code, or rewrite files when a targeted edit suffices.
+- Outside the vectorization library, use API-tier type aliases (`Float`, `Float4`, `Float8`) instead of
+  internal types (`Float_32`, `v_f32_4`, `v_f32_8`). This applies to source files, headers, and tests.
+- Within a library's own source files, use narrow/specific includes (e.g.
+  `#include "vectorization/functions/copysign.h"`),
+  not broad aggregator includes. Broad includes can cause cyclic dependencies, especially within the vectorization
+  library.
+  Consuming libraries and executables (`#include <...>`) should use the barrel header (e.g.
+  `#include <vectorization.h>`).
+- Tests should include only the barrel header (`#include <vectorization.h>`), not narrow
+  vectorization includes.

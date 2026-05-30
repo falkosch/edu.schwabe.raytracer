@@ -7,9 +7,9 @@
 - **Order:** 3
 - **Depends on:**
     - `illumination-polarized-spectral-enabler.md` (Stokes spectrum, Mueller, frame transport, polarized Fresnel)
-    - `illumination-unpolarized-spectral.md` (the integrator already operates on a per-λ
-      `Spectrum` carried by rays — this item upgrades that carrier to Stokes form rather
-      than introducing spectra from scratch)
+    - Level 2 unpolarized spectral pipeline (shipped — the integrator already operates
+      on a per-λ `Spectrum` carried by rays; this item upgrades that carrier to Stokes
+      form rather than introducing spectra from scratch)
 - **Blocks:** `illumination-wave-optics.md`
 
 ## Motivation

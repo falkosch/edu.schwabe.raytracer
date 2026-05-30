@@ -3,13 +3,13 @@
 
 namespace raytracer
 {
-    IlluminatedIntersection::IlluminatedIntersection(const Float depthIn, const RGBS& colorIn)
-        : depth(depthIn), color(colorIn)
+    IlluminatedIntersection::IlluminatedIntersection(const Float depthIn, const spectral::Spectrum& color)
+        : depth(depthIn), color(color)
     {
     }
 
-    IlluminatedIntersection::IlluminatedIntersection(const Float4& depthIn, const RGBS& colorIn)
-        : depth(depthIn), color(colorIn)
+    IlluminatedIntersection::IlluminatedIntersection(const Float4& depthIn, const spectral::Spectrum& color)
+        : depth(depthIn), color(color)
     {
     }
 }

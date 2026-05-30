@@ -1,6 +1,9 @@
 #include "raytracing/shading/ObjectShader.h"
 #include "../../stdafx.h"
 
+#include "raytracing/shading/spectral/spectrum.h"
+#include "raytracing/shading/spectral/wavelengths.h"
+
 namespace raytracer
 {
     ObjectShader::ObjectShader()
@@ -118,24 +121,22 @@ namespace raytracer
         );
     }
 
-    static Float4 sampleShader(
-        const ObjectShader& objectShader, const ObjectShader::MaterialShader& shader,
-        const SceneIntersection& intersection
-    )
-    {
-        return shader(objectShader, intersection);
-    }
-
     SurfaceShading ObjectShader::sample(const SceneShader&, const SceneIntersection& intersection) const
     {
+        return shade(intersection, spectral::LAMBDA_MIN + spectral::LAMBDA_RANGE * Half<Float>());
+    }
+
+    SurfaceShading ObjectShader::shade(const SceneIntersection& intersection, const Float heroLambda) const
+    {
+        const auto wavelengths = spectral::wavelengthsAt(heroLambda);
         return {
-            sampleShader(*this, *diffusionShader, intersection),
-            sampleShader(*this, *reflectanceShader, intersection),
-            sampleShader(*this, *specularShader, intersection),
-            sampleShader(*this, *roughnessShader, intersection),
-            sampleShader(*this, *transmittanceShader, intersection),
-            sampleShader(*this, *refractionEtaShader, intersection),
-            sampleShader(*this, *emittanceShader, intersection)
+            spectral::fromRGB(wavelengths, diffusionShader->sample(*this, intersection)),
+            spectral::fromRGB(wavelengths, reflectanceShader->sample(*this, intersection)),
+            spectral::fromRGB(wavelengths, specularShader->sample(*this, intersection)),
+            roughnessShader->sample(*this, intersection),
+            spectral::fromRGB(wavelengths, transmittanceShader->sample(*this, intersection)),
+            refractionEtaShader->sample(*this, intersection),
+            spectral::fromRGB(wavelengths, emittanceShader->sample(*this, intersection))
         };
     }
 }

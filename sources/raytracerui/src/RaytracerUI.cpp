@@ -78,15 +78,13 @@ namespace raytracerui
 
         if (showMapIndex == 0 && outputHDR)
         {
-            static const auto acescgToSRGB = color::XYZToSRGBLinear() * color::ACEScgToXYZ();
             const auto resolution = outputHDR->getResolution();
             const auto count = static_cast<int>(x(resolution) * y(resolution));
             const auto displayImage = std::make_shared<HDRImage>(resolution);
 #pragma omp parallel for
             for (int i = 0; i < count; ++i)
             {
-                const auto pixel = acescgToSRGB * (*outputHDR)[static_cast<ASizeT>(i)];
-                displayImage->getData()[i] = color::srgbEncode(color::agx(pixel));
+                displayImage->getData()[i] = color::srgbEncode(color::agx((*outputHDR)[static_cast<ASizeT>(i)]));
             }
             outputHDR = displayImage;
         }

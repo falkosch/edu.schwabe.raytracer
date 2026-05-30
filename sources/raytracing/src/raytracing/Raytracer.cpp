@@ -4,15 +4,16 @@
 #include "raytracing/RaytracerPackets.h"
 
 #include "raytracing/shading/ObjectShader.h"
+#include "raytracing/shading/brdf/ggx.h"
+#include "raytracing/shading/spectral/conversion.h"
+#include "raytracing/shading/spectral/spectrum.h"
+#include "raytracing/shading/spectral/wavelengths.h"
 
 #include "raytracing/common/StatisticsCookie.h"
-#include "raytracing/common/Tools.h"
 
 #include <cassert>
 #include <limits>
 #include <logging.h>
-#include <omp.h>
-#include <sstream>
 #include <profileapi.h>
 
 static const auto Log = logging::scope("Raytracer");
@@ -191,15 +192,20 @@ namespace raytracer
             const auto outputPixel = &configuration.image->getData()[imageIndex];
 
             // generate super sampling rays
-            for (auto s = Zero<Size2::ValueType>(); s < subSamplesCount;)
+            for (auto s = Zero<Size2::ValueType>(); s < subSamplesCount; ++s)
             {
+                const auto heroLambda = spectral::wrapToVisible(
+                    spectral::LAMBDA_MIN
+                    + (static_cast<Float>(s) + Half<Float>())
+                    / static_cast<Float>(subSamplesCount) * spectral::LAMBDA_RANGE
+                );
                 // interpolate the camera-point's top-left on the view-plane
-                const auto newRay = packets.setupRayOfSampleInPixel(s++, nearTL, farTL);
+                const auto newRay = packets.setupRayOfSampleInPixel(s, nearTL, farTL);
                 const auto newRayCast = RayCast(
                     newRay, cullingOrientationToMask(configuration.cullingOrientation), Zero<Size2>(),
                     configuration.maxDistance
                 );
-                const auto newRaytrace = Raytrace(newRayCast, nullptr, Zero<ASizeT>(), One<Float>());
+                const auto newRaytrace = Raytrace(newRayCast, nullptr, Zero<ASizeT>(), One<Float>(), heroLambda);
                 list.emplace_back(newRaytrace, outputPixel);
             }
         }
@@ -238,8 +244,11 @@ namespace raytracer
                     cache.statistics.missedPrimaryRays +=
                         static_cast<ASizeT>(outOfReach(packedRaytrace.raytrace.rayCast, x(hit.depth)));
 
+                    const auto xyzContext = spectral::makeXYZContext(packedRaytrace.raytrace.heroLambda);
+                    const auto xyz = spectral::spectrumToXYZ(hit.color, xyzContext);
+                    const auto displayRGB = spectral::xyzToDisplayRGB(xyz);
                     // Sample colour into output
-                    packets.samplePixel(packedRaytrace.outputPixel, hit.color.value);
+                    packets.samplePixel(packedRaytrace.outputPixel, displayRGB.value);
 
                     const auto imagePtrIndex = packedRaytrace.outputPixel - cache.configuration.image->getData();
 
@@ -322,7 +331,7 @@ namespace raytracer
         {
             return {
                 raytrace.rayCast.maxDistance,
-                cache.configuration.sceneShader->sampleBackground(raytrace.rayCast.ray.direction)
+                cache.configuration.sceneShader->sampleBackground(raytrace.rayCast.ray.direction, raytrace.heroLambda)
             };
         }
 
@@ -331,12 +340,12 @@ namespace raytracer
 
         assert(brdf.intersection.object);
         const auto& objectShader = *dynamic_cast<const ObjectShader*const>(brdf.intersection.object);
-        brdf.surface = objectShader(*cache.configuration.sceneShader, brdf.intersection);
+        brdf.surface = objectShader.shade(brdf.intersection, raytrace.heroLambda);
 
+        const auto adapted_visibility_cutoff = SceneShader::adaptedVisibilityCutoff(
+            cache.configuration.visibilityCutoff, raytrace.visibilityIndex);
         brdf.lighting = cache.configuration.sceneShader->sampleLighting(
-            raytrace, SceneShader::adaptedVisibilityCutoff(cache.configuration.visibilityCutoff,
-                                                           raytrace.visibilityIndex),
-            x(brdf.surface.roughness), zeroW(brdf.surface.specular.value),
+            raytrace, adapted_visibility_cutoff, x(brdf.surface.roughness), brdf.surface.specular.data,
             brdf.intersection, cache.shadowCache, cache.statistics
         );
 
@@ -352,11 +361,24 @@ namespace raytracer
             || (notCulled(raytrace.rayCast) && isNegative(-brdf.intersection.smoothedNdotI));
 
         const auto totalInternalReflection = allTrue3(!transmittedDirection);
-        brdf.reflectanceCoefficient = fresnelReflectance(
+        const auto scalarReflectance = fresnelReflectance(
             totalInternalReflection,
             select(leavingMaterial, brdf.intersection.smoothedNdotI, -brdf.intersection.smoothedNdotI),
             select(leavingMaterial, yxwz(brdf.surface.refractionEta), brdf.surface.refractionEta)
         );
+        const auto iorReflectance = Float8(scalarReflectance);
+        if (spectral::spectralMax(brdf.surface.transmittance) <= Zero<Float>())
+        {
+            const auto cosTheta = Float8(abs(brdf.intersection.smoothedNdotI));
+            brdf.reflectanceCoefficient = max(
+                iorReflectance,
+                brdf::schlickFresnelSpectral(brdf.surface.specular.data, cosTheta)
+            );
+        }
+        else
+        {
+            brdf.reflectanceCoefficient = iorReflectance;
+        }
 
         const auto maxDistance = raytrace.rayCast.maxDistance - brdf.viewDistance;
         traceReflection(raytrace, maxDistance, cache, brdf);
@@ -372,17 +394,18 @@ namespace raytracer
         // would still be visible but tracing is not wanted any more
         if (incidentRaytrace.traceDepth >= cache.configuration.maxTraceDepth || maxDistance <= Zero<Float>())
         {
-            brdf.lighting.reflected = Zero<Float4>();
+            brdf.lighting.reflected = spectral::Spectrum::zero();
             return;
         }
 
         // check whether it would even make a difference in the image
         const auto reflectionVisibilityIndex =
-            incidentRaytrace.visibilityIndex * brdf.reflectanceCoefficient.value *
-            max3v(brdf.surface.reflectance.value);
-        if (x(reflectionVisibilityIndex) < cache.configuration.visibilityCutoff)
+            incidentRaytrace.visibilityIndex
+            * spectral::spectralMax(brdf.reflectanceCoefficient)
+            * spectral::spectralMax(brdf.surface.reflectance);
+        if (reflectionVisibilityIndex < cache.configuration.visibilityCutoff)
         {
-            brdf.lighting.reflected = Zero<Float4>();
+            brdf.lighting.reflected = spectral::Spectrum::zero();
             return;
         }
 
@@ -394,7 +417,7 @@ namespace raytracer
         );
         const auto reflectedRaytrace = Raytrace(
             reflectedRayCast, &brdf.intersection, incidentRaytrace.traceDepth + One<ASizeT>(),
-            x(reflectionVisibilityIndex)
+            reflectionVisibilityIndex, incidentRaytrace.heroLambda
         );
         const auto reflectedHit = trace(reflectedRaytrace, cache);
 
@@ -413,33 +436,34 @@ namespace raytracer
         // would still be visible, but tracing is not wanted any more, set transmitted to the background
         if (incidentRaytrace.traceDepth >= cache.configuration.maxTraceDepth || maxDistance <= Zero<Float>())
         {
-            brdf.lighting.transmitted = Zero<Float4>();
+            brdf.lighting.transmitted = spectral::Spectrum::zero();
             return;
         }
 
-        Float4 fractionTransmitted;
+        spectral::SpectralVector fractionTransmitted;
         if (leavingMaterial)
         {
             // world vacuum does not absorb
-            fractionTransmitted = One<Float4>();
+            fractionTransmitted = One<spectral::SpectralVector>();
         }
         else
         {
             // least possible transmitted fraction of material
-            const auto minDepth = Float4(std::numeric_limits<Float4::ValueType>::min());
-            const auto maxTransmittance = max3v(brdf.surface.transmittance);
-            fractionTransmitted = vectorization::exp(-minDepth / maxTransmittance);
+            fractionTransmitted = Float8(
+                vectorization::exp(
+                    -std::numeric_limits<Float>::min() / spectral::spectralMax(brdf.surface.transmittance)));
         }
         brdf.fractionTransmitted = fractionTransmitted;
 
         // check whether it would even make a difference in the image,
         // or whether it is a total internal reflection (transmissionDirection = 0)
         const auto transmissionVisibilityIndex =
-            Float4(incidentRaytrace.visibilityIndex) * fractionTransmitted * (One<Float4>() - brdf.
-                reflectanceCoefficient.value);
-        if (x(transmissionVisibilityIndex) < cache.configuration.visibilityCutoff)
+            incidentRaytrace.visibilityIndex
+            * spectral::spectralMax(fractionTransmitted)
+            * (One<Float>() - spectral::spectralMax(brdf.reflectanceCoefficient));
+        if (transmissionVisibilityIndex < cache.configuration.visibilityCutoff)
         {
-            brdf.lighting.transmitted = Zero<Float4>();
+            brdf.lighting.transmitted = spectral::Spectrum::zero();
             return;
         }
 
@@ -451,7 +475,7 @@ namespace raytracer
         );
         const auto refractedRaytrace = Raytrace(
             refractedRayCast, &brdf.intersection, incidentRaytrace.traceDepth + One<ASizeT>(),
-            x(transmissionVisibilityIndex)
+            transmissionVisibilityIndex, incidentRaytrace.heroLambda
         );
 
         const auto refractedHit = trace(refractedRaytrace, cache);
@@ -459,7 +483,8 @@ namespace raytracer
         // now that we have the transmission distance through the material, recompute the fractionTransmitted coefficient
         if (!leavingMaterial)
         {
-            brdf.fractionTransmitted = vectorization::exp(-refractedHit.depth / brdf.surface.transmittance);
+            brdf.fractionTransmitted = spectral::spectralExp(
+                -Float8(refractedHit.depth) / brdf.surface.transmittance.data);
         }
 
         cache.statistics.secondaryRays += One<ASizeT>();
@@ -467,16 +492,16 @@ namespace raytracer
             static_cast<ASizeT>(outOfReach(refractedRaytrace.rayCast, x(refractedHit.depth)));
     }
 
-    RGBS Raytracer::applyBRDF(const BRDFParameters& brdf)
+    spectral::Spectrum Raytracer::applyBRDF(const BRDFParameters& brdf)
     {
         const auto ambient = brdf.surface.diffusion * brdf.lighting.ambient;
         const auto diffuse = brdf.surface.diffusion * brdf.lighting.diffuse;
         const auto directLighting = ambient + diffuse + brdf.lighting.specular;
 
         const auto reflection = brdf.surface.reflectance * brdf.lighting.reflected;
-        const auto transmitted = brdf.fractionTransmitted * brdf.lighting.transmitted;
+        const auto transmitted = brdf.lighting.transmitted * brdf.fractionTransmitted;
 
-        return brdf.surface.emittance + directLighting + mix(transmitted.value, reflection.value,
-                                                             brdf.reflectanceCoefficient.value);
+        return brdf.surface.emittance + directLighting
+            + spectral::spectralMix(transmitted, reflection, brdf.reflectanceCoefficient);
     }
 }

@@ -4,32 +4,35 @@
 
 #include "shading/LightShading.h"
 #include "shading/SurfaceShading.h"
+#include "shading/spectral/wavelengths.h"
 
-namespace raytracer {
-  using namespace vectorization;
+namespace raytracer
+{
+    using namespace vectorization;
 
-  struct BRDFParameters {
-    // Intersection information of ray with a scene-element
-    SceneIntersection intersection;
+    struct BRDFParameters
+    {
+        // Ray-scene intersection point
+        SceneIntersection intersection;
 
-    // Sampled surface properties at scene-intersection
-    SurfaceShading surface;
+        // Material properties at intersection
+        SurfaceShading surface;
 
-    // Sampled lighting properties at scene-intersection
-    LightShading lighting;
+        // Lighting contributions at intersection
+        LightShading lighting;
 
-    // Direction of transmitted ray
-    Float4 transmissionDirection;
+        // Direction of transmitted ray
+        Float4 transmissionDirection;
 
-    // Fresnel reflectance coefficient = 1 - transmittance coefficient
-    RGBS reflectanceCoefficient;
+        // Fresnel reflectance coefficient per wavelength [0,1]
+        spectral::SpectralVector reflectanceCoefficient;
 
-    // Light absorption weight in material
-    RGBS fractionTransmitted;
+        // Beer-Lambert absorption weight per wavelength
+        spectral::SpectralVector fractionTransmitted;
 
-    // Distance from ray-origin to scene-intersection
-    Float viewDistance;
+        // Distance from ray origin to intersection
+        Float viewDistance;
 
-    BRDFParameters();
-  };
+        BRDFParameters();
+    };
 }

@@ -46,8 +46,8 @@ namespace raytracer::color
         const auto logClamped = clamp(logged, Zero<Float4>(), One<Float4>());
 
         // 6th-degree polynomial sigmoid (Blender AgX-Base default contrast)
-        const auto x2 = logClamped * logClamped;
-        const auto x4 = x2 * x2;
+        const auto x2 = sqr(logClamped);
+        const auto x4 = sqr(x2);
         const auto sigmoided = x4 * x2 * 15.5f - x4 * logClamped * 40.14f + x4 * 31.96f
             - x2 * logClamped * 6.868f + x2 * 0.4298f
             + logClamped * 0.1191f - Float4{0.00232f};
