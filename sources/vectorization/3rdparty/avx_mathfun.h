@@ -32,6 +32,7 @@
   - MSVC compatibility: ALIGN32_BEG/END uses __declspec(align(32)) on MSVC
   - AVX2 compatibility: _mm256_and_si128/_mm256_andnot_si128 mapped to _mm256_*_si256 equivalents
   - Internal linkage: all functions made static to avoid duplicate symbol warnings with LTCG
+  - C4838 fix: sign_mask constant cast to int to avoid narrowing conversion warning under /permissive-
 */
 
 #include <immintrin.h>
@@ -72,7 +73,7 @@ _PS256_CONST_TYPE(min_norm_pos, int, 0x00800000);
 _PS256_CONST_TYPE(mant_mask, int, 0x7f800000);
 _PS256_CONST_TYPE(inv_mant_mask, int, ~0x7f800000);
 
-_PS256_CONST_TYPE(sign_mask, int, 0x80000000);
+_PS256_CONST_TYPE(sign_mask, int, (int)0x80000000);
 _PS256_CONST_TYPE(inv_sign_mask, int, ~0x80000000);
 
 _PI32_CONST256(0, 0);

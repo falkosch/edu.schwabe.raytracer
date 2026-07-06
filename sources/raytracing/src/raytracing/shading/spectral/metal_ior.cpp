@@ -23,7 +23,7 @@ namespace raytracer::spectral
         return {One<Float>(), 3.0f};
     }
 
-    ComplexIOR metalIOR(const Metal metal, const Float8& wavelengths) noexcept
+    ComplexIOR metalIOR(const Metal metal, const Float8& /*wavelengths*/) noexcept
     {
         const auto constants = getPlaceholderConstants(metal);
         return ComplexIOR{Float8(constants.n), Float8(constants.k)};
