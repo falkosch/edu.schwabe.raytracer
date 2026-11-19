@@ -8,44 +8,44 @@ SSE/AVX-vectorized raytracer written in C++23. Windows-only UI (Win32 API + Open
 Uses OpenMP for parallelization. Exceptions are globally disabled (`-fno-exceptions` / stripped `/EH`); targets that
 need them (e.g. mesh loading) opt in via `target_compile_options`.
 
-Compiler flags: `/arch:SSE4.2 /fp:fast` (MSVC), `/arch:AVX2` (clang-cl), `-march=native` (GCC/Clang).
+Compiler flags: `/std:c++23 /arch:AVX2 /fp:fast` (MSVC; the root `CMakeLists.txt` overrides CMake's `-std:c++latest`
+mapping for MSVC ≥ 19.52), `/arch:AVX2` (clang-cl), `-march=native` (GCC/Clang).
 The vectorization library auto-bumps its intrinsics level when the compiler defines `__AVX__`/`__AVX2__`.
 
 ## Build Commands
 
-### Windows (Visual Studio)
+All configurations live in `CMakePresets.json` (CMake ≥ 4.0, Ninja generator, vcpkg manifest mode for GLEW and
+ImGui). The `VCPKG_DIR` environment variable must point to the directory containing `vcpkg.exe`, which should also be
+on `PATH`. Visual Studio and CLion both read the presets.
 
-Open with Visual Studio using CMake integration (CMakeSettings.json provided). Dependencies via vcpkg (GLEW, ImGui).
-Requires `VCPKG_DIR` environment variable pointing to the directory containing `vcpkg.exe` (also add to `PATH`).
+| Preset          | Compiler | Build directory       |
+|-----------------|----------|-----------------------|
+| `debug`         | MSVC     | `build-debug`         |
+| `release`       | MSVC     | `build-release`       |
+| `clang-release` | clang-cl | `build-clang-release` |
 
-### CMake directly (Windows/MSVC with Ninja)
+All presets use the `x64-windows-static` triplet. The root `CMakeLists.txt` chooses the CRT to match the triplet
+(`/MT` / `/MTd` for `*-static`, `/MD` / `/MDd` otherwise). Use Ninja, not the Visual Studio `.vcxproj` generator, and
+the `build-*` directories, not `cmake-build-*`.
 
-Use Ninja, not Visual Studio `.vcxproj` generator. Build directories are `build-release` / `build-debug` (not
-`cmake-build-*`).
+Run these from a VS developer shell (`vcvars64.bat`), which puts `cl`, `clang-cl`, CMake and Ninja on `PATH`. With a
+CMake that isn't on that `PATH` (for example CLion's bundled one), add
+`-DCMAKE_MAKE_PROGRAM=C:/Users/falko/AppData/Local/Programs/CLion/bin/ninja/win/x64/ninja.exe` to the configure step.
 
-**Configure (Release):**
-
-```bash
-cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_MAKE_PROGRAM=C:/Users/falko/AppData/Local/Programs/CLion/bin/ninja/win/x64/ninja.exe -DVCPKG_TARGET_TRIPLET=x64-windows-static -DCMAKE_TOOLCHAIN_FILE="$VCPKG_DIR/scripts/buildsystems/vcpkg.cmake" -G Ninja -S D:\edu.schwabe.raytracer -B D:\edu.schwabe.raytracer\build-release
-```
-
-**Configure (Debug):**
-
-```bash
-cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_MAKE_PROGRAM=C:/Users/falko/AppData/Local/Programs/CLion/bin/ninja/win/x64/ninja.exe -DCMAKE_TOOLCHAIN_FILE="$VCPKG_DIR/scripts/buildsystems/vcpkg.cmake" -G Ninja -S D:\edu.schwabe.raytracer -B D:\edu.schwabe.raytracer\build-debug
-```
-
-**Build:**
+**Configure and build:**
 
 ```bash
-cmake --build build-release --target raytracerui
-cmake --build build-release --target sources_and_tests
+cmake --preset release
+cmake --build --preset release                        # all targets, test DLLs included
+cmake --build --preset release --target raytracerui   # or: benchmarks, sources (both), <library>.native-test
 ```
 
 **Test:**
 
 ```bash
 vstest.console.exe build-release/tests/vectorization.native-test/vectorization.native-test.dll
+vstest.console.exe build-release/tests/primitives.native-test/primitives.native-test.dll
+vstest.console.exe build-release/tests/raytracing.native-test/raytracing.native-test.dll
 ```
 
 ## Architecture
@@ -183,11 +183,6 @@ must be run from or with access to the `data/` directory.
 Each target has a `src/stdafx.h` used as PCH via `target_precompile_headers`. The vectorization library itself has no
 PCH (narrow per-file includes). Raytracing's stdafx.h contains `using namespace std;` — files that include Windows
 headers (e.g. `PNGWriter.cpp`) must be excluded via `SKIP_PRECOMPILE_HEADERS` to avoid `std::byte` ambiguity.
-
-## CMake Submodules
-
-The `cmake/` directory is a git submodule containing shared CMake modules (including `Catch2Tests.cmake`). Clone with
-`--recurse-submodules`.
 
 ## Development Rules
 
