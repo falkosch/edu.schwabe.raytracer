@@ -60,7 +60,7 @@ namespace raytracer::spectral
             x5(wavelengths), x6(wavelengths), x7(wavelengths), x8(wavelengths)
         };
 
-        Float result[SPECTRAL_SAMPLES]{};
+        alignas(YMM_ALIGNMENT) Float result[SPECTRAL_SAMPLES]{};
         for (ASizeT i = 0; i < SPECTRAL_SAMPLES; ++i)
         {
             switch (illuminant)

@@ -68,14 +68,14 @@ namespace vectorization {
 
   PackedFloat4_256
   replaceComponent(const PackedFloat4_256 &values, const PackedFloat4_256 &replacement, const ASizeT index) noexcept {
-    assert(index < VectorSizes::Y);
+    assert(index < VectorSizes::X4);
     const auto mask = _mm256_cmpeq_epi64(_mm256_set1_epi64x(static_cast<int>(index)), _mm256_set_epi64x(3, 2, 1, 0));
     return blendMasked(values, replacement, mask);
   }
 
   PackedFloat4_256
   replaceComponent(const PackedFloat4_256 &values, const Float_64 replacement, const ASizeT index) noexcept {
-    assert(index < VectorSizes::Y);
+    assert(index < VectorSizes::X4);
     return replaceComponent(values, _mm256_set1_pd(replacement), index);
   }
 }

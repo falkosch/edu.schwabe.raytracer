@@ -112,7 +112,7 @@ namespace vectorization {
 
   PackedFloat8_256
   replaceComponent(const PackedFloat8_256 &values, const PackedFloat8_256 &replacement, const ASizeT index) noexcept {
-    assert(index < VectorSizes::Y);
+    assert(index < VectorSizes::X8);
     const auto mask =
         _mm256_cmpeq_epi32(_mm256_set1_epi32(static_cast<int>(index)), _mm256_set_epi32(7, 6, 5, 4, 3, 2, 1, 0));
     return blendMasked(values, replacement, mask);
