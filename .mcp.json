@@ -1,0 +1,18 @@
+{
+  "mcpServers": {
+    "blender": {
+      "type": "stdio",
+      "command": "uvx",
+      "args": [
+        "--from",
+        "git+https://projects.blender.org/lab/blender_mcp.git#subdirectory=mcp",
+        "blender-mcp"
+      ],
+      "env": {
+        "BLENDER_MCP_HOST": "127.0.0.1",
+        "BLENDER_MCP_PORT": "9876",
+        "BLENDER_PATH": "C:\\Program Files\\Blender Foundation\\Blender 5.3\\blender.exe"
+      }
+    }
+  }
+}
