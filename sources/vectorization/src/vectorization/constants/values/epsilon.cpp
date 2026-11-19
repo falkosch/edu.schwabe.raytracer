@@ -24,7 +24,10 @@ namespace vectorization
         }
         Log.info([name = std::string(typeid(T).name()), e]
         {
-            return "Machine epsilon for " + name + " is " + std::to_string(e);
+            // std::to_string uses fixed notation with 6 decimals, which prints these as 0.000000
+            std::ostringstream message;
+            message << "Machine epsilon for " << name << " is " << e;
+            return message.str();
         });
         return e;
     }
