@@ -79,9 +79,16 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     add_compile_options(/arch:AVX2)
     #add_compile_options(/arch:SSE4.2)
     add_compile_options(/permissive- /Zc:__cplusplus /Zc:preprocessor /W4 /wd4514 /wd4710 /wd4711 /wd4820 /wd4068 /wd4530)
+    # Pin the classic math runtime: /Zc:cmath (LLVM-libc based, opt-in in 14.52, planned to follow from /std:c++23)
+    # made scalar exp/pow/cos/tan 1.4-3.6x slower with no accuracy gain here; constexpr <cmath> is not used.
+    # See .backlog.
+    add_compile_options(/Zc:cmath-)
     add_compile_options(/openmp /GS- /fp:fast /Zp16 /sdl- /Oi /Gy)
     add_compile_options($<$<AND:$<CONFIG:Release>,$<NOT:$<BOOL:${COVERAGE}>>>:/Oy>)
     #add_compile_options($<$<CONFIG:Release>:/d2cgsummary>)
+    # Keep MSVC's SSA optimizer off. Added for an LTCG link stall (14.50, gone in 14.52), it is still needed because
+    # 14.52 miscompiles with /GL + /fp:fast: (x * c) * c evaluates to 0 when c = Two<PackedFloat4_128>(), a constant
+    # the vectorization library builds from integer bit patterns (_mm_castsi128_ps). See .backlog for the repro.
     add_compile_options($<$<CONFIG:Release>:/d2SSAOptimizer->)
 
     # LTCG: /GL when compiling, /LTCG for link.exe and lib.exe
