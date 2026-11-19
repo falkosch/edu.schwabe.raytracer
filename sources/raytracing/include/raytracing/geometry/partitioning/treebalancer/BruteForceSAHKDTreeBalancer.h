@@ -15,6 +15,6 @@ namespace raytracer
         const KDTreePlane findSplitter(
             const KDTreeBuildParameters& parameters, ASizeT treeDepth, const AxisAlignedBoundingBox& bounding,
             const PGeometryNodeList& geometry, const KDTreePlane* parentSplitter
-        ) const;
+        ) const override;
     };
 }

@@ -13,7 +13,8 @@ namespace raytracer::spectral
     // PBRT v3 wavelength grid for Smits basis spectra (32 samples, 380-720nm)
     // Karl vom Berge's re-derivation at higher resolution than Smits' original 10 bins.
     // Source: github.com/mmp/pbrt-v3, src/core/spectrum.cpp
-    static constexpr Float g_lambda[SMITS_SAMPLES] = {
+    // Reference only: lookupBasis() derives the same grid from SMITS_LAMBDA_MIN/MAX.
+    [[maybe_unused]] static constexpr Float g_lambda[SMITS_SAMPLES] = {
         380.000000f, 390.967743f, 401.935486f, 412.903229f, 423.870972f, 434.838715f,
         445.806458f, 456.774200f, 467.741943f, 478.709686f, 489.677429f, 500.645172f,
         511.612915f, 522.580627f, 533.548340f, 544.516052f, 555.483765f, 566.451477f,

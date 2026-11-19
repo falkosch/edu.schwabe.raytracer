@@ -12,7 +12,7 @@ namespace vectorization {
     _mm_store_si128(reinterpret_cast<__m128i *>(vb), b);
     for (int i = 0; i < 4; ++i)
       va[i] = (va[i] << (vb[i] & 31u)) & static_cast<UInt_32>(-static_cast<Int_32>(vb[i] < 32u));
-    return _mm_load_si128(reinterpret_cast<const __m128i *>(va));
+    return ::_mm_load_si128(reinterpret_cast<const __m128i *>(va));
 #endif
   }
 
@@ -60,7 +60,7 @@ namespace vectorization {
     _mm_store_si128(reinterpret_cast<__m128i *>(vb), b);
     for (int i = 0; i < 4; ++i)
       va[i] = (va[i] >> (vb[i] & 31u)) & static_cast<UInt_32>(-static_cast<Int_32>(vb[i] < 32u));
-    return _mm_load_si128(reinterpret_cast<const __m128i *>(va));
+    return ::_mm_load_si128(reinterpret_cast<const __m128i *>(va));
 #endif
   }
 
@@ -110,7 +110,7 @@ namespace vectorization {
     _mm_store_si128(reinterpret_cast<__m128i *>(vb), b);
     for (int i = 0; i < 4; ++i)
       va[i] = va[i] >> (vb[i] < 32u ? vb[i] : 31u);
-    return _mm_load_si128(reinterpret_cast<const __m128i *>(va));
+    return ::_mm_load_si128(reinterpret_cast<const __m128i *>(va));
 #endif
   }
 
@@ -159,7 +159,7 @@ namespace vectorization {
     _mm_store_si128(reinterpret_cast<__m128i *>(vb), b);
     va[0] = (va[0] << (vb[0] & 63u)) & static_cast<UInt_64>(-static_cast<Int_64>(vb[0] < 64u));
     va[1] = (va[1] << (vb[1] & 63u)) & static_cast<UInt_64>(-static_cast<Int_64>(vb[1] < 64u));
-    return _mm_load_si128(reinterpret_cast<const __m128i *>(va));
+    return ::_mm_load_si128(reinterpret_cast<const __m128i *>(va));
 #endif
   }
 
@@ -207,7 +207,7 @@ namespace vectorization {
     _mm_store_si128(reinterpret_cast<__m128i *>(vb), b);
     va[0] = (va[0] >> (vb[0] & 63u)) & static_cast<UInt_64>(-static_cast<Int_64>(vb[0] < 64u));
     va[1] = (va[1] >> (vb[1] & 63u)) & static_cast<UInt_64>(-static_cast<Int_64>(vb[1] < 64u));
-    return _mm_load_si128(reinterpret_cast<const __m128i *>(va));
+    return ::_mm_load_si128(reinterpret_cast<const __m128i *>(va));
 #endif
   }
 
@@ -254,7 +254,7 @@ namespace vectorization {
     _mm_store_si128(reinterpret_cast<__m128i *>(vb), b);
     va[0] = va[0] >> (vb[0] < 64u ? vb[0] : 63u);
     va[1] = va[1] >> (vb[1] < 64u ? vb[1] : 63u);
-    return _mm_load_si128(reinterpret_cast<const __m128i *>(va));
+    return ::_mm_load_si128(reinterpret_cast<const __m128i *>(va));
   }
 
   PackedInts_256 shiftRightArithmetic64(const PackedInts_256 &a, const PackedInts_256 &b) noexcept {
@@ -271,7 +271,7 @@ namespace vectorization {
     const auto clamped = static_cast<UInt_64>(count) < 64u ? count : Int_64{63};
     va[0] = va[0] >> clamped;
     va[1] = va[1] >> clamped;
-    return _mm_load_si128(reinterpret_cast<const __m128i *>(va));
+    return ::_mm_load_si128(reinterpret_cast<const __m128i *>(va));
   }
 
   PackedInts_128 shiftRightArithmetic64(const PackedInts_128 &a, const UInt_64 count) noexcept {
