@@ -16,6 +16,28 @@ Visual Studio 2026 18.12 (MSVC Build Tools 14.52, `cl` 19.52.37025) is installed
 - `CMakePresets.json` (`debug`, `release`, `clang-release`) replaces `CMakeSettings.json`. The MinGW configuration was
   dropped: it hard-coded `C:/msys64` (not installed) and GCC 7.3, which can't build C++23, and the CppUnitTest tests
   are MSVC-only anyway.
+- The redundant `/O2` is gone (`CMAKE_CXX_FLAGS_RELEASE` already holds `/O2 /Ob2`), and so is the unused `catch2`
+  vcpkg dependency.
+- clang-cl compiles again, without warnings: `::_mm_load_si128` in `shift.cpp`, `override` on the `findSplitter`
+  overrides, `[[maybe_unused]]` on the reference-only `g_lambda` table. All three presets build with 0 warnings.
+- The test host crashes are fixed (they were all there at HEAD 11fd329, before the toolchain changes):
+  - **Release, 0xC0000005 after 378/384 raytracing tests:** the CppUnitTest executor `FreeLibrary()`s the test DLL,
+    which unloaded `vcomp140.dll` while the OpenMP worker threads were still parked inside it. The
+    `TEST_MODULE_INITIALIZE` in `tests/raytracing.native-test/src/test_module.cpp` pins the OpenMP runtime.
+  - **Debug, exit code 3:** a failed `assert()` opened a modal Abort/Retry/Ignore box. Each test module now sends
+    asserts and debug CRT reports to stderr. The asserts it uncovered:
+    - Tests that passed out-of-range indices to `replaceComponent()` on purpose. Those checks now run only in Release
+      (`#ifdef NDEBUG`).
+    - Wrong lane-count asserts in `replace_component_256d.cpp` / `_256s.cpp` (`< 2` instead of `< 4` / `< 8`).
+    - Unaligned `Float result[8]` buffers fed to the aligned `Float8` constructor in `illuminants.cpp` and `smits.cpp`.
+      This was a real bug in the library, not only in the tests.
+    - A zero-length half vector in `GGXTest::evaluateGGX_DGZeroBelowHorizon`.
+    - `SmitsTest` reading lane 8 past the end of a 7-element array.
+    - 518 test buffers (`std::array`, C arrays, `StandardSample` copies) passed to aligned SIMD loads/stores without
+      `alignas`. MSVC happened to place them on 16-byte boundaries; clang does not, so its `movaps` faulted. This was
+      the cause of the ~160 random clang-cl 0xC0000005 failures.
+  - Now: MSVC Debug 1858/61/384 pass, MSVC Release 1857/61/384 (only `negativeZeroArithmetic`, see 1.), clang-cl
+    Release 1853/61/381 (see 3.), with no crashes in any configuration.
 
 These items are still open.
 
@@ -44,7 +66,7 @@ These items are still open.
     `negativeZeroArithmetic`, `movemaskDetectsNegativeZero`, `multipliesWithInfinity`, `infinityArithmetic`,
     `infinityMinusInfinityIsNaN`, `zeroTimesInfinityIsNaN`. Under `/fp:fast`, the SSA optimizer folds inf/NaN/−0
     arithmetic. Resolve those tests first (relax them or use `#pragma float_control`), then remove the flag.
-- Release passes `/O2` twice: `CMAKE_CXX_FLAGS_RELEASE` already holds `/O2 /Ob2`. Evaluate `/Ob3`.
+- Evaluate `/Ob3`.
 
 ### 2. constexpr `<cmath>` / LLVM-libc math runtime (`/Zc:cmath`)
 
@@ -53,33 +75,22 @@ LLVM-libc. It is opt-in for now, but Microsoft says `/std:c++23` should imply `/
 Before that happens, measure the effect on scalar `std::exp/pow/sqrt/sin` hot paths (spectral sampling, Fresnel,
 noise) with `/fp:fast`, and decide whether to opt in early or pin the old behavior.
 
-### 3. Test host crashes (all were already there at HEAD 11fd329, before the toolchain changes)
+### 3. clang-cl (`clang-release` preset): remaining test failures
 
-- **MSVC Release:** `raytracing.native-test.dll` crashes the test host (0xC0000005) after 378 of 384 tests. The tests
-  that don't run (`WavelengthsTest::wrapToVisible*`, `wavelengthsAt*`) pass when run on their own
-  (`/TestCaseFilter:"FullyQualifiedName~WavelengthsTest"`), so an earlier test probably leaves bad state behind (heap
-  corruption, or the logger worker thread at teardown).
-- **MSVC Debug:** the test host aborts (exit code 3) after 23 vectorization tests and after 222 raytracing tests. It
-  happens the same way with HEAD's `/MDd` + `-std:c++latest`. Probably a debug CRT or STL assertion that ends in
-  `abort()`. Run it under the debugger, or with `_CrtSetReportMode` sending reports to stderr, to see which one.
+It builds without warnings, the app renders, and no test crashes. Eight tests still fail deterministically, most likely
+because of clang's fast-math flags (`-fassociative-math -freciprocal-math -fno-signed-zeros -ffp-contract=fast`),
+which are not equivalent to MSVC's `/fp:fast`:
 
-### 4. clang-cl (`clang-release` preset) is broken
+- vectorization: `v_f32_4_OperatorsTest::testBitwiseAndOperator`, `testBitwiseOrOperator`,
+  `testCompoundBitwiseAndAssignOperator`, `testCompoundBitwiseOrAssignOperator` (`Expected:<-nan> Actual:<-nan>`:
+  NaN comparison), `computesExp` (relative tolerance at 7.6e+24).
+- raytracing: `SphereTest::findNearestIntersectionSetsNormal` (`-1` vs `-1`, probably `-0`/tolerance),
+  `BlackbodyTest::hotterObjectPeaksAtShorterWavelength`, `WavelengthsTest::wrapToVisibleWrapsUpperBound` (780 stays
+  780 instead of wrapping to 380).
 
-- **Compile error since f8d511e:** `shift.cpp:257` and `shift.cpp:274` call `_mm_load_si128(reinterpret_cast<const
-  __m128i *>(va))` unqualified. Inside `namespace vectorization`, the overload `_mm_load_si128(const UInt_32 *)` from
-  `compiler_intrinsics.h` hides the global intrinsic. MSVC accepts the call; clang rejects it. The fix is
-  `::_mm_load_si128`. That change was tried on a scratch copy and not applied.
-- **Runtime:** with the fix applied, vectorization has about 160 failures and raytracing about 15–18, almost all
-  0xC0000005. Which tests fail changes from run to run, and it happens with or without ThinLTO. That pattern suggests
-  memory alignment or stack corruption (check `/Zp16`, aligned loads of stack or unaligned data, and the CppUnitTest
-  ABI under clang-cl). Primitives passes 61/61.
-- The test DLLs need `libomp.dll` (`VC/Tools/Llvm/x64/bin`) on `PATH`. Without it the raytracing DLL doesn't load.
-- 13 warnings: 12 × `findSplitter` overrides a member function but isn't marked `override`
-  (`-Winconsistent-missing-override`), and 1 × unused `g_lambda`.
+The Cornell box render differs from MSVC in 318 pixels (0.12 %), mostly along the floor/right-wall seam.
 
-### 5. Minor
-
-- `vcpkg.json` lists `catch2`, but nothing uses it. Every configure installs it for nothing.
+The test DLLs and `raytracerui.exe` still need `libomp.dll` (`VC/Tools/Llvm/x64/bin`) on `PATH`.
 
 ## Out of scope
 
@@ -89,6 +100,5 @@ noise) with `/fp:fast`, and decide whether to opt in early or pin the old behavi
 ## Key files
 
 - `CMakeLists.txt` (root compiler / linker flag setup)
-- `sources/vectorization/src/vectorization/functions/shift.cpp`
+- `tests/*/src/test_module.cpp` (test-host setup: OpenMP pin, assert reporting)
 - `tests/*/CMakeLists.txt`
-- `vcpkg.json`

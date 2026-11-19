@@ -126,6 +126,11 @@ only the last one takes effect. Use this pattern for any scene mutation that mus
 - **Windows/VS**: Uses MS CppUnitTest (`<CppUnitTest.h>`). Tests build as a shared library (.dll) for VS Test Explorer.
   Uses `TEST_CLASS(NameTest)` / `TEST_METHOD(camelCaseAction)` macros, assertions via `Assert::AreEqual()` etc.
 - Test file naming mirrors source: `component_128d.cpp` -> `component_128d_test.cpp`
+- Buffers handed to SIMD loads/stores or pointer constructors (`v_f32_4{arr.data()}`) must be declared
+  `alignas(XMM_ALIGNMENT)` / `alignas(YMM_ALIGNMENT)`. MSVC usually tolerates misalignment, but clang crashes on it.
+- `tests/*/src/test_module.cpp` holds each DLL's `TEST_MODULE_INITIALIZE`: Debug asserts go to stderr instead of a
+  modal dialog, and the raytracing tests pin the OpenMP runtime, which the test executor would otherwise unload
+  under live worker threads
 
 ### Regression Tests
 
