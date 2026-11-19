@@ -154,7 +154,7 @@ namespace raytracer::test
             const auto N = Float4{0.0f, 1.0f, 0.0f, 0.0f};
             const auto V = normalize3(Float4{0.0f, 1.0f, 0.0f, 0.0f});
             const auto L = normalize3(Float4{0.0f, -1.0f, 0.0f, 0.0f});
-            const auto H = normalize3(V + L);
+            const auto H = N; // V + L is zero here, so the half vector is undefined; it is unused below the horizon
 
             Assert::AreEqual(0.0f, evaluateGGX_DG(N, V, L, H, 0.5f), L"zero below horizon", LINE_INFO());
         }

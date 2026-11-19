@@ -4,7 +4,7 @@ namespace vectorization::test {
   TEST_CLASS(Component128dTest) {
   public:
     TEST_METHOD(readsComponent) {
-      const auto expectedComponents = StandardSample::ofArrayType<Float_64, VectorSizes::Y>();
+      alignas(XMM_ALIGNMENT) const auto expectedComponents = StandardSample::ofArrayType<Float_64, VectorSizes::Y>();
       const auto givenPack = _mm_load_pd(expectedComponents.data());
 
       {
@@ -19,7 +19,7 @@ namespace vectorization::test {
     }
 
     TEST_METHOD(readsXY) {
-      const auto expectedComponents = StandardSample::ofArrayType<Float_64, VectorSizes::Y>();
+      alignas(XMM_ALIGNMENT) const auto expectedComponents = StandardSample::ofArrayType<Float_64, VectorSizes::Y>();
       const auto givenPack = _mm_load_pd(expectedComponents.data());
 
       {
@@ -34,7 +34,7 @@ namespace vectorization::test {
     }
 
     TEST_METHOD(readsXi) {
-      const auto expectedComponents = StandardSample::ofArrayType<Float_64, VectorSizes::Y>();
+      alignas(XMM_ALIGNMENT) const auto expectedComponents = StandardSample::ofArrayType<Float_64, VectorSizes::Y>();
       const auto givenPack = _mm_load_pd(expectedComponents.data());
 
       {

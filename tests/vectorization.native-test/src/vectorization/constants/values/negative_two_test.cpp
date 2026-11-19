@@ -29,28 +29,28 @@ namespace vectorization::test {
 
     TEST_METHOD(returnsPackedFloat2_128) {
       constexpr std::array expected{-2.0, -2.0};
-      std::array<Float_64, VectorSizes::Y> actual{};
+      alignas(YMM_ALIGNMENT) std::array<Float_64, VectorSizes::Y> actual{};
       _mm_store_pd(actual.data(), NegativeTwo<PackedFloat2_128>());
       Assert::AreEqual(expected, actual);
     }
 
     TEST_METHOD(returnsPackedFloat4_128) {
       constexpr std::array expected{-2.0f, -2.0f, -2.0f, -2.0f};
-      std::array<Float_32, VectorSizes::W> actual{};
+      alignas(YMM_ALIGNMENT) std::array<Float_32, VectorSizes::W> actual{};
       _mm_store_ps(actual.data(), NegativeTwo<PackedFloat4_128>());
       Assert::AreEqual(expected, actual);
     }
 
     TEST_METHOD(returnsPackedFloat4_256) {
       constexpr std::array expected{-2.0, -2.0, -2.0, -2.0};
-      std::array<Float_64, VectorSizes::W> actual{};
+      alignas(YMM_ALIGNMENT) std::array<Float_64, VectorSizes::W> actual{};
       _mm256_store_pd(actual.data(), NegativeTwo<PackedFloat4_256>());
       Assert::AreEqual(expected, actual);
     }
 
     TEST_METHOD(returnsPackedFloat8_256) {
       constexpr std::array expected{-2.0f, -2.0f, -2.0f, -2.0f, -2.0f, -2.0f, -2.0f, -2.0f};
-      std::array<Float_32, VectorSizes::X8> actual{};
+      alignas(YMM_ALIGNMENT) std::array<Float_32, VectorSizes::X8> actual{};
       _mm256_store_ps(actual.data(), NegativeTwo<PackedFloat8_256>());
       Assert::AreEqual(expected, actual);
     }

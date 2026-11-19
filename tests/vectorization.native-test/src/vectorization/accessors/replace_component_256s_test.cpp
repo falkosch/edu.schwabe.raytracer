@@ -5,10 +5,10 @@ namespace vectorization::test {
   public:
     TEST_METHOD(replacesComponent) {
       constexpr auto expectedReplacement = 5.0f;
-      const auto given = StandardSample::ofArrayType<Float_32, VectorSizes::X8>();
+      alignas(YMM_ALIGNMENT) const auto given = StandardSample::ofArrayType<Float_32, VectorSizes::X8>();
       const auto givenPack = _mm256_load_ps(given.data());
       std::array<Float_32, VectorSizes::X8> expected{};
-      std::array<Float_32, VectorSizes::X8> actual{};
+      alignas(YMM_ALIGNMENT) std::array<Float_32, VectorSizes::X8> actual{};
 
       {
         Mutate::copyAndReplaceAt<VectorIndices::X1>(
@@ -85,10 +85,10 @@ namespace vectorization::test {
 
     TEST_METHOD(replacesXYZW) {
       constexpr auto expectedReplacement = 5.0f;
-      const auto given = StandardSample::ofArrayType<Float_32, VectorSizes::X8>();
+      alignas(YMM_ALIGNMENT) const auto given = StandardSample::ofArrayType<Float_32, VectorSizes::X8>();
       const auto givenPack = _mm256_load_ps(given.data());
       std::array<Float_32, VectorSizes::X8> expected{};
-      std::array<Float_32, VectorSizes::X8> actual{};
+      alignas(YMM_ALIGNMENT) std::array<Float_32, VectorSizes::X8> actual{};
 
       {
         Mutate::copyAndReplaceAt<VectorIndices::X>(given.cbegin(), given.cend(), expected.begin(), expectedReplacement);
@@ -121,10 +121,10 @@ namespace vectorization::test {
 
     TEST_METHOD(replacesXi) {
       constexpr auto expectedReplacement = 5.0f;
-      const auto given = StandardSample::ofArrayType<Float_32, VectorSizes::X8>();
+      alignas(YMM_ALIGNMENT) const auto given = StandardSample::ofArrayType<Float_32, VectorSizes::X8>();
       const auto givenPack = _mm256_load_ps(given.data());
       std::array<Float_32, VectorSizes::X8> expected{};
-      std::array<Float_32, VectorSizes::X8> actual{};
+      alignas(YMM_ALIGNMENT) std::array<Float_32, VectorSizes::X8> actual{};
 
       {
         Mutate::copyAndReplaceAt<VectorIndices::X1>(
@@ -202,10 +202,10 @@ namespace vectorization::test {
     TEST_METHOD(replacesComponentPackedFloat8_256AtIndex) {
       constexpr auto givenReplacement = 5.0f;
       const auto givenReplacementPack = _mm256_set1_ps(givenReplacement);
-      const auto given = StandardSample::ofArrayType<Float_32, VectorSizes::X8>();
+      alignas(YMM_ALIGNMENT) const auto given = StandardSample::ofArrayType<Float_32, VectorSizes::X8>();
       const auto givenPack = _mm256_load_ps(given.data());
       std::array<Float_32, VectorSizes::X8> expected{};
-      std::array<Float_32, VectorSizes::X8> actual{};
+      alignas(YMM_ALIGNMENT) std::array<Float_32, VectorSizes::X8> actual{};
 
       {
         Mutate::copyAndReplaceAt<VectorIndices::X1>(given.cbegin(), given.cend(), expected.begin(), givenReplacement);
@@ -263,18 +263,21 @@ namespace vectorization::test {
         Assert::AreEqual(expected, actual, L"replace component mismatch", LINE_INFO());
       }
 
+#ifdef NDEBUG
+      // out-of-range index: a precondition violation that asserts in Debug, a no-op blend in Release
       {
         _mm256_store_ps(actual.data(), replaceComponent(givenPack, givenReplacement, VectorIndices::AboveX8));
         Assert::AreEqual(given, actual, L"wrong replace component mismatch", LINE_INFO());
       }
+#endif
     }
 
     TEST_METHOD(replacesComponentFloat_32AtIndex) {
       constexpr auto givenReplacement = 5.0f;
-      const auto given = StandardSample::ofArrayType<Float_32, VectorSizes::X8>();
+      alignas(YMM_ALIGNMENT) const auto given = StandardSample::ofArrayType<Float_32, VectorSizes::X8>();
       const auto givenPack = _mm256_load_ps(given.data());
       std::array<Float_32, VectorSizes::X8> expected{};
-      std::array<Float_32, VectorSizes::X8> actual{};
+      alignas(YMM_ALIGNMENT) std::array<Float_32, VectorSizes::X8> actual{};
 
       {
         Mutate::copyAndReplaceAt<VectorIndices::X1>(given.cbegin(), given.cend(), expected.begin(), givenReplacement);
@@ -332,10 +335,13 @@ namespace vectorization::test {
         Assert::AreEqual(expected, actual, L"replace component mismatch", LINE_INFO());
       }
 
+#ifdef NDEBUG
+      // out-of-range index: a precondition violation that asserts in Debug, a no-op blend in Release
       {
         _mm256_store_ps(actual.data(), replaceComponent(givenPack, givenReplacement, VectorIndices::AboveX8));
         Assert::AreEqual(given, actual, L"wrong replace component mismatch", LINE_INFO());
       }
+#endif
     }
   };
 }

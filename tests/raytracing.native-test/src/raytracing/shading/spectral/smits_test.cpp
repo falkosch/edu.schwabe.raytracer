@@ -61,7 +61,7 @@ namespace raytracer::test
                     for (const Float b : testValues)
                     {
                         const auto s = rgbToSpectrum(Float4{r, g, b, 0.0f}, w);
-                        const Float vals[] = {x1(s), x2(s), x3(s), x4(s), x5(s), x6(s), x7(s)};
+                        const Float vals[] = {x1(s), x2(s), x3(s), x4(s), x5(s), x6(s), x7(s), x8(s)};
                         for (ASizeT i = 0; i < SPECTRAL_SAMPLES; ++i)
                         {
                             Assert::IsTrue(vals[i] >= 0.0f, L"non-negative output", LINE_INFO());
@@ -125,7 +125,7 @@ namespace raytracer::test
         {
             const auto w = wavelengthsAt(740.0f);
             const auto s = rgbToSpectrum(Float4{0.5f, 0.5f, 0.5f, 0.0f}, w);
-            const Float vals[] = {x1(s), x2(s), x3(s), x4(s), x5(s), x6(s), x7(s)};
+            const Float vals[] = {x1(s), x2(s), x3(s), x4(s), x5(s), x6(s), x7(s), x8(s)};
             for (ASizeT i = 0; i < SPECTRAL_SAMPLES; ++i)
             {
                 Assert::IsTrue(vals[i] >= 0.0f, L"non-negative with wrapped wavelengths", LINE_INFO());

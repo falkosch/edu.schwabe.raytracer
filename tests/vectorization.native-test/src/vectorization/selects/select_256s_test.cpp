@@ -4,11 +4,11 @@ namespace vectorization::test {
   TEST_CLASS(Select256sTest) {
   public:
     TEST_METHOD(selectsOneOfTwoPackedFloat8_256WithBoolConditionMask) {
-      constexpr std::array givenTruthy{1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f};
+      alignas(YMM_ALIGNMENT) constexpr std::array givenTruthy{1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f};
       const auto givenTruthyPack = _mm256_load_ps(givenTruthy.data());
-      constexpr std::array givenFalsy{9.0f, 10.0f, 11.0f, 12.0f, 13.0f, 14.0f, 15.0f, 16.0f};
+      alignas(YMM_ALIGNMENT) constexpr std::array givenFalsy{9.0f, 10.0f, 11.0f, 12.0f, 13.0f, 14.0f, 15.0f, 16.0f};
       const auto givenFalsyPack = _mm256_load_ps(givenFalsy.data());
-      std::array<Float_32, VectorSizes::X8> actual{};
+      alignas(YMM_ALIGNMENT) std::array<Float_32, VectorSizes::X8> actual{};
 
       {
         _mm256_store_ps(actual.data(), select(true, givenTruthyPack, givenFalsyPack));
@@ -22,11 +22,11 @@ namespace vectorization::test {
     }
 
     TEST_METHOD(selectsComponentsOfTwoPackedFloat8_256WithPackedInts_256ConditionMask) {
-      constexpr std::array givenTruthy{1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f};
+      alignas(YMM_ALIGNMENT) constexpr std::array givenTruthy{1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f};
       const auto givenTruthyPack = _mm256_load_ps(givenTruthy.data());
-      constexpr std::array givenFalsy{9.0f, 10.0f, 11.0f, 12.0f, 13.0f, 14.0f, 15.0f, 16.0f};
+      alignas(YMM_ALIGNMENT) constexpr std::array givenFalsy{9.0f, 10.0f, 11.0f, 12.0f, 13.0f, 14.0f, 15.0f, 16.0f};
       const auto givenFalsyPack = _mm256_load_ps(givenFalsy.data());
-      std::array<Float_32, VectorSizes::X8> actual{};
+      alignas(YMM_ALIGNMENT) std::array<Float_32, VectorSizes::X8> actual{};
 
       {
         _mm256_store_ps(actual.data(), select(_mm256_set1_epi32(42), givenTruthyPack, givenFalsyPack));
@@ -40,11 +40,11 @@ namespace vectorization::test {
     }
 
     TEST_METHOD(selectsComponentsOfTwoPackedFloat8_256WithPackedFloat8_256ConditionMask) {
-      constexpr std::array givenTruthy{1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f};
+      alignas(YMM_ALIGNMENT) constexpr std::array givenTruthy{1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f};
       const auto givenTruthyPack = _mm256_load_ps(givenTruthy.data());
-      constexpr std::array givenFalsy{9.0f, 10.0f, 11.0f, 12.0f, 13.0f, 14.0f, 15.0f, 16.0f};
+      alignas(YMM_ALIGNMENT) constexpr std::array givenFalsy{9.0f, 10.0f, 11.0f, 12.0f, 13.0f, 14.0f, 15.0f, 16.0f};
       const auto givenFalsyPack = _mm256_load_ps(givenFalsy.data());
-      std::array<Float_32, VectorSizes::X8> actual{};
+      alignas(YMM_ALIGNMENT) std::array<Float_32, VectorSizes::X8> actual{};
 
       {
         _mm256_store_ps(actual.data(), select(_mm256_set1_ps(42.0f), givenTruthyPack, givenFalsyPack));

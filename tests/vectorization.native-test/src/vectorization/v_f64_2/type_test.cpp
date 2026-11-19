@@ -48,7 +48,7 @@ namespace vectorization::test {
 
     TEST_METHOD(storesToValueTypeArray) {
       const v_f64_2 given{3.0, 4.0};
-      std::array<v_f64_2::ValueType, v_f64_2::SIZE> actual{};
+      alignas(XMM_ALIGNMENT) std::array<v_f64_2::ValueType, v_f64_2::SIZE> actual{};
       store(given, actual.data());
       Assert::AreEqual(3.0, actual.at(VectorIndices::X), L"Store array X mismatch", LINE_INFO());
       Assert::AreEqual(4.0, actual.at(VectorIndices::Y), L"Store array Y mismatch", LINE_INFO());

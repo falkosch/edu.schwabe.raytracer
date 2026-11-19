@@ -8,6 +8,7 @@ set(SOURCES
         src/primitives/Facet_test.cpp
         src/primitives/FacetEdges_test.cpp
         src/primitives/SplittingPlane_test.cpp
+        src/test_module.cpp
 )
 
 set(HEADERS

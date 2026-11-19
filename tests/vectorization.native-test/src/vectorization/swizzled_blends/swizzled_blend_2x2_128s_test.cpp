@@ -4,11 +4,11 @@ namespace vectorization::test {
   TEST_CLASS(SwizzledBlends2x2_128sTest) {
   public:
     TEST_METHOD(genericallySwizzleBlendsIdentityAndItsReverse) {
-      constexpr std::array givenOnBitNotSet{1.0f, 2.0f, 3.0f, 4.0f};
+      alignas(XMM_ALIGNMENT) constexpr std::array givenOnBitNotSet{1.0f, 2.0f, 3.0f, 4.0f};
       const auto givenOnBitNotSetPack = _mm_load_ps(givenOnBitNotSet.data());
-      constexpr std::array givenOnBitSet{5.0f, 6.0f, 7.0f, 8.0f};
+      alignas(XMM_ALIGNMENT) constexpr std::array givenOnBitSet{5.0f, 6.0f, 7.0f, 8.0f};
       const auto givenOnBitSetPack = _mm_load_ps(givenOnBitSet.data());
-      std::array<Float_32, VectorSizes::W> actual{};
+      alignas(XMM_ALIGNMENT) std::array<Float_32, VectorSizes::W> actual{};
 
       {
         constexpr std::array expected{
@@ -38,11 +38,11 @@ namespace vectorization::test {
     }
 
     TEST_METHOD(genericallySwizzleBlendsBroadcast) {
-      constexpr std::array givenOnBitNotSet{1.0f, 2.0f, 3.0f, 4.0f};
+      alignas(XMM_ALIGNMENT) constexpr std::array givenOnBitNotSet{1.0f, 2.0f, 3.0f, 4.0f};
       const auto givenOnBitNotSetPack = _mm_load_ps(givenOnBitNotSet.data());
-      constexpr std::array givenOnBitSet{5.0f, 6.0f, 7.0f, 8.0f};
+      alignas(XMM_ALIGNMENT) constexpr std::array givenOnBitSet{5.0f, 6.0f, 7.0f, 8.0f};
       const auto givenOnBitSetPack = _mm_load_ps(givenOnBitSet.data());
-      std::array<Float_32, VectorSizes::W> actual{};
+      alignas(XMM_ALIGNMENT) std::array<Float_32, VectorSizes::W> actual{};
 
       {
         constexpr std::array expected{
@@ -98,11 +98,11 @@ namespace vectorization::test {
     }
 
     TEST_METHOD(hasShortFormsForSwizzleBlends) {
-      constexpr std::array givenOnBitNotSet{1.0f, 2.0f, 3.0f, 4.0f};
+      alignas(XMM_ALIGNMENT) constexpr std::array givenOnBitNotSet{1.0f, 2.0f, 3.0f, 4.0f};
       const auto givenOnBitNotSetPack = _mm_load_ps(givenOnBitNotSet.data());
-      constexpr std::array givenOnBitSet{5.0f, 6.0f, 7.0f, 8.0f};
+      alignas(XMM_ALIGNMENT) constexpr std::array givenOnBitSet{5.0f, 6.0f, 7.0f, 8.0f};
       const auto givenOnBitSetPack = _mm_load_ps(givenOnBitSet.data());
-      std::array<Float_32, VectorSizes::W> actual{};
+      alignas(XMM_ALIGNMENT) std::array<Float_32, VectorSizes::W> actual{};
 
       {
         constexpr std::array expected{

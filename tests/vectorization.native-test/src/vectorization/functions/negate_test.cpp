@@ -17,7 +17,7 @@ namespace vectorization::test {
 
     TEST_METHOD(negatesPackedFloat4_128) {
       const auto v = _mm_set_ps(4.0f, -3.0f, 2.0f, -1.0f);
-      std::array<Float_32, VectorSizes::W> actual{};
+      alignas(YMM_ALIGNMENT) std::array<Float_32, VectorSizes::W> actual{};
       _mm_store_ps(actual.data(), negate(v));
       Assert::AreEqual(1.0f, actual[0], L"x lane", LINE_INFO());
       Assert::AreEqual(-2.0f, actual[1], L"y lane", LINE_INFO());
@@ -27,7 +27,7 @@ namespace vectorization::test {
 
     TEST_METHOD(negatesPackedFloat2_128) {
       const auto v = _mm_set_pd(-3.0, 2.0);
-      std::array<Float_64, VectorSizes::X2> actual{};
+      alignas(YMM_ALIGNMENT) std::array<Float_64, VectorSizes::X2> actual{};
       _mm_store_pd(actual.data(), negate(v));
       Assert::AreEqual(-2.0, actual[0], L"x lane", LINE_INFO());
       Assert::AreEqual(3.0, actual[1], L"y lane", LINE_INFO());
@@ -59,7 +59,7 @@ namespace vectorization::test {
 
     TEST_METHOD(negateIsInvolution) {
       const auto v = _mm_set_ps(4.0f, 3.0f, 2.0f, 1.0f);
-      std::array<Float_32, VectorSizes::W> actual{};
+      alignas(YMM_ALIGNMENT) std::array<Float_32, VectorSizes::W> actual{};
       _mm_store_ps(actual.data(), negate(negate(v)));
       Assert::AreEqual(1.0f, actual[0], L"double negate restores x", LINE_INFO());
       Assert::AreEqual(2.0f, actual[1], L"double negate restores y", LINE_INFO());
@@ -69,7 +69,7 @@ namespace vectorization::test {
 
     TEST_METHOD(negateOfZeroProducesNegativeZero) {
       const auto v = _mm_set_ps1(0.0f);
-      std::array<Float_32, VectorSizes::W> actual{};
+      alignas(YMM_ALIGNMENT) std::array<Float_32, VectorSizes::W> actual{};
       _mm_store_ps(actual.data(), negate(v));
       Assert::IsTrue(std::signbit(actual[0]), L"negate(0) should have negative sign", LINE_INFO());
     }

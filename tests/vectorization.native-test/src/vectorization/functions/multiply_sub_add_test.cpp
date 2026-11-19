@@ -9,7 +9,7 @@ namespace vectorization::test {
       const auto a = _mm_set_ps(4.0f, 3.0f, 2.0f, 1.0f);
       const auto b = _mm_set_ps(2.0f, 2.0f, 2.0f, 2.0f);
       const auto c = _mm_set_ps(0.5f, 0.5f, 0.5f, 0.5f);
-      std::array<Float_32, VectorSizes::W> actual{};
+      alignas(YMM_ALIGNMENT) std::array<Float_32, VectorSizes::W> actual{};
       _mm_store_ps(actual.data(), multiplySubAdd(a, b, c));
       Assert::AreEqual(2.5f, actual[0], L"x lane: a*b+c", LINE_INFO());
       Assert::AreEqual(3.5f, actual[1], L"y lane: a*b-c", LINE_INFO());
@@ -22,7 +22,7 @@ namespace vectorization::test {
       const auto a = _mm_set_pd(3.0, 2.0);
       const auto b = _mm_set_pd(4.0, 5.0);
       const auto c = _mm_set_pd(1.0, 1.0);
-      std::array<Float_64, VectorSizes::X2> actual{};
+      alignas(YMM_ALIGNMENT) std::array<Float_64, VectorSizes::X2> actual{};
       _mm_store_pd(actual.data(), multiplySubAdd(a, b, c));
       Assert::AreEqual(11.0, actual[0], L"x lane: a*b+c", LINE_INFO());
       Assert::AreEqual(11.0, actual[1], L"y lane: a*b-c", LINE_INFO());
@@ -64,7 +64,7 @@ namespace vectorization::test {
       const auto a = _mm_set_ps(4.0f, 3.0f, 2.0f, 1.0f);
       const auto b = _mm_set_ps(2.0f, 2.0f, 2.0f, 2.0f);
       const auto c = _mm_setzero_ps();
-      std::array<Float_32, VectorSizes::W> actual{};
+      alignas(YMM_ALIGNMENT) std::array<Float_32, VectorSizes::W> actual{};
       _mm_store_ps(actual.data(), multiplySubAdd(a, b, c));
       // With c=0, even=add and odd=sub both give a*b
       Assert::AreEqual(2.0f, actual[0], L"x lane: a*b+0", LINE_INFO());

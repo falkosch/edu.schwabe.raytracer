@@ -10,7 +10,7 @@ namespace vectorization::test {
       alignas(16) const std::array normal{10.0f, 20.0f, 30.0f, 40.0f};
       const auto specialPack = _mm_load_ps(special.data());
       const auto normalPack = _mm_load_ps(normal.data());
-      std::array<Float_32, VectorSizes::W> actual{};
+      alignas(XMM_ALIGNMENT) std::array<Float_32, VectorSizes::W> actual{};
 
       _mm_store_ps(actual.data(), blend<false, true, true, true>(specialPack, normalPack));
       Assert::AreEqual(0.0f, actual.at(VectorIndices::X), L"-0.0 value changed", LINE_INFO());
@@ -22,7 +22,7 @@ namespace vectorization::test {
       alignas(16) const std::array withNaN{10.0f, NotANumber<Float_32>(), 30.0f, 40.0f};
       const auto normalPack = _mm_load_ps(normal.data());
       const auto nanPack = _mm_load_ps(withNaN.data());
-      std::array<Float_32, VectorSizes::W> actual{};
+      alignas(XMM_ALIGNMENT) std::array<Float_32, VectorSizes::W> actual{};
 
       _mm_store_ps(actual.data(), blend<false, true, false, false>(normalPack, nanPack));
       Assert::AreEqual(1.0f, actual.at(VectorIndices::X), L"normal value changed", LINE_INFO());
@@ -35,7 +35,7 @@ namespace vectorization::test {
       alignas(16) const std::array withInf{Infinity<Float_32>(), 20.0f, NegativeInfinity<Float_32>(), 40.0f};
       const auto normalPack = _mm_load_ps(normal.data());
       const auto infPack = _mm_load_ps(withInf.data());
-      std::array<Float_32, VectorSizes::W> actual{};
+      alignas(XMM_ALIGNMENT) std::array<Float_32, VectorSizes::W> actual{};
 
       _mm_store_ps(actual.data(), blend<true, false, true, false>(normalPack, infPack));
       Assert::AreEqual(Infinity<Float_32>(), actual.at(VectorIndices::X), L"+inf not preserved", LINE_INFO());
@@ -51,7 +51,7 @@ namespace vectorization::test {
       };
       const auto normalPack = _mm_load_ps(normal.data());
       const auto specialPack = _mm_load_ps(special.data());
-      std::array<Float_32, VectorSizes::W> actual{};
+      alignas(XMM_ALIGNMENT) std::array<Float_32, VectorSizes::W> actual{};
 
       _mm_store_ps(actual.data(), blendMasked(normalPack, specialPack, MaskAll<PackedFloat4_128>()));
 

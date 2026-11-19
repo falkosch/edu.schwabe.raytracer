@@ -4,9 +4,9 @@ namespace vectorization::test {
   TEST_CLASS(Swizzle256dTest) {
   public:
     TEST_METHOD(genericallySwizzlesIdentityAndItsReverse) {
-      const auto given = StandardSample::ofArrayType<Float_64, VectorSizes::W>();
+      alignas(YMM_ALIGNMENT) const auto given = StandardSample::ofArrayType<Float_64, VectorSizes::W>();
       const auto givenPack = _mm256_load_pd(given.data());
-      std::array<Float_64, VectorSizes::W> actual{};
+      alignas(YMM_ALIGNMENT) std::array<Float_64, VectorSizes::W> actual{};
 
       {
         const std::array expected{
@@ -32,9 +32,9 @@ namespace vectorization::test {
     }
 
     TEST_METHOD(genericallySwizzlesBroadcast) {
-      const auto given = StandardSample::ofArrayType<Float_64, VectorSizes::W>();
+      alignas(YMM_ALIGNMENT) const auto given = StandardSample::ofArrayType<Float_64, VectorSizes::W>();
       const auto givenPack = _mm256_load_pd(given.data());
-      std::array<Float_64, VectorSizes::W> actual{};
+      alignas(YMM_ALIGNMENT) std::array<Float_64, VectorSizes::W> actual{};
 
       {
         const std::array expected{
@@ -82,9 +82,9 @@ namespace vectorization::test {
     }
 
     TEST_METHOD(genericallySwizzlesDuplicateForms) {
-      const auto given = StandardSample::ofArrayType<Float_64, VectorSizes::W>();
+      alignas(YMM_ALIGNMENT) const auto given = StandardSample::ofArrayType<Float_64, VectorSizes::W>();
       const auto givenPack = _mm256_load_pd(given.data());
-      std::array<Float_64, VectorSizes::W> actual{};
+      alignas(YMM_ALIGNMENT) std::array<Float_64, VectorSizes::W> actual{};
 
       {
         const std::array expected{
@@ -154,9 +154,9 @@ namespace vectorization::test {
     }
 
     TEST_METHOD(hasShortFormsForSwizzlesOfXFirst) {
-      const auto given = StandardSample::ofArrayType<Float_64, VectorSizes::W>();
+      alignas(YMM_ALIGNMENT) const auto given = StandardSample::ofArrayType<Float_64, VectorSizes::W>();
       const auto givenPack = _mm256_load_pd(given.data());
-      std::array<Float_64, VectorSizes::W> actual{};
+      alignas(YMM_ALIGNMENT) std::array<Float_64, VectorSizes::W> actual{};
 
       {
         const std::array expected{
@@ -214,9 +214,9 @@ namespace vectorization::test {
     }
 
     TEST_METHOD(hasShortFormsForSwizzlesOfYFirst) {
-      const auto given = StandardSample::ofArrayType<Float_64, VectorSizes::W>();
+      alignas(YMM_ALIGNMENT) const auto given = StandardSample::ofArrayType<Float_64, VectorSizes::W>();
       const auto givenPack = _mm256_load_pd(given.data());
-      std::array<Float_64, VectorSizes::W> actual{};
+      alignas(YMM_ALIGNMENT) std::array<Float_64, VectorSizes::W> actual{};
 
       {
         const std::array expected{
@@ -274,9 +274,9 @@ namespace vectorization::test {
     }
 
     TEST_METHOD(hasShortFormsForSwizzlesOfZFirst) {
-      const auto given = StandardSample::ofArrayType<Float_64, VectorSizes::W>();
+      alignas(YMM_ALIGNMENT) const auto given = StandardSample::ofArrayType<Float_64, VectorSizes::W>();
       const auto givenPack = _mm256_load_pd(given.data());
-      std::array<Float_64, VectorSizes::W> actual{};
+      alignas(YMM_ALIGNMENT) std::array<Float_64, VectorSizes::W> actual{};
 
       {
         const std::array expected{
@@ -334,9 +334,9 @@ namespace vectorization::test {
     }
 
     TEST_METHOD(hasShortFormsForSwizzlesOfWFirst) {
-      const auto given = StandardSample::ofArrayType<Float_64, VectorSizes::W>();
+      alignas(YMM_ALIGNMENT) const auto given = StandardSample::ofArrayType<Float_64, VectorSizes::W>();
       const auto givenPack = _mm256_load_pd(given.data());
-      std::array<Float_64, VectorSizes::W> actual{};
+      alignas(YMM_ALIGNMENT) std::array<Float_64, VectorSizes::W> actual{};
 
       {
         const std::array expected{

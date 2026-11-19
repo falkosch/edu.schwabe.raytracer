@@ -5,10 +5,10 @@ namespace vectorization::test {
   public:
     TEST_METHOD(replacesComponent) {
       constexpr auto givenReplacement = 5.0;
-      const auto given = StandardSample::ofArrayType<Float_64, VectorSizes::Y>();
+      alignas(XMM_ALIGNMENT) const auto given = StandardSample::ofArrayType<Float_64, VectorSizes::Y>();
       const auto givenPack = _mm_load_pd(given.data());
       std::array<Float_64, VectorSizes::Y> expected{};
-      std::array<Float_64, VectorSizes::Y> actual{};
+      alignas(XMM_ALIGNMENT) std::array<Float_64, VectorSizes::Y> actual{};
 
       {
         Mutate::copyAndReplaceAt<VectorIndices::X>(given.cbegin(), given.cend(), expected.begin(), givenReplacement);
@@ -27,10 +27,10 @@ namespace vectorization::test {
 
     TEST_METHOD(replacesXY) {
       constexpr auto givenReplacement = 5.0;
-      const auto given = StandardSample::ofArrayType<Float_64, VectorSizes::Y>();
+      alignas(XMM_ALIGNMENT) const auto given = StandardSample::ofArrayType<Float_64, VectorSizes::Y>();
       const auto givenPack = _mm_load_pd(given.data());
       std::array<Float_64, VectorSizes::Y> expected{};
-      std::array<Float_64, VectorSizes::Y> actual{};
+      alignas(XMM_ALIGNMENT) std::array<Float_64, VectorSizes::Y> actual{};
 
       {
         Mutate::copyAndReplaceAt<VectorIndices::X>(given.cbegin(), given.cend(), expected.begin(), givenReplacement);
@@ -49,10 +49,10 @@ namespace vectorization::test {
 
     TEST_METHOD(replacesXi) {
       constexpr auto givenReplacement = 5.0;
-      const auto given = StandardSample::ofArrayType<Float_64, VectorSizes::X2>();
+      alignas(XMM_ALIGNMENT) const auto given = StandardSample::ofArrayType<Float_64, VectorSizes::X2>();
       const auto givenPack = _mm_load_pd(given.data());
       std::array<Float_64, VectorSizes::X2> expected{};
-      std::array<Float_64, VectorSizes::X2> actual{};
+      alignas(XMM_ALIGNMENT) std::array<Float_64, VectorSizes::X2> actual{};
 
       {
         Mutate::copyAndReplaceAt<VectorIndices::X1>(given.cbegin(), given.cend(), expected.begin(), givenReplacement);
@@ -72,10 +72,10 @@ namespace vectorization::test {
     TEST_METHOD(replacesComponentPackedFloat2_128AtIndex) {
       constexpr auto givenReplacement = 5.0;
       const auto givenReplacementPack = _mm_set1_pd(givenReplacement);
-      const auto given = StandardSample::ofArrayType<Float_64, VectorSizes::X2>();
+      alignas(XMM_ALIGNMENT) const auto given = StandardSample::ofArrayType<Float_64, VectorSizes::X2>();
       const auto givenPack = _mm_load_pd(given.data());
       std::array<Float_64, VectorSizes::X2> expected{};
-      std::array<Float_64, VectorSizes::X2> actual{};
+      alignas(XMM_ALIGNMENT) std::array<Float_64, VectorSizes::X2> actual{};
 
       {
         Mutate::copyAndReplaceAt<VectorIndices::X1>(given.cbegin(), given.cend(), expected.begin(), givenReplacement);
@@ -99,10 +99,10 @@ namespace vectorization::test {
 
     TEST_METHOD(replacesComponentFloat_64AtIndex) {
       constexpr auto givenReplacement = 5.0;
-      const auto given = StandardSample::ofArrayType<Float_64, VectorSizes::X2>();
+      alignas(XMM_ALIGNMENT) const auto given = StandardSample::ofArrayType<Float_64, VectorSizes::X2>();
       const auto givenPack = _mm_load_pd(given.data());
       std::array<Float_64, VectorSizes::X2> expected{};
-      std::array<Float_64, VectorSizes::X2> actual{};
+      alignas(XMM_ALIGNMENT) std::array<Float_64, VectorSizes::X2> actual{};
 
       {
         Mutate::copyAndReplaceAt<VectorIndices::X1>(given.cbegin(), given.cend(), expected.begin(), givenReplacement);

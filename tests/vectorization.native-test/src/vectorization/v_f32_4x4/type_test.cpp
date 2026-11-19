@@ -74,7 +74,7 @@ namespace vectorization::test {
     }
 
     TEST_METHOD(constructsFromValuePointer) {
-      constexpr std::array<v_f32_4x4::ValueType, v_f32_4x4::SIZE> seed{
+      alignas(XMM_ALIGNMENT) constexpr std::array<v_f32_4x4::ValueType, v_f32_4x4::SIZE> seed{
           1.0f, 5.0f, 9.0f, 13.0f,   // soaX
           2.0f, 6.0f, 10.0f, 14.0f,  // soaY
           3.0f, 7.0f, 11.0f, 15.0f,  // soaZ

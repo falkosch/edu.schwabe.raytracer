@@ -106,11 +106,11 @@ namespace vectorization::test {
     }
 
     TEST_METHOD(convertsPackedUInt_32ToFloat32) {
-      constexpr std::array<UInt_32, VectorSizes::W> given{0, 1, 2, 3};
+      alignas(YMM_ALIGNMENT) constexpr std::array<UInt_32, VectorSizes::W> given{0, 1, 2, 3};
       const auto givenPacked = _mm_load_si128(given.data());
       constexpr std::array expected{0.0f, 1.0f, 2.0f, 3.0f};
 
-      std::array<Float_32, VectorSizes::W> actual{};
+      alignas(YMM_ALIGNMENT) std::array<Float_32, VectorSizes::W> actual{};
       _mm_store_ps(actual.data(), vectorization::_mm_cvtepu32_ps(givenPacked));
 
       Assert::AreEqual(expected, actual, L"conversion mismatch", LINE_INFO());

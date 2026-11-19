@@ -12,7 +12,7 @@ namespace vectorization::test {
       alignas(16) const std::array normal{1.0f, 2.0f, 3.0f, 4.0f};
       const auto specialPack = _mm_load_ps(special.data());
       const auto normalPack = _mm_load_ps(normal.data());
-      std::array<Float_32, VectorSizes::W> actual{};
+      alignas(XMM_ALIGNMENT) std::array<Float_32, VectorSizes::W> actual{};
 
       _mm_store_ps(actual.data(), select(true, specialPack, normalPack));
 
@@ -30,7 +30,7 @@ namespace vectorization::test {
       };
       const auto normalPack = _mm_load_ps(normal.data());
       const auto specialPack = _mm_load_ps(special.data());
-      std::array<Float_32, VectorSizes::W> actual{};
+      alignas(XMM_ALIGNMENT) std::array<Float_32, VectorSizes::W> actual{};
 
       _mm_store_ps(actual.data(), select(false, normalPack, specialPack));
 
@@ -47,7 +47,7 @@ namespace vectorization::test {
       alignas(16) const std::array normal{1.0f, 2.0f, 3.0f, 4.0f};
       const auto specialPack = _mm_load_ps(special.data());
       const auto normalPack = _mm_load_ps(normal.data());
-      std::array<Float_32, VectorSizes::W> actual{};
+      alignas(XMM_ALIGNMENT) std::array<Float_32, VectorSizes::W> actual{};
 
       _mm_store_ps(actual.data(), select(_mm_set1_epi32(-1), specialPack, normalPack));
 

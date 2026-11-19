@@ -4,11 +4,11 @@ namespace vectorization::test {
   TEST_CLASS(BlendMasked256sTest) {
   public:
     TEST_METHOD(variadicBlendsTwoFloat8_32WithFloat8_32BitMask) {
-      constexpr std::array givenOnBitNotSet{1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f};
+      alignas(YMM_ALIGNMENT) constexpr std::array givenOnBitNotSet{1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f};
       const auto givenOnBitNotSetPack = _mm256_load_ps(givenOnBitNotSet.data());
-      constexpr std::array givenOnBitSet{9.0f, 10.0f, 11.0f, 12.0f, 13.0f, 14.0f, 15.0f, 16.0f};
+      alignas(YMM_ALIGNMENT) constexpr std::array givenOnBitSet{9.0f, 10.0f, 11.0f, 12.0f, 13.0f, 14.0f, 15.0f, 16.0f};
       const auto givenOnBitSetPack = _mm256_load_ps(givenOnBitSet.data());
-      std::array<Float_32, VectorSizes::X8> actual{};
+      alignas(YMM_ALIGNMENT) std::array<Float_32, VectorSizes::X8> actual{};
 
       {
         constexpr std::array expected{givenOnBitNotSet.at(VectorIndices::X1), givenOnBitNotSet.at(VectorIndices::X2),
@@ -65,11 +65,11 @@ namespace vectorization::test {
     }
 
     TEST_METHOD(variadicBlendsTwoFloat8_32WithBool8_32BitMask) {
-      constexpr std::array givenOnBitNotSet{1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f};
+      alignas(YMM_ALIGNMENT) constexpr std::array givenOnBitNotSet{1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f};
       const auto givenOnBitNotSetPack = _mm256_load_ps(givenOnBitNotSet.data());
-      constexpr std::array givenOnBitSet{9.0f, 10.0f, 11.0f, 12.0f, 13.0f, 14.0f, 15.0f, 16.0f};
+      alignas(YMM_ALIGNMENT) constexpr std::array givenOnBitSet{9.0f, 10.0f, 11.0f, 12.0f, 13.0f, 14.0f, 15.0f, 16.0f};
       const auto givenOnBitSetPack = _mm256_load_ps(givenOnBitSet.data());
-      std::array<Float_32, VectorSizes::X8> actual{};
+      alignas(YMM_ALIGNMENT) std::array<Float_32, VectorSizes::X8> actual{};
 
       {
         constexpr std::array expected{givenOnBitNotSet.at(VectorIndices::X1), givenOnBitNotSet.at(VectorIndices::X2),

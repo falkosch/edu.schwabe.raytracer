@@ -223,6 +223,7 @@ set(SOURCES
         src/vectorization/v_ui64_4/operators_test.cpp
         src/vectorization/v_ui64_4/swizzles_test.cpp
         src/vectorization/v_ui64_4/type_test.cpp
+        src/test_module.cpp
 )
 
 set(HEADERS

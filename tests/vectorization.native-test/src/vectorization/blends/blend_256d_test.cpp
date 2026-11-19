@@ -4,11 +4,11 @@ namespace vectorization::test {
   TEST_CLASS(Blend256dTest) {
   public:
     TEST_METHOD(genericallyBlendsIdentities) {
-      constexpr std::array givenOnBitNotSet{1.0, 2.0, 3.0, 4.0};
+      alignas(YMM_ALIGNMENT) constexpr std::array givenOnBitNotSet{1.0, 2.0, 3.0, 4.0};
       const auto givenOnBitNotSetPack = _mm256_load_pd(givenOnBitNotSet.data());
-      constexpr std::array givenOnBitSet{5.0, 6.0, 7.0, 8.0};
+      alignas(YMM_ALIGNMENT) constexpr std::array givenOnBitSet{5.0, 6.0, 7.0, 8.0};
       const auto givenOnBitSetPack = _mm256_load_pd(givenOnBitSet.data());
-      std::array<Float_64, VectorSizes::W> actual{};
+      alignas(YMM_ALIGNMENT) std::array<Float_64, VectorSizes::W> actual{};
 
       {
         constexpr std::array expected{
@@ -30,11 +30,11 @@ namespace vectorization::test {
     }
 
     TEST_METHOD(genericallyBlendsIndividuals) {
-      constexpr std::array givenOnBitNotSet{1.0, 2.0, 3.0, 4.0};
+      alignas(YMM_ALIGNMENT) constexpr std::array givenOnBitNotSet{1.0, 2.0, 3.0, 4.0};
       const auto givenOnBitNotSetPack = _mm256_load_pd(givenOnBitNotSet.data());
-      constexpr std::array givenOnBitSet{5.0, 6.0, 7.0, 8.0};
+      alignas(YMM_ALIGNMENT) constexpr std::array givenOnBitSet{5.0, 6.0, 7.0, 8.0};
       const auto givenOnBitSetPack = _mm256_load_pd(givenOnBitSet.data());
-      std::array<Float_64, VectorSizes::W> actual{};
+      alignas(YMM_ALIGNMENT) std::array<Float_64, VectorSizes::W> actual{};
 
       {
         constexpr std::array expected{
@@ -74,11 +74,11 @@ namespace vectorization::test {
     }
 
     TEST_METHOD(genericallyBlendsPairs) {
-      constexpr std::array givenOnBitNotSet{1.0, 2.0, 3.0, 4.0};
+      alignas(YMM_ALIGNMENT) constexpr std::array givenOnBitNotSet{1.0, 2.0, 3.0, 4.0};
       const auto givenOnBitNotSetPack = _mm256_load_pd(givenOnBitNotSet.data());
-      constexpr std::array givenOnBitSet{5.0, 6.0, 7.0, 8.0};
+      alignas(YMM_ALIGNMENT) constexpr std::array givenOnBitSet{5.0, 6.0, 7.0, 8.0};
       const auto givenOnBitSetPack = _mm256_load_pd(givenOnBitSet.data());
-      std::array<Float_64, VectorSizes::W> actual{};
+      alignas(YMM_ALIGNMENT) std::array<Float_64, VectorSizes::W> actual{};
 
       {
         constexpr std::array expected{
@@ -118,11 +118,11 @@ namespace vectorization::test {
     }
 
     TEST_METHOD(genericallyBlendsTriplets) {
-      constexpr std::array givenOnBitNotSet{1.0, 2.0, 3.0, 4.0};
+      alignas(YMM_ALIGNMENT) constexpr std::array givenOnBitNotSet{1.0, 2.0, 3.0, 4.0};
       const auto givenOnBitNotSetPack = _mm256_load_pd(givenOnBitNotSet.data());
-      constexpr std::array givenOnBitSet{5.0, 6.0, 7.0, 8.0};
+      alignas(YMM_ALIGNMENT) constexpr std::array givenOnBitSet{5.0, 6.0, 7.0, 8.0};
       const auto givenOnBitSetPack = _mm256_load_pd(givenOnBitSet.data());
-      std::array<Float_64, VectorSizes::W> actual{};
+      alignas(YMM_ALIGNMENT) std::array<Float_64, VectorSizes::W> actual{};
 
       {
         constexpr std::array expected{

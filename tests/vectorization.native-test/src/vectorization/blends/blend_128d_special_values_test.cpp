@@ -10,7 +10,7 @@ namespace vectorization::test {
       alignas(16) const std::array normal{10.0, 20.0};
       const auto specialPack = _mm_load_pd(special.data());
       const auto normalPack = _mm_load_pd(normal.data());
-      std::array<Float_64, VectorSizes::Y> actual{};
+      alignas(XMM_ALIGNMENT) std::array<Float_64, VectorSizes::Y> actual{};
 
       _mm_store_pd(actual.data(), blend<false, true>(specialPack, normalPack));
       Assert::AreEqual(0.0, actual.at(VectorIndices::X), L"-0.0 value changed", LINE_INFO());
@@ -22,7 +22,7 @@ namespace vectorization::test {
       alignas(16) const std::array withNaN{NotANumber<Float_64>(), 20.0};
       const auto normalPack = _mm_load_pd(normal.data());
       const auto nanPack = _mm_load_pd(withNaN.data());
-      std::array<Float_64, VectorSizes::Y> actual{};
+      alignas(XMM_ALIGNMENT) std::array<Float_64, VectorSizes::Y> actual{};
 
       _mm_store_pd(actual.data(), blend<true, false>(normalPack, nanPack));
       Assert::IsTrue(std::isnan(actual.at(VectorIndices::X)), L"NaN not preserved in blend", LINE_INFO());
@@ -34,7 +34,7 @@ namespace vectorization::test {
       alignas(16) const std::array withInf{Infinity<Float_64>(), NegativeInfinity<Float_64>()};
       const auto normalPack = _mm_load_pd(normal.data());
       const auto infPack = _mm_load_pd(withInf.data());
-      std::array<Float_64, VectorSizes::Y> actual{};
+      alignas(XMM_ALIGNMENT) std::array<Float_64, VectorSizes::Y> actual{};
 
       _mm_store_pd(actual.data(), blend<true, true>(normalPack, infPack));
       Assert::AreEqual(Infinity<Float_64>(), actual.at(VectorIndices::X), L"+inf not preserved", LINE_INFO());
@@ -46,7 +46,7 @@ namespace vectorization::test {
       alignas(16) const std::array special{NotANumber<Float_64>(), NegativeInfinity<Float_64>()};
       const auto normalPack = _mm_load_pd(normal.data());
       const auto specialPack = _mm_load_pd(special.data());
-      std::array<Float_64, VectorSizes::Y> actual{};
+      alignas(XMM_ALIGNMENT) std::array<Float_64, VectorSizes::Y> actual{};
 
       _mm_store_pd(actual.data(), blendMasked(normalPack, specialPack, MaskAll<PackedFloat2_128>()));
       Assert::IsTrue(std::isnan(actual.at(VectorIndices::X)), L"NaN not preserved", LINE_INFO());

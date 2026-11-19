@@ -8,7 +8,7 @@ namespace vectorization::test {
       // result[0] = a[0]-a[1], result[1] = a[2]-a[3], result[2] = b[0]-b[1], result[3] = b[2]-b[3]
       const auto a = _mm_set_ps(4.0f, 3.0f, 2.0f, 1.0f);
       const auto b = _mm_set_ps(8.0f, 7.0f, 6.0f, 5.0f);
-      std::array<Float_32, VectorSizes::W> actual{};
+      alignas(YMM_ALIGNMENT) std::array<Float_32, VectorSizes::W> actual{};
       _mm_store_ps(actual.data(), horizontalSubtract(a, b));
       Assert::AreEqual(-1.0f, actual[0], L"a[0]-a[1]", LINE_INFO());
       Assert::AreEqual(-1.0f, actual[1], L"a[2]-a[3]", LINE_INFO());
@@ -21,7 +21,7 @@ namespace vectorization::test {
       // result[0] = a[0]-a[1], result[1] = b[0]-b[1]
       const auto a = _mm_set_pd(3.0, 10.0);
       const auto b = _mm_set_pd(7.0, 20.0);
-      std::array<Float_64, VectorSizes::X2> actual{};
+      alignas(YMM_ALIGNMENT) std::array<Float_64, VectorSizes::X2> actual{};
       _mm_store_pd(actual.data(), horizontalSubtract(a, b));
       Assert::AreEqual(7.0, actual[0], L"a[0]-a[1]", LINE_INFO());
       Assert::AreEqual(13.0, actual[1], L"b[0]-b[1]", LINE_INFO());
@@ -60,7 +60,7 @@ namespace vectorization::test {
 
     TEST_METHOD(horizontalSubtractsUniformProducesZero) {
       const auto a = _mm_set_ps1(5.0f);
-      std::array<Float_32, VectorSizes::W> actual{};
+      alignas(YMM_ALIGNMENT) std::array<Float_32, VectorSizes::W> actual{};
       _mm_store_ps(actual.data(), horizontalSubtract(a, a));
       for (ASizeT i = 0; i < actual.size(); ++i) {
         Assert::AreEqual(0.0f, actual[i], L"uniform hsub should be zero", LINE_INFO());

@@ -163,11 +163,14 @@ namespace vectorization::test {
         Assert::AreEqual(expected, actual, L"replace component mismatch", LINE_INFO());
       }
 
+#ifdef NDEBUG
+      // out-of-range index: a precondition violation that asserts in Debug, a no-op blend in Release
       {
         _mm_store_si128(reinterpret_cast<PackedInts_128 *>(actual.data()),
                         replaceComponent(givenPack, givenReplacementPack, VectorIndices::X5));
         Assert::AreEqual(given, actual, L"wrong replace component mismatch", LINE_INFO());
       }
+#endif
     }
 
     TEST_METHOD(replacesComponentInt_32AtIndex) {
@@ -211,11 +214,14 @@ namespace vectorization::test {
         Assert::AreEqual(expected, actual, L"replace component mismatch", LINE_INFO());
       }
 
+#ifdef NDEBUG
+      // out-of-range index: a precondition violation that asserts in Debug, a no-op blend in Release
       {
         _mm_store_si128(reinterpret_cast<PackedInts_128 *>(actual.data()),
                         replaceComponent(givenPack, givenReplacement, VectorIndices::X5));
         Assert::AreEqual(given, actual, L"wrong replace component mismatch", LINE_INFO());
       }
+#endif
     }
   };
 }

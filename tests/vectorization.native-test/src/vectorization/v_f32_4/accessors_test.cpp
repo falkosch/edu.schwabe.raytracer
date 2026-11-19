@@ -183,10 +183,13 @@ namespace vectorization::test {
         Assert::IsTrue(allTrue(expected == actual), L"replace component mismatch", LINE_INFO());
       }
 
+#ifdef NDEBUG
+      // out-of-range index: a precondition violation that asserts in Debug, a no-op blend in Release
       {
         auto actual = replaceComponent(given, givenReplacement, VectorIndices::X5);
         Assert::IsTrue(allTrue(given == actual), L"wrong replace component mismatch", LINE_INFO());
       }
+#endif
     }
   };
 }

@@ -36,7 +36,7 @@ namespace vectorization::test {
     }
 
     TEST_METHOD(constructsFromValueTypePtr) {
-      std::array<double, 4> data{5.0, 6.0, 7.0, 8.0};
+      alignas(YMM_ALIGNMENT) std::array<double, 4> data{5.0, 6.0, 7.0, 8.0};
       const v_f64_4 v{data.data()};
       Assert::AreEqual(5.0, x(v), L"Ptr X mismatch", LINE_INFO());
       Assert::AreEqual(6.0, y(v), L"Ptr Y mismatch", LINE_INFO());
@@ -60,7 +60,7 @@ namespace vectorization::test {
       Assert::AreEqual(x(given), x(dst), L"Store vector X mismatch", LINE_INFO());
       Assert::AreEqual(w(given), w(dst), L"Store vector W mismatch", LINE_INFO());
 
-      std::array<v_f64_4::ValueType, v_f64_4::SIZE> arr{};
+      alignas(YMM_ALIGNMENT) std::array<v_f64_4::ValueType, v_f64_4::SIZE> arr{};
       store(given, arr.data());
       Assert::AreEqual(1.0, arr.at(0), L"Store array X mismatch", LINE_INFO());
       Assert::AreEqual(4.0, arr.at(3), L"Store array W mismatch", LINE_INFO());

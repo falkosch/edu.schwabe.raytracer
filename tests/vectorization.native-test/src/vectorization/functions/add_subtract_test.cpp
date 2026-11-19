@@ -8,7 +8,7 @@ namespace vectorization::test {
       // result[0] = a[0]-b[0], result[1] = a[1]+b[1], result[2] = a[2]-b[2], result[3] = a[3]+b[3]
       const auto a = _mm_set_ps(10.0f, 10.0f, 10.0f, 10.0f);
       const auto b = _mm_set_ps(3.0f, 3.0f, 3.0f, 3.0f);
-      std::array<Float_32, VectorSizes::W> actual{};
+      alignas(YMM_ALIGNMENT) std::array<Float_32, VectorSizes::W> actual{};
       _mm_store_ps(actual.data(), addSubtract(a, b));
       Assert::AreEqual(7.0f, actual[0], L"x lane: a[0]-b[0]", LINE_INFO());
       Assert::AreEqual(13.0f, actual[1], L"y lane: a[1]+b[1]", LINE_INFO());
@@ -21,7 +21,7 @@ namespace vectorization::test {
       // result[0] = a[0]-b[0], result[1] = a[1]+b[1]
       const auto a = _mm_set_pd(10.0, 10.0);
       const auto b = _mm_set_pd(3.0, 3.0);
-      std::array<Float_64, VectorSizes::X2> actual{};
+      alignas(YMM_ALIGNMENT) std::array<Float_64, VectorSizes::X2> actual{};
       _mm_store_pd(actual.data(), addSubtract(a, b));
       Assert::AreEqual(7.0, actual[0], L"x lane: a[0]-b[0]", LINE_INFO());
       Assert::AreEqual(13.0, actual[1], L"y lane: a[1]+b[1]", LINE_INFO());
@@ -61,7 +61,7 @@ namespace vectorization::test {
     TEST_METHOD(addSubtractsWithZero) {
       const auto a = _mm_set_ps(4.0f, 3.0f, 2.0f, 1.0f);
       const auto b = _mm_set_ps1(Zero<Float_32>());
-      std::array<Float_32, VectorSizes::W> actual{};
+      alignas(YMM_ALIGNMENT) std::array<Float_32, VectorSizes::W> actual{};
       _mm_store_ps(actual.data(), addSubtract(a, b));
       // Even lanes subtract zero, odd lanes add zero, so all should equal the original
       Assert::AreEqual(1.0f, actual[0], L"x lane: a[0]-0", LINE_INFO());

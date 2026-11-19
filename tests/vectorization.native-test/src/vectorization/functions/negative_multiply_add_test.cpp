@@ -28,7 +28,7 @@ namespace vectorization::test
             const auto a = _mm_set_ps(4.0f, 3.0f, 2.0f, 1.0f);
             const auto b = _mm_set_ps(1.0f, 2.0f, 3.0f, 4.0f);
             const auto c = _mm_set_ps(10.0f, 10.0f, 10.0f, 10.0f);
-            std::array<Float_32, VectorSizes::W> actual{};
+            alignas(YMM_ALIGNMENT) std::array<Float_32, VectorSizes::W> actual{};
             _mm_store_ps(actual.data(), negativeMultiplyAdd(a, b, c));
             Assert::AreEqual(6.0f, actual[0], L"x lane", LINE_INFO());
             Assert::AreEqual(4.0f, actual[1], L"y lane", LINE_INFO());
@@ -43,7 +43,7 @@ namespace vectorization::test
             const auto a = _mm_set_pd(3.0, 2.0);
             const auto b = _mm_set_pd(4.0, 5.0);
             const auto c = _mm_set_pd(1.0, 1.0);
-            std::array<Float_64, VectorSizes::X2> actual{};
+            alignas(YMM_ALIGNMENT) std::array<Float_64, VectorSizes::X2> actual{};
             _mm_store_pd(actual.data(), negativeMultiplyAdd(a, b, c));
             Assert::AreEqual(-9.0, actual[0], L"x lane", LINE_INFO());
             Assert::AreEqual(-11.0, actual[1], L"y lane", LINE_INFO());
@@ -85,7 +85,7 @@ namespace vectorization::test
             const auto a = _mm_set_ps(40.0f, 30.0f, 20.0f, 2.0f);
             const auto b = _mm_set_ps(4.0f, 3.0f, 2.0f, 3.0f);
             const auto c = _mm_set_ps(1.0f, 1.0f, 1.0f, 0.5f);
-            std::array<Float_32, VectorSizes::W> actual{};
+            alignas(YMM_ALIGNMENT) std::array<Float_32, VectorSizes::W> actual{};
             _mm_store_ps(actual.data(), negativeMultiplyAddX(a, b, c));
             Assert::AreEqual(-5.5f, actual[0], L"x = -(a.x*b.x)+c.x = -(2*3)+0.5", LINE_INFO());
             Assert::AreEqual(20.0f, actual[1], L"y pass through from a", LINE_INFO());
@@ -99,7 +99,7 @@ namespace vectorization::test
             const auto a = _mm_set_pd(20.0, 3.0);
             const auto b = _mm_set_pd(2.0, 4.0);
             const auto c = _mm_set_pd(1.0, 0.5);
-            std::array<Float_64, VectorSizes::X2> actual{};
+            alignas(YMM_ALIGNMENT) std::array<Float_64, VectorSizes::X2> actual{};
             _mm_store_pd(actual.data(), negativeMultiplyAddX(a, b, c));
             Assert::AreEqual(-11.5, actual[0], L"x = -(3*4)+0.5", LINE_INFO());
             Assert::AreEqual(20.0, actual[1], L"y pass through from a", LINE_INFO());
@@ -110,7 +110,7 @@ namespace vectorization::test
             const auto a = _mm_set_ps1(Infinity<Float_32>());
             const auto b = _mm_set_ps1(Zero<Float_32>());
             const auto c = _mm_set_ps1(1.0f);
-            std::array<Float_32, VectorSizes::W> actual{};
+            alignas(YMM_ALIGNMENT) std::array<Float_32, VectorSizes::W> actual{};
             _mm_store_ps(actual.data(), negativeMultiplyAdd(a, b, c));
             // -(inf*0)+1 = -NaN+1 = NaN
             for (ASizeT i = 0; i < actual.size(); ++i)

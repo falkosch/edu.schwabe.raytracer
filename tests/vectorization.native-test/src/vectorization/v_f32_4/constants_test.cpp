@@ -163,7 +163,7 @@ namespace vectorization::test {
     TEST_METHOD(hasNegativeZero) {
       Assert::IsTrue(allTrue(Zero<v_f32_4>() == NegativeZero<v_f32_4>()), L"wrong constant value", LINE_INFO());
 
-      std::array<v_f32_4::ValueType, v_f32_4::SIZE> actual{};
+      alignas(XMM_ALIGNMENT) std::array<v_f32_4::ValueType, v_f32_4::SIZE> actual{};
       _mm_store_ps(actual.data(), NegativeZero<v_f32_4>().components);
       for (auto &&v : actual) {
         Assert::IsTrue(std::signbit(v), L"wrong constant value", LINE_INFO());

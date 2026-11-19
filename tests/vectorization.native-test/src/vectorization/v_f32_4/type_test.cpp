@@ -20,7 +20,7 @@ namespace vectorization::test {
     }
 
     TEST_METHOD(constructsFromXYZW) {
-      constexpr std::array given{1.0f, 2.0f, 3.0f, 4.0f};
+      alignas(XMM_ALIGNMENT) constexpr std::array given{1.0f, 2.0f, 3.0f, 4.0f};
 
       const v_f32_4 actualVector{
           given.at(VectorIndices::X),
@@ -28,7 +28,7 @@ namespace vectorization::test {
           given.at(VectorIndices::Z),
           given.at(VectorIndices::W),
       };
-      std::array<v_f32_4::ValueType, v_f32_4::SIZE> actual{};
+      alignas(XMM_ALIGNMENT) std::array<v_f32_4::ValueType, v_f32_4::SIZE> actual{};
       _mm_store_ps(actual.data(), actualVector.components);
 
       Assert::AreEqual(given, actual);
@@ -71,7 +71,7 @@ namespace vectorization::test {
     }
 
     TEST_METHOD(constructsFromValueTypePtr) {
-      std::array given{1.0f, 2.0f, 3.0f, 4.0f};
+      alignas(XMM_ALIGNMENT) std::array given{1.0f, 2.0f, 3.0f, 4.0f};
       const v_f32_4 expected{
           given.at(VectorIndices::X),
           given.at(VectorIndices::Y),
@@ -133,7 +133,7 @@ namespace vectorization::test {
 
     TEST_METHOD(storesToValueTypeArray) {
       const v_f32_4 given{1.0f, 2.0f, 3.0f, 4.0f};
-      std::array<v_f32_4::ValueType, v_f32_4::SIZE> actualArray{};
+      alignas(XMM_ALIGNMENT) std::array<v_f32_4::ValueType, v_f32_4::SIZE> actualArray{};
       store(given, actualArray.data());
       const v_f32_4 actual{actualArray.data()};
       Assert::IsTrue(allTrue(given == actual));

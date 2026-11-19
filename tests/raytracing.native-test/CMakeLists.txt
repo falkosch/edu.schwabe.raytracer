@@ -30,6 +30,7 @@ set(SOURCES
         src/raytracing/shading/spectral/smits_test.cpp
         src/raytracing/shading/spectral/spectrum_test.cpp
         src/raytracing/shading/spectral/wavelengths_test.cpp
+        src/test_module.cpp
 )
 
 set(HEADERS

@@ -4,9 +4,9 @@ namespace vectorization::test {
   TEST_CLASS(Swizzle256sTest) {
   public:
     TEST_METHOD(genericallySwizzlesIdentityAndItsReverseForPackedFloat_128x2) {
-      const auto given = StandardSample::ofArrayType<Float_32, VectorSizes::X8>();
+      alignas(YMM_ALIGNMENT) const auto given = StandardSample::ofArrayType<Float_32, VectorSizes::X8>();
       const auto givenPack = _mm256_load_ps(given.data());
-      std::array<Float_32, VectorSizes::X8> actual{};
+      alignas(YMM_ALIGNMENT) std::array<Float_32, VectorSizes::X8> actual{};
 
       {
         const std::array expected{given.at(VectorIndices::X1), given.at(VectorIndices::X2), given.at(VectorIndices::X3),
@@ -30,9 +30,9 @@ namespace vectorization::test {
     }
 
     TEST_METHOD(genericallySwizzlesBroadcastForPackedFloat_128x2) {
-      const auto given = StandardSample::ofArrayType<Float_32, VectorSizes::X8>();
+      alignas(YMM_ALIGNMENT) const auto given = StandardSample::ofArrayType<Float_32, VectorSizes::X8>();
       const auto givenPack = _mm256_load_ps(given.data());
-      std::array<Float_32, VectorSizes::X8> actual{};
+      alignas(YMM_ALIGNMENT) std::array<Float_32, VectorSizes::X8> actual{};
 
       {
         const std::array expected{given.at(VectorIndices::X1), given.at(VectorIndices::X1), given.at(VectorIndices::X1),
@@ -76,9 +76,9 @@ namespace vectorization::test {
     }
 
     TEST_METHOD(genericallySwizzlesDuplicateFormsForPackedFloat_128x2) {
-      const auto given = StandardSample::ofArrayType<Float_32, VectorSizes::X8>();
+      alignas(YMM_ALIGNMENT) const auto given = StandardSample::ofArrayType<Float_32, VectorSizes::X8>();
       const auto givenPack = _mm256_load_ps(given.data());
-      std::array<Float_32, VectorSizes::X8> actual{};
+      alignas(YMM_ALIGNMENT) std::array<Float_32, VectorSizes::X8> actual{};
 
       {
         const std::array expected{given.at(VectorIndices::X1), given.at(VectorIndices::X1), given.at(VectorIndices::X2),
@@ -142,9 +142,9 @@ namespace vectorization::test {
     }
 
     TEST_METHOD(hasShortFormsForSwizzlesOfXFirstForPackedFloat_128x2) {
-      const auto given = StandardSample::ofArrayType<Float_32, VectorSizes::X8>();
+      alignas(YMM_ALIGNMENT) const auto given = StandardSample::ofArrayType<Float_32, VectorSizes::X8>();
       const auto givenPack = _mm256_load_ps(given.data());
-      std::array<Float_32, VectorSizes::X8> actual{};
+      alignas(YMM_ALIGNMENT) std::array<Float_32, VectorSizes::X8> actual{};
 
       {
         const std::array expected{given.at(VectorIndices::X1), given.at(VectorIndices::X1), given.at(VectorIndices::X1),
@@ -196,9 +196,9 @@ namespace vectorization::test {
     }
 
     TEST_METHOD(hasShortFormsForSwizzlesOfYFirstForPackedFloat_128x2) {
-      const auto given = StandardSample::ofArrayType<Float_32, VectorSizes::X8>();
+      alignas(YMM_ALIGNMENT) const auto given = StandardSample::ofArrayType<Float_32, VectorSizes::X8>();
       const auto givenPack = _mm256_load_ps(given.data());
-      std::array<Float_32, VectorSizes::X8> actual{};
+      alignas(YMM_ALIGNMENT) std::array<Float_32, VectorSizes::X8> actual{};
 
       {
         const std::array expected{given.at(VectorIndices::X2), given.at(VectorIndices::X2), given.at(VectorIndices::X2),
@@ -250,9 +250,9 @@ namespace vectorization::test {
     }
 
     TEST_METHOD(hasShortFormsForSwizzlesOfZFirstForPackedFloat_128x2) {
-      const auto given = StandardSample::ofArrayType<Float_32, VectorSizes::X8>();
+      alignas(YMM_ALIGNMENT) const auto given = StandardSample::ofArrayType<Float_32, VectorSizes::X8>();
       const auto givenPack = _mm256_load_ps(given.data());
-      std::array<Float_32, VectorSizes::X8> actual{};
+      alignas(YMM_ALIGNMENT) std::array<Float_32, VectorSizes::X8> actual{};
 
       {
         const std::array expected{given.at(VectorIndices::X3), given.at(VectorIndices::X3), given.at(VectorIndices::X3),
@@ -304,9 +304,9 @@ namespace vectorization::test {
     }
 
     TEST_METHOD(hasShortFormsForSwizzlesOfWFirstForPackedFloat_128x2) {
-      const auto given = StandardSample::ofArrayType<Float_32, VectorSizes::X8>();
+      alignas(YMM_ALIGNMENT) const auto given = StandardSample::ofArrayType<Float_32, VectorSizes::X8>();
       const auto givenPack = _mm256_load_ps(given.data());
-      std::array<Float_32, VectorSizes::X8> actual{};
+      alignas(YMM_ALIGNMENT) std::array<Float_32, VectorSizes::X8> actual{};
 
       {
         const std::array expected{given.at(VectorIndices::X4), given.at(VectorIndices::X4), given.at(VectorIndices::X4),
@@ -334,9 +334,9 @@ namespace vectorization::test {
     }
 
     TEST_METHOD(genericallySwizzlesIdentityAndItsReverse) {
-      const auto given = StandardSample::ofArrayType<Float_32, VectorSizes::X8>();
+      alignas(YMM_ALIGNMENT) const auto given = StandardSample::ofArrayType<Float_32, VectorSizes::X8>();
       const auto givenPack = _mm256_load_ps(given.data());
-      std::array<Float_32, VectorSizes::X8> actual{};
+      alignas(YMM_ALIGNMENT) std::array<Float_32, VectorSizes::X8> actual{};
 
       {
         const std::array expected{given.at(VectorIndices::X1), given.at(VectorIndices::X2), given.at(VectorIndices::X3),
@@ -364,9 +364,9 @@ namespace vectorization::test {
     }
 
     TEST_METHOD(genericallySwizzlesBroadcast) {
-      const auto given = StandardSample::ofArrayType<Float_32, VectorSizes::X8>();
+      alignas(YMM_ALIGNMENT) const auto given = StandardSample::ofArrayType<Float_32, VectorSizes::X8>();
       const auto givenPack = _mm256_load_ps(given.data());
-      std::array<Float_32, VectorSizes::X8> actual{};
+      alignas(YMM_ALIGNMENT) std::array<Float_32, VectorSizes::X8> actual{};
 
       {
         const std::array expected{given.at(VectorIndices::X1), given.at(VectorIndices::X1), given.at(VectorIndices::X1),
@@ -466,9 +466,9 @@ namespace vectorization::test {
     }
 
     TEST_METHOD(genericallySwizzlesDuplicateForms) {
-      const auto given = StandardSample::ofArrayType<Float_32, VectorSizes::X8>();
+      alignas(YMM_ALIGNMENT) const auto given = StandardSample::ofArrayType<Float_32, VectorSizes::X8>();
       const auto givenPack = _mm256_load_ps(given.data());
-      std::array<Float_32, VectorSizes::X8> actual{};
+      alignas(YMM_ALIGNMENT) std::array<Float_32, VectorSizes::X8> actual{};
 
       {
         const std::array expected{given.at(VectorIndices::X1), given.at(VectorIndices::X1), given.at(VectorIndices::X2),
