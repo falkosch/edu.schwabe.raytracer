@@ -93,9 +93,10 @@ namespace raytracer::test {
 
       sphere.findNearestIntersection(rayCast, nullptr, intersection);
 
-      Assert::AreEqual(0.0f, x(intersection.surfaceNormal), L"normal x", LINE_INFO());
-      Assert::AreEqual(0.0f, y(intersection.surfaceNormal), L"normal y", LINE_INFO());
-      Assert::AreEqual(-1.0f, z(intersection.surfaceNormal), L"normal z should point toward ray", LINE_INFO());
+      // tolerance: clang's -freciprocal-math leaves the normalized normal 1 ULP off
+      Assert::AreEqual(0.0f, x(intersection.surfaceNormal), 1e-6f, L"normal x", LINE_INFO());
+      Assert::AreEqual(0.0f, y(intersection.surfaceNormal), 1e-6f, L"normal y", LINE_INFO());
+      Assert::AreEqual(-1.0f, z(intersection.surfaceNormal), 1e-6f, L"normal z should point toward ray", LINE_INFO());
     }
 
     TEST_METHOD(findNearestIntersectionSetsVertex) {

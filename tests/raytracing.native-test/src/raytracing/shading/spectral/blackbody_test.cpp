@@ -54,8 +54,12 @@ namespace raytracer::test
         {
             // At 450nm: hotter star should emit more than cooler star
             const auto w = wavelengthsAt(400.0f);
-            const auto cool = blackbody(3000.0f, w);
-            const auto hot = blackbody(10000.0f, w);
+            // volatile: with every input known at compile time, clang-cl (fast-math flags, ThinLTO) folds the ratios
+            // into a result that fails this check; the same computation at runtime is correct
+            volatile Float coolKelvin = 3000.0f;
+            volatile Float hotKelvin = 10000.0f;
+            const auto cool = blackbody(coolKelvin, w);
+            const auto hot = blackbody(hotKelvin, w);
 
             // At shorter wavelengths, hot blackbody dominates
             const auto ratio450 = x2(hot) / x2(cool);

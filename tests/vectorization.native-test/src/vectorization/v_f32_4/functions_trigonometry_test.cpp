@@ -67,37 +67,37 @@ namespace vectorization::test {
     TEST_METHOD(computesExp) {
       const auto test = StandardSample::transcendentalFloatConstants<v_f32_4::ValueType>();
 
-      auto matchers = {Compare::nearEqualsRelative<v_f32_4>, // Half
-                       Compare::nearEqualsRelative<v_f32_4>,
-                       Compare::nearEqualsRelative<v_f32_4>, // One
-                       Compare::nearEqualsRelative<v_f32_4>,
-                       Compare::nearEqualsRelative<v_f32_4>, // OneHalf
-                       Compare::nearEqualsRelative<v_f32_4>,
+      auto matchers = {Compare::nearEqualsRelativeApproximation<v_f32_4>, // Half
+                       Compare::nearEqualsRelativeApproximation<v_f32_4>,
+                       Compare::nearEqualsRelativeApproximation<v_f32_4>, // One
+                       Compare::nearEqualsRelativeApproximation<v_f32_4>,
+                       Compare::nearEqualsRelativeApproximation<v_f32_4>, // OneHalf
+                       Compare::nearEqualsRelativeApproximation<v_f32_4>,
 
-                       Compare::nearEqualsRelative<v_f32_4>, // Two
-                       Compare::nearEqualsRelative<v_f32_4>,
-                       Compare::nearEqualsRelative<v_f32_4>, // Pi
-                       Compare::nearEqualsRelative<v_f32_4>,
-                       Compare::nearEqualsRelative<v_f32_4>, // ReciprocalPi
-                       Compare::nearEqualsRelative<v_f32_4>,
-                       Compare::nearEqualsRelative<v_f32_4>, // DegreeToRadian
-                       Compare::nearEqualsRelative<v_f32_4>,
+                       Compare::nearEqualsRelativeApproximation<v_f32_4>, // Two
+                       Compare::nearEqualsRelativeApproximation<v_f32_4>,
+                       Compare::nearEqualsRelativeApproximation<v_f32_4>, // Pi
+                       Compare::nearEqualsRelativeApproximation<v_f32_4>,
+                       Compare::nearEqualsRelativeApproximation<v_f32_4>, // ReciprocalPi
+                       Compare::nearEqualsRelativeApproximation<v_f32_4>,
+                       Compare::nearEqualsRelativeApproximation<v_f32_4>, // DegreeToRadian
+                       Compare::nearEqualsRelativeApproximation<v_f32_4>,
 
-                       Compare::nearEqualsRelative<v_f32_4>, // RadianToDegree
-                       Compare::nearEqualsRelative<v_f32_4>,
-                       Compare::nearEqualsRelative<v_f32_4>, // RadianToUniform
-                       Compare::nearEqualsRelative<v_f32_4>,
-                       Compare::nearEqualsRelative<v_f32_4>, // Sin45
-                       Compare::nearEqualsRelative<v_f32_4>,
+                       Compare::nearEqualsRelativeApproximation<v_f32_4>, // RadianToDegree
+                       Compare::nearEqualsRelativeApproximation<v_f32_4>,
+                       Compare::nearEqualsRelativeApproximation<v_f32_4>, // RadianToUniform
+                       Compare::nearEqualsRelativeApproximation<v_f32_4>,
+                       Compare::nearEqualsRelativeApproximation<v_f32_4>, // Sin45
+                       Compare::nearEqualsRelativeApproximation<v_f32_4>,
 
-                       Compare::nearEqualsRelative<v_f32_4>, // Epsilon
-                       Compare::nearEqualsRelative<v_f32_4>,
-                       Compare::nearEqualsRelative<v_f32_4>, // SelfOcclusionEpsilon
-                       Compare::nearEqualsRelative<v_f32_4>,
-                       Compare::nearEqualsRelative<v_f32_4>, // min
-                       Compare::nearEqualsRelative<v_f32_4>,
-                       Compare::nearEqualsRelative<v_f32_4>, // epsilon
-                       Compare::nearEqualsRelative<v_f32_4>};
+                       Compare::nearEqualsRelativeApproximation<v_f32_4>, // Epsilon
+                       Compare::nearEqualsRelativeApproximation<v_f32_4>,
+                       Compare::nearEqualsRelativeApproximation<v_f32_4>, // SelfOcclusionEpsilon
+                       Compare::nearEqualsRelativeApproximation<v_f32_4>,
+                       Compare::nearEqualsRelativeApproximation<v_f32_4>, // min
+                       Compare::nearEqualsRelativeApproximation<v_f32_4>,
+                       Compare::nearEqualsRelativeApproximation<v_f32_4>, // epsilon
+                       Compare::nearEqualsRelativeApproximation<v_f32_4>};
 
       auto matcher = matchers.begin();
       for (auto i = Zero<ASizeT>(); i < test.size(); ++i, ++matcher) {

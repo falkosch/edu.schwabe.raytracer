@@ -75,8 +75,9 @@ namespace vectorization::test {
     }
 
     TEST_METHOD(multipliesWithInfinity) {
-      const auto a = _mm_set_ps(1.0f, -1.0f, 0.0f, Infinity<Float_32>());
-      const auto b = _mm_set_ps(Infinity<Float_32>(), Infinity<Float_32>(), Infinity<Float_32>(), 1.0f);
+      // opaque(): /fp:fast constant folding would otherwise evaluate 0 * inf as 0
+      const auto a = opaque(_mm_set_ps(1.0f, -1.0f, 0.0f, Infinity<Float_32>()));
+      const auto b = opaque(_mm_set_ps(Infinity<Float_32>(), Infinity<Float_32>(), Infinity<Float_32>(), 1.0f));
       alignas(YMM_ALIGNMENT) std::array<Float_32, VectorSizes::W> actual{};
       _mm_store_ps(actual.data(), multiply(a, b));
       Assert::AreEqual(Infinity<Float_32>(), actual[0], L"inf * 1 should be inf", LINE_INFO());

@@ -5,6 +5,7 @@
 #include "compare.h"
 #include "message_format.h"
 #include "mutate.h"
+#include "opaque.h"
 #include "standard_sample.h"
 
 #include "iterate.h"

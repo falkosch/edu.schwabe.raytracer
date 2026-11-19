@@ -170,32 +170,32 @@ namespace vectorization::test {
     }
 
     // -- Arithmetic edge cases with denormals and extremes --
+    // Operands go through opaque() so that /fp:fast constant folding cannot replace the SIMD instructions under test.
 
     TEST_METHOD(additionWithDenormals) {
-      const auto denorm = v_f32_4(std::numeric_limits<Float_32>::denorm_min());
+      const auto denorm = opaque(v_f32_4(std::numeric_limits<Float_32>::denorm_min()));
       const auto actual = denorm + denorm;
       const auto expected = Float_32{2.0f} * std::numeric_limits<Float_32>::denorm_min();
       Assert::AreEqual(expected, x(actual), L"denorm addition mismatch", LINE_INFO());
     }
 
     TEST_METHOD(multiplicationOverflow) {
-      const auto maxVal = v_f32_4(std::numeric_limits<Float_32>::max());
-      const auto two = v_f32_4(2.0f);
+      const auto maxVal = opaque(v_f32_4(std::numeric_limits<Float_32>::max()));
+      const auto two = opaque(v_f32_4(2.0f));
       const auto actual = maxVal * two;
       Assert::AreEqual(Infinity<Float_32>(), x(actual), L"max*2 should overflow to inf", LINE_INFO());
     }
 
     TEST_METHOD(divisionByZeroProducesInfinity) {
-      const auto one = One<v_f32_4>();
-      const auto zero = Zero<v_f32_4>();
+      const auto one = opaque(One<v_f32_4>());
+      const auto zero = opaque(Zero<v_f32_4>());
       const auto actual = one / zero;
       Assert::AreEqual(Infinity<Float_32>(), x(actual), L"1/0 should be inf", LINE_INFO());
     }
 
-    // Fails under /fp:fast — sign of -0+0 is not guaranteed by relaxed FP model
     TEST_METHOD(negativeZeroArithmetic) {
-      const auto negZero = NegativeZero<v_f32_4>();
-      const auto posZero = Zero<v_f32_4>();
+      const auto negZero = opaque(NegativeZero<v_f32_4>());
+      const auto posZero = opaque(Zero<v_f32_4>());
 
       // -0.0 + 0.0 = 0.0 (positive zero)
       const auto sum = negZero + posZero;
@@ -203,34 +203,34 @@ namespace vectorization::test {
       Assert::IsFalse(std::signbit(x(sum)), L"-0 + 0 should be positive zero", LINE_INFO());
 
       // -0.0 * -0.0 = +0.0
-      const auto prod = negZero * negZero;
+      const auto prod = negZero * opaque(NegativeZero<v_f32_4>());
       Assert::AreEqual(0.0f, x(prod), L"product value mismatch", LINE_INFO());
       Assert::IsFalse(std::signbit(x(prod)), L"-0 * -0 should be positive zero", LINE_INFO());
 
       // 1.0 * -0.0 = -0.0
-      const auto scaled = One<v_f32_4>() * negZero;
+      const auto scaled = opaque(One<v_f32_4>()) * negZero;
       Assert::AreEqual(0.0f, x(scaled), L"scaled value mismatch", LINE_INFO());
       Assert::IsTrue(std::signbit(x(scaled)), L"1 * -0 should be negative zero", LINE_INFO());
     }
 
     TEST_METHOD(infinityArithmetic) {
-      const auto inf = v_f32_4(Infinity<Float_32>());
-      const auto negInf = v_f32_4(NegativeInfinity<Float_32>());
-      const auto one = One<v_f32_4>();
+      const auto inf = opaque(v_f32_4(Infinity<Float_32>()));
+      const auto negInf = opaque(v_f32_4(NegativeInfinity<Float_32>()));
+      const auto one = opaque(One<v_f32_4>());
 
       // inf + 1 = inf
       Assert::AreEqual(Infinity<Float_32>(), x(inf + one), L"inf+1 should be inf", LINE_INFO());
       // inf - inf = NaN
-      Assert::IsTrue(std::isnan(x(inf - inf)), L"inf-inf should be NaN", LINE_INFO());
+      Assert::IsTrue(std::isnan(x(inf - opaque(inf))), L"inf-inf should be NaN", LINE_INFO());
       // inf * 0 = NaN
-      Assert::IsTrue(std::isnan(x(inf * Zero<v_f32_4>())), L"inf*0 should be NaN", LINE_INFO());
+      Assert::IsTrue(std::isnan(x(inf * opaque(Zero<v_f32_4>()))), L"inf*0 should be NaN", LINE_INFO());
       // -inf + -inf = -inf
       Assert::AreEqual(NegativeInfinity<Float_32>(), x(negInf + negInf), L"-inf+-inf should be -inf", LINE_INFO());
     }
 
     TEST_METHOD(nanPropagation) {
-      const auto nan = v_f32_4(NotANumber<Float_32>());
-      const auto one = One<v_f32_4>();
+      const auto nan = opaque(v_f32_4(NotANumber<Float_32>()));
+      const auto one = opaque(One<v_f32_4>());
 
       Assert::IsTrue(std::isnan(x(nan + one)), L"NaN+1 should be NaN", LINE_INFO());
       Assert::IsTrue(std::isnan(x(nan - one)), L"NaN-1 should be NaN", LINE_INFO());
@@ -241,8 +241,8 @@ namespace vectorization::test {
     // -- Comparison edge cases --
 
     TEST_METHOD(negativeZeroEqualsPositiveZero) {
-      const auto negZero = NegativeZero<v_f32_4>();
-      const auto posZero = Zero<v_f32_4>();
+      const auto negZero = opaque(NegativeZero<v_f32_4>());
+      const auto posZero = opaque(Zero<v_f32_4>());
       // IEEE 754: -0.0 == 0.0
       Assert::IsTrue(allTrue(negZero == posZero), L"-0 should equal +0", LINE_INFO());
     }

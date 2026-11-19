@@ -1,10 +1,14 @@
 #include "vectorization_tests.h"
 
+#include <bit>
 #include <cmath>
 
 namespace vectorization::test {
   TEST_CLASS(v_f32_4_OperatorsTest) {
   public:
+    // Bitwise results such as MaskAll are NaN bit patterns, and NaN != NaN: compare them bit by bit
+    static UInt_32 bits(const Float_32 value) { return std::bit_cast<UInt_32>(value); }
+
     static std::array<v_f32_4::ValueType, v_f32_4::SIZE> sample1() {
       return {
           Zero<v_f32_4::ValueType>(), One<v_f32_4::ValueType>(), Infinity<v_f32_4::ValueType>(),
@@ -262,10 +266,10 @@ namespace vectorization::test {
       const auto b = MaskX<v_f32_4>();
       const auto actual = a & b;
 
-      Assert::AreEqual(x(b), x(actual), L"'&' op X mismatch", LINE_INFO());
-      Assert::AreEqual(y(b), y(actual), L"'&' op Y mismatch", LINE_INFO());
-      Assert::AreEqual(z(b), z(actual), L"'&' op Z mismatch", LINE_INFO());
-      Assert::AreEqual(w(b), w(actual), L"'&' op W mismatch", LINE_INFO());
+      Assert::AreEqual(bits(x(b)), bits(x(actual)), L"'&' op X mismatch", LINE_INFO());
+      Assert::AreEqual(bits(y(b)), bits(y(actual)), L"'&' op Y mismatch", LINE_INFO());
+      Assert::AreEqual(bits(z(b)), bits(z(actual)), L"'&' op Z mismatch", LINE_INFO());
+      Assert::AreEqual(bits(w(b)), bits(w(actual)), L"'&' op W mismatch", LINE_INFO());
     }
 
     // "|"
@@ -275,10 +279,10 @@ namespace vectorization::test {
       const auto expected = MaskXY<v_f32_4>();
       const auto actual = a | b;
 
-      Assert::AreEqual(x(expected), x(actual), L"'|' op X mismatch", LINE_INFO());
-      Assert::AreEqual(y(expected), y(actual), L"'|' op Y mismatch", LINE_INFO());
-      Assert::AreEqual(z(expected), z(actual), L"'|' op Z mismatch", LINE_INFO());
-      Assert::AreEqual(w(expected), w(actual), L"'|' op W mismatch", LINE_INFO());
+      Assert::AreEqual(bits(x(expected)), bits(x(actual)), L"'|' op X mismatch", LINE_INFO());
+      Assert::AreEqual(bits(y(expected)), bits(y(actual)), L"'|' op Y mismatch", LINE_INFO());
+      Assert::AreEqual(bits(z(expected)), bits(z(actual)), L"'|' op Z mismatch", LINE_INFO());
+      Assert::AreEqual(bits(w(expected)), bits(w(actual)), L"'|' op W mismatch", LINE_INFO());
     }
 
     // "^"
@@ -287,10 +291,10 @@ namespace vectorization::test {
       const auto expected = Zero<v_f32_4>();
       const auto actual = a ^ a;
 
-      Assert::AreEqual(x(expected), x(actual), L"'^' op X mismatch", LINE_INFO());
-      Assert::AreEqual(y(expected), y(actual), L"'^' op Y mismatch", LINE_INFO());
-      Assert::AreEqual(z(expected), z(actual), L"'^' op Z mismatch", LINE_INFO());
-      Assert::AreEqual(w(expected), w(actual), L"'^' op W mismatch", LINE_INFO());
+      Assert::AreEqual(bits(x(expected)), bits(x(actual)), L"'^' op X mismatch", LINE_INFO());
+      Assert::AreEqual(bits(y(expected)), bits(y(actual)), L"'^' op Y mismatch", LINE_INFO());
+      Assert::AreEqual(bits(z(expected)), bits(z(actual)), L"'^' op Z mismatch", LINE_INFO());
+      Assert::AreEqual(bits(w(expected)), bits(w(actual)), L"'^' op W mismatch", LINE_INFO());
     }
 
     TEST_METHOD(testLeftShiftOperator) {
@@ -436,10 +440,10 @@ namespace vectorization::test {
       const auto expected = a & b;
       a &= b;
 
-      Assert::AreEqual(x(expected), x(a), L"'&=' X mismatch", LINE_INFO());
-      Assert::AreEqual(y(expected), y(a), L"'&=' Y mismatch", LINE_INFO());
-      Assert::AreEqual(z(expected), z(a), L"'&=' Z mismatch", LINE_INFO());
-      Assert::AreEqual(w(expected), w(a), L"'&=' W mismatch", LINE_INFO());
+      Assert::AreEqual(bits(x(expected)), bits(x(a)), L"'&=' X mismatch", LINE_INFO());
+      Assert::AreEqual(bits(y(expected)), bits(y(a)), L"'&=' Y mismatch", LINE_INFO());
+      Assert::AreEqual(bits(z(expected)), bits(z(a)), L"'&=' Z mismatch", LINE_INFO());
+      Assert::AreEqual(bits(w(expected)), bits(w(a)), L"'&=' W mismatch", LINE_INFO());
     }
 
     // "|="
@@ -449,10 +453,10 @@ namespace vectorization::test {
       const auto expected = a | b;
       a |= b;
 
-      Assert::AreEqual(x(expected), x(a), L"'|=' X mismatch", LINE_INFO());
-      Assert::AreEqual(y(expected), y(a), L"'|=' Y mismatch", LINE_INFO());
-      Assert::AreEqual(z(expected), z(a), L"'|=' Z mismatch", LINE_INFO());
-      Assert::AreEqual(w(expected), w(a), L"'|=' W mismatch", LINE_INFO());
+      Assert::AreEqual(bits(x(expected)), bits(x(a)), L"'|=' X mismatch", LINE_INFO());
+      Assert::AreEqual(bits(y(expected)), bits(y(a)), L"'|=' Y mismatch", LINE_INFO());
+      Assert::AreEqual(bits(z(expected)), bits(z(a)), L"'|=' Z mismatch", LINE_INFO());
+      Assert::AreEqual(bits(w(expected)), bits(w(a)), L"'|=' W mismatch", LINE_INFO());
     }
 
     // "^="
@@ -462,10 +466,10 @@ namespace vectorization::test {
       const auto expected = a ^ b;
       a ^= b;
 
-      Assert::AreEqual(x(expected), x(a), L"'^=' X mismatch", LINE_INFO());
-      Assert::AreEqual(y(expected), y(a), L"'^=' Y mismatch", LINE_INFO());
-      Assert::AreEqual(z(expected), z(a), L"'^=' Z mismatch", LINE_INFO());
-      Assert::AreEqual(w(expected), w(a), L"'^=' W mismatch", LINE_INFO());
+      Assert::AreEqual(bits(x(expected)), bits(x(a)), L"'^=' X mismatch", LINE_INFO());
+      Assert::AreEqual(bits(y(expected)), bits(y(a)), L"'^=' Y mismatch", LINE_INFO());
+      Assert::AreEqual(bits(z(expected)), bits(z(a)), L"'^=' Z mismatch", LINE_INFO());
+      Assert::AreEqual(bits(w(expected)), bits(w(a)), L"'^=' W mismatch", LINE_INFO());
     }
 
     // "<<="

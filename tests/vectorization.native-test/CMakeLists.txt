@@ -231,6 +231,7 @@ set(HEADERS
         include/iterate.h
         include/message_format.h
         include/mutate.h
+        include/opaque.h
         include/standard_sample.h
         include/to_string_specializations.h
         include/vectorization_tests.h

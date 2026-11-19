@@ -64,7 +64,8 @@ namespace vectorization::test {
     }
 
     TEST_METHOD(movemaskDetectsNegativeZero) {
-      const auto v = _mm_set_ps(0.0f, -0.0f, 0.0f, -0.0f);
+      // -0.0f literals may be canonicalized to +0.0f under /fp:fast; build -0 from its bit pattern and hide it
+      const auto v = opaque(_mm_set_ps(0.0f, NegativeZero<Float_32>(), 0.0f, NegativeZero<Float_32>()));
       Assert::AreEqual(Int_32{0x5}, movemask(v), L"negative zero has sign bit set", LINE_INFO());
     }
   };
