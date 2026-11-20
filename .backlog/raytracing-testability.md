@@ -52,18 +52,7 @@ conversion ctors, which clamps to 8-bit on the bitmap side. A symmetric round-tr
 `loadBMP` and `loadPNG` so save/load round-trips are testable in the formats users
 actually save in (current PPM round-trip uses a different code path on each side).
 
-### 5. Investigate vstest + OpenMP teardown crash
-
-Full-suite `vstest.console.exe` runs occasionally abort the test host process during
-tear-down whenever OpenMP-parallelized paths have executed (`loadPPM`, `Bitmap ↔ HDRImage`
-ctors, `normalizeEachChannel`, raytrace loops). All assertions pass, but the last
-1–2 results are truncated from stdout. Per-class runs are clean. Likely a static-destructor
-ordering issue between the OpenMP runtime and the vstest test host.
-
-Either find the root cause and fix it, or document a recommended invocation pattern
-(e.g. `--TestCaseFilter` per class) in CLAUDE.md.
-
-### 6. Camera API surprises worth documenting or renaming
+### 5. Camera API surprises worth documenting or renaming
 
 Several Camera behaviors caught test authors off guard:
 

@@ -10,10 +10,10 @@ for performance. These flags relax strict IEEE 754 compliance, which causes subt
 - Tests that assert strict IEEE behavior are fragile — they may pass or fail depending on inlining,
   optimization level, and LTCG codegen
 
-## Known issues
+## Already fixed
 
-- `v_f32_4_SpecialValuesTest::negativeZeroArithmetic` — asserts `-0 + 0 = +0` (IEEE 754 §6.3),
-  fails when LTCG + `/d2SSAOptimizer-` changes codegen path
+The `negativeZeroArithmetic` failure and the other special-value, blackbody and spectral-wrap cases found so far are
+fixed; see `DONE/fp-fast-ieee-compliance.md`. Those fixes came from failing tests, not from a systematic audit.
 
 ## Scope
 
