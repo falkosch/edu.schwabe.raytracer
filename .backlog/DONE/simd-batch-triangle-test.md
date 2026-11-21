@@ -138,7 +138,10 @@ any-hit loops over a leaf's blocks, the packing) stays in `Mesh.cpp`.
 | dragon2 | any     | incoherent |    419.4 |      419.7 |  +0.1% |              4/10 |
 
 - Neutral (-1.3% to +1.0%, wins split): the call across the library boundary costs nothing measurable under LTCG.
-- Not built with clang-cl (`clang-release`), and no Cornell box image comparison was run.
+- Cornell box, first frame: byte-identical PNG and the same ray counts as the previous build.
+- clang-cl (`clang-release`) builds without warnings, all tests pass, and its benchmark counters equal those of a
+  clang-cl build of `cc5f1ca`. They differ slightly from MSVC's (dragon2 coherent: 69837 hits instead of 69838; the
+  facets per visited leaf differ too, so the KD-trees already do), before the move as after it.
 
 ## Key files
 
