@@ -1,7 +1,30 @@
-# Flat-array compact KD-tree with iterative traversal (done parts)
+# Flat-array compact KD-tree with iterative traversal
 
-Carved out of `.backlog/flat-array-kdtree-nodes.md`. Eight-wide nodes, wide nodes for the scene tree, a branch-light
-node step and prefetching stay open there.
+## Motivation
+
+Two related issues in the KD-tree traversal hot path:
+
+**Cache-hostile node layout:** `KDTreeNode` stores a `std::unique_ptr<KDTreeNodeChildren>` per internal
+node. Each 128-byte `KDTreeNodeChildren` is individually heap-allocated, scattering nodes across memory.
+During traversal (~636k rays per frame, multiple tree levels each), every step chases a heap pointer —
+likely triggering L1/L2 cache misses at ~100 cycles each.
+
+**Recursive traversal:** `NaiveKDTreeTraverser` uses recursion when both children are hit by a ray. Each
+recursive call pushes a full stack frame (~6 arguments), causing register spills and branch predictor
+pressure. Tree depth is ~12 for the teapot mesh, so stack overflow isn't the risk — the cost is function
+call overhead and loss of register allocation across call boundaries.
+
+These two issues are tightly coupled: converting to flat-array nodes and an explicit traversal stack at the
+same time gives the biggest win and avoids touching the same code twice.
+
+## Scope
+
+Large structural refactor touching:
+
+- `KDTreeNode` / `KDTreeNodeChildren` / `KDTreeRoot` — replace with `CompactKDNode` + vector
+- `KDTreeBalancer::build()` / `KDTreeNode::grow()` — change from recursive allocation to index-based
+- `NaiveKDTreeTraverser` / `VoxelizationKDTreeTraverser` — pointer+recursion → index+explicit stack
+- Build phase needs a two-pass or resize-on-grow approach since tree size isn't known upfront
 
 ## Flat-array node layout
 
@@ -173,6 +196,63 @@ probe build):
   secondary rays per frame), and its scene tree (9 objects) is a single leaf, so the image doesn't exercise the new
   order outside the teapot's tree; the unit test covers the generic path.
 
+## Measurements (2026-11-21, on top of `845d7f2`)
+
+### Traversal share per ray (binary traversal, before the wide nodes)
+
+The leaf-share probe (see `DONE/soa-mesh-layout.md`) got a traversal replay: the traverser runs with a leaf callback
+that returns the recorded leaf results in order, so it takes the same path without leaf work. Traversal plus leaf
+replay came to 96-102% of the traced time, and every chunk ended on the expected leaf call.
+
+| Mesh    | Query   | Rays       | Traced | Traversal      | Leaf replay   | Nodes | Cycles per node |
+|---------|---------|------------|-------:|---------------:|--------------:|------:|----------------:|
+| teapot  | nearest | coherent   |  343.3 |  172.8 (50.3%) | 176.5 (51.4%) |  8.78 |              20 |
+| teapot  | any     | coherent   |  297.3 |  162.3 (54.6%) | 141.5 (47.6%) |  7.99 |              20 |
+| teapot  | nearest | incoherent | 1022.0 |  649.7 (63.6%) | 326.1 (31.9%) | 11.03 |              59 |
+| teapot  | any     | incoherent |  682.5 |  497.5 (72.9%) | 183.4 (26.9%) |  8.75 |              57 |
+| dragon2 | nearest | coherent   |  378.4 |  242.7 (64.1%) | 136.7 (36.1%) | 10.08 |              24 |
+| dragon2 | any     | coherent   |  332.1 |  223.8 (67.4%) | 101.5 (30.6%) |  9.24 |              24 |
+| dragon2 | nearest | incoherent |  910.5 |  611.7 (67.2%) | 316.3 (34.7%) | 10.05 |              61 |
+| dragon2 | any     | incoherent |  611.8 |  473.7 (77.4%) | 144.6 (23.6%) |  8.10 |              58 |
+
+- Traversal is now the larger part of a ray (50-77%).
+- Incoherent rays cost about 3 times as much per node as coherent ones, on teapot too, whose tree (771 nodes, 49 KB of
+  boxes) fits in L2. So memory is not the main traversal cost; mispredicted per-node branches are the likely cause.
+  Prefetching and a cache-oriented layout can't remove that.
+- Nearest queries (before the child order, see "Front-to-back child order" above): `NaiveKDTreeTraverser` always
+  descended into child A first, and a deferred child is popped without testing its box against the ray shortened by a
+  hit in the meantime. Leaf calls on such a shortened ray that find no nearer hit, per ray: teapot 0.122 of 0.90
+  (coherent) and 0.476 of 1.40 (incoherent), dragon2 0.107 of 0.51 and 0.293 of 0.69.
+
+### Branchless selects (2026-11-21, on top of `00ebdc1`)
+
+MSVC compiled three selects of the last changes into conditional jumps: the child order in `NaiveKDTreeTraverser`
+(two jumps), the back-face culling mask in `Mesh.cpp`'s `testBlock` and the origin's lane bit in `candidateLanes`. All
+three were rewritten with masks (an XOR select for the child links), which the listings confirmed branch-free. Eight
+alternating runs each against `2497174`, median "best" in core cycles per ray:
+
+| Mesh    | Query   | Rays       | Before | All branchless | Change | Faster | Leaf code only | Change | Faster |
+|---------|---------|------------|-------:|---------------:|-------:|-------:|---------------:|-------:|-------:|
+| teapot  | nearest | coherent   |  335.0 |          360.8 |   7.7% |    0/8 |          328.9 |  -0.1% |    4/8 |
+| teapot  | any     | coherent   |  282.4 |          278.1 |  -1.5% |    5/8 |          280.1 |  -1.8% |    5/8 |
+| teapot  | nearest | incoherent |  866.9 |          833.0 |  -3.9% |    8/8 |          855.0 |  -1.1% |    5/8 |
+| teapot  | any     | incoherent |  669.3 |          651.8 |  -2.6% |    6/8 |          656.7 |  -2.8% |    7/8 |
+| dragon2 | nearest | coherent   |  372.5 |          393.6 |   5.7% |    1/8 |          368.1 |  -0.2% |    3/8 |
+| dragon2 | any     | coherent   |  320.7 |          314.2 |  -2.0% |    6/8 |          320.0 |  -0.2% |    4/8 |
+| dragon2 | nearest | incoherent |  718.5 |          702.5 |  -2.2% |    7/8 |          713.3 |   0.9% |    4/8 |
+| dragon2 | any     | incoherent |  638.6 |          637.2 |  -0.2% |    4/8 |          635.3 |   1.9% |    2/8 |
+
+("Leaf code only" ran in its own session; its "Before" medians differ by up to 2% from the column shown.)
+
+- The branchless child order makes coherent nearest rays 6-8% slower and incoherent ones 2-4% faster. With a branch,
+  the CPU predicts the next node and loads its boxes before the current box test is done; with the select, the next
+  node's address depends on that test, so node visits serialize. Coherent rays predict well, so they lose that
+  overlap; primary rays are coherent nearest queries, so the branch stays (now one `if`/`else`, one jump, with a
+  comment saying why; `3ab28db`).
+- The two leaf-code branches were predictable (per ray and mostly "no origin"): branchless is neutral there, and kept
+  (`3ab28db`).
+- Final state against `2497174`, six alternating runs: -4.4% to 1.9%, hits and checksums identical.
+
 ## Four-wide nodes (2026-11-21)
 
 `KDTreeBalancer::build()` collapses the flat binary tree into `KDTreeRoot::wideNodes`: a `KDTreeWideNode` holds the
@@ -222,6 +302,117 @@ Implemented as described; the helper types of `KDTreeRoot.h` (`KDTreeLink`, `KDT
 `KDTreeChildLinks`, `KDTreeLeaf`) moved into their own headers first, and the wide types got their own files
 (`KDTreeWideNode`, `KDTreeWideRay`).
 
+## Eight-wide nodes (2026-11-21)
+
+`KDTreeWideNode` takes its width from one alias now: `KDTreeWideLanes` (`Float8`) sets `Width` (8) and `Levels` (3).
+A node holds the descendants of an inner node three levels down (2 to 8 lanes; a leaf above that level takes one lane),
+depth-first with child A first, boxes component-wise in 6 `Float8`, 8 links and the lanes mask (256 bytes). The
+collapse moved from `KDTreeBalancer.cpp` into `KDTreeRoot::buildWideNodes()` and recurses over the levels.
+`overlappedLanes` runs on `Float8`, with a new `outOfReach(RayCast, Float8)` overload in primitives that has the
+`Float4` one's operand order (`RayCastTest::detectsOutOfReachPerLane` compares both, NaN included).
+
+- Leaf calls, facets, hits, facet index sums and distance sums were identical to the four-wide build in all runs.
+- Wide nodes per ray (the root's box test counts as one), four-wide → eight-wide, nearest / any: teapot coherent
+  4.78 → 3.75 / 4.74 → 3.72, incoherent 5.60 → 4.25 / 5.10 → 3.92; dragon2 coherent 5.42 → 4.11 / 5.32 → 4.05,
+  incoherent 4.97 → 3.74 / 4.87 → 3.67.
+- Memory: teapot 122 wide nodes (31 KB, was 179 and 23 KB), dragon2 10694 (2.7 MB, was 15816 and 2.0 MB). Build time
+  unchanged: dragon2 median 4.08 G → 4.03 G TSC cycles, six runs each.
+- Stack: each wide node on the path defers up to `Width - 1` children (any-hit pushes up to `Width`, then pops one),
+  and a path of `MaxDepth` nodes has at most `MaxDepth - 1` inner nodes, `Levels` per wide node. That gives
+  `StackSize = 7 * 21 + 1 = 148`; the previous `2 * MaxDepth = 128` would not have held eight lanes.
+  `TraverserTest::wideTraverserStackHoldsMaxDepthTree` builds a tree of `MaxDepth` levels in which every wide node has
+  all lanes hit and defers all but its first: both queries fill the stack to the bound, and one entry less fires the
+  traverser's assert in Debug.
+- `TraverserTest::wideTraverserMatchesNaive` now requires wide nodes of every lane count from 2 to 8. Swapping child A
+  and B in the collapse or dropping a node's last lane makes it fail.
+
+Six alternating runs against the four-wide build (`71accae`), median "best" in core cycles per ray:
+
+| Mesh    | Query   | Rays       | Before | Eight-wide | Change | Faster |
+|---------|---------|------------|-------:|-----------:|-------:|-------:|
+| teapot  | nearest | coherent   |  245.4 |      240.2 |  -2.1% |    6/6 |
+| teapot  | any     | coherent   |  229.4 |      208.4 |  -9.1% |    5/6 |
+| teapot  | nearest | incoherent |  646.6 |      588.1 |  -9.1% |    5/6 |
+| teapot  | any     | incoherent |  513.5 |      421.0 | -18.0% |    6/6 |
+| dragon2 | nearest | coherent   |  276.6 |      248.3 | -10.2% |    6/6 |
+| dragon2 | any     | coherent   |  244.1 |      210.6 | -13.7% |    6/6 |
+| dragon2 | nearest | incoherent |  571.5 |      505.1 | -11.6% |    5/6 |
+| dragon2 | any     | incoherent |  502.4 |      408.9 | -18.6% |    6/6 |
+
+## Wide nodes for the scene tree (2026-11-21)
+
+`raytracerui`'s `main.cpp` builds the scene with `WideKDTreeTraverser<SceneIntersection>`, and `raytracing.h` exports
+the wide traverser. The Cornell box's scene tree is a single leaf, so the comparison ran on `ProceduralScene<1, 10>`
+(8000 objects, 27 lights; scene tree depth 12, 1827 nodes), selected in `main.cpp` for the measurement only. First
+frame, six alternating renders each:
+
+- Naive scene traverser: median 529.7 ms; wide: 507.4 ms (-4.2%), faster in 5 of 6 pairs. Ray counters identical and
+  the image byte-identical in all 12 renders.
+- Cornell box against the `71accae` build, ten alternating pairs: median 51.1 → 55.0 ms, faster in 4 of 10, single
+  frames 35-66 ms, so unchanged within noise; ray counters identical and the image byte-identical in all 20 runs.
+
+## Branch-light node step (2026-11-21, measured and dropped)
+
+Two variants of the eight-wide node step against the per-lane `if`s:
+
+- **Bit scan:** visit only the hit lanes, with `countr_zero` (nearest) or `bit_width` (any-hit).
+- **Branchless:** any-hit stores every lane's link and advances the stack by the lane's hit bit. Nearest ranks each
+  hit lane by entry distance (SIMD compares, popcount, lane order on a tie) and stores it straight into its stack slot;
+  rank 0 is the next node, and missed lanes go to a spare slot.
+
+Six alternating runs of all three builds, median "best" in core cycles per ray:
+
+| Mesh    | Query   | Rays       | Per lane | Bit scan | Change | Faster | Branchless | Change | Faster |
+|---------|---------|------------|---------:|---------:|-------:|-------:|-----------:|-------:|-------:|
+| teapot  | nearest | coherent   |    236.2 |    299.4 |  26.7% |    0/6 |      374.4 |  58.5% |    0/6 |
+| teapot  | any     | coherent   |    208.8 |    272.9 |  30.7% |    0/6 |      291.8 |  39.8% |    0/6 |
+| teapot  | nearest | incoherent |    593.5 |    545.0 |  -8.2% |    6/6 |      589.5 |  -0.7% |    6/6 |
+| teapot  | any     | incoherent |    427.3 |    423.1 |  -1.0% |    3/6 |      401.6 |  -6.0% |    6/6 |
+| dragon2 | nearest | coherent   |    253.5 |    295.0 |  16.4% |    0/6 |      372.4 |  46.9% |    0/6 |
+| dragon2 | any     | coherent   |    211.5 |    264.4 |  25.0% |    0/6 |      286.8 |  35.6% |    0/6 |
+| dragon2 | nearest | incoherent |    535.0 |    500.1 |  -6.5% |    5/6 |      543.3 |   1.6% |    2/6 |
+| dragon2 | any     | incoherent |    420.6 |    441.2 |   4.9% |    0/6 |      450.4 |   7.1% |    2/6 |
+
+Both lose 16-59% on coherent rays and win at most 8% on incoherent ones. With the per-lane branches, the CPU predicts
+which lanes hit and loads the next node before the box test is done. Without them, the next node's address waits for
+the test, the same serialization as the branchless child order under "Branchless selects" above. The per-lane
+branches stay; the hit lanes' leaf calls and facets were identical in all variants.
+
+## Prefetching (2026-11-21, measured and dropped)
+
+`_mm_prefetch` of the four cache lines of each hit lane's wide node, issued where the lane is pushed or sorted. Two
+variants, each in its own session against the eight-wide build: inner lanes only (an `isLeaf` branch per hit lane),
+and branch-free (a leaf link prefetches some wide node). Six alternating runs each, median "best" in core cycles per
+ray:
+
+| Mesh    | Query   | Rays       | Before | Inner only | Change | Faster | Before | Branch-free | Change | Faster |
+|---------|---------|------------|-------:|-----------:|-------:|-------:|-------:|------------:|-------:|-------:|
+| teapot  | nearest | coherent   |  238.6 |      255.8 |   7.2% |    0/6 |  236.4 |       266.9 |  12.9% |    0/6 |
+| teapot  | any     | coherent   |  205.2 |      234.1 |  14.1% |    0/6 |  209.4 |       241.7 |  15.4% |    0/6 |
+| teapot  | nearest | incoherent |  574.6 |      639.4 |  11.3% |    1/6 |  593.0 |       622.1 |   4.9% |    0/6 |
+| teapot  | any     | incoherent |  419.5 |      469.1 |  11.8% |    0/6 |  423.2 |       462.2 |   9.2% |    0/6 |
+| dragon2 | nearest | coherent   |  252.6 |      288.1 |  14.0% |    0/6 |  249.4 |       279.0 |  11.9% |    0/6 |
+| dragon2 | any     | coherent   |  210.6 |      245.9 |  16.8% |    0/6 |  209.4 |       249.6 |  19.1% |    0/6 |
+| dragon2 | nearest | incoherent |  501.9 |      522.8 |   4.2% |    2/6 |  508.9 |       516.9 |   1.6% |    2/6 |
+| dragon2 | any     | incoherent |  397.0 |      436.4 |  10.0% |    1/6 |  399.9 |       425.6 |   6.4% |    0/6 |
+
+Every row is slower. Dragon2 incoherent, whose rays spread over 2.7 MB of wide nodes, loses least. The prefetches
+cost more than the misses they could hide, which fits the measurements above: the traversal is bound by per-node
+branches, not by memory.
+
+## Key files
+
+- `sources/raytracing/include/raytracing/geometry/partitioning/KDTreeNode.h`
+- `sources/raytracing/include/raytracing/geometry/partitioning/KDTreeNodeChildren.h`
+- `sources/raytracing/include/raytracing/geometry/partitioning/KDTreeRoot.h`
+- `sources/raytracing/src/raytracing/geometry/partitioning/KDTreeBalancer.cpp`
+- `sources/raytracing/include/raytracing/geometry/partitioning/treetraverser/NaiveKDTreeTraverser.h`
+- `sources/raytracing/include/raytracing/geometry/partitioning/treetraverser/VoxelizationKDTreeTraverser.h`
+- `sources/raytracing/include/raytracing/geometry/partitioning/KDTreeWideLanes.h`
+- `sources/raytracing/include/raytracing/geometry/partitioning/KDTreeWideNode.h`
+- `sources/raytracing/src/raytracing/geometry/partitioning/KDTreeRoot.cpp` (`buildWideNodes`)
+- `sources/raytracing/include/raytracing/geometry/partitioning/treetraverser/WideKDTreeTraverser.h`
+
 ## Commits
 
 - `e65a989` refactor(raytracing): store the KD-tree in flat arrays
@@ -229,3 +420,6 @@ Implemented as described; the helper types of `KDTreeRoot.h` (`KDTreeLink`, `KDT
 - `2497174` perf(raytracing): traverse the nearer KD-tree child first for nearest hits
 - `d37b52b` refactor(raytracing): move the KD-tree helper types into their own files
 - `2c388c1` perf(raytracing): traverse mesh KD-trees through four-wide nodes
+- `f8f19f1` feat(primitives): add a Float8 overload of outOfReach
+- `fb5449b` perf(raytracing): widen the KD-tree's wide nodes to eight lanes
+- `b310a89` perf(raytracerui): traverse the scene tree through wide nodes

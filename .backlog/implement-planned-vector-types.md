@@ -32,7 +32,8 @@ Deferred on 2026-11-21: high precision isn't built today.
   count, and `VECTORIZATION_HIGH_PRECISION` only switches the components to double, so `Float8` must map to
   `Float8_64` = `v_f64_8` there. Today `Float8` exists only in single precision, although the raytracing library uses
   it (spectral code: `cmf.h`, `blackbody.h`, `illuminants.h`, `metal_ior.h`, `EmitterSPD.h`; `Mesh.h`'s
-  `FacetLanes`), so a high-precision build can't compile.
+  `FacetLanes`; the KD-tree's `KDTreeWideLanes` and primitives' `outOfReach(RayCast, Float8)`), so a high-precision
+  build can't compile.
 - 512 bits: with AVX2 that is two `PackedFloat4_256`. There is no `PackedTypes<Float_64, 8>` specialization and no
   two-register wrapper in the library yet; AVX-512 (`__m512d`) isn't targeted (`/arch:AVX2`).
 

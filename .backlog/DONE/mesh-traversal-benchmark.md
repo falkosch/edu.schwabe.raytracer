@@ -4,8 +4,8 @@
 
 Three open items need a stable before/after measurement of the mesh hot path (KD-tree traversal plus the leaf
 intersection loop): `DONE/soa-mesh-layout.md` (step 1 of its sequencing asks for exactly this harness),
-`flat-array-kdtree-nodes.md` and `simd-batch-triangle-test.md`. `DONE/kdtree-leaf-packed-facets.md` needs it to choose
-between its options.
+`DONE/flat-array-kdtree-nodes.md` and `simd-batch-triangle-test.md`. `DONE/kdtree-leaf-packed-facets.md` needs it to
+choose between its options.
 
 The existing `benchmarkMeshFacet` in `sources/benchmarks/src/intersection_benchmarks.cpp` can't serve as that
 baseline:
@@ -42,7 +42,7 @@ scheduling. A few-percent change in traversal or leaf cost drowns in that noise.
 
 Only `NaiveKDTreeTraverser` is benchmarked. `VoxelizationKDTreeTraverser` is a debug view: it intersects the leaf
 boxes and never calls the leaf loop, so its "hits" are leaf boxes and its timing says nothing about facets.
-`flat-array-kdtree-nodes.md` ported it to the flat tree.
+`DONE/flat-array-kdtree-nodes.md` ported it to the flat tree.
 
 ## Implementation
 
@@ -156,8 +156,8 @@ for dragon2 any/incoherent (3.4%) use 10 runs each.
 
 - `DONE/soa-mesh-layout.md` — step 1 of its sequencing is this harness. Its 0.067s teapot baseline is out of date
   (`CLAUDE.md` now lists 0.0389s).
-- `flat-array-kdtree-nodes.md`, `DONE/simd-batch-triangle-test.md`, `DONE/kdtree-leaf-packed-facets.md` — measured
-  with this.
+- `DONE/flat-array-kdtree-nodes.md`, `DONE/simd-batch-triangle-test.md`, `DONE/kdtree-leaf-packed-facets.md` —
+  measured with this.
 - `raytracing-testability.md` (#2) — on a mesh the KD-tree path is only reachable through `loadFromOffFile`; this
   harness hits the same restriction.
 

@@ -49,6 +49,13 @@ Every vector type must implement:
 - Float 4D additionally: `rlength3`, `rlength3v`, `normalize3`, `cross3`, `mapOrthogonal`,
   `mapSpherical`
 
+## Known inconsistencies
+
+- `isNegative` of a `v_i32_4` returns its 4 lane bits repeated in all four nibbles (16 bits, from `_mm_packs_epi32`,
+  `_mm_packs_epi16` and `_mm_movemask_epi8`), while `v_f32_4`, `v_f32_8`, `v_f64_2`, `v_f64_4` and `v_i32_8` return
+  one bit per lane. Callers that mask the result with their lanes don't notice; a caller that compares or shifts the
+  raw mask does. Found 2026-11-21 by `RayCastTest::detectsOutOfReachPerLane`, which masks it.
+
 ## Scope
 
 - Audit each mid-tier type against these lists
