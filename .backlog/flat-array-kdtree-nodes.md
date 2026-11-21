@@ -36,7 +36,8 @@ Large structural refactor touching:
   per-node branches rather than memory, so prefetching is unlikely to help; wide nodes (several child boxes per SIMD
   test) would cut the node visits and their branches.
 - Not attempted: a node step with fewer data-dependent branches (incoherent rays cost about 3 times as much per node
-  as coherent ones, see below).
+  as coherent ones, see below). Mind the trade-off measured below: a branchless select on the path to the next node
+  makes every node visit wait for the previous box test, which coherent rays pay for.
 
 ## Measurements (2026-11-21, on top of `845d7f2`)
 
@@ -65,6 +66,35 @@ replay came to 96-102% of the traced time, and every chunk ended on the expected
   descended into child A first, and a deferred child is popped without testing its box against the ray shortened by a
   hit in the meantime. Leaf calls on such a shortened ray that find no nearer hit, per ray: teapot 0.122 of 0.90
   (coherent) and 0.476 of 1.40 (incoherent), dragon2 0.107 of 0.51 and 0.293 of 0.69.
+
+### Branchless selects (2026-11-21, on top of `00ebdc1`)
+
+MSVC compiled three selects of the last changes into conditional jumps: the child order in `NaiveKDTreeTraverser`
+(two jumps), the back-face culling mask in `Mesh.cpp`'s `testBlock` and the origin's lane bit in `candidateLanes`. All
+three were rewritten with masks (an XOR select for the child links), which the listings confirmed branch-free. Eight
+alternating runs each against `2497174`, median "best" in core cycles per ray:
+
+| Mesh    | Query   | Rays       | Before | All branchless | Change | Faster | Leaf code only | Change | Faster |
+|---------|---------|------------|-------:|---------------:|-------:|-------:|---------------:|-------:|-------:|
+| teapot  | nearest | coherent   |  335.0 |          360.8 |   7.7% |    0/8 |          328.9 |  -0.1% |    4/8 |
+| teapot  | any     | coherent   |  282.4 |          278.1 |  -1.5% |    5/8 |          280.1 |  -1.8% |    5/8 |
+| teapot  | nearest | incoherent |  866.9 |          833.0 |  -3.9% |    8/8 |          855.0 |  -1.1% |    5/8 |
+| teapot  | any     | incoherent |  669.3 |          651.8 |  -2.6% |    6/8 |          656.7 |  -2.8% |    7/8 |
+| dragon2 | nearest | coherent   |  372.5 |          393.6 |   5.7% |    1/8 |          368.1 |  -0.2% |    3/8 |
+| dragon2 | any     | coherent   |  320.7 |          314.2 |  -2.0% |    6/8 |          320.0 |  -0.2% |    4/8 |
+| dragon2 | nearest | incoherent |  718.5 |          702.5 |  -2.2% |    7/8 |          713.3 |   0.9% |    4/8 |
+| dragon2 | any     | incoherent |  638.6 |          637.2 |  -0.2% |    4/8 |          635.3 |   1.9% |    2/8 |
+
+("Leaf code only" ran in its own session; its "Before" medians differ by up to 2% from the column shown.)
+
+- The branchless child order makes coherent nearest rays 6-8% slower and incoherent ones 2-4% faster. With a branch,
+  the CPU predicts the next node and loads its boxes before the current box test is done; with the select, the next
+  node's address depends on that test, so node visits serialize. Coherent rays predict well, so they lose that
+  overlap; primary rays are coherent nearest queries, so the branch stays (now one `if`/`else`, one jump, with a
+  comment saying why; `3ab28db`).
+- The two leaf-code branches were predictable (per ray and mostly "no origin"): branchless is neutral there, and kept
+  (`3ab28db`).
+- Final state against `2497174`, six alternating runs: -4.4% to 1.9%, hits and checksums identical.
 
 ## Key files
 
