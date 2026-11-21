@@ -316,7 +316,8 @@ namespace raytracer::test {
     TEST_METHOD(leafBlocksMatchNodeLoop) {
       // A span inside the KD-tree's leafGeometry takes the packed block path, a copy of the same node pointers the
       // single-facet loop. Every sub-range of the cube's single leaf (12 facets: ranges start and end mid-block),
-      // each culling mode and each facet of the range as the origin must give the same distance and facet.
+      // each culling mode and each facet of the range as the origin must give the same facet; the distances may
+      // differ in the last bits, as the block path's dot products are FMA chains and dotv / dot3v aren't.
       auto mesh = makeCubeMesh();
       mesh->setTreeBalancer(std::make_unique<MedianKDTreeBalancer>());
       const auto& leafGeometry = mesh->getGraph()->leafGeometry;
@@ -338,6 +339,8 @@ namespace raytracer::test {
         rays.emplace_back(inside, normalize3(direction));
       }
 
+      // relative to distances of up to about 6
+      constexpr auto DistanceTolerance = 1e-5f;
       auto hits = 0;
       for (const auto culling : {-1, 0, 1}) {
         for (const auto& ray : rays) {
@@ -356,7 +359,10 @@ namespace raytracer::test {
                 auto nodeHit = FacetIntersection{};
                 const auto blockDistance = mesh->findNearestIntersection(blocks, rayCast, originPointer, blockHit);
                 const auto nodeDistance = mesh->findNearestIntersection(nodes, rayCast, originPointer, nodeHit);
-                Assert::AreEqual(nodeDistance, blockDistance, L"nearest distance", LINE_INFO());
+                Assert::AreEqual(nodeDistance, blockDistance, DistanceTolerance, L"nearest distance", LINE_INFO());
+                Assert::AreEqual(
+                    nodeDistance < rayCast.maxDistance, blockDistance < rayCast.maxDistance, L"nearest hit", LINE_INFO()
+                );
                 if (nodeDistance < rayCast.maxDistance) {
                   Assert::IsTrue(nodeHit.node == blockHit.node, L"nearest facet", LINE_INFO());
                   ++hits;
@@ -366,7 +372,13 @@ namespace raytracer::test {
                 auto nodeAny = FacetIntersection{};
                 const auto blockAnyDistance = mesh->findAnyIntersection(blocks, rayCast, originPointer, blockAny);
                 const auto nodeAnyDistance = mesh->findAnyIntersection(nodes, rayCast, originPointer, nodeAny);
-                Assert::AreEqual(nodeAnyDistance, blockAnyDistance, L"any-hit distance", LINE_INFO());
+                Assert::AreEqual(
+                    nodeAnyDistance, blockAnyDistance, DistanceTolerance, L"any-hit distance", LINE_INFO()
+                );
+                Assert::AreEqual(
+                    nodeAnyDistance < rayCast.maxDistance, blockAnyDistance < rayCast.maxDistance, L"any hit",
+                    LINE_INFO()
+                );
                 if (nodeAnyDistance < rayCast.maxDistance) {
                   Assert::IsTrue(nodeAny.node == blockAny.node, L"any-hit facet", LINE_INFO());
                 }

@@ -129,33 +129,34 @@ namespace raytracer
       return static_cast<bool>(culledBack | culledFront);
     }
 
-    // The ray's components, each broadcast to all lanes.
+    // The ray's components, each broadcast to all lanes (a Float4 broadcast fills both halves of a Float8).
     struct RayLanes
     {
       std::array<FacetLanes, 4> origin, direction;
 
       explicit RayLanes(const Ray& ray) noexcept
         : origin{
-            FacetLanes{x(ray.origin)}, FacetLanes{y(ray.origin)}, FacetLanes{z(ray.origin)}, FacetLanes{w(ray.origin)}
+            FacetLanes{xxxx(ray.origin)}, FacetLanes{yyyy(ray.origin)}, FacetLanes{zzzz(ray.origin)},
+            FacetLanes{wwww(ray.origin)}
           },
           direction{
-            FacetLanes{x(ray.direction)}, FacetLanes{y(ray.direction)}, FacetLanes{z(ray.direction)},
-            FacetLanes{w(ray.direction)}
+            FacetLanes{xxxx(ray.direction)}, FacetLanes{yyyy(ray.direction)}, FacetLanes{zzzz(ray.direction)},
+            FacetLanes{wwww(ray.direction)}
           }
       {
       }
     };
 
-    // Lane-wise dot products, summed like _mm_dp_ps in dotv / dot3v: (p0 + p1) + (p2 + p3), with p3 = +0 for the
-    // 3-component product. So every lane gets exactly the single-facet test's values.
-    FacetLanes dotLanes(const std::array<FacetLanes, 4>& a, const std::array<FacetLanes, 4>& b) noexcept
-    {
-      return (a[0] * b[0] + a[1] * b[1]) + (a[2] * b[2] + a[3] * b[3]);
-    }
-
+    // Lane-wise dot products as explicit FMA chains, so no compiler setting can fuse or reorder them differently.
+    // They round differently from dotv / dot3v (_mm_dp_ps, no FMA) in the last bits.
     FacetLanes dot3Lanes(const std::array<FacetLanes, 4>& a, const std::array<FacetLanes, 4>& b) noexcept
     {
-      return (a[0] * b[0] + a[1] * b[1]) + (a[2] * b[2] + Zero<FacetLanes>());
+      return multiplyAdd(a[2], b[2], multiplyAdd(a[1], b[1], a[0] * b[0]));
+    }
+
+    FacetLanes dotLanes(const std::array<FacetLanes, 4>& a, const std::array<FacetLanes, 4>& b) noexcept
+    {
+      return multiplyAdd(a[3], b[3], dot3Lanes(a, b));
     }
 
     struct BlockTest
@@ -165,7 +166,7 @@ namespace raytracer
       unsigned hits;
     };
 
-    // nearestIntersectionHavel for the facets of a block at once: the same operations in the same order, lane-wise
+    // nearestIntersectionHavel for the facets of a block at once: the same steps lane-wise, with FMA dot products
     BlockTest testBlock(
       const FacetNormalsBlock& block, const RayLanes& ray, const FacetLanes& maxDistance, const unsigned candidates,
       const bool cullBack, const bool cullFront
@@ -231,7 +232,7 @@ namespace raytracer
       for (auto first = begin / BlockWidth * BlockWidth; first < end; first += BlockWidth)
       {
         const auto test = testBlock(
-          blocks[first / BlockWidth], ray, FacetLanes{z(nearestTexCoordsAndDistance)},
+          blocks[first / BlockWidth], ray, FacetLanes{zzzz(nearestTexCoordsAndDistance)},
           candidateLanes(first, begin, end, originEntry), cullBack, cullFront
         );
         for (auto hits = test.hits; hits != 0; hits &= hits - 1)
