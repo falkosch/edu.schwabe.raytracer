@@ -94,11 +94,11 @@ namespace raytracer
     return true;
   }
 
-  MeshGeometryNode::MeshGeometryNode() : index(), facet()
+  MeshGeometryNode::MeshGeometryNode() : index(), facet(nullptr)
   {
   }
 
-  MeshGeometryNode::MeshGeometryNode(const ASizeT index, const Facet& facet) : index(index), facet(facet)
+  MeshGeometryNode::MeshGeometryNode(const ASizeT index, const Facet& facet) : index(index), facet(&facet)
   {
   }
 
@@ -106,12 +106,12 @@ namespace raytracer
 
   AxisAlignedBoundingBox MeshGeometryNode::includeInBounding(const AxisAlignedBoundingBox& aabb) const
   {
-    return extendBy(extendBy(extendBy(aabb, facet.v0), facet.v1), facet.v2);
+    return extendBy(extendBy(extendBy(aabb, facet->v0), facet->v1), facet->v2);
   }
 
   bool MeshGeometryNode::overlaps(const AxisAlignedBoundingBox& aabb) const
   {
-    return triBoxOverlap(aabb, facet);
+    return triBoxOverlap(aabb, *facet);
   }
 
   // Intersectable<RayCast, FacetIntersection> interface

@@ -11,7 +11,8 @@ namespace raytracer {
   struct MeshGeometryNode : GeometryNode {
     ASizeT index;
 
-    Facet facet;
+    // the facet in Mesh::facets, which the mesh doesn't resize while its nodes exist
+    const Facet *facet;
 
     MeshGeometryNode();
 
