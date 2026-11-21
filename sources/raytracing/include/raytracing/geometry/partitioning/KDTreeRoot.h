@@ -1,35 +1,16 @@
 #pragma once
 
 #include "GeometryNode.h"
+#include "KDTreeChildBoundings.h"
+#include "KDTreeChildLinks.h"
+#include "KDTreeLeaf.h"
+#include "KDTreeLink.h"
 
-#include <cstdint>
 #include <vector>
 
 namespace raytracer
 {
     using namespace primitives;
-
-    // Reference to a node of the flat KD-tree: the index of an inner node, or the index of a leaf with
-    // KDTreeRoot::LeafFlag set.
-    using KDTreeLink = std::uint32_t;
-
-    // The boundings of both children of an inner node, tested together by the traversal. In single precision that is
-    // 64 bytes, one cache line.
-    struct alignas(64) KDTreeChildBoundings
-    {
-        AxisAlignedBoundingBox boundingA, boundingB;
-    };
-
-    struct KDTreeChildLinks
-    {
-        KDTreeLink childA, childB;
-    };
-
-    // A leaf's range in KDTreeRoot::leafGeometry.
-    struct KDTreeLeaf
-    {
-        std::uint32_t offset, count;
-    };
 
     // KD-tree in flat arrays. Inner nodes are stored depth-first (child A right after its parent), children and leaves
     // are referenced by index. Built by KDTreeBalancer::build().

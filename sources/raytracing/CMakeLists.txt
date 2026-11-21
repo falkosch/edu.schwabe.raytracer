@@ -125,6 +125,10 @@ set(HEADERS
         include/raytracing/geometry/partitioning/KDTreeBalancer.h
         include/raytracing/geometry/partitioning/KDTreeBounding.h
         include/raytracing/geometry/partitioning/KDTreeBuildParameters.h
+        include/raytracing/geometry/partitioning/KDTreeChildBoundings.h
+        include/raytracing/geometry/partitioning/KDTreeChildLinks.h
+        include/raytracing/geometry/partitioning/KDTreeLeaf.h
+        include/raytracing/geometry/partitioning/KDTreeLink.h
         include/raytracing/geometry/partitioning/KDTreeNode.h
         include/raytracing/geometry/partitioning/KDTreeNodeChildren.h
         include/raytracing/geometry/partitioning/KDTreePlane.h

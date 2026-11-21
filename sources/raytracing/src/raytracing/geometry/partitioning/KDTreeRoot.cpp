@@ -5,11 +5,6 @@
 
 namespace raytracer
 {
-    static_assert(
-        sizeof(KDTreeChildBoundings) == 2 * sizeof(AxisAlignedBoundingBox),
-        "both child boundings must fill KDTreeChildBoundings without padding"
-    );
-
     KDTreeRoot::KDTreeRoot()
         : rootBounding(), rootLink(LeafFlag), childBoundings(), childLinks(), leaves(), leafGeometry(), treeDepth()
     {
