@@ -173,7 +173,9 @@ namespace raytracer
     {
       const auto determinant = dot3Lanes(block.v0, ray.direction);
       const auto frontfaced = static_cast<unsigned>(isNegative(determinant));
-      const auto culledLanes = (cullBack ? ~frontfaced & AllLanes : 0u) | (cullFront ? frontfaced : 0u);
+      // masks instead of selects, so the compiler doesn't branch
+      const auto culledLanes = (~frontfaced & AllLanes & (0u - static_cast<unsigned>(cullBack))) |
+        (frontfaced & (0u - static_cast<unsigned>(cullFront)));
 
       const auto detT = -dotLanes(block.v0, ray.origin);
       const auto checkT = multiplySub(determinant, maxDistance, detT);
@@ -200,12 +202,11 @@ namespace raytracer
     {
       const auto low = begin > first ? begin - first : ASizeT{0};
       const auto high = std::min(end - first, BlockWidth);
-      auto lanes = ((1u << high) - 1u) & ~((1u << low) - 1u);
-      if (originEntry - first < BlockWidth)
-      {
-        lanes &= ~(1u << (originEntry - first));
-      }
-      return lanes;
+      const auto lanes = ((1u << high) - 1u) & ~((1u << low) - 1u);
+      // the origin's lane bit, or 0 if the origin isn't in this block (no branch)
+      const auto originLane = originEntry - first;
+      const auto originBit = static_cast<unsigned>(originLane < BlockWidth) << (originLane & (BlockWidth - 1));
+      return lanes & ~originBit;
     }
 
     // { u, v, distance, distance } of a lane, as nearestIntersectionHavel returns it

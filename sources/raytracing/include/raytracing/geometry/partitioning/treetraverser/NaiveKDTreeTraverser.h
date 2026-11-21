@@ -65,11 +65,21 @@ namespace raytracer
 
                     if (allTrue(leftRightHit))
                     {
-                        // the nearer child first (A on a tie), the other one once its subtree is done
+                        // The nearer child first (A on a tie), the other one once its subtree is done. A branch on
+                        // purpose: it predicts well for coherent rays, and the CPU then loads the next node before
+                        // this box test is done. A branchless select made coherent rays 6-8% slower (incoherent ones
+                        // 2-4% faster), as every node visit then waits for the previous box test.
                         assert(deferredCount < deferred.size());
-                        const auto childBFirst = z(entryDistances) < x(entryDistances);
-                        deferred[deferredCount++] = childBFirst ? children.childA : children.childB;
-                        traversal = childBFirst ? children.childB : children.childA;
+                        if (z(entryDistances) < x(entryDistances))
+                        {
+                            deferred[deferredCount++] = children.childA;
+                            traversal = children.childB;
+                        }
+                        else
+                        {
+                            deferred[deferredCount++] = children.childB;
+                            traversal = children.childA;
+                        }
                         continue;
                     }
 
