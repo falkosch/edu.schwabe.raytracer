@@ -110,7 +110,7 @@ Five alternating runs each of the before and after binary in one session, median
 CV per variant was 0.1-3.2%, so the standard error of a change is about 1%. The gain is where traversal misses the
 caches (dragon2, incoherent rays, -5%); on teapot and coherent rays the change is within ±2.5%, and teapot
 nearest/coherent got slightly slower. Per ray, traversal visits 8-21 nodes but the leaf loop tests 34-62 facets, so
-the leaf loop (`simd-batch-triangle-test.md`) likely dominates (not profiled).
+the leaf loop (`DONE/simd-batch-triangle-test.md`) likely dominates (not profiled).
 
 Three-way comparison in a later session, 5 alternating runs each, median of "best" in core cycles per ray:
 

@@ -1,6 +1,4 @@
-# SIMD batch triangle intersection test (done parts)
-
-Carved out of `.backlog/simd-batch-triangle-test.md`. Moving the block test into `primitives` stays open there.
+# SIMD batch triangle intersection test
 
 ## Motivation
 
@@ -91,8 +89,66 @@ changes. The block path is no longer bit-identical to `nearestIntersectionHavel`
 - `MeshTest::leafBlocksMatchNodeLoop` now compares distances with a tolerance (1e-5) and still requires the same hit
   and facet.
 
+## Block test in `primitives`
+
+- The block test lives in `Mesh.cpp`; the key files below name `primitives/Facet.h` as its home. Move it there if
+  another form needs it.
+
+### Baseline: 8-wide blocks (`9e23c9b`)
+
+Mesh benchmark, 10 alternating runs each in one session, median "best" in core cycles per ray; a move must not
+regress the "8 lanes" column (re-measure it in the same session):
+
+| Mesh    | Query   | Rays       | 4 lanes | 8 lanes | Change | 8 faster |
+|---------|---------|------------|--------:|--------:|-------:|---------:|
+| teapot  | nearest | coherent   |   366.8 |   320.5 | -12.6% |    10/10 |
+| teapot  | any     | coherent   |   305.2 |   275.8 |  -9.6% |    10/10 |
+| teapot  | nearest | incoherent |   995.1 |   931.4 |  -6.4% |    10/10 |
+| teapot  | any     | incoherent |   676.2 |   659.3 |  -2.5% |     8/10 |
+| dragon2 | nearest | coherent   |   403.8 |   373.0 |  -7.6% |    10/10 |
+| dragon2 | any     | coherent   |   337.9 |   321.4 |  -4.9% |    10/10 |
+| dragon2 | nearest | incoherent |   988.7 |   981.0 |  -0.8% |     5/10 |
+| dragon2 | any     | incoherent |   686.1 |   681.0 |  -0.8% |     3/10 |
+
+### Resolution
+
+No other form needs it yet; it moved anyway, with one type per file instead of into `Facet.h`: `FacetLanes` (the lane
+alias, `Float8`), `FacetNormalsBlock` with `intersectionsHavel` (formerly `testBlock`), `FacetBlockRay` (formerly
+`RayLanes`) and `FacetBlockTest` with `texCoordsAndDistance`. The leaf-entry logic (candidate lanes, the nearest and
+any-hit loops over a leaf's blocks, the packing) stays in `Mesh.cpp`.
+
+- Results unchanged: hits, facet index sums and distance sums of all eight benchmark queries are identical, and
+  `MeshTest::leafBlocksMatchNodeLoop` passes.
+- New primitives tests (`FacetNormalsBlock_test.cpp`, `FacetBlockRay_test.cpp`, `FacetBlockTest_test.cpp`) check each
+  lane against `nearestIntersectionHavel` plus the mesh's culling, with rays that cross the facets clear of their
+  edges, and cover the candidate mask, `maxDistance`, facets behind the origin and the per-lane `{ u, v, distance }`.
+- Mesh benchmark against the previous build (`cc5f1ca`, its "8 lanes" code re-measured in the same session), 10
+  alternating runs each, median "best" in core cycles per ray. The machine ran faster than for the baseline above, so
+  compare within this table only:
+
+| Mesh    | Query   | Rays       | Mesh.cpp | primitives | Change | primitives faster |
+|---------|---------|------------|---------:|-----------:|-------:|------------------:|
+| teapot  | nearest | coherent   |    238.2 |      237.1 |  -0.5% |              6/10 |
+| teapot  | any     | coherent   |    208.3 |      205.7 |  -1.3% |              6/10 |
+| teapot  | nearest | incoherent |    600.5 |      601.2 |  +0.1% |              5/10 |
+| teapot  | any     | incoherent |    435.4 |      432.8 |  -0.6% |              8/10 |
+| dragon2 | nearest | coherent   |    257.2 |      256.4 |  -0.3% |              7/10 |
+| dragon2 | any     | coherent   |    215.7 |      214.6 |  -0.5% |              6/10 |
+| dragon2 | nearest | incoherent |    530.8 |      535.8 |  +1.0% |              4/10 |
+| dragon2 | any     | incoherent |    419.4 |      419.7 |  +0.1% |              4/10 |
+
+- Neutral (-1.3% to +1.0%, wins split): the call across the library boundary costs nothing measurable under LTCG.
+- Not built with clang-cl (`clang-release`), and no Cornell box image comparison was run.
+
+## Key files
+
+- `sources/raytracing/src/raytracing/geometry/forms/meshes/Mesh.cpp` (leaf intersection loops)
+- `sources/raytracing/include/raytracing/geometry/Facet.h` (intersection functions)
+- `sources/primitives/include/primitives/Facet.h` (Facet data type)
+
 ## Commits
 
 - `5c8a256` perf(raytracing): test mesh leaves in 4-wide facet blocks
 - `9e23c9b` perf(raytracing): test mesh leaves in 8-wide facet blocks
 - `32cf1df` fix(raytracing): use explicit broadcasts and FMA in the mesh block test
+- `a7d2c29` refactor(primitives): move the mesh block test into primitives

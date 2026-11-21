@@ -4,8 +4,8 @@
 
 Three open items need a stable before/after measurement of the mesh hot path (KD-tree traversal plus the leaf
 intersection loop): `DONE/soa-mesh-layout.md` (step 1 of its sequencing asks for exactly this harness),
-`DONE/flat-array-kdtree-nodes.md` and `simd-batch-triangle-test.md`. `DONE/kdtree-leaf-packed-facets.md` needs it to
-choose between its options.
+`DONE/flat-array-kdtree-nodes.md` and `DONE/simd-batch-triangle-test.md`. `DONE/kdtree-leaf-packed-facets.md` needs
+it to choose between its options.
 
 The existing `benchmarkMeshFacet` in `sources/benchmarks/src/intersection_benchmarks.cpp` can't serve as that
 baseline:

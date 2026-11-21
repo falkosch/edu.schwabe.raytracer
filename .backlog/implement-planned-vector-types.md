@@ -31,9 +31,9 @@ Deferred on 2026-11-21: high precision isn't built today.
 - `v_f64_8` — 8x float64, the high-precision counterpart of `v_f32_8`. The `FloatN` aliases give the component
   count, and `VECTORIZATION_HIGH_PRECISION` only switches the components to double, so `Float8` must map to
   `Float8_64` = `v_f64_8` there. Today `Float8` exists only in single precision, although the raytracing library uses
-  it (spectral code: `cmf.h`, `blackbody.h`, `illuminants.h`, `metal_ior.h`, `EmitterSPD.h`; `Mesh.h`'s
-  `FacetLanes`; the KD-tree's `KDTreeWideLanes` and primitives' `outOfReach(RayCast, Float8)`), so a high-precision
-  build can't compile.
+  it (spectral code: `cmf.h`, `blackbody.h`, `illuminants.h`, `complex_ior.h`, `metal_ior.h`, `EmitterSPD.h`; the
+  KD-tree's `KDTreeWideLanes`; primitives' `FacetLanes` of the mesh block test and `outOfReach(RayCast, Float8)`), so
+  a high-precision build can't compile.
 - 512 bits: with AVX2 that is two `PackedFloat4_256`. There is no `PackedTypes<Float_64, 8>` specialization and no
   two-register wrapper in the library yet; AVX-512 (`__m512d`) isn't targeted (`/arch:AVX2`).
 
@@ -186,5 +186,5 @@ call it **~1500–2500 LOC** including tests and boilerplate per type):
 
 ## Related backlog items
 
-- **`DONE/soa-mesh-layout.md` / `simd-batch-triangle-test.md`** — much more attractive now that `v_f32_8` exists
+- **`DONE/soa-mesh-layout.md` / `DONE/simd-batch-triangle-test.md`** — much more attractive now that `v_f32_8` exists
   (process 8 triangles per ray in one SIMD op instead of 4).

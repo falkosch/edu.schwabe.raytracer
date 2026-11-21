@@ -3,7 +3,7 @@
 ## Motivation
 
 `Mesh` stores `std::vector<Facet>` as Array-of-Structures — each `Facet` packs 3 vertices (v0, v1, v2)
-contiguously. This layout prevents SIMD batch intersection (`simd-batch-triangle-test.md`), because loading
+contiguously. This layout prevents SIMD batch intersection (`DONE/simd-batch-triangle-test.md`), because loading
 the same component (e.g. all v0.x values) across 4 triangles requires gathering from non-contiguous memory.
 
 The same concern applies to `planeNormals`, `flatNormals`, `smoothNormals`, `facetEdges`, and `texCoords` —
@@ -94,7 +94,7 @@ facets are also block-adjacent.
    Establish a stable baseline.
 2. **Prototype Path A on `planeNormals` only** (the hottest field — 3 `Float4` per facet, used in
    every Havel test). Measure SISD-path regression in isolation.
-3. **If regression < ~5%**, expand Path A to remaining fields; proceed to `simd-batch-triangle-test.md`.
+3. **If regression < ~5%**, expand Path A to remaining fields; proceed to `DONE/simd-batch-triangle-test.md`.
 4. **If regression too large**, prototype Path C (block-SoA, blocks of 4) on `planeNormals`. Same
    measurement.
 5. **If both regress unacceptably**, fall back to Path D and document that SoA is mirror-only.
@@ -235,8 +235,8 @@ Path C (block-SoA) for the hit-test data only, in KD-tree leaf order: `FacetNorm
 `KDTreeRoot::leafGeometry`'s entries, 4 per block, plus a facet index per entry (steps 1 and 2 above). The other
 per-facet arrays (`facets`, `flatNormals`, `smoothNormals`, `texCoords`, `facetEdges`) stay AoS: they are read once
 per hit, for the winning facet only. So the `Facet` / `FacetNormals` / `FacetEdges` structs stay, and no SoA wrapper
-structs or gather helpers were needed. The 4-wide test and the later 8-wide AVX blocks are in
-`DONE/simd-batch-triangle-test.md`; moving the block test into `primitives` stays open in `simd-batch-triangle-test.md`.
+structs or gather helpers were needed. The 4-wide test, the later 8-wide AVX blocks and the block test's move into
+`primitives` are in `DONE/simd-batch-triangle-test.md`.
 
 ## Key files
 
