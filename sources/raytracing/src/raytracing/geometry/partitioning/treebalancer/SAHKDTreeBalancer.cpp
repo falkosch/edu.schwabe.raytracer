@@ -121,10 +121,7 @@ namespace raytracer
                 continue;
             }
 
-            if (leftCount <= parameters.maxNodesSize || rightCount <= parameters.maxNodesSize)
-            {
-                continue;
-            }
+            // children of up to maxNodesSize geometry nodes are fine: they become leaves
 
             const auto leftSplitBB = AxisAlignedBoundingBox(
                 parentBounding.minimum, replaceComponent(parentBounding.maximum, splitCoord, axis)

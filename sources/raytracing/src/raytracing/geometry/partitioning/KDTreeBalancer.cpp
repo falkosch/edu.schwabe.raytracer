@@ -69,20 +69,13 @@ namespace raytracer
     }
 
     bool KDTreeBalancer::isTerminalPostCheck(
-        const KDTreeBuildParameters& parameters, const ASizeT treeDepth, const AxisAlignedBoundingBox& parentBounding,
+        const KDTreeBuildParameters& parameters, const AxisAlignedBoundingBox& parentBounding,
         const PGeometryNodeList& geometry, const AxisAlignedBoundingBox& leftBounding,
         const AxisAlignedBoundingBox& rightBounding, const PGeometryNodeList& leftGeometry,
         const PGeometryNodeList& rightGeometry
     )
     {
-        if (isTerminal(parameters, treeDepth, leftBounding, leftGeometry))
-        {
-            return true;
-        }
-        if (isTerminal(parameters, treeDepth, rightBounding, rightGeometry))
-        {
-            return true;
-        }
+        // Children small enough to be leaves don't prevent the split: maxNodesSize is the maximum leaf size.
         return calculateLeafCost(parameters, geometry)
             <= calculateSplitCost(parameters, parentBounding, leftBounding, rightBounding, leftGeometry, rightGeometry);
     }
@@ -157,8 +150,7 @@ namespace raytracer
         // post-check the termination-conditions again
         const ASizeT treeDepthNext = treeDepth + One<ASizeT>();
         if (isTerminalPostCheck(
-            parameters, treeDepthNext, parentBounding, parentGeometry, leftBounding, rightBounding, *leftGeometry,
-            *rightGeometry
+            parameters, parentBounding, parentGeometry, leftBounding, rightBounding, *leftGeometry, *rightGeometry
         ))
         {
             return;

@@ -40,8 +40,9 @@ namespace raytracer
             const PGeometryNodeList& geometry
         );
 
+        // true if keeping the node as a leaf is at most as expensive as the split
         static bool isTerminalPostCheck(
-            const KDTreeBuildParameters& parameters, ASizeT treeDepth, const AxisAlignedBoundingBox& bounding,
+            const KDTreeBuildParameters& parameters, const AxisAlignedBoundingBox& bounding,
             const PGeometryNodeList& geometry, const AxisAlignedBoundingBox& leftBounding,
             const AxisAlignedBoundingBox& rightBounding, const PGeometryNodeList& leftGeometry,
             const PGeometryNodeList& rightGeometry

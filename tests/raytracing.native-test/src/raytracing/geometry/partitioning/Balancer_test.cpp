@@ -1,6 +1,7 @@
 #include "raytracing_tests.h"
 
 #include "raytracing/geometry/partitioning/treebalancer/ArithmeticMeanKDTreeBalancer.h"
+#include "raytracing/geometry/partitioning/treebalancer/BruteForceSAHKDTreeBalancer.h"
 #include "raytracing/geometry/partitioning/treebalancer/MaxAxisKDTreeBalancer.h"
 #include "raytracing/geometry/partitioning/treebalancer/MedianKDTreeBalancer.h"
 
@@ -104,6 +105,20 @@ namespace raytracer::test {
 
       const auto totalLeafEntries = countLeafGeometry(*root, root->rootLink);
       Assert::IsTrue(totalLeafEntries >= ASizeT{32}, L"every input must reach at least one leaf", LINE_INFO());
+    }
+
+    TEST_METHOD(sahLeavesHoldAtMostMaxNodesSize) {
+      // maxNodesSize (16) is the maximum leaf size: 64 separate boxes split down to leaves of at most 16, children
+      // small enough to be leaves don't stop the split.
+      const auto balancer = BruteForceSAHKDTreeBalancer{};
+      auto storage = manyBoxesAlongX(64);
+
+      auto root = balancer.build(storage.nodes);
+      Assert::IsNotNull(root.get(), L"tree should exist", LINE_INFO());
+      Assert::IsTrue(countLeafGeometry(*root, root->rootLink) >= ASizeT{64}, L"all boxes in leaves", LINE_INFO());
+      for (const auto &leaf : root->leaves) {
+        Assert::IsTrue(leaf.count <= 16u, L"no leaf above maxNodesSize", LINE_INFO());
+      }
     }
 
     TEST_METHOD(samePositionPrimitivesTerminateAsLeaf) {
