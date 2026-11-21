@@ -18,8 +18,8 @@ These two issues are tightly coupled: converting to flat-array nodes and an expl
 same time gives the biggest win and avoids touching the same code twice.
 
 The flat-array layout, the explicit stack and a traversal fix found on the way are done, the index-based build was
-measured and dropped, and nearest queries take the nearer child first; see `DONE/flat-array-kdtree-nodes.md`. The
-open points below remain.
+measured and dropped, nearest queries take the nearer child first, and meshes traverse four-wide nodes; see
+`DONE/flat-array-kdtree-nodes.md`. The open points below remain.
 
 ## Scope
 
@@ -32,16 +32,17 @@ Large structural refactor touching:
 
 ## Open points
 
-- Not attempted: SIMD-friendly bounding layout across several nodes, prefetching. The measurements below point at
-  per-node branches rather than memory, so prefetching is unlikely to help; wide nodes (several child boxes per SIMD
-  test) would cut the node visits and their branches.
+- Eight-wide nodes with AVX (`Float8`, three levels per node), and wide nodes for the scene tree (a single leaf in
+  the Cornell box today). The four-wide nodes are done, see `DONE/flat-array-kdtree-nodes.md`.
+- Not attempted: prefetching. The measurements below point at per-node branches rather than memory, so it is unlikely
+  to help.
 - Not attempted: a node step with fewer data-dependent branches (incoherent rays cost about 3 times as much per node
   as coherent ones, see below). Mind the trade-off measured below: a branchless select on the path to the next node
   makes every node visit wait for the previous box test, which coherent rays pay for.
 
 ## Measurements (2026-11-21, on top of `845d7f2`)
 
-### Traversal share per ray
+### Traversal share per ray (binary traversal, before the wide nodes)
 
 The leaf-share probe (see `DONE/soa-mesh-layout.md`) got a traversal replay: the traverser runs with a leaf callback
 that returns the recorded leaf results in order, so it takes the same path without leaf work. Traversal plus leaf

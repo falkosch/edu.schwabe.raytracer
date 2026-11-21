@@ -72,7 +72,27 @@ The block code takes its lane type from one alias, `FacetLanes = Float8` in `Mes
 - Cornell box, first frame, five alternating runs each: median 46.1 → 44.7 ms, inconclusive (single frames ranged
   36-56 ms in this session).
 
+## Explicit FMA dot products (2026-11-21)
+
+A search for hand-written dot products that mirror `dot3v` / `dotv` found that the block test's lane dot products
+matched the single-facet test only as written. The compilers rewrite them (checked in a two-file LTCG / ThinLTO model
+with the project flags):
+
+- MSVC `/fp:fast` drops the `+ 0` that stood for `_mm_dp_ps`'s masked w term, so a zero determinant could come out as
+  -0; without `/d2SSAOptimizer-` it also fuses the products into FMAs.
+- clang-cl (`-ffp-contract=fast -fassociative-math -fno-signed-zeros`) fuses and reorders them.
+
+So `dotLanes` / `dot3Lanes` are now explicit `multiplyAdd` chains (`Float8` has them), which no compiler setting
+changes. The block path is no longer bit-identical to `nearestIntersectionHavel` (`_mm_dp_ps`, no FMA):
+
+- Mesh benchmark: dragon2 coherent has one more hit (69838; facet 63095 at distance 7.874, a ray grazing an edge);
+  everything else is unchanged. Timing -1.7% to 1.9% against the previous build, five alternating runs.
+- Cornell box: same ray counts; 2 of 262144 pixels differ by 1 level in one channel.
+- `MeshTest::leafBlocksMatchNodeLoop` now compares distances with a tolerance (1e-5) and still requires the same hit
+  and facet.
+
 ## Commits
 
 - `5c8a256` perf(raytracing): test mesh leaves in 4-wide facet blocks
 - `9e23c9b` perf(raytracing): test mesh leaves in 8-wide facet blocks
+- `32cf1df` fix(raytracing): use explicit broadcasts and FMA in the mesh block test

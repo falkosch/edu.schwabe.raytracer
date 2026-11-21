@@ -1,7 +1,7 @@
 # Flat-array compact KD-tree with iterative traversal (done parts)
 
-Carved out of `.backlog/flat-array-kdtree-nodes.md`. A SIMD-friendly bounding layout, a branch-light node step and
-prefetching stay open there.
+Carved out of `.backlog/flat-array-kdtree-nodes.md`. Eight-wide nodes, wide nodes for the scene tree, a branch-light
+node step and prefetching stay open there.
 
 ## Flat-array node layout
 
@@ -173,8 +173,59 @@ probe build):
   secondary rays per frame), and its scene tree (9 objects) is a single leaf, so the image doesn't exercise the new
   order outside the teapot's tree; the unit test covers the generic path.
 
+## Four-wide nodes (2026-11-21)
+
+`KDTreeBalancer::build()` collapses the flat binary tree into `KDTreeRoot::wideNodes`: a `KDTreeWideNode` holds the
+children of an inner node's children (2 to 4 lanes; a leaf child takes one lane), boxes component-wise in 6 `Float4`,
+links to wide nodes or to the binary tree's leaves, and a mask of the used lanes (128 bytes). `overlappedLanes` is the
+two-box `overlaps` lane-wise, with the same operations and operand order, so it decides like the binary traversal,
+NaN cases included. `WideKDTreeTraverser` runs on it; `Resources::getMesh` and the mesh benchmark use it, while the
+scene tree, the voxelization view and the existing tests keep the binary layout.
+
+- Any-hit takes the hit lanes in lane order, depth-first. Child boxes lie inside their parent's, so it calls exactly
+  the binary traversal's leaves in the same order: leaf calls and facets per ray were identical.
+- Nearest goes into the hit lane with the smallest entry distance (lane order on a tie) and defers the others sorted,
+  each with its entry distance; a popped child whose entry lies beyond the hit found in the meantime is dropped with
+  one compare. Leaf calls match the binary "order + re-test" variant above (teapot 0.83 / 1.09, dragon2 0.46 / 0.38 per
+  ray), hits, distance sums and facet index sums are identical.
+- Nodes per ray drop to 0.55-0.60 of the binary traversal's (teapot nearest coherent 8.73 → 4.78).
+- Memory: 179 wide nodes for teapot (23 KB), 15816 for dragon2 (2.0 MB), next to the binary arrays. Build time: the
+  collapse runs for every tree (no balancer overrides `build()`); dragon2 median 3.72 G → 3.76 G TSC cycles (+1%).
+- For meshes, `kdTreeNodesVisited` and the benchmark's "KD-tree nodes" per ray now count wide nodes.
+- `TraverserTest::wideTraverserMatchesNaive` compares both traversers on random box trees from two balancers
+  (single-leaf root, 2-, 3- and 4-lane nodes) with random, aimed and axis-parallel rays, NaN slabs included. Swapping
+  the lane order or dropping a lane makes it fail.
+
+Built in two stages, any-hit first (gate: about 10% or more and no row slower beyond noise). Six alternating runs each
+against `3ab28db`, median "best" in core cycles per ray:
+
+| Mesh    | Query   | Rays       | Before | Wide any-hit | Change | Faster | Before | Wide both | Change | Faster |
+|---------|---------|------------|-------:|-------------:|-------:|-------:|-------:|----------:|-------:|-------:|
+| teapot  | nearest | coherent   |  333.5 |        330.5 |  -0.9% |    2/6 |  332.6 |     261.1 | -21.5% |    6/6 |
+| teapot  | any     | coherent   |  291.8 |        249.5 | -14.5% |    6/6 |  293.8 |     254.2 | -13.4% |    6/6 |
+| teapot  | nearest | incoherent |  889.5 |        894.8 |   0.6% |    2/6 |  896.5 |     734.9 | -18.0% |    6/6 |
+| teapot  | any     | incoherent |  650.4 |        537.3 | -17.4% |    6/6 |  661.7 |     558.4 | -15.6% |    6/6 |
+| dragon2 | nearest | coherent   |  368.5 |        370.7 |   0.6% |    2/6 |  369.9 |     289.9 | -21.6% |    6/6 |
+| dragon2 | any     | coherent   |  324.2 |        257.6 | -20.6% |    6/6 |  323.1 |     262.2 | -18.8% |    6/6 |
+| dragon2 | nearest | incoherent |  716.6 |        714.1 |  -0.4% |    3/6 |  714.6 |     580.2 | -18.8% |    6/6 |
+| dragon2 | any     | incoherent |  630.1 |        500.6 | -20.6% |    6/6 |  631.8 |     508.9 | -19.5% |    6/6 |
+
+(The two stages ran in separate sessions, each against its own "Before".)
+
+Cornell box, first frame, 15 alternating pairs against the `2497174` build: median 42.8 → 39.3 ms, faster in 10 of 15
+pairs, single frames 29-55 ms, so unchanged within noise (the meshes are a small part of that frame); image
+byte-identical in all runs.
+
+### Resolution
+
+Implemented as described; the helper types of `KDTreeRoot.h` (`KDTreeLink`, `KDTreeChildBoundings`,
+`KDTreeChildLinks`, `KDTreeLeaf`) moved into their own headers first, and the wide types got their own files
+(`KDTreeWideNode`, `KDTreeWideRay`).
+
 ## Commits
 
 - `e65a989` refactor(raytracing): store the KD-tree in flat arrays
 - `cf08b14` fix(raytracing): skip KD-tree subtrees whose child boxes the ray misses
 - `2497174` perf(raytracing): traverse the nearer KD-tree child first for nearest hits
+- `d37b52b` refactor(raytracing): move the KD-tree helper types into their own files
+- `2c388c1` perf(raytracing): traverse mesh KD-trees through four-wide nodes
