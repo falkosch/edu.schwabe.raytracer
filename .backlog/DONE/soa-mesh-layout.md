@@ -186,37 +186,41 @@ Two alternating runs each against step 1:
 
 | Mesh    | Query   | Rays       | Traced, packed | Traced, block | Change | Per test, packed | Per test, block |
 |---------|---------|------------|---------------:|--------------:|-------:|-----------------:|----------------:|
-| teapot  | nearest | coherent   |          447.6 |         352.4 | -21.3% |             29.4 |            17.5 |
-| teapot  | any     | coherent   |          331.7 |         267.6 | -19.3% |             29.4 |            16.5 |
-| teapot  | nearest | incoherent |         1383.3 |         988.8 | -28.5% |             40.5 |            15.1 |
-| teapot  | any     | incoherent |          850.4 |         624.9 | -26.5% |             37.2 |            11.8 |
-| dragon2 | nearest | coherent   |          548.9 |         383.4 | -30.2% |             57.5 |            23.0 |
-| dragon2 | any     | coherent   |          373.7 |         312.5 | -16.4% |             58.2 |            24.5 |
-| dragon2 | nearest | incoherent |         1199.6 |         953.1 | -20.5% |             60.8 |            29.0 |
-| dragon2 | any     | incoherent |          711.2 |         623.0 | -12.4% |             64.3 |            33.7 |
+| teapot  | nearest | coherent   |          447.6 |         352.4 | -21.3% |             29.4 |            21.7 |
+| teapot  | any     | coherent   |          331.7 |         267.6 | -19.3% |             29.4 |            21.3 |
+| teapot  | nearest | incoherent |         1383.3 |         988.8 | -28.5% |             40.5 |            18.4 |
+| teapot  | any     | incoherent |          850.4 |         624.9 | -26.5% |             37.2 |            15.8 |
+| dragon2 | nearest | coherent   |          548.9 |         383.4 | -30.2% |             57.5 |            28.0 |
+| dragon2 | any     | coherent   |          373.7 |         312.5 | -16.4% |             58.2 |            31.1 |
+| dragon2 | nearest | incoherent |         1199.6 |         953.1 | -20.5% |             60.8 |            35.5 |
+| dragon2 | any     | incoherent |          711.2 |         623.0 | -12.4% |             64.3 |            43.3 |
 
-"Per test" now counts executed tests of the single-facet loop; the block test runs all lanes of a block at once.
+"Per test" now counts executed tests of the single-facet loop; the block test runs all lanes of a block at once. The
+block column subtracts the single-facet build's empty replay: the block build's own one isn't a pure per-call cost,
+because a call with an empty span that starts mid-block still tests that block (corrected after the first commit of
+these notes, which subtracted it and showed 12-34 cycles).
 
 ### Total
 
-Original code (`ef841e4`, `dynamic_cast`, scattered reads) against step 2, two alternating runs each in one session:
+Original code (`ef841e4`, `dynamic_cast`, scattered reads) against step 2, two alternating runs each in one session.
+"Per test, block" subtracts the single-facet build's empty replay from the step 1/2 session, as above:
 
 | Mesh    | Query   | Rays       | Traced, original | Traced, block | Change | Per test, original | Per test, block |
 |---------|---------|------------|-----------------:|--------------:|-------:|-------------------:|----------------:|
-| teapot  | nearest | coherent   |            701.1 |         354.0 | -49.5% |               51.0 |            16.9 |
-| teapot  | any     | coherent   |            510.3 |         267.6 | -47.6% |               59.3 |            14.5 |
-| teapot  | nearest | incoherent |           1887.4 |         972.4 | -48.5% |               67.4 |            15.0 |
-| teapot  | any     | incoherent |           1090.7 |         627.8 | -42.4% |               69.7 |            12.1 |
-| dragon2 | nearest | coherent   |            768.6 |         398.7 | -48.1% |               97.0 |            23.3 |
-| dragon2 | any     | coherent   |            507.5 |         316.8 | -37.6% |              103.8 |            21.8 |
-| dragon2 | nearest | incoherent |           1762.9 |         977.8 | -44.5% |              115.9 |            27.9 |
-| dragon2 | any     | incoherent |            932.1 |         641.7 | -31.2% |              131.3 |            34.6 |
+| teapot  | nearest | coherent   |            701.1 |         354.0 | -49.5% |               51.0 |            20.6 |
+| teapot  | any     | coherent   |            510.3 |         267.6 | -47.6% |               59.3 |            19.3 |
+| teapot  | nearest | incoherent |           1887.4 |         972.4 | -48.5% |               67.4 |            18.2 |
+| teapot  | any     | incoherent |           1090.7 |         627.8 | -42.4% |               69.7 |            15.6 |
+| dragon2 | nearest | coherent   |            768.6 |         398.7 | -48.1% |               97.0 |            28.2 |
+| dragon2 | any     | coherent   |            507.5 |         316.8 | -37.6% |              103.8 |            28.1 |
+| dragon2 | nearest | incoherent |           1762.9 |         977.8 | -44.5% |              115.9 |            35.6 |
+| dragon2 | any     | incoherent |            932.1 |         641.7 | -31.2% |              131.3 |            43.3 |
 
-Outcome per test: contiguous data (step 1) saved 1-7 cycles on teapot and 2-23 on dragon2, most on incoherent rays.
-The batch test (step 2) saved 12-25 on teapot and 31-35 on dragon2, at or above the bound expected for arithmetic
-alone. So the scattered reads were not the main per-test cost. What the batch removes besides arithmetic isn't
-measured; likely candidates are the data-dependent early-exit branches of the single-facet test and the per-entry loop
-overhead.
+Outcome per test: contiguous data (step 1) saved 1-7 cycles on teapot and 2-23 on dragon2, most on incoherent rays. The
+batch test (step 2) saved 8-22 on teapot and 21-30 on dragon2, about as much as the bound expected for arithmetic alone,
+and more than contiguous data on dragon2. So the scattered reads were not the main per-test cost. What the batch removes
+besides arithmetic isn't measured; likely candidates are the data-dependent early-exit branches of the single-facet test
+and the per-entry loop overhead.
 
 Cornell box, first frame, five alternating runs each. "Old" is the leaf-size experiment build, the same code as
 `ef841e4`. Median 36.6 → 32.2 ms (-12%), best 33.6 → 31.6 ms (-6%). Single frames are noisy (old 33.6-45.5 ms, new

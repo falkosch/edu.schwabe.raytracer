@@ -1,7 +1,7 @@
 # Flat-array compact KD-tree with iterative traversal (done parts)
 
-Carved out of `.backlog/flat-array-kdtree-nodes.md`. Index-based tree building, a SIMD-friendly bounding layout
-and prefetching stay open there.
+Carved out of `.backlog/flat-array-kdtree-nodes.md`. A SIMD-friendly bounding layout, a branch-light node step and
+prefetching stay open there.
 
 ## Flat-array node layout
 
@@ -105,7 +105,76 @@ Three-way comparison in a later session, 5 alternating runs each, median of "bes
 CV of the fixed binary: 0.6-1.9%, 4.1-4.6% for dragon2 incoherent. The fix dominates; the layout alone adds about
 -7% to -9% on dragon2 incoherent here and stays within ±3% elsewhere.
 
+## Index-based `build()` / `grow()` (measured, dropped)
+
+- Index-based `build()` / `grow()`: the balancers still allocate one heap node per tree node, which is then copied.
+  Only matters for build time (mesh load, balancer switch in the UI). Measured: at most about 1% of the build,
+  not worth it.
+
+### Build time split (2026-11-21, on top of `845d7f2`)
+
+Temporary `__rdtsc` probes in `KDTreeBalancer::build` (`BruteForceSAHKDTreeBalancer`, three runs):
+
+| Mesh    | Pointer-tree build (SAH), TSC cycles |     Flatten | Free pointer tree | Flatten + free |
+|---------|-------------------------------------:|------------:|------------------:|---------------:|
+| teapot  |                              30-34 M | 0.23-0.26 M |       0.09-0.29 M |       1.0-1.6% |
+| dragon2 |                          3.93-4.08 G |     20-22 M |           14-18 M |       0.8-1.0% |
+
+The SAH split search is nearly all of the build time. An index-based `build()` / `grow()` would only remove the
+children allocations and the flatten copy, at most about 1% of the build: not worth it.
+
+## Front-to-back child order for nearest queries
+
+### Child order and re-testing deferred children (2026-11-21)
+
+Two changes to the nearest query of `NaiveKDTreeTraverser`, built as switches and timed against each other:
+
+- **Re-test on pop:** keep a pointer to the deferred child's box on the stack, and skip the child when the shortened
+  ray misses it.
+- **Front-to-back order:** where the ray hits both children, descend into the one whose box it enters first. The
+  two-box `overlaps` already computes the entry distances; a new overload returns them.
+
+All variants kept hits, distance sums and facet index sums identical. Per ray, the order cut nearest incoherent leaf
+calls from 1.40 to 1.14 (teapot) and from 0.69 to 0.41 (dragon2); the re-test alone cut them only to 1.37 and 0.67.
+Five alternating runs of all four builds, median "best" in core cycles per ray. "Neither" is the previous build with the
+probe, compiled before the new `overlaps` overload; the other three use it:
+
+| Mesh    | Query   | Rays       | Neither | Re-test | Order  | Both   | Re-test | Order  | Both   |
+|---------|---------|------------|--------:|--------:|-------:|-------:|--------:|-------:|-------:|
+| teapot  | nearest | coherent   |   334.0 |   333.3 |  332.3 |  341.8 |   -0.2% |  -0.5% |   2.3% |
+| teapot  | any     | coherent   |   295.8 |   287.8 |  289.2 |  296.8 |   -2.7% |  -2.2% |   0.3% |
+| teapot  | nearest | incoherent |  1012.5 |  1012.1 |  892.6 |  933.5 |   -0.0% | -11.8% |  -7.8% |
+| teapot  | any     | incoherent |   682.0 |   677.1 |  681.7 |  671.3 |   -0.7% |  -0.0% |  -1.6% |
+| dragon2 | nearest | coherent   |   379.2 |   392.0 |  383.1 |  419.4 |    3.4% |   1.0% |  10.6% |
+| dragon2 | any     | coherent   |   322.7 |   330.8 |  330.6 |  330.9 |    2.5% |   2.4% |   2.5% |
+| dragon2 | nearest | incoherent |   913.0 |   930.5 |  709.1 |  724.6 |    1.9% | -22.3% | -20.6% |
+| dragon2 | any     | incoherent |   617.9 |   620.3 |  630.8 |  615.5 |    0.4% |   2.1% |  -0.4% |
+
+The re-test costs a box test per pop and saves little: dropped. The order is adopted,
+as a select between the two children rather than a branch. Final build against the probe-free `845d7f2` build, five
+alternating runs each (the any-hit queries take the same path; their 1-2% differences in the table above came from the
+probe build):
+
+| Mesh    | Query   | Rays       | Before | After | Change | After faster |
+|---------|---------|------------|-------:|------:|-------:|-------------:|
+| teapot  | nearest | coherent   |  335.5 | 334.1 |  -0.4% |          2/5 |
+| teapot  | any     | coherent   |  292.4 | 286.0 |  -2.2% |          3/5 |
+| teapot  | nearest | incoherent |  980.7 | 887.7 |  -9.5% |          5/5 |
+| teapot  | any     | incoherent |  704.7 | 693.8 |  -1.5% |          3/5 |
+| dragon2 | nearest | coherent   |  377.9 | 378.1 |   0.1% |          3/5 |
+| dragon2 | any     | coherent   |  330.9 | 328.7 |  -0.7% |          2/5 |
+| dragon2 | nearest | incoherent |  909.7 | 717.5 | -21.1% |          5/5 |
+| dragon2 | any     | incoherent |  633.2 | 636.9 |   0.6% |          1/5 |
+
+- `TraverserTest::naiveTraverserNearestEntersNearerChildFirst` checks that a ray entering child B first calls only
+  B's leaves; without the order it calls 4 instead of 2.
+- Cornell box, first frame, five alternating runs each: median 35.4 → 35.7 ms, inconclusive (31-48 ms per frame);
+  image byte-identical in all ten runs. Expected: its rays are mostly shadow rays (about 525k any-hit against 51k
+  secondary rays per frame), and its scene tree (9 objects) is a single leaf, so the image doesn't exercise the new
+  order outside the teapot's tree; the unit test covers the generic path.
+
 ## Commits
 
 - `e65a989` refactor(raytracing): store the KD-tree in flat arrays
 - `cf08b14` fix(raytracing): skip KD-tree subtrees whose child boxes the ray misses
+- `2497174` perf(raytracing): traverse the nearer KD-tree child first for nearest hits
