@@ -3,10 +3,12 @@ project(benchmarks LANGUAGES CXX VERSION 1.0.0)
 set(SOURCES
         src/intersection_benchmarks.cpp
         src/main.cpp
+        src/mesh_benchmarks.cpp
 )
 
 set(HEADERS
         include/intersection_benchmarks.h
+        include/mesh_benchmarks.h
 )
 
 add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})

@@ -50,6 +50,9 @@ namespace raytracer {
 
     void setTreeBalancer(std::unique_ptr<const KDTreeBalancer> balancer);
 
+    // KD-tree over the facets; nullptr if the mesh was built without a balancer
+    const KDTreeRoot *getGraph() const;
+
     // Builders and test methods
 
     static std::unique_ptr<Mesh> buildCubeMesh();

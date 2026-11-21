@@ -109,6 +109,12 @@ routes to stdout/stderr/file/DisplayBuffer. DisplayBuffer is a 10k-line circular
 RDTSC-based intersection micro-benchmarks. Pins to single core, measures cycles/intersection for AABB, Sphere,
 Plane, and Mesh facet intersections across 4 ray directions.
 
+Mesh benchmarks (`mesh_benchmarks.cpp`) time KD-tree traversal plus the leaf loop on `meshes/teapot.off` and
+`meshes/dragon2.off` (coherent and incoherent ray sets, nearest and any hit) and log leaf statistics, per-ray counters
+and hit checksums. Options: `--data=<dir>` (working directory for the mesh files), `--only=intersections|meshes`,
+`--repetitions=<n>`, `--core=<n>`, `--mesh=<file>` (repeatable). Compare variants by the median "best" core cycles/ray
+over 5 alternating runs each; see `.backlog/mesh-traversal-benchmark.md` for the baseline and its noise.
+
 ## Threading Model
 
 The `Raytracer` class runs rendering on a background `std::jthread` worker thread. The UI thread triggers renders via

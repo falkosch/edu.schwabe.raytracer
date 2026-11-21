@@ -389,6 +389,11 @@ namespace raytracer
     Log.info([] { return "done"; });
   }
 
+  const KDTreeRoot* Mesh::getGraph() const
+  {
+    return graph.get();
+  }
+
   void Mesh::clear()
   {
     graph.reset();
