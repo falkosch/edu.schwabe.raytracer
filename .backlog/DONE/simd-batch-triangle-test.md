@@ -6,7 +6,7 @@ Carved out of `.backlog/simd-batch-triangle-test.md`. Moving the block test into
 
 The leaf intersection loop in `Mesh.cpp:66-92` tests triangles one at a time via
 `nearestIntersectionHavel()`. With KD-tree leaf size of 16 primitives, each leaf visit loops up to 16
-iterations, each testing a single triangle. With SoA triangle data (see `soa-mesh-layout.md`), 4 triangles
+iterations, each testing a single triangle. With SoA triangle data (see `DONE/soa-mesh-layout.md`), 4 triangles
 could be tested simultaneously using 128-bit SIMD (or 8 with AVX): load N plane normals, compute N dot
 products in parallel, compare N distances at once.
 

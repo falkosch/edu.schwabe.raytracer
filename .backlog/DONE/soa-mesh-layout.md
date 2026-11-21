@@ -1,6 +1,4 @@
-# Convert mesh data from AoS to SoA layout (done parts)
-
-Carved out of `.backlog/soa-mesh-layout.md`. Replacing `MeshGeometryNode`'s facet copy by an index stays open there.
+# Convert mesh data from AoS to SoA layout
 
 ## Motivation
 
@@ -233,8 +231,8 @@ Path C (block-SoA) for the hit-test data only, in KD-tree leaf order: `FacetNorm
 `KDTreeRoot::leafGeometry`'s entries, 4 per block, plus a facet index per entry (steps 1 and 2 above). The other
 per-facet arrays (`facets`, `flatNormals`, `smoothNormals`, `texCoords`, `facetEdges`) stay AoS: they are read once
 per hit, for the winning facet only. So the `Facet` / `FacetNormals` / `FacetEdges` structs stay, and no SoA wrapper
-structs or gather helpers were needed. The 4-wide test is in `DONE/simd-batch-triangle-test.md`; 8-wide AVX blocks
-and moving the block test into `primitives` stay open in `simd-batch-triangle-test.md`.
+structs or gather helpers were needed. The 4-wide test and the later 8-wide AVX blocks are in
+`DONE/simd-batch-triangle-test.md`; moving the block test into `primitives` stays open in `simd-batch-triangle-test.md`.
 
 ## Key files
 
@@ -249,6 +247,21 @@ and moving the block test into `primitives` stay open in `simd-batch-triangle-te
 - `sources/primitives/include/primitives/Facet.h` — keep struct, possibly add gather constructor
 - `sources/primitives/include/primitives/FacetEdges.h` — keep struct
 
+## `MeshGeometryNode` facet copy
+
+- `MeshGeometryNode` still owns a `Facet` copy (48 B per facet; dragon2 about 4.8 MB). The leaf loops no longer read
+  the nodes; only the balancers use the copy (`includeInBounding`, `overlaps`). An index into `Mesh::facets` would
+  do.
+
+### Resolution
+
+The node keeps its `index` and points at its facet in `Mesh::facets` (`const Facet*`) instead of copying it. The
+mesh resizes `facets` only in `setupMesh`, before it builds the nodes, and clears it only in `clear()`, after it
+deleted them, so the pointer stays valid. A node shrinks from 64 to 24 bytes (checked with `static_assert`), about
+4 MB for dragon2. Trees, benchmark checksums and the Cornell box image are unchanged; dragon2's KD-tree build took
+a median 3.99G instead of 3.90G TSC cycles over 5 runs each, within the run-to-run spread (3.85-4.05G before).
+
 ## Commits
 
 - `5c8a256` perf(raytracing): test mesh leaves in 4-wide facet blocks
+- `845d7f2` refactor(raytracing): point mesh geometry nodes at their facet instead of copying it
