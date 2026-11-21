@@ -104,21 +104,23 @@ namespace vectorization
         return x1(maxv(v));
     }
 
+    // Sums as ((p0 + p4) + (p3 + p7)) + ((p1 + p5) + (p2 + p6)): the halves first, then within the four lanes
+    // (x + w) + (y + z). The spectral conversions depend on this order, so it stays.
     v_f32_8 horizontalSumv(const v_f32_8& v) noexcept
     {
 #if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
         const auto swapped = _mm256_permute2f128_ps(v.components, v.components, 0x01);
         const auto sumHalves = _mm256_add_ps(v.components, swapped);
-        const auto zw = _mm256_shuffle_ps(sumHalves, sumHalves, _MM_SHUFFLE(2, 3, 2, 3));
-        const auto sumZW = _mm256_add_ps(sumHalves, zw);
-        const auto y = _mm256_shuffle_ps(sumZW, sumZW, _MM_SHUFFLE(1, 1, 1, 1));
-        return _mm256_permute_ps(_mm256_add_ps(sumZW, y), _MM_SHUFFLE(0, 0, 0, 0));
+        const auto wz = _mm256_shuffle_ps(sumHalves, sumHalves, _MM_SHUFFLE(2, 3, 2, 3));
+        const auto sumXWYZ = _mm256_add_ps(sumHalves, wz);
+        const auto yz = _mm256_shuffle_ps(sumXWYZ, sumXWYZ, _MM_SHUFFLE(1, 1, 1, 1));
+        return _mm256_permute_ps(_mm256_add_ps(sumXWYZ, yz), _MM_SHUFFLE(0, 0, 0, 0));
 #else
         const auto sumHalves = _mm_add_ps(v.components.lo, v.components.hi);
-        const auto zw = _mm_shuffle_ps(sumHalves, sumHalves, _MM_SHUFFLE(2, 3, 2, 3));
-        const auto sumZW = _mm_add_ps(sumHalves, zw);
-        const auto y = _mm_shuffle_ps(sumZW, sumZW, _MM_SHUFFLE(1, 1, 1, 1));
-        const auto scalar = _mm_add_ps(sumZW, y);
+        const auto wz = _mm_shuffle_ps(sumHalves, sumHalves, _MM_SHUFFLE(2, 3, 2, 3));
+        const auto sumXWYZ = _mm_add_ps(sumHalves, wz);
+        const auto yz = _mm_shuffle_ps(sumXWYZ, sumXWYZ, _MM_SHUFFLE(1, 1, 1, 1));
+        const auto scalar = _mm_add_ps(sumXWYZ, yz);
         const auto result = _mm_shuffle_ps(scalar, scalar, 0);
         return {{result, result}};
 #endif

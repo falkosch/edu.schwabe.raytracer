@@ -93,17 +93,17 @@ namespace vectorization
         return x(maxv(v));
     }
 
+    // Sums as (p0 + p1) + (p2 + p3), the order of v_f32_4's horizontalSumv and dotv (_mm_dp_ps): v_f64_4 is Float4 in
+    // high precision.
     v_f64_4 horizontalSumv(const v_f64_4& v) noexcept
     {
 #if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
-        const auto swapped = _mm256_permute2f128_pd(v.components, v.components, 0x01);
-        const auto sumHalves = _mm256_add_pd(v.components, swapped);
-        const auto sumFinal = _mm256_add_pd(sumHalves, _mm256_permute_pd(sumHalves, 0x05));
-        return sumFinal;
+        const auto pairSums = _mm256_add_pd(v.components, _mm256_permute_pd(v.components, 0x05));
+        return _mm256_add_pd(pairSums, _mm256_permute2f128_pd(pairSums, pairSums, 0x01));
 #else
-        const auto sumHalves = _mm_add_pd(v.components.lo, v.components.hi);
-        const auto swapped = _mm_shuffle_pd(sumHalves, sumHalves, 1);
-        const auto result = _mm_add_pd(sumHalves, swapped);
+        const auto lo = _mm_add_pd(v.components.lo, _mm_shuffle_pd(v.components.lo, v.components.lo, 1));
+        const auto hi = _mm_add_pd(v.components.hi, _mm_shuffle_pd(v.components.hi, v.components.hi, 1));
+        const auto result = _mm_add_pd(lo, hi);
         return {{result, result}};
 #endif
     }

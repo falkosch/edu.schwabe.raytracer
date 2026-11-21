@@ -99,7 +99,9 @@ namespace raytracer
       // avoid self-occlusion when intersection is to be tested originated at the former intersection
       // when a direction has not significantly moved away from the surface
       const Float4 surfaceNormal = originIntersection->msSurfaceNormal;
-      const Float4 orientation = dotv(
+      // dot3v: the negated normal's w is -0, which a 4-component dotv could turn into a -0 result for a perpendicular
+      // ray; dot3v never returns -0
+      const Float4 orientation = dot3v(
         originatedRayCast.ray.direction,
         blendMasked(-surfaceNormal, surfaceNormal, backfaceCulledv(originatedRayCast))
       );
