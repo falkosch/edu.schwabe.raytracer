@@ -5,6 +5,7 @@
 #include "KDTreeChildLinks.h"
 #include "KDTreeLeaf.h"
 #include "KDTreeLink.h"
+#include "KDTreeWideNode.h"
 
 #include <vector>
 
@@ -37,6 +38,11 @@ namespace raytracer
 
         // longest path from the root to a leaf, counted in nodes
         ASizeT treeDepth;
+
+        // the same tree with four children per node, built from the arrays above; wideRootLink is a leaf link if the
+        // whole tree is a single leaf
+        KDTreeLink wideRootLink;
+        std::vector<KDTreeWideNode> wideNodes;
 
         KDTreeRoot();
 

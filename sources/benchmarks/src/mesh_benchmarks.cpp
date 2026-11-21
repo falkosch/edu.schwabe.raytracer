@@ -7,7 +7,7 @@
 #include <raytracing/geometry/forms/meshes/MeshGeometryNode.h>
 #include <raytracing/geometry/partitioning/KDTreeRoot.h>
 #include <raytracing/geometry/partitioning/treebalancer/BruteForceSAHKDTreeBalancer.h>
-#include <raytracing/geometry/partitioning/treetraverser/NaiveKDTreeTraverser.h>
+#include <raytracing/geometry/partitioning/treetraverser/WideKDTreeTraverser.h>
 
 #include <algorithm>
 #include <array>
@@ -185,12 +185,12 @@ namespace benchmarks
             const auto filledLeaves = statistics.leaves - statistics.emptyLeaves;
             const auto references = static_cast<double>(statistics.references);
 
-            Log.info([=, depth = graph->depth(), nodes = graph->nodeCount()]
+            Log.info([=, depth = graph->depth(), nodes = graph->nodeCount(), wideNodes = graph->wideNodes.size()]
             {
                 return meshFile + ": " + std::to_string(facets) + " facets, KD-tree depth " + std::to_string(depth) +
                     ", " +
                     std::to_string(nodes) + " nodes, " + std::to_string(statistics.leaves) + " leaves (" +
-                    std::to_string(statistics.emptyLeaves) + " empty)";
+                    std::to_string(statistics.emptyLeaves) + " empty), " + std::to_string(wideNodes) + " wide nodes";
             });
             Log.info([=]
             {
@@ -498,7 +498,7 @@ namespace benchmarks
         void runMeshBenchmark(const std::string& meshFile, const ASizeT repetitions)
         {
             const auto mesh = Mesh::loadFromOffFile(
-                meshFile, false, std::make_unique<NaiveKDTreeTraverser<FacetIntersection>>(),
+                meshFile, false, std::make_unique<WideKDTreeTraverser<FacetIntersection>>(),
                 std::make_unique<BruteForceSAHKDTreeBalancer>()
             );
             if (!mesh || mesh->getFaceCount() == 0 || !mesh->getGraph())
@@ -509,7 +509,7 @@ namespace benchmarks
 
             logTreeStatistics(meshFile, *mesh);
 
-            const auto traverser = NaiveKDTreeTraverser<FacetIntersection>();
+            const auto traverser = WideKDTreeTraverser<FacetIntersection>();
             for (const auto& rays : {
                      createCoherentRays(mesh->getBounding()), createIncoherentRays(mesh->getBounding())
                  })

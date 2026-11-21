@@ -86,7 +86,8 @@ spectrum -> XYZ -> sRGB-linear -> AgX -> sRGB.
 - **Scene**: Scene, SceneObject, Camera, Resources (OFF mesh loading, HDR/PPM textures)
 - **Forms**: Sphere, Box, Plane, Mesh (triangle mesh with KD-tree acceleration)
 - **KD-Tree**: Balancers (BruteForceSAH, FixedIterationsSAH, Median, ArithmeticMean, MaxAxis, RotatingAxis) and
-  traversers (Naive with an explicit stack, Voxelization debug view) over a flat-array tree (`KDTreeRoot`)
+  traversers (Naive with an explicit stack, Wide over the tree's four-wide view for meshes, Voxelization debug view)
+  over a flat-array tree (`KDTreeRoot`)
 - **Shading**: SceneShader (per-light Lambert diffuse + Phong specular + attenuation + shadow cache),
   ObjectShader (7 material channels: diffusion, reflectance, specular, roughness, transmittance, refractionEta,
   emittance), concrete shaders (Const, HDRImage, EnvironmentMap, IntersectionNormal, NoiseGeneratorMap)

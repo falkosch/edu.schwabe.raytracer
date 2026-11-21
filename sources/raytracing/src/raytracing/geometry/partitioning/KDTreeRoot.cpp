@@ -6,7 +6,8 @@
 namespace raytracer
 {
     KDTreeRoot::KDTreeRoot()
-        : rootBounding(), rootLink(LeafFlag), childBoundings(), childLinks(), leaves(), leafGeometry(), treeDepth()
+        : rootBounding(), rootLink(LeafFlag), childBoundings(), childLinks(), leaves(), leafGeometry(), treeDepth(),
+          wideRootLink(LeafFlag), wideNodes()
     {
     }
 

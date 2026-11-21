@@ -9,6 +9,7 @@
 #include "raytracing/geometry/partitioning/treebalancer/MedianKDTreeBalancer.h"
 #include "raytracing/geometry/partitioning/treebalancer/RotatingAxisKDTreeBalancer.h"
 #include "raytracing/geometry/partitioning/treetraverser/NaiveKDTreeTraverser.h"
+#include "raytracing/geometry/partitioning/treetraverser/WideKDTreeTraverser.h"
 #include "raytracing/geometry/partitioning/treetraverser/VoxelizationKDTreeTraverser.h"
 
 #include <algorithm>
@@ -43,7 +44,8 @@ namespace raytracer
 
             if (found == meshes.end())
             {
-                auto traverser = std::make_unique<NaiveKDTreeTraverser<FacetIntersection>>();
+                auto traverser = std::make_unique<WideKDTreeTraverser<FacetIntersection>>();
+                // auto traverser = std::make_unique<NaiveKDTreeTraverser<FacetIntersection>>();
                 // auto traverser = std::make_unique<VoxelizationKDTreeTraverser<FacetIntersection>>();
 
                 // auto balancer = std::make_unique<RotatingAxisKDTreeBalancer>();

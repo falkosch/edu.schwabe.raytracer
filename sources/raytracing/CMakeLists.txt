@@ -41,6 +41,8 @@ set(SOURCES
         src/raytracing/geometry/partitioning/KDTreeNodeChildren.cpp
         src/raytracing/geometry/partitioning/KDTreePlane.cpp
         src/raytracing/geometry/partitioning/KDTreeRoot.cpp
+        src/raytracing/geometry/partitioning/KDTreeWideNode.cpp
+        src/raytracing/geometry/partitioning/KDTreeWideRay.cpp
         src/raytracing/geometry/partitioning/treebalancer/ArithmeticMeanKDTreeBalancer.cpp
         src/raytracing/geometry/partitioning/treebalancer/BruteForceSAHKDTreeBalancer.cpp
         src/raytracing/geometry/partitioning/treebalancer/FixedIterationsSAHKDTreeBalancer.cpp
@@ -133,6 +135,8 @@ set(HEADERS
         include/raytracing/geometry/partitioning/KDTreeNodeChildren.h
         include/raytracing/geometry/partitioning/KDTreePlane.h
         include/raytracing/geometry/partitioning/KDTreeRoot.h
+        include/raytracing/geometry/partitioning/KDTreeWideNode.h
+        include/raytracing/geometry/partitioning/KDTreeWideRay.h
         include/raytracing/geometry/partitioning/KDTreeTraverser.h
         include/raytracing/geometry/partitioning/treebalancer/ArithmeticMeanKDTreeBalancer.h
         include/raytracing/geometry/partitioning/treebalancer/BruteForceSAHKDTreeBalancer.h
@@ -143,6 +147,7 @@ set(HEADERS
         include/raytracing/geometry/partitioning/treebalancer/SAHKDTreeBalancer.h
         include/raytracing/geometry/partitioning/treebalancer/SamplingKDTreeBalancer.h
         include/raytracing/geometry/partitioning/treetraverser/NaiveKDTreeTraverser.h
+        include/raytracing/geometry/partitioning/treetraverser/WideKDTreeTraverser.h
         include/raytracing/geometry/partitioning/treetraverser/VoxelizationKDTreeTraverser.h
         include/raytracing/scene/Camera.h
         include/raytracing/scene/Resources.h

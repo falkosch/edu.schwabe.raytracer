@@ -49,13 +49,18 @@ Balancers (all extend `KDTreeBalancer`):
 Balancers build a temporary pointer tree (`KDTreeNode`, `KDTreeNodeChildren`) and flatten it into `KDTreeRoot`:
 inner nodes depth-first in parallel arrays (`childBoundings`, one cache line per node, and `childLinks`), leaves as
 offset/count ranges into `leafGeometry`. A `KDTreeLink` is an inner-node index or a leaf index with `LeafFlag` set.
-`GeometryNodesTraverser` gets each leaf's geometry as a `GeometryNodeSpan`.
+`GeometryNodesTraverser` gets each leaf's geometry as a `GeometryNodeSpan`. The build also collapses the tree into
+`wideNodes`: each `KDTreeWideNode` holds the children of an inner node's children (2 to 4 lanes, boxes component-wise),
+so one SIMD test (`overlappedLanes`) covers two levels; it shares the binary tree's leaves.
 
 Traversers (template on intersection type):
 
 - `NaiveKDTreeTraverser<T>` -- depth-first with an explicit stack (nearest queries: the child the ray enters first,
   the other deferred; any-hit: child A first), skips a subtree when the ray misses both child boxes, early exit for
   any-hit queries
+- `WideKDTreeTraverser<T>` -- the same queries over `wideNodes`, about half the node visits; meshes use it (nearest:
+  the hit child entered first, the others deferred with their entry distance and dropped on pop when beyond a hit;
+  any-hit: lane order, which visits the leaves in the naive traverser's order)
 - `VoxelizationKDTreeTraverser<T>` -- debug view: intersects the leaf boundings instead of their geometry
 
 ### Shading (`shading/`)

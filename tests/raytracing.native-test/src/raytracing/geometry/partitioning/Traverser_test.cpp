@@ -1,8 +1,14 @@
 #include "raytracing_tests.h"
 
+#include "raytracing/geometry/partitioning/treebalancer/BruteForceSAHKDTreeBalancer.h"
 #include "raytracing/geometry/partitioning/treebalancer/MedianKDTreeBalancer.h"
 #include "raytracing/geometry/partitioning/treetraverser/NaiveKDTreeTraverser.h"
 #include "raytracing/geometry/partitioning/treetraverser/VoxelizationKDTreeTraverser.h"
+#include "raytracing/geometry/partitioning/treetraverser/WideKDTreeTraverser.h"
+
+#include <array>
+#include <bit>
+#include <random>
 
 namespace raytracer::test {
   // A minimal GeometryNodesTraverser over Box leaves: at each leaf, iterate the boxes and pick the
@@ -430,7 +436,96 @@ namespace raytracer::test {
       Assert::AreEqual(2, leftCounting.leafCalls, L"from -x: only child A's leaves", LINE_INFO());
     }
 
+    TEST_METHOD(wideTraverserMatchesNaive) {
+      // The wide traverser against the naive one on random box trees from both balancers: a single-leaf root (3
+      // boxes) and irregular trees with 2-, 3- and 4-lane wide nodes. Random and axis-parallel rays (infinite
+      // reciprocals, and NaN slabs where the origin lies on a box face), with a long and a short reach. Nearest: same
+      // distance and box. Any-hit: same outcome and, as the leaves come in the same order, the same box.
+      const NaiveKDTreeTraverser<FacetIntersection> naive{};
+      const WideKDTreeTraverser<FacetIntersection> wide{};
+      auto generator = std::mt19937{0x5eed1234u};
+      const auto uniform = [&generator](const Float low, const Float high) {
+        return std::uniform_real_distribution<Float>(low, high)(generator);
+      };
+
+      std::array<int, 5> wideNodesByLanes{};
+      auto nearestHits = 0;
+      auto anyHits = 0;
+      for (const auto boxCount : {3, 24, 80, 300}) {
+        for (const auto sah : {false, true}) {
+          BoxTreeFixture fix;
+          for (int i = 0; i < boxCount; ++i) {
+            const auto center = Float4{uniform(-5.0f, 5.0f), uniform(-5.0f, 5.0f), uniform(-5.0f, 5.0f), 0.0f};
+            const auto half = Float4{uniform(0.05f, 0.6f), uniform(0.05f, 0.6f), uniform(0.05f, 0.6f), 0.0f};
+            auto box = std::make_unique<Box>(center - half, center + half);
+            fix.nodes.push_back(box.get());
+            fix.ownedBoxes.push_back(std::move(box));
+          }
+          fix.root = sah ? BruteForceSAHKDTreeBalancer{}.build(fix.nodes) : MedianKDTreeBalancer{}.build(fix.nodes);
+          if (boxCount == 3) {
+            Assert::IsTrue(KDTreeRoot::isLeaf(fix.root->wideRootLink), L"3 boxes: single-leaf root", LINE_INFO());
+          }
+          for (const auto &node : fix.root->wideNodes) {
+            ++wideNodesByLanes[std::popcount(node.lanes)];
+          }
+
+          const auto faceMinimum = fix.ownedBoxes.front()->getBounding().minimum;
+          for (int i = 0; i < 400; ++i) {
+            auto origin = Float4{uniform(-8.0f, 8.0f), uniform(-8.0f, 8.0f), uniform(-8.0f, 8.0f), 1.0f};
+            auto direction = Float4{uniform(-1.0f, 1.0f), uniform(-1.0f, 1.0f), uniform(-1.0f, 1.0f), 0.0f};
+            if (i % 4 == 1 || i % 4 == 3) {
+              // aimed at a box, so that enough rays hit
+              const auto &target = *fix.ownedBoxes[static_cast<std::size_t>(i) % fix.ownedBoxes.size()];
+              direction = center(target.getBounding()) - origin;
+              direction[3] = 0.0f;
+            }
+            if (i % 4 == 0) {
+              const auto sign = i % 8 == 0 ? 1.0f : -1.0f;
+              const auto axis = (i / 4) % 3;
+              direction = Float4{axis == 0 ? sign : 0.0f, axis == 1 ? sign : 0.0f, axis == 2 ? sign : 0.0f, 0.0f};
+              if (i % 16 == 4) {
+                // on the first box's minimum face along the next axis: 0 * inf = NaN in that slab
+                const auto other = (axis + 1) % 3;
+                origin[other] = faceMinimum[other];
+              }
+            }
+            const Ray ray{origin, normalize3(direction)};
+            const RayCast rayCast{ray, Zero<Float4::VectorBoolType>(), Size2(0, 0), i % 2 == 0 ? 100.0f : 6.0f};
+
+            FacetIntersection naiveHit{};
+            FacetIntersection wideHit{};
+            const auto naiveNearest =
+                naive.findNearestIntersection(fix.nodesTraverser, *fix.root, rayCast, nullptr, naiveHit);
+            const auto wideNearest =
+                wide.findNearestIntersection(fix.nodesTraverser, *fix.root, rayCast, nullptr, wideHit);
+            Assert::AreEqual(naiveNearest, wideNearest, L"nearest distance", LINE_INFO());
+            if (naiveNearest < rayCast.maxDistance) {
+              Assert::IsTrue(naiveHit.node == wideHit.node, L"nearest box", LINE_INFO());
+              ++nearestHits;
+            }
+
+            FacetIntersection naiveAny{};
+            FacetIntersection wideAny{};
+            const auto naiveAnyDistance =
+                naive.findAnyIntersection(fix.nodesTraverser, *fix.root, rayCast, nullptr, naiveAny);
+            const auto wideAnyDistance =
+                wide.findAnyIntersection(fix.nodesTraverser, *fix.root, rayCast, nullptr, wideAny);
+            Assert::AreEqual(naiveAnyDistance, wideAnyDistance, L"any-hit distance", LINE_INFO());
+            if (naiveAnyDistance < rayCast.maxDistance) {
+              Assert::IsTrue(naiveAny.node == wideAny.node, L"any-hit box", LINE_INFO());
+              ++anyHits;
+            }
+          }
+        }
+      }
+      Assert::IsTrue(wideNodesByLanes[2] > 0, L"wide nodes with 2 lanes", LINE_INFO());
+      Assert::IsTrue(wideNodesByLanes[3] > 0, L"wide nodes with 3 lanes", LINE_INFO());
+      Assert::IsTrue(wideNodesByLanes[4] > 0, L"wide nodes with 4 lanes", LINE_INFO());
+      Assert::IsTrue(nearestHits > 500 && anyHits > 500, L"enough hits to compare", LINE_INFO());
+    }
+
     TEST_METHOD(naiveTraverserAnyHitThroughBothChildren) {
+
       auto fix = makeBoxesAlongX(64);
       const NaiveKDTreeTraverser<FacetIntersection> traverser{};
       FacetIntersection intersection{};
