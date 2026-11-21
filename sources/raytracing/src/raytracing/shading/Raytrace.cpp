@@ -1,22 +1,19 @@
 #include "raytracing/shading/Raytrace.h"
 #include "../../stdafx.h"
 
-#include "raytracing/shading/spectral/wavelengths.h"
-
 namespace raytracer
 {
     Raytrace::Raytrace()
-        : rayCast(), originIntersection(), traceDepth(), visibilityIndex(),
-          heroLambda(spectral::LAMBDA_MIN + spectral::LAMBDA_RANGE * Half<Float>())
+        : rayCast(), originIntersection(), traceDepth(), visibilityIndex(), spectralContext()
     {
     }
 
     Raytrace::Raytrace(
         const RayCast& rayCast, const SceneIntersection* const originIntersection, const ASizeT traceDepth,
-        const Float visibilityIndex, const Float heroLambda
+        const Float visibilityIndex, const SpectralContext* const spectralContext
     )
         : rayCast(rayCast), originIntersection(originIntersection), traceDepth(traceDepth),
-          visibilityIndex(visibilityIndex), heroLambda(heroLambda)
+          visibilityIndex(visibilityIndex), spectralContext(spectralContext)
     {
     }
 }

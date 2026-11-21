@@ -8,6 +8,7 @@
 #include "PerLightShadowCache.h"
 #include "SceneShaderContainment.h"
 #include "Shader.h"
+#include "SpectralContext.h"
 
 #include <vector>
 
@@ -37,8 +38,11 @@ namespace raytracer
         const LightsCollection& getLights() const;
         LightsCollection& getLights();
 
+        // Precomputes the spectral data of a hero wavelength, including this scene's ambient light and light spectra.
+        SpectralContext createSpectralContext(Float heroLambda) const;
+
         // Samples the lighting of a facet in the scene.
-        spectral::Spectrum sampleBackground(const Float4& rayDirection, Float heroLambda) const;
+        spectral::Spectrum sampleBackground(const Float4& rayDirection, const SpectralContext& spectralContext) const;
 
         // Samples the lighting of a facet in the scene.
         LightShading

@@ -18,6 +18,7 @@ set(SOURCES
         src/raytracing/shading/HDRImageShader_test.cpp
         src/raytracing/shading/IntersectionNormalShader_test.cpp
         src/raytracing/shading/LightInfo_test.cpp
+        src/raytracing/shading/SpectralContext_test.cpp
         src/raytracing/shading/Phong_test.cpp
         src/raytracing/shading/brdf/ggx_test.cpp
         src/raytracing/shading/color/primaries_test.cpp
@@ -29,6 +30,7 @@ set(SOURCES
         src/raytracing/shading/spectral/metal_ior_test.cpp
         src/raytracing/shading/spectral/smits_test.cpp
         src/raytracing/shading/spectral/spectrum_test.cpp
+        src/raytracing/shading/spectral/table_lookup_test.cpp
         src/raytracing/shading/spectral/wavelengths_test.cpp
         src/test_module.cpp
 )

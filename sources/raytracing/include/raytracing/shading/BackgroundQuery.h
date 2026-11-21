@@ -6,9 +6,11 @@ namespace raytracer
 {
     using namespace vectorization;
 
+    struct SpectralContext;
+
     struct BackgroundQuery
     {
         Float4 direction;
-        Float heroLambda;
+        const SpectralContext& spectralContext;
     };
 }

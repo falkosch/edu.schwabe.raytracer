@@ -1,7 +1,7 @@
 #include "raytracing/shading/ObjectShader.h"
 #include "../../stdafx.h"
 
-#include "raytracing/shading/spectral/spectrum.h"
+#include "raytracing/shading/SpectralContext.h"
 #include "raytracing/shading/spectral/wavelengths.h"
 
 namespace raytracer
@@ -123,20 +123,21 @@ namespace raytracer
 
     SurfaceShading ObjectShader::sample(const SceneShader&, const SceneIntersection& intersection) const
     {
-        return shade(intersection, spectral::LAMBDA_MIN + spectral::LAMBDA_RANGE * Half<Float>());
+        return shade(intersection, SpectralContext(spectral::LAMBDA_MIN + spectral::LAMBDA_RANGE * Half<Float>()));
     }
 
-    SurfaceShading ObjectShader::shade(const SceneIntersection& intersection, const Float heroLambda) const
+    SurfaceShading ObjectShader::shade(
+        const SceneIntersection& intersection, const SpectralContext& spectralContext
+    ) const
     {
-        const auto wavelengths = spectral::wavelengthsAt(heroLambda);
         return {
-            spectral::fromRGB(wavelengths, diffusionShader->sample(*this, intersection)),
-            spectral::fromRGB(wavelengths, reflectanceShader->sample(*this, intersection)),
-            spectral::fromRGB(wavelengths, specularShader->sample(*this, intersection)),
+            spectralContext.fromRGB(diffusionShader->sample(*this, intersection)),
+            spectralContext.fromRGB(reflectanceShader->sample(*this, intersection)),
+            spectralContext.fromRGB(specularShader->sample(*this, intersection)),
             roughnessShader->sample(*this, intersection),
-            spectral::fromRGB(wavelengths, transmittanceShader->sample(*this, intersection)),
+            spectralContext.fromRGB(transmittanceShader->sample(*this, intersection)),
             refractionEtaShader->sample(*this, intersection),
-            spectral::fromRGB(wavelengths, emittanceShader->sample(*this, intersection))
+            spectralContext.fromRGB(emittanceShader->sample(*this, intersection))
         };
     }
 }

@@ -62,6 +62,7 @@ set(SOURCES
         src/raytracing/shading/RaytraceBaseParameters.cpp
         src/raytracing/shading/SceneShader.cpp
         src/raytracing/shading/SceneShaderContainment.cpp
+        src/raytracing/shading/SpectralContext.cpp
         src/raytracing/shading/SurfaceShading.cpp
         src/raytracing/shading/TextureTransformInfo.cpp
         src/raytracing/shading/brdf/ggx.cpp
@@ -78,6 +79,7 @@ set(SOURCES
         src/raytracing/shading/spectral/metal_ior.cpp
         src/raytracing/shading/spectral/smits.cpp
         src/raytracing/shading/spectral/spectrum.cpp
+        src/raytracing/shading/spectral/table_lookup.cpp
         src/raytracing/shading/spectral/wavelengths.cpp
 )
 
@@ -152,6 +154,7 @@ set(HEADERS
         include/raytracing/shading/RaytraceBaseParameters.h
         include/raytracing/shading/SceneShader.h
         include/raytracing/shading/SceneShaderContainment.h
+        include/raytracing/shading/SpectralContext.h
         include/raytracing/shading/Shader.h
         include/raytracing/shading/SurfaceShading.h
         include/raytracing/shading/TextureTransformInfo.h
@@ -165,6 +168,7 @@ set(HEADERS
         include/raytracing/shading/spectral/smits.h
         include/raytracing/shading/spectral/metal_ior.h
         include/raytracing/shading/spectral/spectrum.h
+        include/raytracing/shading/spectral/table_lookup.h
         include/raytracing/shading/spectral/wavelengths.h
         include/raytracing/shading/shaders/ConcatenatingShader.h
         include/raytracing/shading/shaders/ConstShader.h

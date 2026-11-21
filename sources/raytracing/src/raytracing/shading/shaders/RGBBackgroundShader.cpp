@@ -1,7 +1,7 @@
 #include "raytracing/shading/shaders/RGBBackgroundShader.h"
 #include "../../../stdafx.h"
 
-#include "raytracing/shading/spectral/spectrum.h"
+#include "raytracing/shading/SpectralContext.h"
 
 namespace raytracer
 {
@@ -13,6 +13,6 @@ namespace raytracer
 
     spectral::Spectrum RGBBackgroundShader::sample(const SceneShader&, const BackgroundQuery& query) const
     {
-        return spectral::fromRGBS(query.heroLambda, color);
+        return query.spectralContext.fromRGB(color.value);
     }
 }

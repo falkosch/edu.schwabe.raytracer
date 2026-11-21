@@ -9,6 +9,8 @@ namespace raytracer
     using namespace vectorization;
     using namespace primitives;
 
+    struct SpectralContext;
+
     /**
    * Adds visibility properties to a RayCast
    */
@@ -22,14 +24,15 @@ namespace raytracer
 
         Float visibilityIndex;
 
-        Float heroLambda;
+        // Spectral data of the path's hero wavelength, shared by every ray of the path
+        const SpectralContext* spectralContext;
 
         Raytrace();
 
         explicit Raytrace(
             const RayCast& rayCast, const SceneIntersection* originIntersection, ASizeT traceDepth,
             Float visibilityIndex,
-            Float heroLambda
+            const SpectralContext* spectralContext
         );
     };
 }

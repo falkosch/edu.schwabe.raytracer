@@ -1,10 +1,10 @@
 #include "raytracing/shading/spectral/illuminants.h"
 
+#include "raytracing/shading/spectral/blackbody.h"
+#include "raytracing/shading/spectral/table_lookup.h"
 #include "raytracing/shading/spectral/wavelengths.h"
 
 #include <vectorization.h>
-
-#include <cmath>
 
 namespace raytracer::spectral
 {
@@ -32,48 +32,25 @@ namespace raytracer::spectral
     };
 
     static constexpr Float ILLUMINANT_A_TEMP = 2856.0f;
-    static constexpr Float PLANCK_C2 = 1.4388e7f;
     static constexpr Float NORMALIZATION_WAVELENGTH = 560.0f;
     static constexpr Float NORMALIZATION_VALUE = 100.0f;
 
-    static Float illuminantAAt(const Float wavelength) noexcept
+    // CIE illuminant A is a Planckian radiator at 2856 K, normalized to 100 at 560nm.
+    static Float8 illuminantA(const Float8& wavelengths) noexcept
     {
-        const Float ratio = NORMALIZATION_WAVELENGTH / wavelength;
-        const Float expRef = std::exp(PLANCK_C2 / (ILLUMINANT_A_TEMP * NORMALIZATION_WAVELENGTH));
-        const Float expLam = std::exp(PLANCK_C2 / (ILLUMINANT_A_TEMP * wavelength));
-        const Float ratio5 = ratio * ratio * ratio * ratio * ratio;
-        return NORMALIZATION_VALUE * ratio5 * (expRef - One<Float>()) / (expLam - One<Float>());
-    }
-
-    static Float lookupD65(const Float wavelength) noexcept
-    {
-        const Float idx = max(Zero<Float>(), (wavelength - LAMBDA_MIN) / TABLE_STEP);
-        const ASizeT i0 = min(static_cast<ASizeT>(idx), TABLE_SIZE - 2);
-        const Float frac = idx - static_cast<Float>(i0);
-        return mix(g_D65[i0], g_D65[i0 + 1], frac);
+        const auto atNormalizationWavelength = x1(blackbody(ILLUMINANT_A_TEMP, Float8(NORMALIZATION_WAVELENGTH)));
+        return blackbody(ILLUMINANT_A_TEMP, wavelengths) * (NORMALIZATION_VALUE / atNormalizationWavelength);
     }
 
     Float8 illuminantAt(const Illuminant illuminant, const Float8& wavelengths) noexcept
     {
-        const Float wl[SPECTRAL_SAMPLES] = {
-            x1(wavelengths), x2(wavelengths), x3(wavelengths), x4(wavelengths),
-            x5(wavelengths), x6(wavelengths), x7(wavelengths), x8(wavelengths)
-        };
-
-        alignas(YMM_ALIGNMENT) Float result[SPECTRAL_SAMPLES]{};
-        for (ASizeT i = 0; i < SPECTRAL_SAMPLES; ++i)
+        switch (illuminant)
         {
-            switch (illuminant)
-            {
-            case Illuminant::D65:
-                result[i] = lookupD65(wl[i]);
-                break;
-            case Illuminant::A:
-                result[i] = illuminantAAt(wl[i]);
-                break;
-            }
+        case Illuminant::D65:
+            return lookupTable(g_D65, tableCoordinates(wavelengths, LAMBDA_MIN, TABLE_STEP, TABLE_SIZE));
+        case Illuminant::A:
+            return illuminantA(wavelengths);
         }
-
-        return Float8(result);
+        return Zero<Float8>();
     }
 }

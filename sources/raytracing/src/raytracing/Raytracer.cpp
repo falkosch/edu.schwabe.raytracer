@@ -4,6 +4,7 @@
 #include "raytracing/RaytracerPackets.h"
 
 #include "raytracing/shading/ObjectShader.h"
+#include "raytracing/shading/SpectralContext.h"
 #include "raytracing/shading/brdf/ggx.h"
 #include "raytracing/shading/spectral/conversion.h"
 #include "raytracing/shading/spectral/spectrum.h"
@@ -167,8 +168,29 @@ namespace raytracer
         }
     };
 
+    using SpectralContexts = std::vector<SpectralContext, AlignedAllocator<SpectralContext>>;
+
+    // Every ray of a path keeps the hero wavelength of its primary ray, which depends only on the pixel sub-sample.
+    // So a frame needs one SpectralContext per sub-sample, shared by all pixels.
+    SpectralContexts createSpectralContexts(const SceneShader& sceneShader, const Size2::ValueType subSamplesCount)
+    {
+        auto contexts = SpectralContexts();
+        contexts.reserve(subSamplesCount);
+        for (auto s = Zero<Size2::ValueType>(); s < subSamplesCount; ++s)
+        {
+            const auto heroLambda = spectral::wrapToVisible(
+                spectral::LAMBDA_MIN
+                + (static_cast<Float>(s) + Half<Float>())
+                / static_cast<Float>(subSamplesCount) * spectral::LAMBDA_RANGE
+            );
+            contexts.push_back(sceneShader.createSpectralContext(heroLambda));
+        }
+        return contexts;
+    }
+
     PackedRaytrace::ListType constructPackedRaytracesList(
-        const int packetIndex, const RaytracerPackets& packets, const RaytraceConfiguration& configuration
+        const int packetIndex, const RaytracerPackets& packets, const RaytraceConfiguration& configuration,
+        const SpectralContexts& spectralContexts
     )
     {
         const auto nearPlanePixel = packets.packetStartOf(packetIndex);
@@ -194,18 +216,15 @@ namespace raytracer
             // generate super sampling rays
             for (auto s = Zero<Size2::ValueType>(); s < subSamplesCount; ++s)
             {
-                const auto heroLambda = spectral::wrapToVisible(
-                    spectral::LAMBDA_MIN
-                    + (static_cast<Float>(s) + Half<Float>())
-                    / static_cast<Float>(subSamplesCount) * spectral::LAMBDA_RANGE
-                );
                 // interpolate the camera-point's top-left on the view-plane
                 const auto newRay = packets.setupRayOfSampleInPixel(s, nearTL, farTL);
                 const auto newRayCast = RayCast(
                     newRay, cullingOrientationToMask(configuration.cullingOrientation), Zero<Size2>(),
                     configuration.maxDistance
                 );
-                const auto newRaytrace = Raytrace(newRayCast, nullptr, Zero<ASizeT>(), One<Float>(), heroLambda);
+                const auto newRaytrace = Raytrace(
+                    newRayCast, nullptr, Zero<ASizeT>(), One<Float>(), &spectralContexts[s]
+                );
                 list.emplace_back(newRaytrace, outputPixel);
             }
         }
@@ -221,6 +240,7 @@ namespace raytracer
     void Raytracer::trace()
     {
         const auto packets = RaytracerPackets(running);
+        const auto spectralContexts = createSpectralContexts(*running.sceneShader, packets.pixelSubSamplesCount());
 
 #pragma omp parallel
         {
@@ -232,7 +252,9 @@ namespace raytracer
 #pragma omp for schedule(static, 1) nowait
             for (int p = Zero<int>(); p < packets.getPacketCount(); ++p)
             {
-                const auto packedRaytraces = constructPackedRaytracesList(p, packets, cache.configuration);
+                const auto packedRaytraces = constructPackedRaytracesList(
+                    p, packets, cache.configuration, spectralContexts
+                );
                 cache.statistics.primaryRays += packedRaytraces.size();
 
                 for (const auto& packedRaytrace : packedRaytraces)
@@ -244,8 +266,7 @@ namespace raytracer
                     cache.statistics.missedPrimaryRays +=
                         static_cast<ASizeT>(outOfReach(packedRaytrace.raytrace.rayCast, x(hit.depth)));
 
-                    const auto xyzContext = spectral::makeXYZContext(packedRaytrace.raytrace.heroLambda);
-                    const auto xyz = spectral::spectrumToXYZ(hit.color, xyzContext);
+                    const auto xyz = spectral::spectrumToXYZ(hit.color, packedRaytrace.raytrace.spectralContext->xyz);
                     const auto displayRGB = spectral::xyzToDisplayRGB(xyz);
                     // Sample colour into output
                     packets.samplePixel(packedRaytrace.outputPixel, displayRGB.value);
@@ -331,7 +352,9 @@ namespace raytracer
         {
             return {
                 raytrace.rayCast.maxDistance,
-                cache.configuration.sceneShader->sampleBackground(raytrace.rayCast.ray.direction, raytrace.heroLambda)
+                cache.configuration.sceneShader->sampleBackground(
+                    raytrace.rayCast.ray.direction, *raytrace.spectralContext
+                )
             };
         }
 
@@ -340,7 +363,7 @@ namespace raytracer
 
         assert(brdf.intersection.object);
         const auto& objectShader = *dynamic_cast<const ObjectShader*const>(brdf.intersection.object);
-        brdf.surface = objectShader.shade(brdf.intersection, raytrace.heroLambda);
+        brdf.surface = objectShader.shade(brdf.intersection, *raytrace.spectralContext);
 
         const auto adapted_visibility_cutoff = SceneShader::adaptedVisibilityCutoff(
             cache.configuration.visibilityCutoff, raytrace.visibilityIndex);
@@ -417,7 +440,7 @@ namespace raytracer
         );
         const auto reflectedRaytrace = Raytrace(
             reflectedRayCast, &brdf.intersection, incidentRaytrace.traceDepth + One<ASizeT>(),
-            reflectionVisibilityIndex, incidentRaytrace.heroLambda
+            reflectionVisibilityIndex, incidentRaytrace.spectralContext
         );
         const auto reflectedHit = trace(reflectedRaytrace, cache);
 
@@ -475,7 +498,7 @@ namespace raytracer
         );
         const auto refractedRaytrace = Raytrace(
             refractedRayCast, &brdf.intersection, incidentRaytrace.traceDepth + One<ASizeT>(),
-            transmissionVisibilityIndex, incidentRaytrace.heroLambda
+            transmissionVisibilityIndex, incidentRaytrace.spectralContext
         );
 
         const auto refractedHit = trace(refractedRaytrace, cache);

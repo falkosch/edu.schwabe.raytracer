@@ -1,6 +1,6 @@
 #include "raytracing/shading/spectral/smits.h"
 
-#include "raytracing/shading/spectral/wavelengths.h"
+#include "raytracing/shading/spectral/table_lookup.h"
 
 #include <vectorization.h>
 
@@ -13,7 +13,7 @@ namespace raytracer::spectral
     // PBRT v3 wavelength grid for Smits basis spectra (32 samples, 380-720nm)
     // Karl vom Berge's re-derivation at higher resolution than Smits' original 10 bins.
     // Source: github.com/mmp/pbrt-v3, src/core/spectrum.cpp
-    // Reference only: lookupBasis() derives the same grid from SMITS_LAMBDA_MIN/MAX.
+    // Reference only: smitsBasisAt() derives the same grid from SMITS_LAMBDA_MIN/MAX.
     [[maybe_unused]] static constexpr Float g_lambda[SMITS_SAMPLES] = {
         380.000000f, 390.967743f, 401.935486f, 412.903229f, 423.870972f, 434.838715f,
         445.806458f, 456.774200f, 467.741943f, 478.709686f, 489.677429f, 500.645172f,
@@ -100,22 +100,35 @@ namespace raytracer::spectral
         0.0305010249f, 0.0212430548f, 0.0069596532f, 0.0041733649f
     };
 
-    static Float lookupBasis(const Float* basis, const Float wavelength) noexcept
+    SmitsBasis smitsBasisAt(const Float8& wavelengths) noexcept
     {
-        const Float clamped = clamp(wavelength, SMITS_LAMBDA_MIN, SMITS_LAMBDA_MAX);
-        const Float step = (SMITS_LAMBDA_MAX - SMITS_LAMBDA_MIN) / static_cast<Float>(SMITS_SAMPLES - 1);
-        const Float idx = (clamped - SMITS_LAMBDA_MIN) / step;
-        const ASizeT i0 = min(static_cast<ASizeT>(idx), SMITS_SAMPLES - 2);
-        const Float frac = idx - static_cast<Float>(i0);
-        return mix(basis[i0], basis[i0 + 1], frac);
+        const auto coordinates = tableCoordinates(
+            wavelengths, SMITS_LAMBDA_MIN,
+            (SMITS_LAMBDA_MAX - SMITS_LAMBDA_MIN) / static_cast<Float>(SMITS_SAMPLES - 1), SMITS_SAMPLES
+        );
+        return SmitsBasis{
+            lookupTable(g_white, coordinates),
+            lookupTable(g_cyan, coordinates),
+            lookupTable(g_magenta, coordinates),
+            lookupTable(g_yellow, coordinates),
+            lookupTable(g_red, coordinates),
+            lookupTable(g_green, coordinates),
+            lookupTable(g_blue, coordinates)
+        };
     }
 
-    Float8 rgbToSpectrum(const Float4& rgb, const Float8& wavelengths) noexcept
+    Float8 rgbToSpectrum(const Float4& rgb, const SmitsBasis& basis) noexcept
     {
         const Float r = x(rgb), g = y(rgb), b = z(rgb);
-        const Float* basis1;
-        const Float* basis2;
-        const Float* basis3;
+
+        // Black is common (most surfaces neither emit nor transmit) and needs no basis weighting.
+        if (r == Zero<Float>() && g == Zero<Float>() && b == Zero<Float>())
+        {
+            return Zero<Float8>();
+        }
+
+        const Float8* basis2;
+        const Float8* basis3;
         Float w1, w2, w3;
 
         if (r <= g && r <= b)
@@ -125,15 +138,15 @@ namespace raytracer::spectral
             {
                 w2 = g - r;
                 w3 = b - g;
-                basis2 = g_cyan;
-                basis3 = g_blue;
+                basis2 = &basis.cyan;
+                basis3 = &basis.blue;
             }
             else
             {
                 w2 = b - r;
                 w3 = g - b;
-                basis2 = g_cyan;
-                basis3 = g_green;
+                basis2 = &basis.cyan;
+                basis3 = &basis.green;
             }
         }
         else if (g <= r && g <= b)
@@ -143,15 +156,15 @@ namespace raytracer::spectral
             {
                 w2 = r - g;
                 w3 = b - r;
-                basis2 = g_magenta;
-                basis3 = g_blue;
+                basis2 = &basis.magenta;
+                basis3 = &basis.blue;
             }
             else
             {
                 w2 = b - g;
                 w3 = r - b;
-                basis2 = g_magenta;
-                basis3 = g_red;
+                basis2 = &basis.magenta;
+                basis3 = &basis.red;
             }
         }
         else
@@ -161,34 +174,24 @@ namespace raytracer::spectral
             {
                 w2 = r - b;
                 w3 = g - r;
-                basis2 = g_yellow;
-                basis3 = g_green;
+                basis2 = &basis.yellow;
+                basis3 = &basis.green;
             }
             else
             {
                 w2 = g - b;
                 w3 = r - g;
-                basis2 = g_yellow;
-                basis3 = g_red;
+                basis2 = &basis.yellow;
+                basis3 = &basis.red;
             }
         }
 
-        basis1 = g_white;
+        const auto s = multiplyAdd(Float8(w3), *basis3, multiplyAdd(Float8(w2), *basis2, Float8(w1) * basis.white));
+        return max(Zero<Float8>(), s);
+    }
 
-        const Float wl[SPECTRAL_SAMPLES] = {
-            x1(wavelengths), x2(wavelengths), x3(wavelengths), x4(wavelengths),
-            x5(wavelengths), x6(wavelengths), x7(wavelengths), x8(wavelengths)
-        };
-
-        alignas(YMM_ALIGNMENT) Float result[SPECTRAL_SAMPLES]{};
-        for (ASizeT i = 0; i < SPECTRAL_SAMPLES; ++i)
-        {
-            const Float s = w1 * lookupBasis(basis1, wl[i])
-                + w2 * lookupBasis(basis2, wl[i])
-                + w3 * lookupBasis(basis3, wl[i]);
-            result[i] = max(Zero<Float>(), s);
-        }
-
-        return Float8(result);
+    Float8 rgbToSpectrum(const Float4& rgb, const Float8& wavelengths) noexcept
+    {
+        return rgbToSpectrum(rgb, smitsBasisAt(wavelengths));
     }
 }

@@ -2,7 +2,6 @@
 #include "../../stdafx.h"
 
 #include "raytracing/common/StatisticsCookie.h"
-#include "raytracing/shading/EmitterSPD.h"
 #include "raytracing/shading/brdf/ggx.h"
 #include "raytracing/shading/spectral/spectrum.h"
 
@@ -51,9 +50,16 @@ namespace raytracer
         return lights;
     }
 
-    spectral::Spectrum SceneShader::sampleBackground(const Float4& rayDirection, const Float heroLambda) const
+    SpectralContext SceneShader::createSpectralContext(const Float heroLambda) const
     {
-        return backgroundShader->sample(*this, BackgroundQuery{rayDirection, heroLambda});
+        return SpectralContext(heroLambda, ambientLight, lights);
+    }
+
+    spectral::Spectrum SceneShader::sampleBackground(
+        const Float4& rayDirection, const SpectralContext& spectralContext
+    ) const
+    {
+        return backgroundShader->sample(*this, BackgroundQuery{rayDirection, spectralContext});
     }
 
     // Computes the lighting of a facet in the scene.
@@ -121,17 +127,20 @@ namespace raytracer
         );
 #endif
 
+        const auto& spectralContext = *incidentRay.spectralContext;
         const auto V = -incidentRay.rayCast.ray.direction;
         const auto N = intersection.smoothedNormal;
+        const auto NoV = max(dot3(N, V), Zero<Float>());
+        const auto hasSpecular = spectral::spectralMax(F0) > Zero<Float>();
 
-        const auto wavelengths = spectral::wavelengthsAt(incidentRay.heroLambda);
-
-        auto lighting = LightShading(spectral::fromRGB(wavelengths, ambientLight.value));
+        auto lighting = LightShading(spectralContext.ambient);
         for (auto it = lights.cbegin(); it != lights.cend(); ++it)
         {
             const LightInfo& light = **it;
+            const auto lightIndex = static_cast<ASizeT>(it - lights.cbegin());
             const Float4 lightDirection = light.position - intersection.vertex;
-            const Float4 normalizedLightDirection = normalize(lightDirection);
+            const Float4 lightDistance = lengthv(lightDirection);
+            const Float4 normalizedLightDirection = lightDirection / lightDistance;
 
             if (isNegative(dotv(normalizedLightDirection, intersection.surfaceNormal)))
             {
@@ -145,7 +154,6 @@ namespace raytracer
                 continue;
             }
 
-            const Float4 lightDistance = lengthv(lightDirection);
             const Float4 attenuatedDiffuseIntensity =
                 attenuateDiffuseIntensity(light.attenuationFactors, lightDistance, diffuseIntensity);
             if (allTrue(attenuatedDiffuseIntensity < adaptedVisibilityCutoff))
@@ -159,7 +167,7 @@ namespace raytracer
             shadowRay.ray.setDirection(normalizedLightDirection);
             shadowRay.maxDistance = x(lightDistance);
             const Float4 litAreaFraction = computeLitAreaFraction(
-                shadowRay, intersection, static_cast<ASizeT>(it - lights.cbegin()), shadowCache, statistics
+                shadowRay, intersection, lightIndex, shadowCache, statistics
             );
             if (allTrue(litAreaFraction < adaptedVisibilityCutoff))
             {
@@ -168,15 +176,16 @@ namespace raytracer
 #endif
 
             const auto intensity = Float8(litAreaFraction * attenuatedDiffuseIntensity);
-            const auto spectralEmittance = sampleEmitter(light, wavelengths);
-            const auto lightContribution = spectralEmittance * intensity;
+            const auto lightContribution = spectralContext.lightEmittance[lightIndex] * intensity;
 
             lighting.diffuse += lightContribution;
-            if (spectral::spectralMax(F0) > Zero<Float>())
+            if (hasSpecular)
             {
                 const auto H = normalize3(V + normalizedLightDirection);
+                const auto NoL = max(x(diffuseIntensity), Zero<Float>());
+                const auto NoH = max(dot3(N, H), Zero<Float>());
                 const auto VoH = Float8(max(dot3v(V, H), Zero<Float4>()));
-                const auto DG = brdf::evaluateGGX_DG(N, V, normalizedLightDirection, H, roughness);
+                const auto DG = brdf::evaluateGGX_DG(NoV, NoL, NoH, roughness);
                 const auto F = brdf::schlickFresnelSpectral(F0, VoH);
                 lighting.specular += lightContribution * (F * DG);
             }

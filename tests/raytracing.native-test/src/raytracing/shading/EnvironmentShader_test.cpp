@@ -1,6 +1,7 @@
 #include "raytracing_tests.h"
 
 #include <raytracing/shading/SceneShader.h>
+#include <raytracing/shading/SpectralContext.h>
 #include <raytracing/shading/shaders/EnvironmentShader.h>
 #include <raytracing/shading/spectral/conversion.h>
 #include <raytracing/shading/spectral/wavelengths.h>
@@ -17,9 +18,16 @@ namespace raytracer::test
 
     static const Float TEST_HERO = spectral::LAMBDA_MIN + spectral::LAMBDA_RANGE * Half<Float>();
 
+    // Function-local static: the context's construction depends on statics of other translation units.
+    static const SpectralContext& testSpectralContext()
+    {
+        static const SpectralContext context{TEST_HERO};
+        return context;
+    }
+
     static BackgroundQuery query(const Float4& dir)
     {
-        return BackgroundQuery{dir, TEST_HERO};
+        return BackgroundQuery{dir, testSpectralContext()};
     }
 
     static Float4 toRGB(const spectral::Spectrum& s)

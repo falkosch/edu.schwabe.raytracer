@@ -1,5 +1,6 @@
 #include "raytracing/shading/spectral/cmf.h"
 
+#include "raytracing/shading/spectral/table_lookup.h"
 #include "raytracing/shading/spectral/wavelengths.h"
 
 #include <vectorization.h>
@@ -72,35 +73,13 @@ namespace raytracer::spectral
         0.000000f // 780
     };
 
-    static Float8 lookupTable(const Float* table, const Float8& wavelengths) noexcept
-    {
-        const auto idx = (wavelengths - Float8(LAMBDA_MIN)) / Float8(TABLE_STEP);
-        const auto i0f = clamp(floor(idx), Zero<Float8>(), Float8(static_cast<Float>(TABLE_SIZE - ASizeT{2})));
-
-#if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX2
-        const auto indices = _mm256_cvtps_epi32(i0f.components);
-        const auto indicesPlus1 = _mm256_add_epi32(indices, _mm256_set1_epi32(1));
-        const Float8 lo{_mm256_i32gather_ps(table, indices, sizeof(Float))};
-        const Float8 hi{_mm256_i32gather_ps(table, indicesPlus1, sizeof(Float))};
-#else
-        Float8 lo, hi;
-        for (auto i = ASizeT{0}; i < SPECTRAL_SAMPLES; ++i)
-        {
-            const auto ix = static_cast<ASizeT>(i0f[i]);
-            lo[i] = table[ix];
-            hi[i] = table[ix + ASizeT{1}];
-        }
-#endif
-
-        return mix(lo, hi, idx - i0f);
-    }
-
     CmfSample cmfAt(const Float8& wavelengths) noexcept
     {
+        const auto coordinates = tableCoordinates(wavelengths, LAMBDA_MIN, TABLE_STEP, TABLE_SIZE);
         return CmfSample{
-            lookupTable(g_xBar, wavelengths),
-            lookupTable(g_yBar, wavelengths),
-            lookupTable(g_zBar, wavelengths)
+            lookupTable(g_xBar, coordinates),
+            lookupTable(g_yBar, coordinates),
+            lookupTable(g_zBar, coordinates)
         };
     }
 }

@@ -144,9 +144,27 @@ namespace raytracer::test
 
             const auto H = normalize3(V + L);
             const auto full = evaluateGGX(N, V, L, F0, 0.5f);
-            const auto dg = evaluateGGX_DG(N, V, L, H, 0.5f);
+            const auto dg = evaluateGGX_DG(dot3(N, V), dot3(N, L), dot3(N, H), 0.5f);
 
             Assert::AreEqual(x(full), dg, 1e-5f, L"DG matches full when F0=1", LINE_INFO());
+        }
+
+        TEST_METHOD(ggxVSmithIsGeometryOverFourNoVNoL)
+        {
+            const Float cosines[] = {0.05f, 0.3f, 0.7f, 1.0f};
+            const Float alphas[] = {0.1f, 0.5f, 1.0f};
+            for (const auto alpha : alphas)
+            {
+                for (const auto NoV : cosines)
+                {
+                    for (const auto NoL : cosines)
+                    {
+                        const auto expected = ggxG_smith(NoV, NoL, alpha) / (4.0f * NoV * NoL);
+                        Assert::AreEqual(expected, ggxV_smith(NoV, NoL, alpha), expected * 1e-5f,
+                                         L"V = G / (4 NoV NoL)", LINE_INFO());
+                    }
+                }
+            }
         }
 
         TEST_METHOD(evaluateGGX_DGZeroBelowHorizon)
@@ -155,8 +173,10 @@ namespace raytracer::test
             const auto V = normalize3(Float4{0.0f, 1.0f, 0.0f, 0.0f});
             const auto L = normalize3(Float4{0.0f, -1.0f, 0.0f, 0.0f});
             const auto H = N; // V + L is zero here, so the half vector is undefined; it is unused below the horizon
+            const auto NoL = max(dot3(N, L), 0.0f);
 
-            Assert::AreEqual(0.0f, evaluateGGX_DG(N, V, L, H, 0.5f), L"zero below horizon", LINE_INFO());
+            Assert::AreEqual(0.0f, evaluateGGX_DG(dot3(N, V), NoL, dot3(N, H), 0.5f), L"zero below horizon",
+                             LINE_INFO());
         }
 
         TEST_METHOD(schlickFresnelSpectralAtNormalIncidence)

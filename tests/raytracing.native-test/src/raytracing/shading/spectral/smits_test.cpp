@@ -23,6 +23,41 @@ namespace raytracer::test
             }
         }
 
+        TEST_METHOD(basisOverloadMatchesWavelengthOverload)
+        {
+            const auto w = wavelengthsAt(437.0f);
+            const auto basis = smitsBasisAt(w);
+            const Float4 colors[] = {
+                Float4{0.2f, 0.5f, 0.9f, 0.0f}, Float4{0.9f, 0.1f, 0.4f, 0.0f}, Float4{0.3f, 0.8f, 0.1f, 0.0f}
+            };
+            for (const auto& rgb : colors)
+            {
+                const auto fromBasis = rgbToSpectrum(rgb, basis);
+                const auto fromWavelengths = rgbToSpectrum(rgb, w);
+                const Float a[] = {
+                    x1(fromBasis), x2(fromBasis), x3(fromBasis), x4(fromBasis),
+                    x5(fromBasis), x6(fromBasis), x7(fromBasis), x8(fromBasis)
+                };
+                const Float b[] = {
+                    x1(fromWavelengths), x2(fromWavelengths), x3(fromWavelengths), x4(fromWavelengths),
+                    x5(fromWavelengths), x6(fromWavelengths), x7(fromWavelengths), x8(fromWavelengths)
+                };
+                for (ASizeT i = 0; i < SPECTRAL_SAMPLES; ++i)
+                {
+                    // Same arithmetic along two call paths; allow for differently contracted or folded FMAs.
+                    Assert::AreEqual(b[i], a[i], 1e-6f, L"same spectrum from precomputed basis", LINE_INFO());
+                }
+            }
+        }
+
+        TEST_METHOD(wavelengthsBeyondBasisRangeUseLastSample)
+        {
+            // The basis spectra end at 720nm: lane 8 of hero 380 (730nm) and lane 7 of hero 420 (720nm) agree.
+            const auto beyond = rgbToSpectrum(Float4{1.0f, 0.2f, 0.0f, 0.0f}, wavelengthsAt(380.0f));
+            const auto atEnd = rgbToSpectrum(Float4{1.0f, 0.2f, 0.0f, 0.0f}, wavelengthsAt(420.0f));
+            Assert::AreEqual(x7(atEnd), x8(beyond), 1e-6f, L"clamped to the last basis sample", LINE_INFO());
+        }
+
         TEST_METHOD(blackProducesZeroSpectrum)
         {
             const auto w = wavelengthsAt(380.0f);
