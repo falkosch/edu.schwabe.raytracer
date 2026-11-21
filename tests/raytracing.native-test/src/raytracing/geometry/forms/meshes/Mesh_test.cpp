@@ -1,6 +1,10 @@
 #include "raytracing_tests.h"
 
 #include "raytracing/geometry/forms/meshes/Mesh.h"
+#include "raytracing/geometry/partitioning/treebalancer/MedianKDTreeBalancer.h"
+
+#include <random>
+#include <vector>
 
 namespace raytracer::test {
   TEST_CLASS(MeshTest) {
@@ -307,6 +311,71 @@ namespace raytracer::test {
       const auto distance = mesh->findNearestIntersection(rayCast, nullptr, intersection);
 
       Assert::AreEqual(5.0f, distance, 0.001f, L"plane mesh hit at z=0", LINE_INFO());
+    }
+
+    TEST_METHOD(leafBlocksMatchNodeLoop) {
+      // A span inside the KD-tree's leafGeometry takes the packed 4-wide block path, a copy of the same node pointers
+      // the single-facet loop. Every sub-range of the cube's single leaf (12 facets: ranges start and end mid-block),
+      // each culling mode and each facet of the range as the origin must give the same distance and facet.
+      auto mesh = makeCubeMesh();
+      mesh->setTreeBalancer(std::make_unique<MedianKDTreeBalancer>());
+      const auto& leafGeometry = mesh->getGraph()->leafGeometry;
+      Assert::AreEqual(ASizeT{12}, leafGeometry.size(), L"cube is a single leaf", LINE_INFO());
+      const auto copiedNodes = PGeometryNodeList(leafGeometry);
+
+      auto generator = std::mt19937{0x5eed1234u};
+      auto uniform = std::uniform_real_distribution<Float>(-1.0f, 1.0f);
+      std::vector<Ray> rays;
+      for (auto i = 0; i < 32; ++i) {
+        // from outside towards a point in the cube, and from inside the cube in any direction
+        const auto origin = Float4{3.0f * uniform(generator), 3.0f * uniform(generator), -3.0f, 1.0f};
+        const auto target =
+          Float4{0.5f * uniform(generator), 0.5f * uniform(generator), 0.5f * uniform(generator), 1.0f};
+        rays.emplace_back(origin, normalize3(target - origin));
+        const auto inside =
+          Float4{0.4f * uniform(generator), 0.4f * uniform(generator), 0.4f * uniform(generator), 1.0f};
+        const auto direction = Float4{uniform(generator), uniform(generator), uniform(generator), 0.0f};
+        rays.emplace_back(inside, normalize3(direction));
+      }
+
+      auto hits = 0;
+      for (const auto culling : {-1, 0, 1}) {
+        for (const auto& ray : rays) {
+          const RayCast rayCast{ray, cullingOrientationToMask(culling), Size2(0, 0), 100.0f};
+          for (auto begin = ASizeT{0}; begin < leafGeometry.size(); ++begin) {
+            for (auto end = begin + 1; end <= leafGeometry.size(); ++end) {
+              const auto blocks = GeometryNodeSpan(leafGeometry.data() + begin, end - begin);
+              const auto nodes = GeometryNodeSpan(copiedNodes.data() + begin, end - begin);
+              for (auto origin = begin; origin <= end; ++origin) {
+                // origin == end: no origin intersection
+                auto originIntersection = FacetIntersection{};
+                originIntersection.node = origin < end ? leafGeometry[origin] : nullptr;
+                const auto* originPointer = origin < end ? &originIntersection : nullptr;
+
+                auto blockHit = FacetIntersection{};
+                auto nodeHit = FacetIntersection{};
+                const auto blockDistance = mesh->findNearestIntersection(blocks, rayCast, originPointer, blockHit);
+                const auto nodeDistance = mesh->findNearestIntersection(nodes, rayCast, originPointer, nodeHit);
+                Assert::AreEqual(nodeDistance, blockDistance, L"nearest distance", LINE_INFO());
+                if (nodeDistance < rayCast.maxDistance) {
+                  Assert::IsTrue(nodeHit.node == blockHit.node, L"nearest facet", LINE_INFO());
+                  ++hits;
+                }
+
+                auto blockAny = FacetIntersection{};
+                auto nodeAny = FacetIntersection{};
+                const auto blockAnyDistance = mesh->findAnyIntersection(blocks, rayCast, originPointer, blockAny);
+                const auto nodeAnyDistance = mesh->findAnyIntersection(nodes, rayCast, originPointer, nodeAny);
+                Assert::AreEqual(nodeAnyDistance, blockAnyDistance, L"any-hit distance", LINE_INFO());
+                if (nodeAnyDistance < rayCast.maxDistance) {
+                  Assert::IsTrue(nodeAny.node == blockAny.node, L"any-hit facet", LINE_INFO());
+                }
+              }
+            }
+          }
+        }
+      }
+      Assert::IsTrue(hits > 1000, L"enough hits to compare", LINE_INFO());
     }
   };
 }

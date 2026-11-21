@@ -5,11 +5,20 @@
 #include "../../partitioning/KDTreeBalancer.h"
 #include "../../partitioning/KDTreeTraverser.h"
 
+#include <array>
+#include <cstdint>
 #include <memory>
+#include <vector>
 
 namespace raytracer {
   using namespace vectorization;
   using namespace primitives;
+
+  // Plane normals (see nearestIntersectionHavel) of 4 consecutive leaf entries, component-wise: lane i of v0[c] is
+  // component c of v0 of entry 4 * block + i.
+  struct alignas(64) FacetNormalsBlock {
+    std::array<Float4, 4> v0, v1, v2;
+  };
 
   struct Mesh final : Form, GeometryNodesTraverser<FacetIntersection> {
     Mesh();
@@ -84,6 +93,11 @@ namespace raytracer {
     // intermediate for Möller intersection test
     std::vector<FacetEdges> facetEdges;
 
+    // The elements of graph->leafGeometry in the same order, so a leaf is a range of entries: plane normals in blocks of
+    // 4 for the batch Havel test, and the facet index of every entry
+    std::vector<FacetNormalsBlock> leafPlaneNormalBlocks;
+    std::vector<std::uint32_t> leafFacetIndices;
+
     PGeometryNodeList nodes;
     std::unique_ptr<KDTreeRoot> graph;
 
@@ -93,5 +107,7 @@ namespace raytracer {
     void clear();
 
     void setupMesh();
+
+    void packLeafFacets();
   };
 }
