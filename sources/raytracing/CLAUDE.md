@@ -32,8 +32,8 @@ Core rendering engine. Static library depending on `primitives` and `vectorizati
 
 - `Form` (base) -> `Sphere`, `Box`, `Plane`, `Mesh`
 - `Mesh` loads `.off` files, builds per-mesh KD-tree, stores vertices/facets/normals/texcoords. Its leaf loops read
-  the plane normals in `leafGeometry` order, component-wise in blocks of 4 (`FacetNormalsBlock`), and test a block
-  at once with a lane-wise Havel test that gives the same results as `nearestIntersectionHavel`
+  the plane normals in `leafGeometry` order, component-wise in blocks of 8 (`FacetLanes`, `FacetNormalsBlock`), and
+  test a block at once with a lane-wise Havel test that gives the same results as `nearestIntersectionHavel`
 - `FacetIntersection` -- model-space intersection data (position, geometric normal, tex coords)
 - `SceneIntersection` -- world-space data (smoothed normal, reflection direction, parent object ref)
 

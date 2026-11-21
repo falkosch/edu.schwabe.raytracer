@@ -80,7 +80,8 @@ namespace raytracer
   {
     constexpr auto NoLeafOffset = std::numeric_limits<ASizeT>::max();
     constexpr auto NoEntry = std::numeric_limits<ASizeT>::max();
-    constexpr ASizeT BlockWidth{4};
+    constexpr ASizeT BlockWidth{FacetLanes::SIZE};
+    constexpr unsigned AllLanes{(1u << BlockWidth) - 1u};
 
     // Offset of geometryNodes in graph->leafGeometry, or NoLeafOffset if the span lies elsewhere (e.g. the node list of
     // a mesh without KD-tree).
@@ -131,49 +132,54 @@ namespace raytracer
     // The ray's components, each broadcast to all lanes.
     struct RayLanes
     {
-      std::array<Float4, 4> origin, direction;
+      std::array<FacetLanes, 4> origin, direction;
 
       explicit RayLanes(const Ray& ray) noexcept
-        : origin{xxxx(ray.origin), yyyy(ray.origin), zzzz(ray.origin), wwww(ray.origin)},
-          direction{xxxx(ray.direction), yyyy(ray.direction), zzzz(ray.direction), wwww(ray.direction)}
+        : origin{
+            FacetLanes{x(ray.origin)}, FacetLanes{y(ray.origin)}, FacetLanes{z(ray.origin)}, FacetLanes{w(ray.origin)}
+          },
+          direction{
+            FacetLanes{x(ray.direction)}, FacetLanes{y(ray.direction)}, FacetLanes{z(ray.direction)},
+            FacetLanes{w(ray.direction)}
+          }
       {
       }
     };
 
     // Lane-wise dot products, summed like _mm_dp_ps in dotv / dot3v: (p0 + p1) + (p2 + p3), with p3 = +0 for the
     // 3-component product. So every lane gets exactly the single-facet test's values.
-    Float4 dotLanes(const std::array<Float4, 4>& a, const std::array<Float4, 4>& b) noexcept
+    FacetLanes dotLanes(const std::array<FacetLanes, 4>& a, const std::array<FacetLanes, 4>& b) noexcept
     {
       return (a[0] * b[0] + a[1] * b[1]) + (a[2] * b[2] + a[3] * b[3]);
     }
 
-    Float4 dot3Lanes(const std::array<Float4, 4>& a, const std::array<Float4, 4>& b) noexcept
+    FacetLanes dot3Lanes(const std::array<FacetLanes, 4>& a, const std::array<FacetLanes, 4>& b) noexcept
     {
-      return (a[0] * b[0] + a[1] * b[1]) + (a[2] * b[2] + Zero<Float4>());
+      return (a[0] * b[0] + a[1] * b[1]) + (a[2] * b[2] + Zero<FacetLanes>());
     }
 
     struct BlockTest
     {
-      Float4 determinant, detT, detU, detV;
+      FacetLanes determinant, detT, detU, detV;
       // bit i: lane i is a candidate, isn't culled and passes the three sign tests of the Havel test
       unsigned hits;
     };
 
-    // nearestIntersectionHavel for the 4 facets of a block at once: the same operations in the same order, lane-wise
+    // nearestIntersectionHavel for the facets of a block at once: the same operations in the same order, lane-wise
     BlockTest testBlock(
-      const FacetNormalsBlock& block, const RayLanes& ray, const Float4& maxDistance, const unsigned candidates,
+      const FacetNormalsBlock& block, const RayLanes& ray, const FacetLanes& maxDistance, const unsigned candidates,
       const bool cullBack, const bool cullFront
     ) noexcept
     {
       const auto determinant = dot3Lanes(block.v0, ray.direction);
       const auto frontfaced = static_cast<unsigned>(isNegative(determinant));
-      const auto culledLanes = (cullBack ? ~frontfaced & 0xFu : 0u) | (cullFront ? frontfaced : 0u);
+      const auto culledLanes = (cullBack ? ~frontfaced & AllLanes : 0u) | (cullFront ? frontfaced : 0u);
 
       const auto detT = -dotLanes(block.v0, ray.origin);
       const auto checkT = multiplySub(determinant, maxDistance, detT);
 
       // intersection point scaled by the determinant
-      auto point = std::array<Float4, 4>();
+      auto point = std::array<FacetLanes, 4>();
       for (auto c = ASizeT{0}; c < point.size(); ++c)
       {
         point[c] = multiplyAdd(ray.origin[c], determinant, ray.direction[c] * detT);
@@ -224,7 +230,7 @@ namespace raytracer
       for (auto first = begin / BlockWidth * BlockWidth; first < end; first += BlockWidth)
       {
         const auto test = testBlock(
-          blocks[first / BlockWidth], ray, zzzz(nearestTexCoordsAndDistance),
+          blocks[first / BlockWidth], ray, FacetLanes{z(nearestTexCoordsAndDistance)},
           candidateLanes(first, begin, end, originEntry), cullBack, cullFront
         );
         for (auto hits = test.hits; hits != 0; hits &= hits - 1)
@@ -262,8 +268,8 @@ namespace raytracer
       for (auto first = begin / BlockWidth * BlockWidth; first < end; first += BlockWidth)
       {
         const auto test = testBlock(
-          blocks[first / BlockWidth], ray, maxDistance, candidateLanes(first, begin, end, originEntry), cullBack,
-          cullFront
+          blocks[first / BlockWidth], ray, FacetLanes{rayCast.maxDistance},
+          candidateLanes(first, begin, end, originEntry), cullBack, cullFront
         );
         for (auto hits = test.hits; hits != 0; hits &= hits - 1)
         {
@@ -657,8 +663,8 @@ namespace raytracer
     }
 
     const auto entries = graph->leafGeometry.size();
-    const auto zero = Zero<Float4>();
-    const auto zeros = std::array<Float4, 4>{zero, zero, zero, zero};
+    const auto zero = Zero<FacetLanes>();
+    const auto zeros = std::array<FacetLanes, 4>{zero, zero, zero, zero};
     leafPlaneNormalBlocks.assign((entries + BlockWidth - 1) / BlockWidth, FacetNormalsBlock{zeros, zeros, zeros});
     leafFacetIndices.reserve(entries);
     for (auto entry = ASizeT{0}; entry < entries; ++entry)

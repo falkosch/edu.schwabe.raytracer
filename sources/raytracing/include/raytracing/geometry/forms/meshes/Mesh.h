@@ -14,10 +14,13 @@ namespace raytracer {
   using namespace vectorization;
   using namespace primitives;
 
-  // Plane normals (see nearestIntersectionHavel) of 4 consecutive leaf entries, component-wise: lane i of v0[c] is
-  // component c of v0 of entry 4 * block + i.
+  // lanes of the batch facet test
+  using FacetLanes = Float8;
+
+  // Plane normals (see nearestIntersectionHavel) of FacetLanes::SIZE consecutive leaf entries, component-wise: lane i
+  // of v0[c] is component c of v0 of entry FacetLanes::SIZE * block + i.
   struct alignas(64) FacetNormalsBlock {
-    std::array<Float4, 4> v0, v1, v2;
+    std::array<FacetLanes, 4> v0, v1, v2;
   };
 
   struct Mesh final : Form, GeometryNodesTraverser<FacetIntersection> {
@@ -94,7 +97,7 @@ namespace raytracer {
     std::vector<FacetEdges> facetEdges;
 
     // The elements of graph->leafGeometry in the same order, so a leaf is a range of entries: plane normals in blocks of
-    // 4 for the batch Havel test, and the facet index of every entry
+    // FacetLanes::SIZE for the batch Havel test, and the facet index of every entry
     std::vector<FacetNormalsBlock> leafPlaneNormalBlocks;
     std::vector<std::uint32_t> leafFacetIndices;
 

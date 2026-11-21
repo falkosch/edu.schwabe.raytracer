@@ -314,8 +314,8 @@ namespace raytracer::test {
     }
 
     TEST_METHOD(leafBlocksMatchNodeLoop) {
-      // A span inside the KD-tree's leafGeometry takes the packed 4-wide block path, a copy of the same node pointers
-      // the single-facet loop. Every sub-range of the cube's single leaf (12 facets: ranges start and end mid-block),
+      // A span inside the KD-tree's leafGeometry takes the packed block path, a copy of the same node pointers the
+      // single-facet loop. Every sub-range of the cube's single leaf (12 facets: ranges start and end mid-block),
       // each culling mode and each facet of the range as the origin must give the same distance and facet.
       auto mesh = makeCubeMesh();
       mesh->setTreeBalancer(std::make_unique<MedianKDTreeBalancer>());
