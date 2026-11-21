@@ -173,5 +173,5 @@ call it **~1500–2500 LOC** including tests and boilerplate per type):
 
 ## Related backlog items
 
-- **`soa-mesh-layout.md` / `simd-batch-triangle-test.md`** — much more attractive now that `v_f32_8` exists
+- **`DONE/soa-mesh-layout.md` / `simd-batch-triangle-test.md`** — much more attractive now that `v_f32_8` exists
   (process 8 triangles per ray in one SIMD op instead of 4).

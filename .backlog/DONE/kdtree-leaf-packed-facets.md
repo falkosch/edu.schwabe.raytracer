@@ -2,10 +2,10 @@
 
 ## Motivation
 
-`simd-batch-triangle-test.md` wants to test 4 (or 8) facets of a KD-tree leaf in one SIMD op. That needs the hit-test
-data of those facets in contiguous, lane-wise memory. `soa-mesh-layout.md` covers the global layout of the mesh
-arrays, but a global layout alone doesn't give that: a leaf references arbitrary facet indices, and the reordering
-idea in `soa-mesh-layout.md` ("reordering facets so that leaf-adjacent facets are also block-adjacent") can't be a
+`DONE/simd-batch-triangle-test.md` wants to test 4 (or 8) facets of a KD-tree leaf in one SIMD op. That needs the
+hit-test data of those facets in contiguous, lane-wise memory. `DONE/soa-mesh-layout.md` covers the global layout of the
+mesh arrays, but a global layout alone doesn't give that: a leaf references arbitrary facet indices, and the reordering
+idea in `DONE/soa-mesh-layout.md` ("reordering facets so that leaf-adjacent facets are also block-adjacent") can't be a
 permutation, because leaves share facets.
 
 Facets that straddle a split plane go into both children:
@@ -59,12 +59,12 @@ lanes (data that can't hit, or a lane mask).
 - Pros: contiguous aligned loads, no gathers; one leaf visit reads a few consecutive blocks.
 - Cons: duplication; memory is (sum of leaf sizes, rounded up to the block width per leaf) × (12 floats + 1 index);
   needs a leaf → block range mapping (see coupling below).
-- A per-leaf form of `soa-mesh-layout.md` Path C. Like its Path D, it can sit next to the existing AoS arrays, so the
-  SISD path doesn't regress.
+- A per-leaf form of `DONE/soa-mesh-layout.md` Path C. Like its Path D, it can sit next to the existing AoS arrays, so
+  the SISD path doesn't regress.
 
 ### B — Global component-wise SoA + gather
 
-Keep one copy in component-wise SoA (`soa-mesh-layout.md` Path A), keep index lists in the leaves, and load lanes
+Keep one copy in component-wise SoA (`DONE/soa-mesh-layout.md` Path A), keep index lists in the leaves, and load lanes
 with `_mm256_i32gather_ps` (AVX2) or scalar inserts.
 
 - Pros: no duplication; the leaf keeps an index list.
@@ -159,13 +159,13 @@ leaf loop's share before investing in packing.
 ## Prerequisites
 
 - `DONE/mesh-traversal-benchmark.md` (done) — to choose between the options.
-- Layout decision in `soa-mesh-layout.md`, decided together with this item: options A and B here are that decision
+- Layout decision in `DONE/soa-mesh-layout.md`, decided together with this item: options A and B here are that decision
   for the hit-test data.
 - Leaf payload: done with `DONE/flat-array-kdtree-nodes.md` (offset/count range passed as `GeometryNodeSpan`).
 
 ## Required by
 
-- `simd-batch-triangle-test.md`
+- `DONE/simd-batch-triangle-test.md`
 
 ## Key files
 
@@ -177,3 +177,21 @@ leaf loop's share before investing in packing.
 - `sources/raytracing/src/raytracing/geometry/forms/meshes/facets.cpp` — `computeNormals`, `computeNodesAndGraph`,
   `computeFacetIntersection`
 - `sources/raytracing/src/raytracing/geometry/SceneGeometry.cpp` — second user of the generic tree
+
+## Resolution
+
+A variant of option A without per-leaf padding (`5c8a256`). The blocks hold `leafGeometry`'s entries in the
+same order, so the tree's own duplication is the only one, and a leaf's facets are the entry range of its span
+(`span.data() - leafGeometry.data()`). Blocks run across leaf boundaries; the lanes outside the leaf's range are
+masked. That settles the open question above: no leaf → block table and no signature change.
+
+- Culling uses the sign of the Havel determinant: 0 differences against `flatNormals` on teapot and dragon2 in the
+  benchmark. Degenerate facets (zero `planeNormals.v0`) can't hit in either form: their distance is 0/0 = NaN.
+- Self-occlusion: the origin's node is looked up in the leaf's span once per call (a sequential scan) and its lane
+  is masked, so no facet index of the origin is needed.
+- Memory: 52 B per leaf entry (48 B plane normals, 4 B facet index); dragon2 has 351507 entries, about 18.3 MB.
+- Timing and verification: `DONE/soa-mesh-layout.md`.
+
+## Commits
+
+- `5c8a256` perf(raytracing): test mesh leaves in 4-wide facet blocks

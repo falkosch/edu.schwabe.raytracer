@@ -28,7 +28,7 @@ depth-first traversal, enables prefetching.
   or a leaf index with bit 31 set. The tree tests child boxes, not split planes, so no split axis is stored.
 - **Leaf payload:** `GeometryNodesTraverser` gets a leaf as a `GeometryNodeSpan` (`std::span<GeometryNode* const>`)
   instead of a `PGeometryNodeList`: `Mesh`, `SceneGeometry`, the tests' `BoxNodesTraverser` and the benchmark wrapper.
-  The span's offset into `leafGeometry` identifies the leaf, which `kdtree-leaf-packed-facets.md` needs.
+  The span's offset into `leafGeometry` identifies the leaf, which `DONE/kdtree-leaf-packed-facets.md` needs.
 - **Iterative traversal:** `NaiveKDTreeTraverser` and `VoxelizationKDTreeTraverser` use an explicit
   `std::array<..., KDTreeRoot::MaxDepth>` stack (64; the build asserts the depth fits). Visit order, pruning and the
   any-hit early exit are unchanged.

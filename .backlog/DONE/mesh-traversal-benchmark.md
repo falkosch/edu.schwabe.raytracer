@@ -3,8 +3,8 @@
 ## Motivation
 
 Three open items need a stable before/after measurement of the mesh hot path (KD-tree traversal plus the leaf
-intersection loop): `soa-mesh-layout.md` (step 1 of its sequencing asks for exactly this harness),
-`flat-array-kdtree-nodes.md` and `simd-batch-triangle-test.md`. `kdtree-leaf-packed-facets.md` needs it to choose
+intersection loop): `DONE/soa-mesh-layout.md` (step 1 of its sequencing asks for exactly this harness),
+`flat-array-kdtree-nodes.md` and `simd-batch-triangle-test.md`. `DONE/kdtree-leaf-packed-facets.md` needs it to choose
 between its options.
 
 The existing `benchmarkMeshFacet` in `sources/benchmarks/src/intersection_benchmarks.cpp` can't serve as that
@@ -131,7 +131,7 @@ same, the counters drop:
 Nodes, leaves and facets are per ray; facets counts all facets in the visited leaves (any hit counts the whole leaf
 even when it stops early).
 Nearest-hit distance sums: teapot 661367.878 (coherent) and 46461.251 (incoherent), dragon2 539927.274 and 17252.616.
-Leaf statistics are in `kdtree-leaf-packed-facets.md`.
+Leaf statistics are in `DONE/kdtree-leaf-packed-facets.md`.
 
 Noise: "best" is the stable metric. Its CV stays at 0.4-1.3% on teapot and 0.8-3.4% on dragon2 in both sessions
 (stable dragon2 any/incoherent has one low outlier at 2991.6). The median pass reaches 9% CV, wall-clock ns/ray 13%.
@@ -154,9 +154,10 @@ for dragon2 any/incoherent (3.4%) use 10 runs each.
 
 ## Related backlog items
 
-- `soa-mesh-layout.md` — step 1 of its sequencing is this harness. Its 0.067s teapot baseline is out of date
+- `DONE/soa-mesh-layout.md` — step 1 of its sequencing is this harness. Its 0.067s teapot baseline is out of date
   (`CLAUDE.md` now lists 0.0389s).
-- `flat-array-kdtree-nodes.md`, `simd-batch-triangle-test.md`, `kdtree-leaf-packed-facets.md` — measured with this.
+- `flat-array-kdtree-nodes.md`, `DONE/simd-batch-triangle-test.md`, `DONE/kdtree-leaf-packed-facets.md` — measured
+  with this.
 - `raytracing-testability.md` (#2) — on a mesh the KD-tree path is only reachable through `loadFromOffFile`; this
   harness hits the same restriction.
 
