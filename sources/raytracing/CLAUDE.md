@@ -51,8 +51,8 @@ offset/count ranges into `leafGeometry`. A `KDTreeLink` is an inner-node index o
 
 Traversers (template on intersection type):
 
-- `NaiveKDTreeTraverser<T>` -- depth-first with an explicit stack (child A first, child B deferred), early exit for
-  any-hit queries
+- `NaiveKDTreeTraverser<T>` -- depth-first with an explicit stack (child A first, child B deferred), skips a subtree
+  when the ray misses both child boxes, early exit for any-hit queries
 - `VoxelizationKDTreeTraverser<T>` -- debug view: intersects the leaf boundings instead of their geometry
 
 ### Shading (`shading/`)

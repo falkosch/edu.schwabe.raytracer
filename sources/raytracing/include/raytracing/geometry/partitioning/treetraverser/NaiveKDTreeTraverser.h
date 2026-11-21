@@ -13,7 +13,8 @@ namespace raytracer
     using namespace primitives;
 
     // Depth-first traversal with an explicit stack: where the ray hits both children, child A is traversed first and
-    // child B is deferred until A's subtree is done.
+    // child B is deferred until A's subtree is done. Where it hits neither child box, the subtree is skipped: child
+    // boxes are shrunk to their geometry, so a ray can cross the parent box without reaching any of it.
     template <typename IntersectionInfoType>
     class NaiveKDTreeTraverser : public KDTreeTraverser<IntersectionInfoType>
     {
@@ -47,6 +48,7 @@ namespace raytracer
 
             while (true)
             {
+                auto reachedLeaf = true;
                 while (!KDTreeRoot::isLeaf(traversal))
                 {
                     if (StatisticsCookie::current)
@@ -66,15 +68,25 @@ namespace raytracer
                         continue;
                     }
 
+                    if (!anyTrue(leftRightHit))
+                    {
+                        // neither child box is hit (or both lie beyond the current hit): skip this subtree
+                        reachedLeaf = false;
+                        break;
+                    }
+
                     // select one of the nodes as next iteration step
                     traversal = x(leftRightHit) ? children.childA : children.childB;
                 }
 
                 // At a leaf node, its geometry nodes are tested for intersection. A hit shortens rayCastOut, which
                 // prunes the deferred children.
-                rayCastOut.maxDistance = geometryNodesTraverser.findNearestIntersection(
-                    root.geometryOf(traversal), rayCastOut, originIntersection, intersectionOut
-                );
+                if (reachedLeaf)
+                {
+                    rayCastOut.maxDistance = geometryNodesTraverser.findNearestIntersection(
+                        root.geometryOf(traversal), rayCastOut, originIntersection, intersectionOut
+                    );
+                }
 
                 if (deferredCount == 0)
                 {
@@ -111,6 +123,7 @@ namespace raytracer
 
             while (true)
             {
+                auto reachedLeaf = true;
                 while (!KDTreeRoot::isLeaf(traversal))
                 {
                     if (StatisticsCookie::current)
@@ -130,14 +143,24 @@ namespace raytracer
                         continue;
                     }
 
+                    if (!anyTrue(leftRightHit))
+                    {
+                        // neither child box is hit (or both lie beyond the current hit): skip this subtree
+                        reachedLeaf = false;
+                        break;
+                    }
+
                     // select one of the nodes as next iteration step
                     traversal = x(leftRightHit) ? children.childA : children.childB;
                 }
 
                 // At a leaf node, its geometry nodes are tested for intersection.
-                rayCastOut.maxDistance = geometryNodesTraverser.findAnyIntersection(
-                    root.geometryOf(traversal), rayCastOut, originIntersection, intersectionOut
-                );
+                if (reachedLeaf)
+                {
+                    rayCastOut.maxDistance = geometryNodesTraverser.findAnyIntersection(
+                        root.geometryOf(traversal), rayCastOut, originIntersection, intersectionOut
+                    );
+                }
 
                 // short circuit on the first hit
                 if (!outOfReach(rayCast, rayCastOut.maxDistance) || deferredCount == 0)

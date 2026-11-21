@@ -53,6 +53,28 @@ namespace raytracer::test {
     }
   };
 
+  // Counts the leaves the traversal hands over, then intersects like BoxNodesTraverser.
+  class CountingBoxNodesTraverser : public BoxNodesTraverser {
+  public:
+    mutable int leafCalls = 0;
+
+    Float findNearestIntersection(
+        GeometryNodeSpan geometryNodes, const RayCast &rayCast, const FacetIntersection *const origin,
+        FacetIntersection &intersectionOut
+    ) const override {
+      ++leafCalls;
+      return BoxNodesTraverser::findNearestIntersection(geometryNodes, rayCast, origin, intersectionOut);
+    }
+
+    Float findAnyIntersection(
+        GeometryNodeSpan geometryNodes, const RayCast &rayCast, const FacetIntersection *const origin,
+        FacetIntersection &intersectionOut
+    ) const override {
+      ++leafCalls;
+      return BoxNodesTraverser::findAnyIntersection(geometryNodes, rayCast, origin, intersectionOut);
+    }
+  };
+
   TEST_CLASS(TraverserTest) {
     struct BoxTreeFixture {
       std::vector<std::unique_ptr<Box>> ownedBoxes;
@@ -326,6 +348,43 @@ namespace raytracer::test {
       const RayCast shortCast{fromLeft, Zero<Float4::VectorBoolType>(), Size2(0, 0), 9.0f};
       distance = traverser.findNearestIntersection(fix.nodesTraverser, *fix.root, shortCast, nullptr, intersection);
       Assert::AreEqual(9.0f, distance, L"maxDistance ends before the first box", LINE_INFO());
+    }
+
+    TEST_METHOD(naiveTraverserSkipsSubtreeWhenBothChildBoxesAreMissed) {
+      // Two clusters of small boxes (22 and 20), 20 units apart on x. The median of the 42 box minima falls into the
+      // gap, so the median balancer splits the root there and each child box shrinks to its cluster. A ray crossing
+      // the root box between the clusters misses both child boxes and must not reach any leaf.
+      BoxTreeFixture fix;
+      const Float4 size{0.02f, 0.02f, 0.02f, 0.0f};
+      for (const auto &[offset, count] : {std::pair{0.0f, 22}, std::pair{20.0f, 20}}) {
+        for (int i = 0; i < count; ++i) {
+          const auto center = Float4{offset + static_cast<Float>(i) * 0.05f, 0.0f, 0.0f, 0.0f};
+          auto box = std::make_unique<Box>(center - size, center + size);
+          fix.nodes.push_back(box.get());
+          fix.ownedBoxes.push_back(std::move(box));
+        }
+      }
+      const MedianKDTreeBalancer balancer{};
+      fix.root = balancer.build(fix.nodes);
+      Assert::IsFalse(KDTreeRoot::isLeaf(fix.root->rootLink), L"42 boxes in two clusters should split", LINE_INFO());
+      const auto &rootChildren = fix.root->childBoundings[fix.root->rootLink];
+      Assert::IsTrue(x(rootChildren.boundingA.maximum) < 10.0f, L"child A shrinks to the left cluster", LINE_INFO());
+      Assert::IsTrue(x(rootChildren.boundingB.minimum) > 10.0f, L"child B shrinks to the right cluster", LINE_INFO());
+
+      const NaiveKDTreeTraverser<FacetIntersection> traverser{};
+      const CountingBoxNodesTraverser counting{};
+      const Ray betweenClusters{Float4{10.0f, -5.0f, 0.0f, 0.0f}, Float4{0.0f, 1.0f, 0.0f, 0.0f}};
+      const RayCast rayCast{betweenClusters, Zero<Float4::VectorBoolType>(), Size2(0, 0), 100.0f};
+      Assert::IsTrue(overlaps(rayCast, fix.root->rootBounding), L"the ray crosses the root box", LINE_INFO());
+      FacetIntersection intersection{};
+
+      auto distance = traverser.findNearestIntersection(counting, *fix.root, rayCast, nullptr, intersection);
+      Assert::AreEqual(100.0f, distance, L"nearest: nothing between the clusters", LINE_INFO());
+      Assert::AreEqual(0, counting.leafCalls, L"nearest: no leaf reached", LINE_INFO());
+
+      distance = traverser.findAnyIntersection(counting, *fix.root, rayCast, nullptr, intersection);
+      Assert::AreEqual(100.0f, distance, L"any: nothing between the clusters", LINE_INFO());
+      Assert::AreEqual(0, counting.leafCalls, L"any: no leaf reached", LINE_INFO());
     }
 
     TEST_METHOD(naiveTraverserAnyHitThroughBothChildren) {

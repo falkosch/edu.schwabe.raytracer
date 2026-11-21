@@ -64,6 +64,7 @@ namespace raytracer
 
       while (true)
       {
+        auto reachedLeaf = true;
         while (!KDTreeRoot::isLeaf(traversal))
         {
           if (StatisticsCookie::current) ++StatisticsCookie::current->kdTreeNodesVisited;
@@ -81,6 +82,13 @@ namespace raytracer
             continue;
           }
 
+          if (!anyTrue(leftRightHit))
+          {
+            // neither child box is hit (or both lie beyond the current hit): skip this subtree
+            reachedLeaf = false;
+            break;
+          }
+
           // select one of the nodes as next iteration step
           if (x(leftRightHit))
           {
@@ -94,10 +102,13 @@ namespace raytracer
           }
         }
 
-        computeFacetIntersection(
-          nearestIntersection(tr, *lastHitBounding, reinterpret_cast<ASizeT>(lastHitBounding)), *lastHitBounding, tr,
-          intersectionOut
-        );
+        if (reachedLeaf)
+        {
+          computeFacetIntersection(
+            nearestIntersection(tr, *lastHitBounding, reinterpret_cast<ASizeT>(lastHitBounding)), *lastHitBounding,
+            tr, intersectionOut
+          );
+        }
 
         if ((stopAtFirstHit && !outOfReach(rayCast, tr.maxDistance)) || deferredCount == 0)
         {
