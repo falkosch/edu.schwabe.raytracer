@@ -105,6 +105,12 @@ namespace primitives
     return isNaN(t) | andnot(isNaN(rMaxDistanceV), t >= rMaxDistanceV);
   }
 
+  Float8::VectorBoolType outOfReach(const RayCast& rayCast, const Float8& t) noexcept
+  {
+    const auto rMaxDistanceV = Float8(rayCast.maxDistance);
+    return isNaN(t) | andnot(isNaN(rMaxDistanceV), t >= rMaxDistanceV);
+  }
+
   Float4 farPoint(const RayCast& rayCast) noexcept
   {
     return point(rayCast.ray, rayCast.maxDistance);

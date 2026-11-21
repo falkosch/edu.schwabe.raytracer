@@ -80,6 +80,23 @@ namespace primitives::test {
       Assert::IsFalse(outOfReach(rayCast, 5.0f), L"t < maxDistance should be in reach", LINE_INFO());
     }
 
+    TEST_METHOD(detectsOutOfReachPerLane) {
+      // The Float4 and Float8 overloads decide alike per lane, NaN distances and a NaN maxDistance included.
+      const auto nan = std::numeric_limits<Float>::quiet_NaN();
+      const Ray ray{};
+      const Float8 distances{5.0f, 10.0f, 15.0f, nan, -1.0f, 9.99f, 10.01f, 0.0f};
+      for (const auto maxDistance : {10.0f, nan}) {
+        const RayCast rayCast{ray, Zero<Float4::VectorBoolType>(), Zero<Size2>(), maxDistance};
+        const auto lanes = isNegative(outOfReach(rayCast, distances));
+        const auto lo = isNegative(outOfReach(rayCast, Float4{distances[0], distances[1], distances[2], distances[3]}));
+        const auto hi = isNegative(outOfReach(rayCast, Float4{distances[4], distances[5], distances[6], distances[7]}));
+        // isNegative of a v_i32_4 repeats its 4 lane bits in every nibble
+        Assert::AreEqual((lo & 0xF) | ((hi & 0xF) << 4), lanes, L"Float8 lanes match the Float4 overload", LINE_INFO());
+      }
+      const RayCast rayCast{ray, Zero<Float4::VectorBoolType>(), Zero<Size2>(), 10.0f};
+      Assert::AreEqual(0b0100'1110, isNegative(outOfReach(rayCast, distances)), L"out of reach lanes", LINE_INFO());
+    }
+
     TEST_METHOD(computesFarPoint) {
       const Float4 origin{1.0f, 0.0f, 0.0f, 0.0f};
       const Float4 direction{0.0f, 1.0f, 0.0f, 0.0f};

@@ -54,6 +54,7 @@ namespace primitives
 
     bool outOfReach(const RayCast& rayCast, Float t) noexcept;
     Float4::VectorBoolType outOfReach(const RayCast& rayCast, const Float4& t) noexcept;
+    Float8::VectorBoolType outOfReach(const RayCast& rayCast, const Float8& t) noexcept;
 
     Float4 farPoint(const RayCast& rayCast) noexcept;
 }
