@@ -44,12 +44,12 @@ namespace raytracer {
     PGeometryNodeList infiniteSceneObjectsAsGeometryNodes;
 
     Float findNearestIntersection(
-        const PGeometryNodeList &geometryNodes, const RayCast &rayCast, const SceneIntersection *originIntersection,
+        GeometryNodeSpan geometryNodes, const RayCast &rayCast, const SceneIntersection *originIntersection,
         SceneIntersection &intersectionOut
     ) const override;
 
     Float findAnyIntersection(
-        const PGeometryNodeList &geometryNodes, const RayCast &rayCast, const SceneIntersection *originIntersection,
+        GeometryNodeSpan geometryNodes, const RayCast &rayCast, const SceneIntersection *originIntersection,
         SceneIntersection &intersectionOut
     ) const override;
   };

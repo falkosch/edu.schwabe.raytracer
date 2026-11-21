@@ -70,7 +70,7 @@ namespace raytracer
   }
 
   Float Mesh::findNearestIntersection(
-    const PGeometryNodeList& geometryNodes, const RayCast& rayCast, const FacetIntersection* const originIntersection,
+    const GeometryNodeSpan geometryNodes, const RayCast& rayCast, const FacetIntersection* const originIntersection,
     FacetIntersection& intersectionOut
   ) const
   {
@@ -121,7 +121,7 @@ namespace raytracer
 
   // Finds any intersection of a Ray within a geometry.
   Float Mesh::findAnyIntersection(
-    const PGeometryNodeList& geometryNodes, const RayCast& rayCast, const FacetIntersection* const originIntersection,
+    const GeometryNodeSpan geometryNodes, const RayCast& rayCast, const FacetIntersection* const originIntersection,
     FacetIntersection& intersectionOut
   ) const
   {

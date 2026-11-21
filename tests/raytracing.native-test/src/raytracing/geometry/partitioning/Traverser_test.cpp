@@ -2,6 +2,7 @@
 
 #include "raytracing/geometry/partitioning/treebalancer/MedianKDTreeBalancer.h"
 #include "raytracing/geometry/partitioning/treetraverser/NaiveKDTreeTraverser.h"
+#include "raytracing/geometry/partitioning/treetraverser/VoxelizationKDTreeTraverser.h"
 
 namespace raytracer::test {
   // A minimal GeometryNodesTraverser over Box leaves: at each leaf, iterate the boxes and pick the
@@ -9,7 +10,7 @@ namespace raytracer::test {
   class BoxNodesTraverser : public GeometryNodesTraverser<FacetIntersection> {
   public:
     Float findNearestIntersection(
-        const PGeometryNodeList &geometryNodes, const RayCast &rayCast, const FacetIntersection *const origin,
+        GeometryNodeSpan geometryNodes, const RayCast &rayCast, const FacetIntersection *const origin,
         FacetIntersection &intersectionOut
     ) const override {
       Float nearest = rayCast.maxDistance;
@@ -32,7 +33,7 @@ namespace raytracer::test {
     }
 
     Float findAnyIntersection(
-        const PGeometryNodeList &geometryNodes, const RayCast &rayCast, const FacetIntersection *const origin,
+        GeometryNodeSpan geometryNodes, const RayCast &rayCast, const FacetIntersection *const origin,
         FacetIntersection &intersectionOut
     ) const override {
       for (auto *node : geometryNodes) {
@@ -287,6 +288,106 @@ namespace raytracer::test {
 
         Assert::AreEqual(4.6f, distance, 0.001f, L"each box should be reachable through traversal", LINE_INFO());
       }
+    }
+
+    static BoxTreeFixture makeBoxesAlongX(const int count) {
+      BoxTreeFixture fix;
+      const Float4 size{0.4f, 0.4f, 0.4f, 0.0f};
+      for (int i = 0; i < count; ++i) {
+        const auto center = Float4{static_cast<Float>(i) * 1.0f, 0.0f, 0.0f, 0.0f};
+        auto box = std::make_unique<Box>(center - size, center + size);
+        fix.nodes.push_back(box.get());
+        fix.ownedBoxes.push_back(std::move(box));
+      }
+      const MedianKDTreeBalancer balancer{};
+      fix.root = balancer.build(fix.nodes);
+      return fix;
+    }
+
+    TEST_METHOD(naiveTraverserRayThroughBothChildrenFindsNearest) {
+      // A ray along x crosses every split, so the traversal defers child B at each inner node and has to resume it.
+      auto fix = makeBoxesAlongX(64);
+      Assert::IsFalse(KDTreeRoot::isLeaf(fix.root->rootLink), L"64 boxes should split", LINE_INFO());
+      const NaiveKDTreeTraverser<FacetIntersection> traverser{};
+      FacetIntersection intersection{};
+
+      const Ray fromLeft{Float4{-10.0f, 0.0f, 0.0f, 0.0f}, Float4{1.0f, 0.0f, 0.0f, 0.0f}};
+      const RayCast leftCast{fromLeft, Zero<Float4::VectorBoolType>(), Size2(0, 0), 100.0f};
+      auto distance = traverser.findNearestIntersection(fix.nodesTraverser, *fix.root, leftCast, nullptr, intersection);
+      Assert::AreEqual(9.6f, distance, 0.001f, L"first box from the left, at x=-0.4", LINE_INFO());
+      Assert::IsTrue(intersection.node == fix.nodes.front(), L"hit node is the leftmost box", LINE_INFO());
+
+      const Ray fromRight{Float4{70.0f, 0.0f, 0.0f, 0.0f}, Float4{-1.0f, 0.0f, 0.0f, 0.0f}};
+      const RayCast rightCast{fromRight, Zero<Float4::VectorBoolType>(), Size2(0, 0), 100.0f};
+      distance = traverser.findNearestIntersection(fix.nodesTraverser, *fix.root, rightCast, nullptr, intersection);
+      Assert::AreEqual(6.6f, distance, 0.001f, L"first box from the right, at x=63.4", LINE_INFO());
+      Assert::IsTrue(intersection.node == fix.nodes.back(), L"hit node is the rightmost box", LINE_INFO());
+
+      const RayCast shortCast{fromLeft, Zero<Float4::VectorBoolType>(), Size2(0, 0), 9.0f};
+      distance = traverser.findNearestIntersection(fix.nodesTraverser, *fix.root, shortCast, nullptr, intersection);
+      Assert::AreEqual(9.0f, distance, L"maxDistance ends before the first box", LINE_INFO());
+    }
+
+    TEST_METHOD(naiveTraverserAnyHitThroughBothChildren) {
+      auto fix = makeBoxesAlongX(64);
+      const NaiveKDTreeTraverser<FacetIntersection> traverser{};
+      FacetIntersection intersection{};
+
+      const Ray alongX{Float4{-10.0f, 0.0f, 0.0f, 0.0f}, Float4{1.0f, 0.0f, 0.0f, 0.0f}};
+      const RayCast hitting{alongX, Zero<Float4::VectorBoolType>(), Size2(0, 0), 100.0f};
+      const auto distance =
+          traverser.findAnyIntersection(fix.nodesTraverser, *fix.root, hitting, nullptr, intersection);
+      Assert::IsTrue(distance < 100.0f, L"some box is hit", LINE_INFO());
+      Assert::IsNotNull(intersection.node, L"hit node set", LINE_INFO());
+
+      const Ray between{Float4{-10.0f, 0.45f, 0.0f, 0.0f}, Float4{1.0f, 0.0f, 0.0f, 0.0f}};
+      const RayCast missing{between, Zero<Float4::VectorBoolType>(), Size2(0, 0), 100.0f};
+      const auto missDistance =
+          traverser.findAnyIntersection(fix.nodesTraverser, *fix.root, missing, nullptr, intersection);
+      Assert::AreEqual(100.0f, missDistance, L"ray just above all boxes misses", LINE_INFO());
+    }
+
+    TEST_METHOD(voxelizationTraverserReportsLeafBoundings) {
+      // The voxelization traverser is a debug view: it intersects the leaf boundings, not the geometry, and sets no
+      // node. 64 boxes force inner nodes, three boxes keep the whole tree a single leaf.
+      BoxTreeFixture split;
+      const Float4 size{0.4f, 0.4f, 0.4f, 0.0f};
+      for (int i = 0; i < 64; ++i) {
+        const auto center = Float4{static_cast<Float>(i) * 1.0f, 0.0f, 0.0f, 0.0f};
+        auto box = std::make_unique<Box>(center - size, center + size);
+        split.nodes.push_back(box.get());
+        split.ownedBoxes.push_back(std::move(box));
+      }
+      const MedianKDTreeBalancer balancer{};
+      split.root = balancer.build(split.nodes);
+      Assert::IsFalse(KDTreeRoot::isLeaf(split.root->rootLink), L"64 boxes should split", LINE_INFO());
+
+      const VoxelizationKDTreeTraverser<FacetIntersection> traverser{};
+      const Ray upwards{Float4{0.0f, -5.0f, 0.0f, 0.0f}, Float4{0.0f, 1.0f, 0.0f, 0.0f}};
+      const RayCast hitting{upwards, Zero<Float4::VectorBoolType>(), Size2(0, 0), 100.0f};
+      FacetIntersection intersection{};
+      intersection.node = split.nodes.front();
+
+      auto distance =
+          traverser.findNearestIntersection(split.nodesTraverser, *split.root, hitting, nullptr, intersection);
+      Assert::AreEqual(4.6f, distance, 0.001f, L"enters the leaf bounding at y=-0.4", LINE_INFO());
+      Assert::IsNull(intersection.node, L"no geometry node for a leaf bounding", LINE_INFO());
+
+      distance = traverser.findAnyIntersection(split.nodesTraverser, *split.root, hitting, nullptr, intersection);
+      Assert::AreEqual(4.6f, distance, 0.001f, L"any hit also reports the leaf bounding", LINE_INFO());
+
+      const Ray above{Float4{0.0f, 5.0f, 0.0f, 0.0f}, Float4{1.0f, 0.0f, 0.0f, 0.0f}};
+      const RayCast missing{above, Zero<Float4::VectorBoolType>(), Size2(0, 0), 100.0f};
+      distance = traverser.findNearestIntersection(split.nodesTraverser, *split.root, missing, nullptr, intersection);
+      Assert::AreEqual(100.0f, distance, L"miss returns maxDistance", LINE_INFO());
+
+      auto single = makeThreeBoxesOnXAxis();
+      Assert::IsTrue(KDTreeRoot::isLeaf(single.root->rootLink), L"three boxes stay a single leaf", LINE_INFO());
+      const Ray alongX{Float4{-10.0f, 0.0f, 0.0f, 0.0f}, Float4{1.0f, 0.0f, 0.0f, 0.0f}};
+      const RayCast throughRoot{alongX, Zero<Float4::VectorBoolType>(), Size2(0, 0), 100.0f};
+      distance =
+          traverser.findNearestIntersection(single.nodesTraverser, *single.root, throughRoot, nullptr, intersection);
+      Assert::AreEqual(6.5f, distance, 0.001f, L"enters the root leaf bounding at x=-3.5", LINE_INFO());
     }
   };
 }

@@ -44,10 +44,16 @@ Balancers (all extend `KDTreeBalancer`):
 - `MedianKDTreeBalancer`, `ArithmeticMeanKDTreeBalancer` -- simple split strategies
 - `MaxAxisKDTreeBalancer`, `RotatingAxisKDTreeBalancer` -- axis selection strategies
 
+Balancers build a temporary pointer tree (`KDTreeNode`, `KDTreeNodeChildren`) and flatten it into `KDTreeRoot`:
+inner nodes depth-first in parallel arrays (`childBoundings`, one cache line per node, and `childLinks`), leaves as
+offset/count ranges into `leafGeometry`. A `KDTreeLink` is an inner-node index or a leaf index with `LeafFlag` set.
+`GeometryNodesTraverser` gets each leaf's geometry as a `GeometryNodeSpan`.
+
 Traversers (template on intersection type):
 
-- `NaiveKDTreeTraverser<T>` -- recursive depth-first with early termination
-- `VoxelizationKDTreeTraverser<T>` -- uses box entry/exit points
+- `NaiveKDTreeTraverser<T>` -- depth-first with an explicit stack (child A first, child B deferred), early exit for
+  any-hit queries
+- `VoxelizationKDTreeTraverser<T>` -- debug view: intersects the leaf boundings instead of their geometry
 
 ### Shading (`shading/`)
 

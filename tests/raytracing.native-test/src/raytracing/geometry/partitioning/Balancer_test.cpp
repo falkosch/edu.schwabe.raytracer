@@ -29,6 +29,19 @@ namespace raytracer::test {
       return storage;
     }
 
+    static bool rootIsNonEmptyLeaf(const KDTreeRoot &root) {
+      return KDTreeRoot::isLeaf(root.rootLink) && !root.geometryOf(root.rootLink).empty();
+    }
+
+    // sums the geometry of all leaves reachable from the given link
+    static ASizeT countLeafGeometry(const KDTreeRoot &root, const KDTreeLink link) {
+      if (KDTreeRoot::isLeaf(link)) {
+        return root.geometryOf(link).size();
+      }
+      const auto &children = root.childLinks[link];
+      return countLeafGeometry(root, children.childA) + countLeafGeometry(root, children.childB);
+    }
+
   public:
     TEST_METHOD(buildEmptyGeometryReturnsNull) {
       const auto balancer = MedianKDTreeBalancer{};
@@ -44,8 +57,8 @@ namespace raytracer::test {
 
       auto root = balancer.build(storage.nodes);
       Assert::IsNotNull(root.get(), L"single-primitive tree should exist", LINE_INFO());
-      Assert::IsTrue(root->rootNode.isNonEmptyLeaf(), L"single primitive should be a leaf", LINE_INFO());
-      Assert::AreEqual(ASizeT{1}, root->rootNode.geometryNodes->size(), L"leaf holds one node", LINE_INFO());
+      Assert::IsTrue(rootIsNonEmptyLeaf(*root), L"single primitive should be a leaf", LINE_INFO());
+      Assert::AreEqual(ASizeT{1}, root->geometryOf(root->rootLink).size(), L"leaf holds one node", LINE_INFO());
     }
 
     TEST_METHOD(buildBelowMaxNodesSizeStaysAsLeaf) {
@@ -57,8 +70,8 @@ namespace raytracer::test {
 
       auto root = balancer.build(storage.nodes);
       Assert::IsNotNull(root.get(), L"tree should exist", LINE_INFO());
-      Assert::IsTrue(root->rootNode.isNonEmptyLeaf(), L"<=16 primitives stays as leaf", LINE_INFO());
-      Assert::AreEqual(ASizeT{2}, root->rootNode.geometryNodes->size(), L"leaf holds both boxes", LINE_INFO());
+      Assert::IsTrue(rootIsNonEmptyLeaf(*root), L"<=16 primitives stays as leaf", LINE_INFO());
+      Assert::AreEqual(ASizeT{2}, root->geometryOf(root->rootLink).size(), L"leaf holds both boxes", LINE_INFO());
     }
 
     TEST_METHOD(buildAboveCostThresholdProducesSplit) {
@@ -69,7 +82,7 @@ namespace raytracer::test {
 
       auto root = balancer.build(storage.nodes);
       Assert::IsNotNull(root.get(), L"tree should exist", LINE_INFO());
-      Assert::IsTrue(root->rootNode.children != nullptr, L"64 boxes should force a split", LINE_INFO());
+      Assert::IsTrue(!KDTreeRoot::isLeaf(root->rootLink), L"64 boxes should force a split", LINE_INFO());
     }
 
     TEST_METHOD(rootBoundingCoversAllPrimitives) {
@@ -88,17 +101,8 @@ namespace raytracer::test {
 
       auto root = balancer.build(storage.nodes);
 
-      std::function<ASizeT(const KDTreeNode &)> countLeafGeometry = [&](const KDTreeNode &node) -> ASizeT {
-        if (node.isNonEmptyLeaf()) {
-          return node.geometryNodes->size();
-        }
-        if (!node.children) {
-          return ASizeT{0};
-        }
-        return countLeafGeometry(node.children->childA) + countLeafGeometry(node.children->childB);
-      };
 
-      const auto totalLeafEntries = countLeafGeometry(root->rootNode);
+      const auto totalLeafEntries = countLeafGeometry(*root, root->rootLink);
       Assert::IsTrue(totalLeafEntries >= ASizeT{32}, L"every input must reach at least one leaf", LINE_INFO());
     }
 
@@ -114,16 +118,7 @@ namespace raytracer::test {
       auto root = balancer.build(storage.nodes);
       Assert::IsNotNull(root.get(), L"tree should still build", LINE_INFO());
       // The exact tree shape is balancer-specific; just ensure all 20 boxes are still represented.
-      std::function<ASizeT(const KDTreeNode &)> countLeafGeometry = [&](const KDTreeNode &node) -> ASizeT {
-        if (node.isNonEmptyLeaf()) {
-          return node.geometryNodes->size();
-        }
-        if (!node.children) {
-          return ASizeT{0};
-        }
-        return countLeafGeometry(node.children->childA) + countLeafGeometry(node.children->childB);
-      };
-      const auto totalLeafEntries = countLeafGeometry(root->rootNode);
+      const auto totalLeafEntries = countLeafGeometry(*root, root->rootLink);
       Assert::IsTrue(totalLeafEntries >= ASizeT{20}, L"all coincident primitives represented", LINE_INFO());
     }
 
@@ -133,7 +128,7 @@ namespace raytracer::test {
 
       auto root = balancer.build(storage.nodes);
       Assert::IsNotNull(root.get(), L"arithmetic mean balancer should build a tree", LINE_INFO());
-      Assert::IsTrue(root->rootNode.children != nullptr, L"64 boxes should split", LINE_INFO());
+      Assert::IsTrue(!KDTreeRoot::isLeaf(root->rootLink), L"64 boxes should split", LINE_INFO());
     }
 
     TEST_METHOD(maxAxisBalancerBuildsWorkingTree) {
@@ -142,7 +137,7 @@ namespace raytracer::test {
 
       auto root = balancer.build(storage.nodes);
       Assert::IsNotNull(root.get(), L"max axis balancer should build a tree", LINE_INFO());
-      Assert::IsTrue(root->rootNode.children != nullptr, L"64 boxes should split", LINE_INFO());
+      Assert::IsTrue(!KDTreeRoot::isLeaf(root->rootLink), L"64 boxes should split", LINE_INFO());
     }
 
     TEST_METHOD(splitPlaneSelectionUsesMaxAxis) {
@@ -152,9 +147,9 @@ namespace raytracer::test {
       auto storage = manyBoxesAlongX(64);
 
       auto root = balancer.build(storage.nodes);
-      Assert::IsTrue(root->rootNode.children != nullptr, L"should split", LINE_INFO());
+      Assert::IsTrue(!KDTreeRoot::isLeaf(root->rootLink), L"should split", LINE_INFO());
 
-      const auto &children = *root->rootNode.children;
+      const auto &children = root->childBoundings[root->rootLink];
       const auto leftMaxX = x(children.boundingA.maximum);
       const auto rightMinX = x(children.boundingB.minimum);
       Assert::IsTrue(leftMaxX <= rightMinX + 0.001f,
@@ -235,7 +230,7 @@ namespace raytracer::test {
 
       auto root = balancer.build(storage.nodes);
       Assert::IsNotNull(root.get(), L"single primitive tree should exist", LINE_INFO());
-      Assert::IsTrue(root->rootNode.isNonEmptyLeaf(), L"single primitive is a leaf", LINE_INFO());
+      Assert::IsTrue(rootIsNonEmptyLeaf(*root), L"single primitive is a leaf", LINE_INFO());
     }
   };
 }

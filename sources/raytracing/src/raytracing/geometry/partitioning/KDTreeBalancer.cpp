@@ -1,8 +1,11 @@
 #include "raytracing/geometry/partitioning/KDTreeBalancer.h"
 #include "../../../stdafx.h"
 
+#include "raytracing/geometry/partitioning/KDTreeNodeChildren.h"
+
 #include <cassert>
 #include <intrin.h>
+#include <limits>
 #include <logging.h>
 #include <numeric>
 #include <omp.h>
@@ -12,6 +15,41 @@ static const auto Log = logging::scope("KDTree");
 
 namespace raytracer
 {
+    namespace
+    {
+        // Copies the pointer-based build tree into the flat arrays of the root, depth-first, so that child A follows
+        // its parent directly. Returns the link to the copied node.
+        KDTreeLink flatten(const KDTreeNode& node, KDTreeRoot& root)
+        {
+            if (!node.children)
+            {
+                const auto offset = root.leafGeometry.size();
+                const auto count = node.geometryNodes ? node.geometryNodes->size() : ASizeT{0};
+                if (count > 0)
+                {
+                    root.leafGeometry.insert(
+                        root.leafGeometry.end(), node.geometryNodes->cbegin(), node.geometryNodes->cend()
+                    );
+                }
+                assert(root.leafGeometry.size() <= std::numeric_limits<std::uint32_t>::max());
+                root.leaves.push_back(
+                    KDTreeLeaf{static_cast<std::uint32_t>(offset), static_cast<std::uint32_t>(count)}
+                );
+                assert(root.leaves.size() <= KDTreeRoot::LeafFlag);
+                return static_cast<KDTreeLink>(root.leaves.size() - 1) | KDTreeRoot::LeafFlag;
+            }
+
+            const auto inner = root.childLinks.size();
+            assert(inner < KDTreeRoot::LeafFlag);
+            root.childBoundings.push_back(KDTreeChildBoundings{node.children->boundingA, node.children->boundingB});
+            root.childLinks.emplace_back();
+            const auto childA = flatten(node.children->childA, root);
+            const auto childB = flatten(node.children->childB, root);
+            root.childLinks[inner] = KDTreeChildLinks{childA, childB};
+            return static_cast<KDTreeLink>(inner);
+        }
+    }
+
     KDTreeBalancer::~KDTreeBalancer() = default;
 
     bool KDTreeBalancer::isTerminal(
@@ -64,11 +102,20 @@ namespace raytracer
 
         auto root = std::make_unique<KDTreeRoot>();
         root->rootBounding = KDTreeBounding::findMinimumBoundingOfGeometry(rootGeometry);
-        root->rootNode.geometryNodes = std::make_unique<PGeometryNodeList>(rootGeometry);
 
         const auto cycles0 = __rdtsc();
 
-        build(parameters, Zero<ASizeT>(), nullptr, root->rootBounding, root->rootNode);
+        // build with heap-allocated nodes first (the final size is unknown), then copy into the flat arrays
+        auto buildRoot = KDTreeNode();
+        buildRoot.geometryNodes = std::make_unique<PGeometryNodeList>(rootGeometry);
+        build(parameters, Zero<ASizeT>(), nullptr, root->rootBounding, buildRoot);
+
+        root->treeDepth = buildRoot.depth();
+        assert(root->treeDepth <= KDTreeRoot::MaxDepth);
+        root->childBoundings.reserve(buildRoot.nodeCount() / 2);
+        root->childLinks.reserve(buildRoot.nodeCount() / 2);
+        root->leaves.reserve(buildRoot.nodeCount() / 2 + 1);
+        root->rootLink = flatten(buildRoot, *root);
 
         const auto cycles1 = __rdtsc();
         Log.info([n = rootGeometry.size(), c = cycles1 - cycles0]

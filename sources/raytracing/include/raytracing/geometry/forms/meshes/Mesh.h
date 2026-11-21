@@ -39,12 +39,12 @@ namespace raytracer {
     // GeometryNodesTraverser interface
 
     Float findNearestIntersection(
-        const PGeometryNodeList &geometryNodes, const RayCast &rayCast, const FacetIntersection *originIntersection,
+        GeometryNodeSpan geometryNodes, const RayCast &rayCast, const FacetIntersection *originIntersection,
         FacetIntersection &intersectionOut
     ) const override;
 
     Float findAnyIntersection(
-        const PGeometryNodeList &geometryNodes, const RayCast &rayCast, const FacetIntersection *originIntersection,
+        GeometryNodeSpan geometryNodes, const RayCast &rayCast, const FacetIntersection *originIntersection,
         FacetIntersection &intersectionOut
     ) const override;
 

@@ -137,17 +137,18 @@ namespace benchmarks
             return (value + multiple - 1) / multiple * multiple;
         }
 
-        void collectLeafStatistics(const KDTreeNode& node, LeafStatistics& statistics)
+        // walks the links from the root, so only reachable leaves count
+        void collectLeafStatistics(const KDTreeRoot& graph, const KDTreeLink link, LeafStatistics& statistics)
         {
-            if (node.children)
+            if (!KDTreeRoot::isLeaf(link))
             {
-                collectLeafStatistics(node.children->childA, statistics);
-                collectLeafStatistics(node.children->childB, statistics);
+                collectLeafStatistics(graph, graph.childLinks[link].childA, statistics);
+                collectLeafStatistics(graph, graph.childLinks[link].childB, statistics);
                 return;
             }
 
             ++statistics.leaves;
-            const auto size = node.geometryNodes ? node.geometryNodes->size() : ASizeT{0};
+            const auto size = graph.geometryOf(link).size();
             if (size == 0)
             {
                 ++statistics.emptyLeaves;
@@ -178,7 +179,7 @@ namespace benchmarks
             }
 
             auto statistics = LeafStatistics();
-            collectLeafStatistics(graph->rootNode, statistics);
+            collectLeafStatistics(*graph, graph->rootLink, statistics);
 
             const auto facets = mesh.getFaceCount();
             const auto filledLeaves = statistics.leaves - statistics.emptyLeaves;
@@ -225,7 +226,7 @@ namespace benchmarks
             }
 
             Float findNearestIntersection(
-                const PGeometryNodeList& geometryNodes, const RayCast& rayCast,
+                const GeometryNodeSpan geometryNodes, const RayCast& rayCast,
                 const FacetIntersection* originIntersection,
                 FacetIntersection& intersectionOut
             ) const override
@@ -236,7 +237,7 @@ namespace benchmarks
             }
 
             Float findAnyIntersection(
-                const PGeometryNodeList& geometryNodes, const RayCast& rayCast,
+                const GeometryNodeSpan geometryNodes, const RayCast& rayCast,
                 const FacetIntersection* originIntersection,
                 FacetIntersection& intersectionOut
             ) const override

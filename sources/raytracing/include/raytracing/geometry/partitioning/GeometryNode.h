@@ -4,6 +4,7 @@
 
 #include <primitives.h>
 
+#include <span>
 #include <vector>
 
 namespace raytracer {
@@ -22,4 +23,7 @@ namespace raytracer {
   };
 
   typedef std::vector<GeometryNode *, AlignedAllocator<GeometryNode *>> PGeometryNodeList;
+
+  // the geometry nodes of one KD-tree leaf (or any other list of them), without owning them
+  using GeometryNodeSpan = std::span<GeometryNode *const>;
 }

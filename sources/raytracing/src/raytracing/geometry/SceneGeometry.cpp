@@ -71,7 +71,7 @@ namespace raytracer {
   }
 
   Float SceneGeometry::findNearestIntersection(
-      const PGeometryNodeList &geometryNodes, const RayCast &r, const SceneIntersection *const originIntersection,
+      const GeometryNodeSpan geometryNodes, const RayCast &r, const SceneIntersection *const originIntersection,
       SceneIntersection &intersectionOut
   ) const {
     // iterate through all SceneObjects
@@ -93,7 +93,7 @@ namespace raytracer {
   }
 
   Float SceneGeometry::findAnyIntersection(
-      const PGeometryNodeList &geometryNodes, const RayCast &r, const SceneIntersection *const originIntersection,
+      const GeometryNodeSpan geometryNodes, const RayCast &r, const SceneIntersection *const originIntersection,
       SceneIntersection &intersectionOut
   ) const {
     // iterate through all SceneObjects

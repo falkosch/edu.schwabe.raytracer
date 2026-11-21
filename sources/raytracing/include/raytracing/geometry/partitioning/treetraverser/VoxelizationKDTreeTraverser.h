@@ -4,6 +4,9 @@
 
 #include "raytracing/common/StatisticsCookie.h"
 
+#include <array>
+#include <cassert>
+
 namespace raytracer
 {
   using namespace vectorization;
@@ -38,119 +41,80 @@ namespace raytracer
       intersectionOut.node = nullptr;
     }
 
-    static void findNearestIntersection(
-      const GeometryNodesTraverser<IntersectionInfoType>& geometryNodesTraverser, const KDTreeNode& node,
-      const AxisAlignedBoundingBox& nodeBounding, const IntersectionInfoType* const originIntersection, RayCast& tr,
+    // child B and its bounding, deferred while child A's subtree is traversed
+    struct DeferredChild
+    {
+      KDTreeLink link;
+      const AxisAlignedBoundingBox* bounding;
+    };
+
+    // Depth-first traversal with an explicit stack. At each leaf, the leaf's bounding is intersected instead of its
+    // geometry (debug view of the voxels). With stopAtFirstHit, it ends at the first leaf the ray reaches within
+    // rayCast.maxDistance.
+    static void traverse(
+      const KDTreeRoot& root, const RayCast& rayCast, const bool stopAtFirstHit, RayCast& tr,
       IntersectionInfoType& intersectionOut
     )
     {
-      // Traverse children
-      const AxisAlignedBoundingBox* lastHitBounding = &nodeBounding;
-      const KDTreeNode* traversal = &node;
+      std::array<DeferredChild, KDTreeRoot::MaxDepth> deferred;
+      auto deferredCount = ASizeT{0};
 
-      while (traversal->children)
+      const AxisAlignedBoundingBox* lastHitBounding = &root.rootBounding;
+      KDTreeLink traversal = root.rootLink;
+
+      while (true)
       {
-        if (StatisticsCookie::current) ++StatisticsCookie::current->kdTreeNodesVisited;
-        const KDTreeNodeChildren& children = *traversal->children;
-        const Float4::VectorBoolType leftRightHit = overlaps(tr, children.boundingA, children.boundingB);
-
-        if (allTrue(leftRightHit))
+        while (!KDTreeRoot::isLeaf(traversal))
         {
-          // Set right as next iteration step
-          lastHitBounding = &children.boundingB;
-          traversal = &children.childB;
-          // We need a recursive call to test the left node. (depth-first traversal)
-          findNearestIntersection(
-            geometryNodesTraverser, children.childA, children.boundingA, originIntersection, tr, intersectionOut
-          );
-          continue;
-        }
+          if (StatisticsCookie::current) ++StatisticsCookie::current->kdTreeNodesVisited;
+          const KDTreeChildBoundings& boundings = root.childBoundings[traversal];
+          const KDTreeChildLinks& children = root.childLinks[traversal];
+          const Float4::VectorBoolType leftRightHit = overlaps(tr, boundings.boundingA, boundings.boundingB);
 
-        // select one of the nodes as next iteration step
-        if (x(leftRightHit))
-        {
-          traversal = &children.childA;
-          lastHitBounding = &children.boundingA;
-        }
-        else
-        {
-          traversal = &children.childB;
-          lastHitBounding = &children.boundingB;
-        }
-      }
-
-      // At a non-empty leaf node, its geometry nodes are tested for intersection.
-      assert(traversal->isNonEmptyLeaf());
-      computeFacetIntersection(
-        nearestIntersection(tr, *lastHitBounding, reinterpret_cast<ASizeT>(lastHitBounding)), *lastHitBounding, tr,
-        intersectionOut
-      );
-    }
-
-    static void findAnyIntersection(
-      const GeometryNodesTraverser<IntersectionInfoType>& geometryNodesTraverser, const KDTreeNode& node,
-      const AxisAlignedBoundingBox& nodeBounding, const RayCast& rayCast,
-      const IntersectionInfoType* const originIntersection, RayCast& tr, IntersectionInfoType& intersectionOut
-    )
-    {
-      // Traverse children
-      const AxisAlignedBoundingBox* lastHitBounding = &nodeBounding;
-      const KDTreeNode* traversal = &node;
-
-      while (traversal->children)
-      {
-        if (StatisticsCookie::current) ++StatisticsCookie::current->kdTreeNodesVisited;
-        const KDTreeNodeChildren& children = *traversal->children;
-        const Float4::VectorBoolType leftRightHit = overlaps(tr, children.boundingA, children.boundingB);
-
-        if (allTrue(leftRightHit))
-        {
-          // Set right as next iteration step
-          lastHitBounding = &children.boundingB;
-          traversal = &children.childB;
-          // We need a recursive call to test the left node. (depth-first traversal)
-          findAnyIntersection(
-            geometryNodesTraverser, children.childA, children.boundingA, rayCast, originIntersection, tr,
-            intersectionOut
-          );
-
-          // Short circuit the recursion on hit
-          if (!outOfReach(rayCast, tr.maxDistance))
+          if (allTrue(leftRightHit))
           {
-            return;
+            // child A first, child B once A's subtree is done
+            assert(deferredCount < deferred.size());
+            deferred[deferredCount++] = DeferredChild{children.childB, &boundings.boundingB};
+            traversal = children.childA;
+            lastHitBounding = &boundings.boundingA;
+            continue;
           }
 
-          // Or continue with iteration on childB
-          continue;
+          // select one of the nodes as next iteration step
+          if (x(leftRightHit))
+          {
+            traversal = children.childA;
+            lastHitBounding = &boundings.boundingA;
+          }
+          else
+          {
+            traversal = children.childB;
+            lastHitBounding = &boundings.boundingB;
+          }
         }
 
-        // select one of the nodes as next iteration step
-        if (x(leftRightHit))
+        computeFacetIntersection(
+          nearestIntersection(tr, *lastHitBounding, reinterpret_cast<ASizeT>(lastHitBounding)), *lastHitBounding, tr,
+          intersectionOut
+        );
+
+        if ((stopAtFirstHit && !outOfReach(rayCast, tr.maxDistance)) || deferredCount == 0)
         {
-          traversal = &children.childA;
-          lastHitBounding = &children.boundingA;
+          return;
         }
-        else
-        {
-          traversal = &children.childB;
-          lastHitBounding = &children.boundingB;
-        }
+        --deferredCount;
+        traversal = deferred[deferredCount].link;
+        lastHitBounding = deferred[deferredCount].bounding;
       }
-
-      // At a non-empty leaf node, its geometry nodes are tested for intersection.
-      assert(traversal->isNonEmptyLeaf());
-      computeFacetIntersection(
-        nearestIntersection(tr, *lastHitBounding, reinterpret_cast<ASizeT>(lastHitBounding)), *lastHitBounding, tr,
-        intersectionOut
-      );
     }
 
   public:
     ~VoxelizationKDTreeTraverser() override = default;
 
     Float findNearestIntersection(
-      const GeometryNodesTraverser<IntersectionInfoType>& geometryNodesTraverser, const KDTreeRoot& root,
-      const RayCast& rayCast, const IntersectionInfoType* const originIntersection,
+      const GeometryNodesTraverser<IntersectionInfoType>& /*geometryNodesTraverser*/, const KDTreeRoot& root,
+      const RayCast& rayCast, const IntersectionInfoType* const /*originIntersection*/,
       IntersectionInfoType& intersectionOut
     ) const override
     {
@@ -161,15 +125,13 @@ namespace raytracer
 
       if (StatisticsCookie::current) ++StatisticsCookie::current->kdTreeNodesVisited;
       RayCast tr = rayCast;
-      findNearestIntersection(
-        geometryNodesTraverser, root.rootNode, root.rootBounding, originIntersection, tr, intersectionOut
-      );
+      traverse(root, rayCast, false, tr, intersectionOut);
       return tr.maxDistance;
     }
 
     Float findAnyIntersection(
-      const GeometryNodesTraverser<IntersectionInfoType>& geometryNodesTraverser, const KDTreeRoot& root,
-      const RayCast& rayCast, const IntersectionInfoType* const originIntersection,
+      const GeometryNodesTraverser<IntersectionInfoType>& /*geometryNodesTraverser*/, const KDTreeRoot& root,
+      const RayCast& rayCast, const IntersectionInfoType* const /*originIntersection*/,
       IntersectionInfoType& intersectionOut
     ) const override
     {
@@ -180,10 +142,7 @@ namespace raytracer
 
       if (StatisticsCookie::current) ++StatisticsCookie::current->kdTreeNodesVisited;
       RayCast rayCastOut = rayCast;
-      findAnyIntersection(
-        geometryNodesTraverser, root.rootNode, root.rootBounding, rayCast, originIntersection, rayCastOut,
-        intersectionOut
-      );
+      traverse(root, rayCast, true, rayCastOut, intersectionOut);
       return rayCastOut.maxDistance;
     }
   };

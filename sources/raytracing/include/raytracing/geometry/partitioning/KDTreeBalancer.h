@@ -2,6 +2,7 @@
 
 #include "GeometryNode.h"
 #include "KDTreeBuildParameters.h"
+#include "KDTreeNode.h"
 #include "KDTreeRoot.h"
 
 #include <memory>

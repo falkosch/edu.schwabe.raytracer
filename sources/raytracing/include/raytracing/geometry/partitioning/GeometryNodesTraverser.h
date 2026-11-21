@@ -14,13 +14,13 @@ namespace raytracer {
 
     // Finds the nearest intersection of a Ray within a geometry.
     virtual Float findNearestIntersection(
-        const PGeometryNodeList &geometryNodes, const RayCast &rayCast, const IntersectionInfoType *originIntersection,
+        GeometryNodeSpan geometryNodes, const RayCast &rayCast, const IntersectionInfoType *originIntersection,
         IntersectionInfoType &intersectionOut
     ) const = 0;
 
     // Finds any intersection of a Ray within a geometry.
     virtual Float findAnyIntersection(
-        const PGeometryNodeList &geometryNodes, const RayCast &rayCast, const IntersectionInfoType *originIntersection,
+        GeometryNodeSpan geometryNodes, const RayCast &rayCast, const IntersectionInfoType *originIntersection,
         IntersectionInfoType &intersectionOut
     ) const = 0;
   };
