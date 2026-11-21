@@ -17,24 +17,8 @@ call overhead and loss of register allocation across call boundaries.
 These two issues are tightly coupled: converting to flat-array nodes and an explicit traversal stack at the
 same time gives the biggest win and avoids touching the same code twice.
 
-## Proposed fix
-
-### Flat-array node layout
-
-1. Store all nodes in a single `std::vector<CompactKDNode>`.
-2. Reference children by index instead of pointer (e.g. stored offset or implicit `2*i+1`).
-3. Pack split axis (2 bits) + leaf flag (1 bit) into low bits of the child index.
-4. Bounding boxes stored inline or in a parallel array for SIMD-friendly access.
-
-Benefits: halves memory (no unique_ptr/allocator overhead), guarantees sequential cache-line access during
-depth-first traversal, enables prefetching.
-
-### Iterative traversal with explicit stack
-
-1. Replace recursive `findNearestIntersection` with a `while` loop and a small fixed-size stack
-   (`std::array<TraversalEntry, MAX_DEPTH>`) allocated on the function stack.
-2. When both children are hit, push one onto the explicit stack, continue with the other.
-3. Eliminates function call overhead, lets the compiler keep ray state in registers throughout traversal.
+The flat-array layout, the explicit stack and a traversal fix found on the way are done, see
+`DONE/flat-array-kdtree-nodes.md`. The open points below remain.
 
 ## Scope
 
@@ -44,6 +28,12 @@ Large structural refactor touching:
 - `KDTreeBalancer::build()` / `KDTreeNode::grow()` — change from recursive allocation to index-based
 - `NaiveKDTreeTraverser` / `VoxelizationKDTreeTraverser` — pointer+recursion → index+explicit stack
 - Build phase needs a two-pass or resize-on-grow approach since tree size isn't known upfront
+
+## Open points
+
+- Index-based `build()` / `grow()`: the balancers still allocate one heap node per tree node, which is then copied.
+  Only matters for build time (mesh load, balancer switch in the UI).
+- Not attempted: SIMD-friendly bounding layout across several nodes, prefetching.
 
 ## Key files
 

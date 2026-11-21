@@ -113,7 +113,7 @@ Mesh benchmarks (`mesh_benchmarks.cpp`) time KD-tree traversal plus the leaf loo
 `meshes/dragon2.off` (coherent and incoherent ray sets, nearest and any hit) and log leaf statistics, per-ray counters
 and hit checksums. Options: `--data=<dir>` (working directory for the mesh files), `--only=intersections|meshes`,
 `--repetitions=<n>`, `--core=<n>`, `--mesh=<file>` (repeatable). Compare variants by the median "best" core cycles/ray
-over 5 alternating runs each; see `.backlog/mesh-traversal-benchmark.md` for the baseline and its noise.
+over 5 alternating runs each; see `.backlog/DONE/mesh-traversal-benchmark.md` for the baseline and its noise.
 
 ## Threading Model
 
