@@ -1,20 +1,16 @@
 #pragma once
 
+#include "ButtonStates.h"
+#include "DragTypes.h"
+#include "InteractionMode.h"
 #include "MessageLoopBasedUI.h"
+#include "MouseButtons.h"
 #include "RaytracerUI.h"
 
 namespace raytracerui
 {
     using namespace vectorization;
     using namespace raytracer;
-
-    enum class MouseButtons : ASizeT { Left, Right };
-
-    enum class ButtonStates : ASizeT { Down, Up };
-
-    enum class DragTypes : ASizeT { None, Rotate, Scale, Light, Object };
-
-    enum class InteractionMode : ASizeT { Camera, Object, Light };
 
     class WindowsRaytracerUI : public RaytracerUI, public MessageLoopBasedUI
     {

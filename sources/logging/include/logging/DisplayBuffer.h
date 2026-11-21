@@ -1,18 +1,12 @@
 #pragma once
 
-#include "LogLevel.h"
+#include "DisplayLine.h"
 
 #include <cstddef>
 #include <mutex>
-#include <string>
 #include <vector>
 
 namespace logging {
-
-  struct DisplayLine {
-    LogLevel level;
-    std::string text;
-  };
 
   class DisplayBuffer {
   public:

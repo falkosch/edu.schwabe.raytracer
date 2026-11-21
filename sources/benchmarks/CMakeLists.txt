@@ -1,14 +1,26 @@
 project(benchmarks LANGUAGES CXX VERSION 1.0.0)
 
 set(SOURCES
+        src/counting_leaf_traverser.cpp
         src/intersection_benchmarks.cpp
+        src/leaf_statistics.cpp
         src/main.cpp
         src/mesh_benchmarks.cpp
+        src/query.cpp
+        src/query_result.cpp
+        src/ray_set.cpp
+        src/timing.cpp
 )
 
 set(HEADERS
+        include/counting_leaf_traverser.h
         include/intersection_benchmarks.h
+        include/leaf_statistics.h
         include/mesh_benchmarks.h
+        include/query.h
+        include/query_result.h
+        include/ray_set.h
+        include/timing.h
 )
 
 add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})

@@ -37,6 +37,10 @@ set(SOURCES
 
 set(HEADERS
         include/raytracing_tests.h
+        src/raytracing/common/TempFile.h
+        src/raytracing/geometry/partitioning/BoxNodesTraverser.h
+        src/raytracing/geometry/partitioning/CountingBoxNodesTraverser.h
+        src/raytracing/shading/StubSceneShader.h
         src/stdafx.h
 )
 

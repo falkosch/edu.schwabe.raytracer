@@ -15,7 +15,11 @@ set(SOURCES
 )
 
 set(HEADERS
+        include/ButtonStates.h
+        include/DragTypes.h
+        include/InteractionMode.h
         include/MessageLoopBasedUI.h
+        include/MouseButtons.h
         include/OpenGLWindowsRaytracerUI.h
         include/RaytracerUI.h
         include/WindowsRaytracerUI.h

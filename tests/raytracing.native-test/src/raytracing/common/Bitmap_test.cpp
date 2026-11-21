@@ -1,5 +1,7 @@
 #include "raytracing_tests.h"
 
+#include "TempFile.h"
+
 #include <filesystem>
 #include <fstream>
 #include <string>
@@ -12,22 +14,6 @@ namespace raytracer::test {
     //  - construct a binary PPM in a temp file → loadPPM → assert pixels
     //  - construct a Bitmap in memory → saveAsBMP/saveAsPNG → assert file exists and starts with
     //    the expected magic bytes
-    struct TempFile {
-      std::filesystem::path path;
-
-      explicit TempFile(const std::string& suffix) {
-        path = std::filesystem::temp_directory_path()
-               / ("raytracing_test_" + std::to_string(reinterpret_cast<std::uintptr_t>(this)) + suffix);
-      }
-      ~TempFile() {
-        std::error_code ec;
-        std::filesystem::remove(path, ec);
-      }
-      TempFile(const TempFile&) = delete;
-      TempFile& operator=(const TempFile&) = delete;
-
-      std::string str() const { return path.string(); }
-    };
 
     void writePPM(const std::filesystem::path& path, ASizeT width, ASizeT height,
                   const std::vector<unsigned char>& rgbRows) {

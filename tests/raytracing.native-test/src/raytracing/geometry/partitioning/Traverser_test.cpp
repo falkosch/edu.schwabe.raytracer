@@ -1,5 +1,8 @@
 #include "raytracing_tests.h"
 
+#include "BoxNodesTraverser.h"
+#include "CountingBoxNodesTraverser.h"
+
 #include "raytracing/geometry/partitioning/treebalancer/BruteForceSAHKDTreeBalancer.h"
 #include "raytracing/geometry/partitioning/treebalancer/MedianKDTreeBalancer.h"
 #include "raytracing/geometry/partitioning/treetraverser/NaiveKDTreeTraverser.h"
@@ -11,76 +14,6 @@
 #include <random>
 
 namespace raytracer::test {
-  // A minimal GeometryNodesTraverser over Box leaves: at each leaf, iterate the boxes and pick the
-  // nearest hit. This lets us drive a NaiveKDTreeTraverser end-to-end without going through Mesh.
-  class BoxNodesTraverser : public GeometryNodesTraverser<FacetIntersection> {
-  public:
-    Float findNearestIntersection(
-        GeometryNodeSpan geometryNodes, const RayCast &rayCast, const FacetIntersection *const origin,
-        FacetIntersection &intersectionOut
-    ) const override {
-      Float nearest = rayCast.maxDistance;
-      for (auto *node : geometryNodes) {
-        const auto *box = static_cast<const Box *>(node);
-        if (origin && origin->node == box) {
-          continue;
-        }
-        FacetIntersection candidate{};
-        RayCast scoped{rayCast};
-        scoped.maxDistance = nearest;
-        const Float d = box->findNearestIntersection(scoped, origin, candidate);
-        if (d < nearest) {
-          nearest = d;
-          intersectionOut = candidate;
-          intersectionOut.node = box;
-        }
-      }
-      return nearest;
-    }
-
-    Float findAnyIntersection(
-        GeometryNodeSpan geometryNodes, const RayCast &rayCast, const FacetIntersection *const origin,
-        FacetIntersection &intersectionOut
-    ) const override {
-      for (auto *node : geometryNodes) {
-        const auto *box = static_cast<const Box *>(node);
-        if (origin && origin->node == box) {
-          continue;
-        }
-        FacetIntersection candidate{};
-        const Float d = box->findAnyIntersection(rayCast, origin, candidate);
-        if (d < rayCast.maxDistance) {
-          intersectionOut = candidate;
-          intersectionOut.node = box;
-          return d;
-        }
-      }
-      return rayCast.maxDistance;
-    }
-  };
-
-  // Counts the leaves the traversal hands over, then intersects like BoxNodesTraverser.
-  class CountingBoxNodesTraverser : public BoxNodesTraverser {
-  public:
-    mutable int leafCalls = 0;
-
-    Float findNearestIntersection(
-        GeometryNodeSpan geometryNodes, const RayCast &rayCast, const FacetIntersection *const origin,
-        FacetIntersection &intersectionOut
-    ) const override {
-      ++leafCalls;
-      return BoxNodesTraverser::findNearestIntersection(geometryNodes, rayCast, origin, intersectionOut);
-    }
-
-    Float findAnyIntersection(
-        GeometryNodeSpan geometryNodes, const RayCast &rayCast, const FacetIntersection *const origin,
-        FacetIntersection &intersectionOut
-    ) const override {
-      ++leafCalls;
-      return BoxNodesTraverser::findAnyIntersection(geometryNodes, rayCast, origin, intersectionOut);
-    }
-  };
-
   TEST_CLASS(TraverserTest) {
     struct BoxTreeFixture {
       std::vector<std::unique_ptr<Box>> ownedBoxes;

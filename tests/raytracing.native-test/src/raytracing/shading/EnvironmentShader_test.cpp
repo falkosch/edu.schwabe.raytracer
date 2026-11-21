@@ -1,5 +1,7 @@
 #include "raytracing_tests.h"
 
+#include "StubSceneShader.h"
+
 #include <raytracing/shading/SceneShader.h>
 #include <raytracing/shading/SpectralContext.h>
 #include <raytracing/shading/shaders/EnvironmentShader.h>
@@ -8,14 +10,6 @@
 
 namespace raytracer::test
 {
-    class StubSceneShader final : public SceneShader
-    {
-    public:
-        void buildSceneGraph() override
-        {
-        }
-    };
-
     static const Float TEST_HERO = spectral::LAMBDA_MIN + spectral::LAMBDA_RANGE * Half<Float>();
 
     // Function-local static: the context's construction depends on statics of other translation units.

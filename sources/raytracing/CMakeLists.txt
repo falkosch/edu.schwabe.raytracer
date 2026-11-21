@@ -154,6 +154,7 @@ set(HEADERS
         include/raytracing/scene/Resources.h
         include/raytracing/scene/Scene.h
         include/raytracing/scene/SceneObject.h
+        include/raytracing/shading/EmitterKind.h
         include/raytracing/shading/EmitterSPD.h
         include/raytracing/shading/LightInfo.h
         include/raytracing/shading/LightShading.h
@@ -173,9 +174,11 @@ set(HEADERS
         include/raytracing/shading/color/view_transform.h
         include/raytracing/shading/spectral/blackbody.h
         include/raytracing/shading/spectral/cmf.h
+        include/raytracing/shading/spectral/complex_ior.h
         include/raytracing/shading/spectral/conversion.h
         include/raytracing/shading/spectral/illuminants.h
         include/raytracing/shading/spectral/smits.h
+        include/raytracing/shading/spectral/metal.h
         include/raytracing/shading/spectral/metal_ior.h
         include/raytracing/shading/spectral/spectrum.h
         include/raytracing/shading/spectral/table_lookup.h
