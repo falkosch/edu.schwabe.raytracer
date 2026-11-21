@@ -158,9 +158,19 @@ namespace primitives
     Float4::VectorBoolType
     overlaps(const RayCast& rayCast, const AxisAlignedBoundingBox& a, const AxisAlignedBoundingBox& b) noexcept
     {
+        auto entryDistances = Float4();
+        return overlaps(rayCast, a, b, entryDistances);
+    }
+
+    Float4::VectorBoolType overlaps(
+        const RayCast& rayCast, const AxisAlignedBoundingBox& a, const AxisAlignedBoundingBox& b,
+        Float4& entryDistancesOut
+    ) noexcept
+    {
         const auto distances = computeBoxIntersectionCoefficients(rayCast.ray, a, b);
         const auto farDistances = yyww(distances);
         const auto nearDistances = xxzz(distances);
+        entryDistancesOut = nearDistances;
         // overlaps if
         // 1. (c.y >= c.x, c.w >= c.z) and
         // 2. (c.y >= 0, c.w >= 0) and

@@ -12,9 +12,11 @@ namespace raytracer
     using namespace vectorization;
     using namespace primitives;
 
-    // Depth-first traversal with an explicit stack: where the ray hits both children, child A is traversed first and
-    // child B is deferred until A's subtree is done. Where it hits neither child box, the subtree is skipped: child
-    // boxes are shrunk to their geometry, so a ray can cross the parent box without reaching any of it.
+    // Depth-first traversal with an explicit stack: where the ray hits both children, one is traversed first and the
+    // other is deferred until the first one's subtree is done. Nearest queries take the child whose box the ray enters
+    // first, so a hit there shortens the ray before the other child's boxes are tested; any-hit queries take child A.
+    // Where the ray hits neither child box, the subtree is skipped: child boxes are shrunk to their geometry, so a ray
+    // can cross the parent box without reaching any of it.
     template <typename IntersectionInfoType>
     class NaiveKDTreeTraverser : public KDTreeTraverser<IntersectionInfoType>
     {
@@ -57,14 +59,17 @@ namespace raytracer
                     }
                     const KDTreeChildBoundings& boundings = root.childBoundings[traversal];
                     const KDTreeChildLinks& children = root.childLinks[traversal];
-                    const auto leftRightHit = overlaps(rayCastOut, boundings.boundingA, boundings.boundingB);
+                    auto entryDistances = Float4();
+                    const auto leftRightHit =
+                        overlaps(rayCastOut, boundings.boundingA, boundings.boundingB, entryDistances);
 
                     if (allTrue(leftRightHit))
                     {
-                        // child A first, child B once A's subtree is done
+                        // the nearer child first (A on a tie), the other one once its subtree is done
                         assert(deferredCount < deferred.size());
-                        deferred[deferredCount++] = children.childB;
-                        traversal = children.childA;
+                        const auto childBFirst = z(entryDistances) < x(entryDistances);
+                        deferred[deferredCount++] = childBFirst ? children.childA : children.childB;
+                        traversal = childBFirst ? children.childB : children.childA;
                         continue;
                     }
 

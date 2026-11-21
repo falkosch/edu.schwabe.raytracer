@@ -50,6 +50,12 @@ namespace primitives
   bool overlaps(const RayCast& rayCast, const AxisAlignedBoundingBox& box) noexcept;
   Float4::VectorBoolType
   overlaps(const RayCast& rayCast, const AxisAlignedBoundingBox& a, const AxisAlignedBoundingBox& b) noexcept;
+  // Like overlaps(rayCast, a, b), and sets entryDistancesOut to the distances where the ray enters the boxes' slabs:
+  // x and y for a, z and w for b (negative if the ray starts inside).
+  Float4::VectorBoolType overlaps(
+      const RayCast& rayCast, const AxisAlignedBoundingBox& a, const AxisAlignedBoundingBox& b,
+      Float4& entryDistancesOut
+  ) noexcept;
 
   Float
   nearestIntersection(const RayCast& rayCast, const AxisAlignedBoundingBox& box, Size2::ValueType originId) noexcept;

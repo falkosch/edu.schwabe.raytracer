@@ -387,6 +387,49 @@ namespace raytracer::test {
       Assert::AreEqual(0, counting.leafCalls, L"any: no leaf reached", LINE_INFO());
     }
 
+    TEST_METHOD(naiveTraverserNearestEntersNearerChildFirst) {
+      // The two clusters of naiveTraverserSkipsSubtreeWhenBothChildBoxesAreMissed, each an inner node with two leaves.
+      // A ray from +x along the boxes enters child B first. Taking B first, its hit shortens the ray, and A's leaf
+      // boxes then lie beyond it: only B's two leaves are called. Taking A first would also call A's two leaves.
+      BoxTreeFixture fix;
+      const Float4 size{0.02f, 0.02f, 0.02f, 0.0f};
+      for (const auto &[offset, count] : {std::pair{0.0f, 22}, std::pair{20.0f, 20}}) {
+        for (int i = 0; i < count; ++i) {
+          const auto center = Float4{offset + static_cast<Float>(i) * 0.05f, 0.0f, 0.0f, 0.0f};
+          auto box = std::make_unique<Box>(center - size, center + size);
+          fix.nodes.push_back(box.get());
+          fix.ownedBoxes.push_back(std::move(box));
+        }
+      }
+      const MedianKDTreeBalancer balancer{};
+      fix.root = balancer.build(fix.nodes);
+      Assert::IsFalse(KDTreeRoot::isLeaf(fix.root->rootLink), L"42 boxes in two clusters should split", LINE_INFO());
+      const auto &rootChildren = fix.root->childLinks[fix.root->rootLink];
+      Assert::IsFalse(KDTreeRoot::isLeaf(rootChildren.childA), L"child A (22 boxes) is inner", LINE_INFO());
+      Assert::IsFalse(KDTreeRoot::isLeaf(rootChildren.childB), L"child B (20 boxes) is inner", LINE_INFO());
+
+      const NaiveKDTreeTraverser<FacetIntersection> traverser{};
+      FacetIntersection intersection{};
+
+      // the last box of the right cluster ends at x = 20.95 + 0.02
+      const Ray fromRight{Float4{30.0f, 0.0f, 0.0f, 0.0f}, Float4{-1.0f, 0.0f, 0.0f, 0.0f}};
+      const RayCast rightCast{fromRight, Zero<Float4::VectorBoolType>(), Size2(0, 0), 100.0f};
+      const CountingBoxNodesTraverser rightCounting{};
+      const auto rightDistance =
+          traverser.findNearestIntersection(rightCounting, *fix.root, rightCast, nullptr, intersection);
+      Assert::AreEqual(9.03f, rightDistance, 0.001f, L"from +x: nearest box of the right cluster", LINE_INFO());
+      Assert::AreEqual(2, rightCounting.leafCalls, L"from +x: only child B's leaves", LINE_INFO());
+
+      // the first box of the left cluster starts at x = -0.02; child A is nearer and comes first anyway
+      const Ray fromLeft{Float4{-10.0f, 0.0f, 0.0f, 0.0f}, Float4{1.0f, 0.0f, 0.0f, 0.0f}};
+      const RayCast leftCast{fromLeft, Zero<Float4::VectorBoolType>(), Size2(0, 0), 100.0f};
+      const CountingBoxNodesTraverser leftCounting{};
+      const auto leftDistance =
+          traverser.findNearestIntersection(leftCounting, *fix.root, leftCast, nullptr, intersection);
+      Assert::AreEqual(9.98f, leftDistance, 0.001f, L"from -x: nearest box of the left cluster", LINE_INFO());
+      Assert::AreEqual(2, leftCounting.leafCalls, L"from -x: only child A's leaves", LINE_INFO());
+    }
+
     TEST_METHOD(naiveTraverserAnyHitThroughBothChildren) {
       auto fix = makeBoxesAlongX(64);
       const NaiveKDTreeTraverser<FacetIntersection> traverser{};
