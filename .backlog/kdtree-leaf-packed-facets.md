@@ -89,12 +89,11 @@ from the tree's offsets, so the mesh needs its own offset per leaf: a table inde
 
 - Duplication factor on teapot and dragon: sum of leaf sizes / facet count, plus the padding overhead at block width
   4 and 8. Cheap to compute from the built `KDTreeRoot`, like `countLeafGeometry` in `Balancer_test.cpp`.
-- Leaf size distribution. Leaves aren't bounded by `maxNodesSize` (16, `KDTreeBalancer.cpp:99`): a node with ≤ 16
-  facets becomes a leaf, but the SAH balancers also reject every split that leaves a child with ≤ 16 facets
-  (`SAHKDTreeBalancer.cpp:124`), so larger nodes can end up as leaves too, as can nodes at the depth limit.
+- Leaf size distribution. Since the leaf-size fix, `maxNodesSize` (16, `KDTreeBalancer.cpp:99`) is the maximum leaf
+  size; only the cost check and the depth limit leave larger leaves. Measured below.
 - A vs. B with `DONE/mesh-traversal-benchmark.md`.
 
-### Measured leaf statistics
+### Measured leaf statistics (before the leaf-size fix)
 
 `benchmarks --only=meshes` (`BruteForceSAHKDTreeBalancer`, as in `Resources::getMesh`). The build is deterministic,
 so these numbers don't vary between runs:
@@ -112,6 +111,50 @@ than 17 facets.
   blocks of 4 or 3-4 blocks of 8, so padding costs little (7% at width 4, 16-18% at width 8).
 - Option A stores (sum of padded leaf sizes) × (12 floats + 1 index): teapot 3396 lanes ≈ 177 KB, dragon2
   272940 lanes ≈ 14.2 MB at width 4. The AoS `planeNormals` take 1452 × 48 B ≈ 70 KB and 100400 × 48 B ≈ 4.8 MB.
+
+### Leaf size: 16 as a real maximum (adopted in `bed1485`)
+
+The SAH sweep no longer skips candidates with a child of ≤ 16 facets, and `KDTreeBalancer::isTerminalPostCheck` no
+longer rejects a split because a child would be a leaf; only the cost check remains. Measured on top of the traversal
+fix, `BruteForceSAHKDTreeBalancer`:
+
+| Mesh    | Leaves (empty)           | Leaf facet refs        | Leaf size min/mean/max  | Build cycles (median) |
+|---------|--------------------------|------------------------|-------------------------|-----------------------|
+| teapot  | 130 → 386 (0 → 4)        | 3193 → 4617 (+45%)     | 17/24.6/82 → 1/12.1/31  | 30.0M → 34.4M (+15%)  |
+| dragon2 | 10679 → 30799 (0 → 1589) | 255059 → 351507 (+38%) | 17/23.9/390 → 1/12.0/84 | 3.22G → 3.56G (+11%)  |
+
+Five alternating benchmark runs each, median of "best" core cycles per ray (facets tested per ray in brackets):
+
+| Mesh    | Query   | Rays       | ≥ 17 per leaf  | 16 as maximum  | Change |
+|---------|---------|------------|---------------:|---------------:|-------:|
+| teapot  | nearest | coherent   | 1361.7 (29.06) |  702.3 (11.33) | -48.4% |
+| teapot  | any     | coherent   |  857.1 (22.46) |  501.7 (9.81)  | -41.5% |
+| teapot  | nearest | incoherent | 2876.6 (39.67) | 1861.3 (17.22) | -35.3% |
+| teapot  | any     | incoherent | 1634.6 (25.44) | 1063.3 (10.30) | -35.0% |
+| dragon2 | nearest | coherent   | 1081.7 (13.25) |  762.4 (6.38)  | -29.5% |
+| dragon2 | any     | coherent   |  664.1 (10.66) |  501.9 (5.06)  | -24.4% |
+| dragon2 | nearest | incoherent | 2184.2 (17.13) | 1642.0 (8.61)  | -24.8% |
+| dragon2 | any     | incoherent | 1056.7 (8.63)  |  872.0 (3.90)  | -17.5% |
+
+Hits and checksums identical in all runs, the Cornell box image byte-identical, all tests pass. For packing, smaller
+leaves raise the padding share (teapot 1.105x at width 4, 1.254x at width 8; dragon2 1.116x and 1.258x), and option A
+grows to teapot 5100 lanes ≈ 265 KB and dragon2 392148 lanes ≈ 20.4 MB at width 4.
+
+Current counters per ray (starting point for this item; hits and sums as in `DONE/mesh-traversal-benchmark.md`):
+
+| Mesh    | Query   | Rays       | Nodes | Leaves | Facets |
+|---------|---------|------------|------:|-------:|-------:|
+| teapot  | nearest | coherent   |  8.78 |   0.90 |  11.33 |
+| teapot  | any     | coherent   |  7.99 |   0.78 |   9.81 |
+| teapot  | nearest | incoherent | 11.03 |   1.40 |  17.22 |
+| teapot  | any     | incoherent |  8.75 |   0.83 |  10.30 |
+| dragon2 | nearest | coherent   | 10.08 |   0.51 |   6.38 |
+| dragon2 | any     | coherent   |  9.24 |   0.40 |   5.06 |
+| dragon2 | nearest | incoherent | 10.05 |   0.69 |   8.61 |
+| dragon2 | any     | incoherent |  8.10 |   0.31 |   3.90 |
+
+With 4-17 facets tested per ray, the batch test gains less than the leaf statistics above suggested; measure the
+leaf loop's share before investing in packing.
 
 ## Prerequisites
 
