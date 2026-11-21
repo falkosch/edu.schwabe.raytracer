@@ -135,6 +135,7 @@ set(HEADERS
         include/raytracing/geometry/partitioning/KDTreeNodeChildren.h
         include/raytracing/geometry/partitioning/KDTreePlane.h
         include/raytracing/geometry/partitioning/KDTreeRoot.h
+        include/raytracing/geometry/partitioning/KDTreeWideLanes.h
         include/raytracing/geometry/partitioning/KDTreeWideNode.h
         include/raytracing/geometry/partitioning/KDTreeWideRay.h
         include/raytracing/geometry/partitioning/KDTreeTraverser.h

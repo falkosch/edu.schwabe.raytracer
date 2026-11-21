@@ -1,5 +1,7 @@
 #pragma once
 
+#include "KDTreeWideLanes.h"
+
 #include <primitives.h>
 
 namespace raytracer
@@ -10,7 +12,7 @@ namespace raytracer
     // A ray's origin and reciprocal direction, each component broadcast to all lanes, for the wide node test.
     struct KDTreeWideRay
     {
-        Float4 originX, originY, originZ, reciprocalX, reciprocalY, reciprocalZ;
+        KDTreeWideLanes originX, originY, originZ, reciprocalX, reciprocalY, reciprocalZ;
 
         explicit KDTreeWideRay(const Ray& ray) noexcept;
     };

@@ -3,7 +3,6 @@
 
 #include "raytracing/geometry/partitioning/KDTreeNodeChildren.h"
 
-#include <array>
 #include <cassert>
 #include <intrin.h>
 #include <limits>
@@ -48,59 +47,6 @@ namespace raytracer
             const auto childB = flatten(node.children->childB, root);
             root.childLinks[inner] = KDTreeChildLinks{childA, childB};
             return static_cast<KDTreeLink>(inner);
-        }
-
-        // Builds the wide node for a binary inner node from its children's children, depth-first. Returns its index.
-        KDTreeLink collapse(const KDTreeLink inner, KDTreeRoot& root)
-        {
-            std::array<AxisAlignedBoundingBox, 4> boxes;
-            std::array<KDTreeLink, 4> links{};
-            auto count = ASizeT{0};
-            const auto addLanes = [&](const AxisAlignedBoundingBox& box, const KDTreeLink child)
-            {
-                if (KDTreeRoot::isLeaf(child))
-                {
-                    boxes[count] = box;
-                    links[count++] = child;
-                    return;
-                }
-                const auto& grandchildBoxes = root.childBoundings[child];
-                const auto& grandchildren = root.childLinks[child];
-                boxes[count] = grandchildBoxes.boundingA;
-                links[count++] = grandchildren.childA;
-                boxes[count] = grandchildBoxes.boundingB;
-                links[count++] = grandchildren.childB;
-            };
-            addLanes(root.childBoundings[inner].boundingA, root.childLinks[inner].childA);
-            addLanes(root.childBoundings[inner].boundingB, root.childLinks[inner].childB);
-
-            const auto index = root.wideNodes.size();
-            assert(index < KDTreeRoot::LeafFlag);
-            root.wideNodes.emplace_back();
-            for (auto lane = ASizeT{0}; lane < count; ++lane)
-            {
-                if (!KDTreeRoot::isLeaf(links[lane]))
-                {
-                    links[lane] = collapse(links[lane], root);
-                }
-            }
-
-            // root.wideNodes may have grown in the meantime
-            auto& node = root.wideNodes[index];
-            node.minimumX = node.minimumY = node.minimumZ = node.maximumX = node.maximumY = node.maximumZ =
-                Zero<Float4>();
-            for (auto lane = ASizeT{0}; lane < count; ++lane)
-            {
-                node.minimumX[lane] = x(boxes[lane].minimum);
-                node.minimumY[lane] = y(boxes[lane].minimum);
-                node.minimumZ[lane] = z(boxes[lane].minimum);
-                node.maximumX[lane] = x(boxes[lane].maximum);
-                node.maximumY[lane] = y(boxes[lane].maximum);
-                node.maximumZ[lane] = z(boxes[lane].maximum);
-            }
-            node.links = links;
-            node.lanes = (1u << count) - 1u;
-            return static_cast<KDTreeLink>(index);
         }
     }
 
@@ -163,8 +109,7 @@ namespace raytracer
         root->childLinks.reserve(buildRoot.nodeCount() / 2);
         root->leaves.reserve(buildRoot.nodeCount() / 2 + 1);
         root->rootLink = flatten(buildRoot, *root);
-        root->wideNodes.reserve(root->childLinks.size() / 2 + 1);
-        root->wideRootLink = KDTreeRoot::isLeaf(root->rootLink) ? root->rootLink : collapse(root->rootLink, *root);
+        root->buildWideNodes();
 
         const auto cycles1 = __rdtsc();
         Log.info([n = rootGeometry.size(), c = cycles1 - cycles0]

@@ -5,12 +5,12 @@ namespace raytracer
 {
     unsigned overlappedLanes(const RayCast& rayCast, const KDTreeWideRay& ray, const KDTreeWideNode& node) noexcept
     {
-        auto entryDistances = Float4();
+        auto entryDistances = KDTreeWideLanes();
         return overlappedLanes(rayCast, ray, node, entryDistances);
     }
 
     unsigned overlappedLanes(
-        const RayCast& rayCast, const KDTreeWideRay& ray, const KDTreeWideNode& node, Float4& entryDistancesOut
+        const RayCast& rayCast, const KDTreeWideRay& ray, const KDTreeWideNode& node, KDTreeWideLanes& entryDistancesOut
     ) noexcept
     {
         // computeBoxIntersectionCoefficients in AxisAlignedBoundingBox.cpp, lane-wise
@@ -32,8 +32,8 @@ namespace raytracer
 
         // overlaps(rayCast, a, b)
         const auto validDistances = farDistances >= nearDistances;
-        const auto positiveFarDistances = farDistances >= Zero<Float4>();
-        const auto negativeNearDistances = nearDistances < Zero<Float4>();
+        const auto positiveFarDistances = farDistances >= Zero<KDTreeWideLanes>();
+        const auto negativeNearDistances = nearDistances < Zero<KDTreeWideLanes>();
         const auto overlapping = validDistances &
             andnot(andnot(negativeNearDistances, outOfReach(rayCast, nearDistances)), positiveFarDistances);
         return static_cast<unsigned>(isNegative(overlapping)) & node.lanes;

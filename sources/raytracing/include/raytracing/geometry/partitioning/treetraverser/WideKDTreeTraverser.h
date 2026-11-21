@@ -12,8 +12,8 @@ namespace raytracer
     using namespace vectorization;
     using namespace primitives;
 
-    // Traverses the four-wide view of the tree (KDTreeRoot::wideNodes): one SIMD test decides for up to four children,
-    // so a ray visits about half as many nodes as with NaiveKDTreeTraverser.
+    // Traverses the wide view of the tree (KDTreeRoot::wideNodes): one SIMD test decides for up to
+    // KDTreeWideNode::Width descendants, so a ray visits a fraction of NaiveKDTreeTraverser's nodes.
     // - Nearest queries go into the hit child the ray enters first and defer the others, nearer ones on top. A deferred
     //   child whose entry distance lies beyond a hit found in the meantime is dropped when it is popped.
     // - Any-hit queries take the hit children in lane order, depth-first: the leaves come in the same order as with
@@ -21,8 +21,11 @@ namespace raytracer
     template <typename IntersectionInfoType>
     class WideKDTreeTraverser : public KDTreeTraverser<IntersectionInfoType>
     {
-        // a wide node defers up to 3 children and covers two levels of the tree
-        static constexpr ASizeT StackSize = 2 * KDTreeRoot::MaxDepth;
+        static constexpr ASizeT Width = KDTreeWideNode::Width;
+        static constexpr ASizeT Levels = KDTreeWideNode::Levels;
+        // Each wide node on the path from the root defers up to Width - 1 children (any-hit: pushes up to Width, then
+        // pops one), and a path of MaxDepth binary nodes has at most MaxDepth - 1 inner nodes, Levels per wide node.
+        static constexpr ASizeT StackSize = (Width - 1) * ((KDTreeRoot::MaxDepth - 1 + Levels - 1) / Levels) + 1;
 
     public:
         ~WideKDTreeTraverser() override = default;
@@ -46,7 +49,7 @@ namespace raytracer
                 Float entryDistance;
             };
             std::array<Deferred, StackSize> deferred;
-            auto deferredCount = ASizeT{0};
+            auto deferredCount = Zero<ASizeT>();
             KDTreeLink traversal = root.wideRootLink;
 
             while (true)
@@ -64,24 +67,25 @@ namespace raytracer
                         ++StatisticsCookie::current->kdTreeNodesVisited;
                     }
                     const auto& node = root.wideNodes[traversal];
-                    auto entryDistances = Float4();
+                    auto entryDistances = KDTreeWideLanes();
                     const auto hits = overlappedLanes(rayCastOut, ray, node, entryDistances);
 
-                    if (hits != 0)
+                    if (hits != Zero<unsigned>())
                     {
                         // the hit lanes, sorted by entry distance (lane order on a tie)
-                        std::array<Deferred, 4> sorted;
-                        auto count = ASizeT{0};
-                        for (auto lane = 0; lane < 4; ++lane)
+                        std::array<Deferred, Width> sorted;
+                        auto count = Zero<ASizeT>();
+                        for (auto lane = Zero<ASizeT>(); lane < Width; ++lane)
                         {
-                            if (hits & (1u << lane))
+                            if (hits & (One<unsigned>() << lane))
                             {
                                 const auto candidate = Deferred{node.links[lane], entryDistances[lane]};
                                 auto position = count++;
-                                for (; position > 0 && candidate.entryDistance < sorted[position - 1].entryDistance;
+                                for (; position > Zero<ASizeT>() &&
+                                       candidate.entryDistance < sorted[position - One<ASizeT>()].entryDistance;
                                        --position)
                                 {
-                                    sorted[position] = sorted[position - 1];
+                                    sorted[position] = sorted[position - One<ASizeT>()];
                                 }
                                 sorted[position] = candidate;
                             }
@@ -89,7 +93,7 @@ namespace raytracer
 
                         // the nearest one next, the others deferred with the farthest at the bottom
                         assert(deferredCount + count <= deferred.size());
-                        for (auto i = count; i-- > 1;)
+                        for (auto i = count; i-- > One<ASizeT>();)
                         {
                             deferred[deferredCount++] = sorted[i];
                         }
@@ -101,7 +105,7 @@ namespace raytracer
                 // a hit in the meantime may lie in front of a deferred child's box
                 while (true)
                 {
-                    if (deferredCount == 0)
+                    if (deferredCount == Zero<ASizeT>())
                     {
                         return rayCastOut.maxDistance;
                     }
@@ -129,7 +133,7 @@ namespace raytracer
             const auto ray = KDTreeWideRay(rayCast.ray);
 
             std::array<KDTreeLink, StackSize> deferred;
-            auto deferredCount = ASizeT{0};
+            auto deferredCount = Zero<ASizeT>();
             KDTreeLink traversal = root.wideRootLink;
 
             while (true)
@@ -156,17 +160,17 @@ namespace raytracer
                     const auto hits = overlappedLanes(rayCastOut, ray, node);
 
                     // in reverse, so that lane 0 comes next
-                    assert(deferredCount + 4 <= deferred.size());
-                    for (auto lane = 4; lane-- > 0;)
+                    assert(deferredCount + Width <= deferred.size());
+                    for (auto lane = Width; lane-- > Zero<ASizeT>();)
                     {
-                        if (hits & (1u << lane))
+                        if (hits & (One<unsigned>() << lane))
                         {
                             deferred[deferredCount++] = node.links[lane];
                         }
                     }
                 }
 
-                if (deferredCount == 0)
+                if (deferredCount == Zero<ASizeT>())
                 {
                     return rayCastOut.maxDistance;
                 }

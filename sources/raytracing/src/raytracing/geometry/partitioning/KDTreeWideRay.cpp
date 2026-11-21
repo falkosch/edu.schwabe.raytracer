@@ -4,9 +4,10 @@
 namespace raytracer
 {
     KDTreeWideRay::KDTreeWideRay(const Ray& ray) noexcept
-        : originX(xxxx(ray.origin)), originY(yyyy(ray.origin)), originZ(zzzz(ray.origin)),
-          reciprocalX(xxxx(ray.reciprocalDirection)), reciprocalY(yyyy(ray.reciprocalDirection)),
-          reciprocalZ(zzzz(ray.reciprocalDirection))
+        : originX(KDTreeWideLanes{xxxx(ray.origin)}), originY(KDTreeWideLanes{yyyy(ray.origin)}),
+          originZ(KDTreeWideLanes{zzzz(ray.origin)}), reciprocalX(KDTreeWideLanes{xxxx(ray.reciprocalDirection)}),
+          reciprocalY(KDTreeWideLanes{yyyy(ray.reciprocalDirection)}),
+          reciprocalZ(KDTreeWideLanes{zzzz(ray.reciprocalDirection)})
     {
     }
 }

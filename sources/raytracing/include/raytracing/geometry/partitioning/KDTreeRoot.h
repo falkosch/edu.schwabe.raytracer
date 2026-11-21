@@ -39,8 +39,8 @@ namespace raytracer
         // longest path from the root to a leaf, counted in nodes
         ASizeT treeDepth;
 
-        // the same tree with four children per node, built from the arrays above; wideRootLink is a leaf link if the
-        // whole tree is a single leaf
+        // the same tree with up to KDTreeWideNode::Width children per node, built from the arrays above by
+        // buildWideNodes(); wideRootLink is a leaf link if the whole tree is a single leaf
         KDTreeLink wideRootLink;
         std::vector<KDTreeWideNode> wideNodes;
 
@@ -49,6 +49,9 @@ namespace raytracer
         ~KDTreeRoot();
 
         static bool isLeaf(KDTreeLink link) noexcept;
+
+        // (Re)builds wideRootLink and wideNodes from rootLink and the inner node arrays.
+        void buildWideNodes();
 
         // geometry of the leaf the link points to
         GeometryNodeSpan geometryOf(KDTreeLink leafLink) const noexcept;

@@ -104,6 +104,32 @@ namespace raytracer::test {
       return fix;
     }
 
+    static KDTreeLink addEmptyLeaf(KDTreeRoot &root) {
+      root.leaves.push_back(KDTreeLeaf{Zero<std::uint32_t>(), Zero<std::uint32_t>()});
+      return static_cast<KDTreeLink>(root.leaves.size() - One<ASizeT>()) | KDTreeRoot::LeafFlag;
+    }
+
+    // Inner node at the given depth (1 for the root) in blocks of KDTreeWideNode::Levels complete levels. Below a
+    // block, the leftmost child continues with the next block and the others are empty leaves; nodes at
+    // KDTreeRoot::MaxDepth are leaves. All boxes are the same.
+    static KDTreeLink addBlockChain(KDTreeRoot &root, const AxisAlignedBoundingBox &box, const ASizeT depth,
+                                    const bool leftmost) {
+      const auto inner = root.childLinks.size();
+      root.childBoundings.push_back(KDTreeChildBoundings{box, box});
+      root.childLinks.emplace_back();
+      const auto blockEnd = depth % KDTreeWideNode::Levels == Zero<ASizeT>();
+      const auto child = [&](const bool childLeftmost) {
+        if (depth + One<ASizeT>() >= KDTreeRoot::MaxDepth || (blockEnd && !childLeftmost)) {
+          return addEmptyLeaf(root);
+        }
+        return addBlockChain(root, box, depth + One<ASizeT>(), childLeftmost || blockEnd);
+      };
+      const auto childA = child(leftmost);
+      const auto childB = child(false);
+      root.childLinks[inner] = KDTreeChildLinks{childA, childB};
+      return static_cast<KDTreeLink>(inner);
+    }
+
   public:
     TEST_METHOD(naiveTraverserNearestHitsClosestBox) {
       auto fix = makeThreeBoxesOnXAxis();
@@ -438,9 +464,9 @@ namespace raytracer::test {
 
     TEST_METHOD(wideTraverserMatchesNaive) {
       // The wide traverser against the naive one on random box trees from both balancers: a single-leaf root (3
-      // boxes) and irregular trees with 2-, 3- and 4-lane wide nodes. Random and axis-parallel rays (infinite
-      // reciprocals, and NaN slabs where the origin lies on a box face), with a long and a short reach. Nearest: same
-      // distance and box. Any-hit: same outcome and, as the leaves come in the same order, the same box.
+      // boxes) and irregular trees with wide nodes of every lane count from 2 up. Random and axis-parallel rays
+      // (infinite reciprocals, and NaN slabs where the origin lies on a box face), with a long and a short reach.
+      // Nearest: same distance and box. Any-hit: same outcome and, as the leaves come in the same order, the same box.
       const NaiveKDTreeTraverser<FacetIntersection> naive{};
       const WideKDTreeTraverser<FacetIntersection> wide{};
       auto generator = std::mt19937{0x5eed1234u};
@@ -448,7 +474,7 @@ namespace raytracer::test {
         return std::uniform_real_distribution<Float>(low, high)(generator);
       };
 
-      std::array<int, 5> wideNodesByLanes{};
+      std::array<int, KDTreeWideNode::Width + 1> wideNodesByLanes{};
       auto nearestHits = 0;
       auto anyHits = 0;
       for (const auto boxCount : {3, 24, 80, 300}) {
@@ -518,10 +544,46 @@ namespace raytracer::test {
           }
         }
       }
-      Assert::IsTrue(wideNodesByLanes[2] > 0, L"wide nodes with 2 lanes", LINE_INFO());
-      Assert::IsTrue(wideNodesByLanes[3] > 0, L"wide nodes with 3 lanes", LINE_INFO());
-      Assert::IsTrue(wideNodesByLanes[4] > 0, L"wide nodes with 4 lanes", LINE_INFO());
+      for (auto lanes = Two<ASizeT>(); lanes <= KDTreeWideNode::Width; ++lanes) {
+        const auto message = L"wide nodes with " + std::to_wstring(lanes) + L" lanes";
+        Assert::IsTrue(wideNodesByLanes[lanes] > 0, message.c_str(), LINE_INFO());
+      }
       Assert::IsTrue(nearestHits > 500 && anyHits > 500, L"enough hits to compare", LINE_INFO());
+    }
+
+    TEST_METHOD(wideTraverserStackHoldsMaxDepthTree) {
+      // A tree of KDTreeRoot::MaxDepth node levels whose boxes all contain the ray, with empty leaves: every wide node
+      // has all lanes hit and defers all but its first, which continues down. Both queries fill the stack up to its
+      // bound, which the traverser's asserts check in Debug, and call every leaf.
+      KDTreeRoot root;
+      const AxisAlignedBoundingBox box{Float4{-1.0f, -1.0f, -1.0f, 0.0f}, Float4{1.0f, 1.0f, 1.0f, 0.0f}};
+      root.rootBounding = box;
+      root.rootLink = addBlockChain(root, box, One<ASizeT>(), true);
+      root.treeDepth = KDTreeRoot::MaxDepth;
+      root.buildWideNodes();
+      for (const auto &node : root.wideNodes) {
+        Assert::AreEqual(KDTreeWideNode::Width, static_cast<ASizeT>(std::popcount(node.lanes)), L"full wide nodes",
+                         LINE_INFO());
+      }
+
+      const Ray ray{Float4{-10.0f, 0.0f, 0.0f, 0.0f}, Float4{1.0f, 0.0f, 0.0f, 0.0f}};
+      const RayCast rayCast{ray, Zero<Float4::VectorBoolType>(), Size2(0, 0), 100.0f};
+      const auto leaves = static_cast<int>(root.leaves.size());
+      const NaiveKDTreeTraverser<FacetIntersection> naive{};
+      const WideKDTreeTraverser<FacetIntersection> wide{};
+      for (const KDTreeTraverser<FacetIntersection> *traverser :
+           std::initializer_list<const KDTreeTraverser<FacetIntersection> *>{&naive, &wide}) {
+        FacetIntersection intersection{};
+        CountingBoxNodesTraverser nearestCounting;
+        Assert::AreEqual(100.0f,
+                         traverser->findNearestIntersection(nearestCounting, root, rayCast, nullptr, intersection),
+                         L"nearest: no hit", LINE_INFO());
+        Assert::AreEqual(leaves, nearestCounting.leafCalls, L"nearest: every leaf", LINE_INFO());
+        CountingBoxNodesTraverser anyCounting;
+        Assert::AreEqual(100.0f, traverser->findAnyIntersection(anyCounting, root, rayCast, nullptr, intersection),
+                         L"any-hit: no hit", LINE_INFO());
+        Assert::AreEqual(leaves, anyCounting.leafCalls, L"any-hit: every leaf", LINE_INFO());
+      }
     }
 
     TEST_METHOD(naiveTraverserAnyHitThroughBothChildren) {

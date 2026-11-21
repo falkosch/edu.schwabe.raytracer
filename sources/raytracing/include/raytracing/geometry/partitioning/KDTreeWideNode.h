@@ -1,11 +1,13 @@
 #pragma once
 
 #include "KDTreeLink.h"
+#include "KDTreeWideLanes.h"
 #include "KDTreeWideRay.h"
 
 #include <primitives.h>
 
 #include <array>
+#include <bit>
 #include <cstdint>
 
 namespace raytracer
@@ -13,13 +15,17 @@ namespace raytracer
     using namespace vectorization;
     using namespace primitives;
 
-    // Node of the four-wide view of the tree: the children of an inner node's children (2 to 4), so one wide node
-    // stands for two levels. Lane i of the boxes belongs to child i. Links are wide node indices, or leaf indices with
-    // KDTreeRoot::LeafFlag set (the binary tree's leaves).
+    // Node of the wide view of the tree: the descendants of an inner node Levels levels down (2 to Width of them; a
+    // leaf above that level takes one lane), so one wide node stands for Levels levels. Lanes are in depth-first order,
+    // child A before child B. Lane i of the boxes belongs to descendant i. Links are wide node indices, or leaf indices
+    // with KDTreeRoot::LeafFlag set (the binary tree's leaves).
     struct alignas(64) KDTreeWideNode
     {
-        Float4 minimumX, minimumY, minimumZ, maximumX, maximumY, maximumZ;
-        std::array<KDTreeLink, 4> links;
+        static constexpr ASizeT Width = KDTreeWideLanes::SIZE;
+        static constexpr ASizeT Levels = std::bit_width(Width) - 1;
+
+        KDTreeWideLanes minimumX, minimumY, minimumZ, maximumX, maximumY, maximumZ;
+        std::array<KDTreeLink, Width> links;
         // bit i set for each used lane
         std::uint32_t lanes;
     };
@@ -30,6 +36,6 @@ namespace raytracer
     // Also sets entryDistancesOut to the distances where the ray enters the lanes' boxes (negative if it starts
     // inside).
     unsigned overlappedLanes(
-        const RayCast& rayCast, const KDTreeWideRay& ray, const KDTreeWideNode& node, Float4& entryDistancesOut
+        const RayCast& rayCast, const KDTreeWideRay& ray, const KDTreeWideNode& node, KDTreeWideLanes& entryDistancesOut
     ) noexcept;
 }
