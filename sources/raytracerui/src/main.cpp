@@ -57,7 +57,7 @@ namespace raytracerui
     {
         Resources resources{};
         Scene scene{
-            std::make_unique<NaiveKDTreeTraverser<SceneIntersection>>(), std::make_unique<BruteForceSAHKDTreeBalancer>()
+            std::make_unique<WideKDTreeTraverser<SceneIntersection>>(), std::make_unique<BruteForceSAHKDTreeBalancer>()
         };
 
         CornellBoxScene::setup(scene, resources);

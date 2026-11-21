@@ -12,6 +12,7 @@
 #include "raytracing/geometry/partitioning/treebalancer/MedianKDTreeBalancer.h"
 #include "raytracing/geometry/partitioning/treebalancer/RotatingAxisKDTreeBalancer.h"
 #include "raytracing/geometry/partitioning/treetraverser/NaiveKDTreeTraverser.h"
+#include "raytracing/geometry/partitioning/treetraverser/WideKDTreeTraverser.h"
 #include "raytracing/scene/Resources.h"
 #include "raytracing/scene/Scene.h"
 #include "raytracing/shading/shaders/EnvironmentShader.h"
