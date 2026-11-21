@@ -4,7 +4,10 @@ set(SOURCES
         src/primitives/AxisAlignedBoundingBox.cpp
         src/primitives/BoundingSphere.cpp
         src/primitives/Facet.cpp
+        src/primitives/FacetBlockRay.cpp
+        src/primitives/FacetBlockTest.cpp
         src/primitives/FacetEdges.cpp
+        src/primitives/FacetNormalsBlock.cpp
         src/primitives/Ray.cpp
         src/primitives/RayCast.cpp
         src/primitives/SplittingPlane.cpp
@@ -15,7 +18,11 @@ set(HEADERS
         include/primitives/AxisAlignedBoundingBox.h
         include/primitives/BoundingSphere.h
         include/primitives/Facet.h
+        include/primitives/FacetBlockRay.h
+        include/primitives/FacetBlockTest.h
         include/primitives/FacetEdges.h
+        include/primitives/FacetLanes.h
+        include/primitives/FacetNormalsBlock.h
         include/primitives/Ray.h
         include/primitives/RayCast.h
         include/primitives/SplittingPlane.h

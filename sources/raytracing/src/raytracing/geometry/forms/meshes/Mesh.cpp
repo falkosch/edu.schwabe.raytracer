@@ -81,7 +81,6 @@ namespace raytracer
     constexpr auto NoLeafOffset = std::numeric_limits<ASizeT>::max();
     constexpr auto NoEntry = std::numeric_limits<ASizeT>::max();
     constexpr ASizeT BlockWidth{FacetLanes::SIZE};
-    constexpr unsigned AllLanes{(1u << BlockWidth) - 1u};
 
     // Offset of geometryNodes in graph->leafGeometry, or NoLeafOffset if the span lies elsewhere (e.g. the node list of
     // a mesh without KD-tree).
@@ -129,75 +128,6 @@ namespace raytracer
       return static_cast<bool>(culledBack | culledFront);
     }
 
-    // The ray's components, each broadcast to all lanes (a Float4 broadcast fills both halves of a Float8).
-    struct RayLanes
-    {
-      std::array<FacetLanes, 4> origin, direction;
-
-      explicit RayLanes(const Ray& ray) noexcept
-        : origin{
-            FacetLanes{xxxx(ray.origin)}, FacetLanes{yyyy(ray.origin)}, FacetLanes{zzzz(ray.origin)},
-            FacetLanes{wwww(ray.origin)}
-          },
-          direction{
-            FacetLanes{xxxx(ray.direction)}, FacetLanes{yyyy(ray.direction)}, FacetLanes{zzzz(ray.direction)},
-            FacetLanes{wwww(ray.direction)}
-          }
-      {
-      }
-    };
-
-    // Lane-wise dot products as explicit FMA chains, so no compiler setting can fuse or reorder them differently.
-    // They round differently from dotv / dot3v (_mm_dp_ps, no FMA) in the last bits.
-    FacetLanes dot3Lanes(const std::array<FacetLanes, 4>& a, const std::array<FacetLanes, 4>& b) noexcept
-    {
-      return multiplyAdd(a[2], b[2], multiplyAdd(a[1], b[1], a[0] * b[0]));
-    }
-
-    FacetLanes dotLanes(const std::array<FacetLanes, 4>& a, const std::array<FacetLanes, 4>& b) noexcept
-    {
-      return multiplyAdd(a[3], b[3], dot3Lanes(a, b));
-    }
-
-    struct BlockTest
-    {
-      FacetLanes determinant, detT, detU, detV;
-      // bit i: lane i is a candidate, isn't culled and passes the three sign tests of the Havel test
-      unsigned hits;
-    };
-
-    // nearestIntersectionHavel for the facets of a block at once: the same steps lane-wise, with FMA dot products
-    BlockTest testBlock(
-      const FacetNormalsBlock& block, const RayLanes& ray, const FacetLanes& maxDistance, const unsigned candidates,
-      const bool cullBack, const bool cullFront
-    ) noexcept
-    {
-      const auto determinant = dot3Lanes(block.v0, ray.direction);
-      const auto frontfaced = static_cast<unsigned>(isNegative(determinant));
-      // masks instead of selects, so the compiler doesn't branch
-      const auto culledLanes = (~frontfaced & AllLanes & (0u - static_cast<unsigned>(cullBack))) |
-        (frontfaced & (0u - static_cast<unsigned>(cullFront)));
-
-      const auto detT = -dotLanes(block.v0, ray.origin);
-      const auto checkT = multiplySub(determinant, maxDistance, detT);
-
-      // intersection point scaled by the determinant
-      auto point = std::array<FacetLanes, 4>();
-      for (auto c = ASizeT{0}; c < point.size(); ++c)
-      {
-        point[c] = multiplyAdd(ray.origin[c], determinant, ray.direction[c] * detT);
-      }
-      const auto detU = dotLanes(point, block.v1);
-      const auto checkU = determinant - detU;
-      const auto detV = dotLanes(point, block.v2);
-      const auto checkV = determinant - (detU + detV);
-
-      const auto rejected = static_cast<unsigned>(
-        isNegative(detT ^ checkT) | isNegative(detU ^ checkU) | isNegative(detV ^ checkV)
-      );
-      return BlockTest{determinant, detT, detU, detV, candidates & ~culledLanes & ~rejected};
-    }
-
     // bit i set where entry first + i lies in [begin, end) and isn't the origin's entry
     unsigned candidateLanes(const ASizeT first, const ASizeT begin, const ASizeT end, const ASizeT originEntry) noexcept
     {
@@ -210,13 +140,6 @@ namespace raytracer
       return lanes & ~originBit;
     }
 
-    // { u, v, distance, distance } of a lane, as nearestIntersectionHavel returns it
-    Float4 laneTexCoordsAndDistance(const BlockTest& test, const int lane) noexcept
-    {
-      return Float4{test.detU[lane], test.detV[lane], test.detT[lane], test.detT[lane]} /
-        Float4{test.determinant[lane]};
-    }
-
     // Nearest hit among the entries [begin, end): returns { u, v, distance } and sets nearestEntry, or returns
     // maxDistance. Hits are taken in entry order against the nearest hit so far, as in the single-facet loop.
     Float4 nearestHitInBlocks(
@@ -224,14 +147,14 @@ namespace raytracer
       const RayCast& rayCast, ASizeT& nearestEntry
     ) noexcept
     {
-      const auto ray = RayLanes(rayCast.ray);
+      const auto ray = FacetBlockRay(rayCast.ray);
       const auto cullBack = backfaceCulled(rayCast);
       const auto cullFront = frontfaceCulled(rayCast);
 
       auto nearestTexCoordsAndDistance = Float4{rayCast.maxDistance};
       for (auto first = begin / BlockWidth * BlockWidth; first < end; first += BlockWidth)
       {
-        const auto test = testBlock(
+        const auto test = intersectionsHavel(
           blocks[first / BlockWidth], ray, FacetLanes{zzzz(nearestTexCoordsAndDistance)},
           candidateLanes(first, begin, end, originEntry), cullBack, cullFront
         );
@@ -245,7 +168,7 @@ namespace raytracer
           {
             continue;
           }
-          const auto facetTexCoordsAndDistance = laneTexCoordsAndDistance(test, lane);
+          const auto facetTexCoordsAndDistance = texCoordsAndDistance(test, lane);
           if (z(facetTexCoordsAndDistance < nearestTexCoordsAndDistance))
           {
             nearestTexCoordsAndDistance = facetTexCoordsAndDistance;
@@ -262,21 +185,21 @@ namespace raytracer
       const RayCast& rayCast, ASizeT& hitEntry
     ) noexcept
     {
-      const auto ray = RayLanes(rayCast.ray);
+      const auto ray = FacetBlockRay(rayCast.ray);
       const auto cullBack = backfaceCulled(rayCast);
       const auto cullFront = frontfaceCulled(rayCast);
 
       const auto maxDistance = Float4(rayCast.maxDistance);
       for (auto first = begin / BlockWidth * BlockWidth; first < end; first += BlockWidth)
       {
-        const auto test = testBlock(
+        const auto test = intersectionsHavel(
           blocks[first / BlockWidth], ray, FacetLanes{rayCast.maxDistance},
           candidateLanes(first, begin, end, originEntry), cullBack, cullFront
         );
         for (auto hits = test.hits; hits != 0; hits &= hits - 1)
         {
           const auto lane = std::countr_zero(hits);
-          const auto facetTexCoordsAndDistance = laneTexCoordsAndDistance(test, lane);
+          const auto facetTexCoordsAndDistance = texCoordsAndDistance(test, lane);
 
           // check whether the distance in t is nearer than the distance in preserved d
           if (z(facetTexCoordsAndDistance < maxDistance))

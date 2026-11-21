@@ -6,7 +6,10 @@ set(SOURCES
         src/primitives/AxisAlignedBoundingBox_test.cpp
         src/primitives/BoundingSphere_test.cpp
         src/primitives/Facet_test.cpp
+        src/primitives/FacetBlockRay_test.cpp
+        src/primitives/FacetBlockTest_test.cpp
         src/primitives/FacetEdges_test.cpp
+        src/primitives/FacetNormalsBlock_test.cpp
         src/primitives/SplittingPlane_test.cpp
         src/test_module.cpp
 )

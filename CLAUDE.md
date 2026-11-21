@@ -75,7 +75,8 @@ API tier aliases (`Float4`, `MFloat4x4`, etc.) default to single precision; defi
 ### primitives (`sources/primitives/`)
 
 Ray-casting primitives with SIMD intersection tests. Types: Ray, RayCast (ray + culling + self-occlusion),
-AxisAlignedBoundingBox, BoundingSphere, Facet (Havel triangle test), FacetEdges (Moeller-Trumbore), SplittingPlane.
+AxisAlignedBoundingBox, BoundingSphere, Facet (Havel triangle test), FacetEdges (Moeller-Trumbore), SplittingPlane,
+and the facet block test (FacetLanes, FacetNormalsBlock, FacetBlockRay, FacetBlockTest: Havel for 8 facets at once).
 
 ### raytracing (`sources/raytracing/`)
 
