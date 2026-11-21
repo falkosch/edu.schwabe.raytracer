@@ -24,6 +24,18 @@ are done; see `DONE/implement-planned-vector-types.md`. What remains are the 8/1
 - `v_i16_8` — 8x int16, 128-bit
 - `v_i16_16` — 16x int16, 256-bit
 
+### 64-bit float, 8 lanes (deferred)
+
+Deferred on 2026-11-21: high precision isn't built today.
+
+- `v_f64_8` — 8x float64, the high-precision counterpart of `v_f32_8`. The `FloatN` aliases give the component
+  count, and `VECTORIZATION_HIGH_PRECISION` only switches the components to double, so `Float8` must map to
+  `Float8_64` = `v_f64_8` there. Today `Float8` exists only in single precision, although the raytracing library uses
+  it (spectral code: `cmf.h`, `blackbody.h`, `illuminants.h`, `metal_ior.h`, `EmitterSPD.h`; `Mesh.h`'s
+  `FacetLanes`), so a high-precision build can't compile.
+- 512 bits: with AVX2 that is two `PackedFloat4_256`. There is no `PackedTypes<Float_64, 8>` specialization and no
+  two-register wrapper in the library yet; AVX-512 (`__m512d`) isn't targeted (`/arch:AVX2`).
+
 ### Integer matrices
 
 - `m_ui32_4x4` — 4x4 uint32 matrix

@@ -8,30 +8,29 @@ iterations, each testing a single triangle. With SoA triangle data (see `soa-mes
 could be tested simultaneously using 128-bit SIMD (or 8 with AVX): load N plane normals, compute N dot
 products in parallel, compare N distances at once.
 
-The 4-wide batch test is done, see `DONE/simd-batch-triangle-test.md`. The open points below remain.
+The 4-wide batch test and 8-wide AVX blocks are done, see `DONE/simd-batch-triangle-test.md`. The open point
+below remains.
 
 ## Open points
 
-- 8-wide blocks with AVX (`Float8`): the mean leaf holds 12 facets, so more lanes would be masked. Measure against
-  the 4-wide baseline below.
 - The block test lives in `Mesh.cpp`; the key files below name `primitives/Facet.h` as its home. Move it there if
   another form needs it.
 
-### Baseline: 4-wide blocks (`5c8a256`)
+### Baseline: 8-wide blocks (`9e23c9b`)
 
-Mesh benchmark, the lower "best" of two alternating runs in core cycles per ray, against the code before the block
-layout (from `DONE/soa-mesh-layout.md`):
+Mesh benchmark, 10 alternating runs each in one session, median "best" in core cycles per ray; a move must not
+regress the "8 lanes" column (re-measure it in the same session):
 
-| Mesh    | Query   | Rays       | Traced, original | Traced, block | Change | Per test, original | Per test, block |
-|---------|---------|------------|-----------------:|--------------:|-------:|-------------------:|----------------:|
-| teapot  | nearest | coherent   |            701.1 |         354.0 | -49.5% |               51.0 |            16.9 |
-| teapot  | any     | coherent   |            510.3 |         267.6 | -47.6% |               59.3 |            14.5 |
-| teapot  | nearest | incoherent |           1887.4 |         972.4 | -48.5% |               67.4 |            15.0 |
-| teapot  | any     | incoherent |           1090.7 |         627.8 | -42.4% |               69.7 |            12.1 |
-| dragon2 | nearest | coherent   |            768.6 |         398.7 | -48.1% |               97.0 |            23.3 |
-| dragon2 | any     | coherent   |            507.5 |         316.8 | -37.6% |              103.8 |            21.8 |
-| dragon2 | nearest | incoherent |           1762.9 |         977.8 | -44.5% |              115.9 |            27.9 |
-| dragon2 | any     | incoherent |            932.1 |         641.7 | -31.2% |              131.3 |            34.6 |
+| Mesh    | Query   | Rays       | 4 lanes | 8 lanes | Change | 8 faster |
+|---------|---------|------------|--------:|--------:|-------:|---------:|
+| teapot  | nearest | coherent   |   366.8 |   320.5 | -12.6% |    10/10 |
+| teapot  | any     | coherent   |   305.2 |   275.8 |  -9.6% |    10/10 |
+| teapot  | nearest | incoherent |   995.1 |   931.4 |  -6.4% |    10/10 |
+| teapot  | any     | incoherent |   676.2 |   659.3 |  -2.5% |     8/10 |
+| dragon2 | nearest | coherent   |   403.8 |   373.0 |  -7.6% |    10/10 |
+| dragon2 | any     | coherent   |   337.9 |   321.4 |  -4.9% |    10/10 |
+| dragon2 | nearest | incoherent |   988.7 |   981.0 |  -0.8% |     5/10 |
+| dragon2 | any     | incoherent |   686.1 |   681.0 |  -0.8% |     3/10 |
 
 ## Key files
 
