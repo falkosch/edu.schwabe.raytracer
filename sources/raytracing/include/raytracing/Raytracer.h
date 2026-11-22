@@ -59,8 +59,8 @@ namespace raytracer
         static IlluminatedIntersection trace(const Raytrace& raytrace, RaytracerCache& cache);
 
         static void traceGlossyReflection(
-            const Raytrace& incidentRaytrace, Float maxDistance, Float reflectionVisibilityIndex, Float roughness,
-            RaytracerCache& cache, BRDFParameters& brdf
+            const Raytrace& incidentRaytrace, Float maxDistance, Float reflectionVisibilityIndex,
+            Float reflectionImportance, Float roughness, RaytracerCache& cache, BRDFParameters& brdf
         );
 
         static void

@@ -34,6 +34,10 @@ namespace raytracer::spectral
 
     Float spectralMax(const Spectrum& s) noexcept;
 
+    // Scales the spectrum down so that its largest value is at most limit, which keeps its colour; a limit of 0 or less
+    // leaves it as it is
+    Spectrum limitPeak(const Spectrum& s, Float limit) noexcept;
+
     SpectralVector spectralExp(const SpectralVector& v) noexcept;
 
     Spectrum spectralMix(const Spectrum& a, const Spectrum& b, const SpectralVector& factor) noexcept;

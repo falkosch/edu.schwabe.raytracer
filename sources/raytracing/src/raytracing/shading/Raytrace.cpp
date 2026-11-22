@@ -4,7 +4,9 @@
 namespace raytracer
 {
     Raytrace::Raytrace()
-        : rayCast(), originIntersection(), traceDepth(), visibilityIndex(), spectralContext(), seed(), glossy()
+        : rayCast(), originIntersection(), traceDepth(), visibilityIndex(), importance(), spectralContext(), seed(),
+          strataSeed(),
+          stratum(), glossy()
     {
     }
 
@@ -13,7 +15,9 @@ namespace raytracer
         const Float visibilityIndex, const SpectralContext* const spectralContext, const UInt_32 seed
     )
         : rayCast(rayCast), originIntersection(originIntersection), traceDepth(traceDepth),
-          visibilityIndex(visibilityIndex), spectralContext(spectralContext), seed(seed), glossy()
+          visibilityIndex(visibilityIndex), importance(visibilityIndex), spectralContext(spectralContext), seed(seed),
+          strataSeed(seed), stratum(),
+          glossy()
     {
     }
 }

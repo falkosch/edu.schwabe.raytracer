@@ -23,6 +23,7 @@ MessageLoopBasedUI (abstract, Windows message loop)
 | `FULL_RENDER_SUPER_SAMPLING` | 2 (3x3)       | 0     |
 | `GLOSSY_SAMPLES`             | 16            | 16    |
 | `SPHERE_LIGHT_SAMPLES`       | 16            | 16    |
+| `GLOSSY_CLAMP`               | 4             | 4     |
 | `CULLING_ORIENTATION`        | -1 (backface) | -1    |
 
 ## Scenes (`include/tests/`, `src/tests/`)
@@ -63,6 +64,16 @@ The new scenes are composed for the start camera (the dropdown doesn't move the 
 - `--glossy-samples=<n>`, `--sphere-light-samples=<n>` -- replace `GLOSSY_SAMPLES` and `SPHERE_LIGHT_SAMPLES`, the most
   reflection rays per glossy hit and shadow rays per sphere light (distribution ray tracing; also sliders in the Config
   panel). 0 for both is Whitted ray tracing: mirror reflections and hard shadows
+- `--glossy-clamp=<x>` -- replace `GLOSSY_CLAMP`, the most radiance one glossy reflection ray adds (against fireflies;
+  0 for no limit; a Config slider)
+- `--regularize-paths` -- after a glossy reflection, mirrors and glass don't show sphere lights' emissive spheres either
+  (less glitter, but that light goes missing; a Config checkbox)
+- `--super-sampling=<n>` -- replace `SUPER_SAMPLING_FACTOR`, (n+1)x(n+1) samples per pixel (a full render takes at
+  least `FULL_RENDER_SUPER_SAMPLING`), e.g. `--full-render --super-sampling=7` for a reference image
+- `--seed=<n>` -- another sample pattern of the distribution ray tracing (0 is the default): renders with two seeds
+  measure the noise
+- `--visibility-cutoff=<x>` -- replace `VISIBILITY_CUTOFF` (1/512), the least share of the pixel for which rays and
+  lights are still traced; smaller values measure what the cutoff loses
 
 ## Controls
 

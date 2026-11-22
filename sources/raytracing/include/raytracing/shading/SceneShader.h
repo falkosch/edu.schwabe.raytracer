@@ -56,9 +56,9 @@ namespace raytracer
             PerLightShadowCache::ShadowCacheType& shadowCache, StatisticsCookie& statistics
         ) const;
 
-        // Scale visibilityCutoff according to the current visibilityIndex, which allows us to filter out unnecessary
-        // lighting that doesn't add visible changes to the scene.
-        static Float4 adaptedVisibilityCutoff(Float visibilityCutoff, Float visibilityIndex);
+        // Scale visibilityCutoff by the ray's importance (Raytrace::importance), which allows us to filter out
+        // unnecessary lighting that doesn't add visible changes to the scene.
+        static Float4 adaptedVisibilityCutoff(Float visibilityCutoff, Float importance);
 
     private:
         std::unique_ptr<const BackgroundShader> backgroundShader;

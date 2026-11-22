@@ -40,6 +40,7 @@ namespace vectorization
     using UInt2_32 = v_ui32_4;
     using UInt3_32 = v_ui32_4;
     using UInt4_32 = v_ui32_4;
+    using UInt8_32 = v_ui32_8;
 
     using Int1_64 = v_i64_4;
     using Int2_64 = v_i64_4;

@@ -53,6 +53,12 @@ namespace raytracer::spectral
         return spectralMax(s.data);
     }
 
+    Spectrum limitPeak(const Spectrum& s, const Float limit) noexcept
+    {
+        const auto peak = spectralMax(s);
+        return limit > Zero<Float>() && peak > limit ? s * (limit / peak) : s;
+    }
+
     SpectralVector spectralExp(const SpectralVector& v) noexcept
     {
         return exp(v);

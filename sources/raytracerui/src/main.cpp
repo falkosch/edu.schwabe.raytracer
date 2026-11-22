@@ -45,6 +45,9 @@ constexpr ASizeT SUPER_SAMPLING_FACTOR = 0;
 constexpr ASizeT GLOSSY_SAMPLES = 16;
 constexpr ASizeT SPHERE_LIGHT_SAMPLES = 16;
 
+// against fireflies: the most radiance of one glossy reflection ray (0 for no limit)
+constexpr Float GLOSSY_CLAMP = 4.0f;
+
 // the least super-sampling factor of a full render (Enter)
 #ifdef NDEBUG
 constexpr ASizeT FULL_RENDER_SUPER_SAMPLING_FACTOR = 2;
@@ -62,14 +65,21 @@ const Float VISIBILITY_CUTOFF = reciprocal(512.0f);
 constexpr ASizeT RAY_PACKET_SIZE = 15;
 
 // Command-line options: --scene=<id> picks the start scene (ids in tests/SceneCatalog.cpp), --exposure=<stops> scales
-// the displayed image by 2^stops, --max-trace-depth=<n>, --glossy-samples=<n> and --sphere-light-samples=<n> replace
-// MAX_TRACE_DEPTH, GLOSSY_SAMPLES and SPHERE_LIGHT_SAMPLES, --full-render renders the first image like Enter does,
-// --exit-after-render closes the window once the first image is saved as ray-traced.png.
+// the displayed image by 2^stops, --max-trace-depth=<n>, --glossy-samples=<n>, --sphere-light-samples=<n> and
+// --super-sampling=<n> replace MAX_TRACE_DEPTH, GLOSSY_SAMPLES, SPHERE_LIGHT_SAMPLES and SUPER_SAMPLING_FACTOR,
+// --full-render renders the first image like Enter does (at least FULL_RENDER_SUPER_SAMPLING_FACTOR), --seed=<n> picks
+// another sample pattern of the distribution ray tracing (0 is the default), --exit-after-render closes the window once
+// the first image is saved as ray-traced.png.
 constexpr std::string_view SCENE_OPTION = "--scene=";
 constexpr std::string_view EXPOSURE_OPTION = "--exposure=";
 constexpr std::string_view MAX_TRACE_DEPTH_OPTION = "--max-trace-depth=";
 constexpr std::string_view GLOSSY_SAMPLES_OPTION = "--glossy-samples=";
 constexpr std::string_view SPHERE_LIGHT_SAMPLES_OPTION = "--sphere-light-samples=";
+constexpr std::string_view SEED_OPTION = "--seed=";
+constexpr std::string_view SUPER_SAMPLING_OPTION = "--super-sampling=";
+constexpr std::string_view GLOSSY_CLAMP_OPTION = "--glossy-clamp=";
+constexpr std::string_view REGULARIZE_PATHS_OPTION = "--regularize-paths";
+constexpr std::string_view VISIBILITY_CUTOFF_OPTION = "--visibility-cutoff=";
 constexpr std::string_view FULL_RENDER_OPTION = "--full-render";
 constexpr std::string_view EXIT_AFTER_RENDER_OPTION = "--exit-after-render";
 
@@ -105,8 +115,8 @@ namespace raytracerui
     }
 
     LRESULT runRaytracerUI(
-        const ASizeT sceneIndex, const Float exposure, const RaytraceBaseParameters& tracing, const bool fullRender,
-        const bool exitAfterRender
+        const ASizeT sceneIndex, const Float exposure, const RaytraceBaseParameters& tracing,
+        const ASizeT superSampling, const bool fullRender, const bool exitAfterRender
     )
     {
         Resources resources{};
@@ -123,17 +133,20 @@ namespace raytracerui
         camera.translate(CAMERA_INIT_TRANSLATION);
 
         RaytraceParameters parameters{};
-        parameters.visibilityCutoff = VISIBILITY_CUTOFF;
+        parameters.visibilityCutoff = tracing.visibilityCutoff;
         parameters.maxDistance = MAX_DISTANCE;
         parameters.maxTraceDepth = tracing.maxTraceDepth;
         parameters.glossySamples = tracing.glossySamples;
         parameters.sphereLightSamples = tracing.sphereLightSamples;
+        parameters.seedOffset = tracing.seedOffset;
+        parameters.glossyClamp = tracing.glossyClamp;
+        parameters.regularizePaths = tracing.regularizePaths;
         parameters.sceneShader = &scene;
         parameters.cullingOrientation = CULLING_ORIENTATION;
         parameters.perspectiveZPlanes = PERSPECTIVE_Z_PLANES;
         parameters.perspectiveFOV = PERSPECTIVE_FOV;
         parameters.samplingFactor = SAMPLING_FACTOR;
-        parameters.superSamplingFactor = SUPER_SAMPLING_FACTOR;
+        parameters.superSamplingFactor = superSampling;
         parameters.rayPacketSize = RAY_PACKET_SIZE;
         parameters.camera = &camera;
 
@@ -185,9 +198,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR commandLine, int)
     auto exposure = Zero<Float>();
     // the options for the ray tracing, the rest of the parameters is set up in runRaytracerUI
     RaytraceBaseParameters tracing{};
+    tracing.visibilityCutoff = VISIBILITY_CUTOFF;
     tracing.maxTraceDepth = MAX_TRACE_DEPTH;
     tracing.glossySamples = GLOSSY_SAMPLES;
     tracing.sphereLightSamples = SPHERE_LIGHT_SAMPLES;
+    tracing.glossyClamp = GLOSSY_CLAMP;
+    auto superSampling = SUPER_SAMPLING_FACTOR;
     auto fullRender = false;
     auto exitAfterRender = false;
     std::istringstream arguments{commandLine};
@@ -222,6 +238,28 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR commandLine, int)
         {
             tracing.sphereLightSamples = parseCount(argument, SPHERE_LIGHT_SAMPLES_OPTION);
         }
+        else if (argument.starts_with(SEED_OPTION))
+        {
+            tracing.seedOffset = static_cast<UInt_32>(parseCount(argument, SEED_OPTION));
+        }
+        else if (argument.starts_with(GLOSSY_CLAMP_OPTION))
+        {
+            const auto limit = argument.substr(GLOSSY_CLAMP_OPTION.size());
+            tracing.glossyClamp = std::strtof(limit.c_str(), nullptr);
+        }
+        else if (argument.starts_with(VISIBILITY_CUTOFF_OPTION))
+        {
+            const auto cutoff = argument.substr(VISIBILITY_CUTOFF_OPTION.size());
+            tracing.visibilityCutoff = std::strtof(cutoff.c_str(), nullptr);
+        }
+        else if (argument == REGULARIZE_PATHS_OPTION)
+        {
+            tracing.regularizePaths = true;
+        }
+        else if (argument.starts_with(SUPER_SAMPLING_OPTION))
+        {
+            superSampling = parseCount(argument, SUPER_SAMPLING_OPTION);
+        }
         else if (argument == FULL_RENDER_OPTION)
         {
             fullRender = true;
@@ -242,7 +280,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR commandLine, int)
     }
 
     const auto result = static_cast<int>(
-        raytracerui::runRaytracerUI(sceneIndex, exposure, tracing, fullRender, exitAfterRender)
+        raytracerui::runRaytracerUI(sceneIndex, exposure, tracing, superSampling, fullRender, exitAfterRender)
     );
     logging::Logger::instance().stop();
     return result;

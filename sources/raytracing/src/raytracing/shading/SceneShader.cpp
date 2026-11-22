@@ -89,7 +89,7 @@ namespace raytracer
     {
         return sampleLighting(
             containment.incidentRay,
-            adaptedVisibilityCutoff(containment.visibilityCutoff, containment.incidentRay.visibilityIndex),
+            adaptedVisibilityCutoff(containment.visibilityCutoff, containment.incidentRay.importance),
             containment.roughness, containment.F0,
             intersection, containment.sphereLightSamples, *containment.shadowCache, *containment.statistics
         );
@@ -162,7 +162,8 @@ namespace raytracer
         const auto samples = static_cast<ASizeT>(
             clamp(vectorization::ceil(samplesLimit * incidentRay.visibilityIndex), One<Float>(), samplesLimit)
         );
-        const auto seed = deriveSeed(incidentRay.seed, SeedOffset + static_cast<UInt_32>(lightIndex));
+        const auto seed = deriveSeed(incidentRay.strataSeed, SeedOffset + static_cast<UInt_32>(lightIndex));
+        const auto sequenceOffset = sequenceOffset2D(seed);
         // only the cap within acos(radius / distance) of the side facing the intersection is visible from it: the
         // sine of that angle bounds the disk
         const auto visibleCap =
@@ -172,7 +173,9 @@ namespace raytracer
         for (auto sample = Zero<ASizeT>(); sample < samples; ++sample)
         {
             // a point of the disk (equal areas) lifted onto the visible cap
-            const auto xi = sampled ? sequencePoint2D(seed, sample) : Zero<Float4>();
+            const auto xi = sampled
+                                ? sequencePoint2D(sequenceOffset, stratifiedIndex(incidentRay.stratum, samples, sample))
+                                : Zero<Float4>();
             const auto r = vectorization::sqrt(x(xi)) * visibleCap;
             const auto phi = Two<Float>() * Pi<Float>() * y(xi);
             const auto lift = vectorization::sqrt(max(Zero<Float>(), One<Float>() - sqr(r)));
@@ -350,9 +353,9 @@ namespace raytracer
         return lighting;
     }
 
-    Float4 SceneShader::adaptedVisibilityCutoff(const Float visibilityCutoff, const Float visibilityIndex)
+    Float4 SceneShader::adaptedVisibilityCutoff(const Float visibilityCutoff, const Float importance)
     {
-        return Float4(visibilityCutoff / visibilityIndex);
+        return Float4(visibilityCutoff / importance);
     }
 
     Float4 SceneShader::lambertDiffuseIntensity(const Float4& lightDirection, const Float4& normal)

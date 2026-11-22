@@ -20,7 +20,14 @@ Core rendering engine. Static library depending on `primitives` and `vectorizati
    (`traceGlossyReflection`, fewer the less the reflection adds to the pixel); `Raytrace::seed` (pixel and
    sub-sample, `shading/sampling.h`) makes the sampling deterministic. `RaytraceBaseParameters::glossySamples` and
    `sphereLightSamples` cap the rays of this distribution ray tracing (default 16); 0 is Whitted ray tracing (mirror
-   reflections, hard shadows)
+   reflections, hard shadows). The seeds and sequence shifts hash in SIMD lanes (`deriveSeeds`, 8 at a time;
+   `sequenceOffset2D`, once per hit). The sub-samples of a pixel share one sample sequence (`Raytrace::strataSeed`,
+   `stratum`, `stratifiedIndex`); `seedOffset` picks another sample pattern. Against fireflies, `glossyClamp` limits
+   the radiance of one glossy ray (`spectral::limitPeak`), and `regularizePaths` keeps `Raytrace::glossy` along
+   mirror and refraction chains (both biased, off by default in the library). The sample budgets shrink with
+   `Raytrace::visibilityIndex` (divided among a glossy reflection's rays), the cutoffs of dim rays and lights read
+   `Raytrace::importance` (not divided: each glossy ray estimates the whole reflection), so that more glossy rays don't
+   darken the image
 9. Output: `spectrumToXYZ` (with the context's XYZ context) `→ xyzToDisplayRGB` per pixel → HDRImage
    (sRGB-linear) + depth map + timing map
 

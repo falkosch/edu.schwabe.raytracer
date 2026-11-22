@@ -24,12 +24,22 @@ namespace raytracer
 {
     namespace
     {
-        // Seeds of the secondary rays: the transmitted one and the sample-th reflected one
+        // Seeds of the secondary rays: the transmitted one and the sample-th reflected one (traceGlossyReflection
+        // derives the same seeds 8 at a time with deriveSeeds)
         constexpr UInt_32 TransmissionSeed = 0u;
 
         UInt_32 reflectionSeed(const UInt_32 seed, const ASizeT sample)
         {
             return deriveSeed(seed, static_cast<UInt_32>(sample) + One<UInt_32>());
+        }
+
+        // The seed of a pixel's sub-sample; seedOffset 0 keeps the default pattern (sub-samples stay below the stride)
+        UInt_32 primarySeed(const ASizeT imageIndex, const ASizeT subSample, const UInt_32 seedOffset)
+        {
+            constexpr UInt_32 SeedOffsetStride = 0x10000u;
+            return deriveSeed(
+                static_cast<UInt_32>(imageIndex), static_cast<UInt_32>(subSample) + seedOffset * SeedOffsetStride
+            );
         }
 
         // Smith's masking function G1 of the GGX distribution for one direction
@@ -243,10 +253,13 @@ namespace raytracer
                     newRay, cullingOrientationToMask(configuration.cullingOrientation), Zero<Size2>(),
                     configuration.maxDistance
                 );
-                const auto newRaytrace = Raytrace(
+                auto newRaytrace = Raytrace(
                     newRayCast, nullptr, Zero<ASizeT>(), One<Float>(), &spectralContexts[s],
-                    deriveSeed(static_cast<UInt_32>(imageIndex), static_cast<UInt_32>(s))
+                    primarySeed(imageIndex, s, configuration.seedOffset)
                 );
+                // the sub-samples of a pixel continue one sample sequence, the one of its first sub-sample
+                newRaytrace.strataSeed = primarySeed(imageIndex, Zero<ASizeT>(), configuration.seedOffset);
+                newRaytrace.stratum = static_cast<UInt_32>(s);
                 list.emplace_back(newRaytrace, outputPixel);
             }
         }
@@ -394,7 +407,7 @@ namespace raytracer
         brdf.surface = objectShader.shade(brdf.intersection, *raytrace.spectralContext);
 
         const auto adapted_visibility_cutoff = SceneShader::adaptedVisibilityCutoff(
-            cache.configuration.visibilityCutoff, raytrace.visibilityIndex);
+            cache.configuration.visibilityCutoff, raytrace.importance);
         brdf.lighting = cache.configuration.sceneShader->sampleLighting(
             raytrace, adapted_visibility_cutoff, x(brdf.surface.roughness), brdf.surface.specular.data,
             brdf.intersection, cache.configuration.sphereLightSamples, cache.shadowCache, cache.statistics
@@ -450,11 +463,11 @@ namespace raytracer
         }
 
         // check whether it would even make a difference in the image
-        const auto reflectionVisibilityIndex =
-            incidentRaytrace.visibilityIndex
-            * spectral::spectralMax(brdf.reflectanceCoefficient)
-            * spectral::spectralMax(brdf.surface.reflectance);
-        if (reflectionVisibilityIndex < cache.configuration.visibilityCutoff)
+        const auto reflectionWeight =
+            spectral::spectralMax(brdf.reflectanceCoefficient) * spectral::spectralMax(brdf.surface.reflectance);
+        const auto reflectionVisibilityIndex = incidentRaytrace.visibilityIndex * reflectionWeight;
+        const auto reflectionImportance = incidentRaytrace.importance * reflectionWeight;
+        if (reflectionImportance < cache.configuration.visibilityCutoff)
         {
             brdf.lighting.reflected = spectral::Spectrum::zero();
             return;
@@ -465,7 +478,9 @@ namespace raytracer
         const auto rough = roughness > brdf::MirrorRoughness;
         if (rough && cache.configuration.glossySamples > Zero<ASizeT>())
         {
-            traceGlossyReflection(incidentRaytrace, maxDistance, reflectionVisibilityIndex, roughness, cache, brdf);
+            traceGlossyReflection(
+                incidentRaytrace, maxDistance, reflectionVisibilityIndex, reflectionImportance, roughness, cache, brdf
+            );
             return;
         }
 
@@ -480,8 +495,10 @@ namespace raytracer
             reflectionVisibilityIndex, incidentRaytrace.spectralContext,
             reflectionSeed(incidentRaytrace.seed, Zero<ASizeT>())
         );
-        // a rough surface gets sphere lights by its highlight, also without glossy samples
-        reflectedRaytrace.glossy = rough;
+        reflectedRaytrace.importance = reflectionImportance;
+        // a rough surface gets sphere lights by its highlight, also without glossy samples; a regularized path stays
+        // glossy after a glossy reflection
+        reflectedRaytrace.glossy = rough || (cache.configuration.regularizePaths && incidentRaytrace.glossy);
         const auto reflectedHit = trace(reflectedRaytrace, cache);
 
         brdf.lighting.reflected = reflectedHit.color;
@@ -495,7 +512,7 @@ namespace raytracer
     // (Heitz 2018), each weighted by Smith's masking of its direction. Directions below the surface count as black.
     void Raytracer::traceGlossyReflection(
         const Raytrace& incidentRaytrace, const Float maxDistance, const Float reflectionVisibilityIndex,
-        const Float roughness, RaytracerCache& cache, BRDFParameters& brdf
+        const Float reflectionImportance, const Float roughness, RaytracerCache& cache, BRDFParameters& brdf
     )
     {
         const auto& intersection = brdf.intersection;
@@ -512,11 +529,23 @@ namespace raytracer
         );
         const auto sampleVisibilityIndex = reflectionVisibilityIndex / static_cast<Float>(samples);
 
+        // the shift of the sample sequence once per hit, and the reflected rays' seeds (reflectionSeed) 8 at a time,
+        // all hashed in SIMD lanes
+        const auto sequenceOffset = sequenceOffset2D(incidentRaytrace.strataSeed);
+        alignas(YMM_ALIGNMENT) UInt_32 reflectionSeeds[UInt8_32::SIZE];
+
         auto reflected = spectral::Spectrum::zero();
         for (auto sample = Zero<ASizeT>(); sample < samples; ++sample)
         {
-            const auto direction =
-                brdf::sampleGGX(N, V, sequencePoint2D(incidentRaytrace.seed, sample), roughness);
+            const auto lane = sample % UInt8_32::SIZE;
+            if (lane == Zero<ASizeT>())
+            {
+                const auto firstValue = static_cast<UInt_32>(sample) + One<UInt_32>();
+                store(deriveSeeds(incidentRaytrace.seed, firstValue), reflectionSeeds);
+            }
+            const auto xi =
+                sequencePoint2D(sequenceOffset, stratifiedIndex(incidentRaytrace.stratum, samples, sample));
+            const auto direction = brdf::sampleGGX(N, V, xi, roughness);
             const auto NoL = dot3(N, direction);
             if (NoL <= Zero<Float>() || dot3(geometricNormal, direction) <= Zero<Float>())
             {
@@ -530,11 +559,15 @@ namespace raytracer
             );
             auto reflectedRaytrace = Raytrace(
                 reflectedRayCast, &intersection, incidentRaytrace.traceDepth + One<ASizeT>(), sampleVisibilityIndex,
-                incidentRaytrace.spectralContext, reflectionSeed(incidentRaytrace.seed, sample)
+                incidentRaytrace.spectralContext, reflectionSeeds[lane]
             );
+            // each ray estimates the whole reflection: the cutoffs see the reflection's importance, not its share
+            reflectedRaytrace.importance = reflectionImportance;
             reflectedRaytrace.glossy = true;
             const auto reflectedHit = trace(reflectedRaytrace, cache);
-            reflected += reflectedHit.color * smithG1(NoL, roughness);
+            // the clamp against fireflies scales the whole spectrum, so that the colour stays
+            reflected +=
+                spectral::limitPeak(reflectedHit.color, cache.configuration.glossyClamp) * smithG1(NoL, roughness);
 
             cache.statistics.secondaryRays += One<ASizeT>();
             cache.statistics.missedSecondaryRays +=
@@ -572,11 +605,11 @@ namespace raytracer
 
         // check whether it would even make a difference in the image,
         // or whether it is a total internal reflection (transmissionDirection = 0)
-        const auto transmissionVisibilityIndex =
-            incidentRaytrace.visibilityIndex
-            * spectral::spectralMax(fractionTransmitted)
+        const auto transmissionWeight = spectral::spectralMax(fractionTransmitted)
             * (One<Float>() - spectral::spectralMax(brdf.reflectanceCoefficient));
-        if (transmissionVisibilityIndex < cache.configuration.visibilityCutoff)
+        const auto transmissionVisibilityIndex = incidentRaytrace.visibilityIndex * transmissionWeight;
+        const auto transmissionImportance = incidentRaytrace.importance * transmissionWeight;
+        if (transmissionImportance < cache.configuration.visibilityCutoff)
         {
             brdf.lighting.transmitted = spectral::Spectrum::zero();
             return;
@@ -588,11 +621,13 @@ namespace raytracer
             Size2(reinterpret_cast<ASizeT>(brdf.intersection.object), reinterpret_cast<ASizeT>(brdf.intersection.node)),
             maxDistance
         );
-        const auto refractedRaytrace = Raytrace(
+        auto refractedRaytrace = Raytrace(
             refractedRayCast, &brdf.intersection, incidentRaytrace.traceDepth + One<ASizeT>(),
             transmissionVisibilityIndex, incidentRaytrace.spectralContext,
             deriveSeed(incidentRaytrace.seed, TransmissionSeed)
         );
+        refractedRaytrace.importance = transmissionImportance;
+        refractedRaytrace.glossy = cache.configuration.regularizePaths && incidentRaytrace.glossy;
 
         const auto refractedHit = trace(refractedRaytrace, cache);
         brdf.lighting.transmitted = refractedHit.color;

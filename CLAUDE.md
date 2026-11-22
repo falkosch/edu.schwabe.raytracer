@@ -159,22 +159,22 @@ Normal logs right after start:
 [0.000] - INFO Main : Working directory: D:\edu.schwabe.raytracer\data
 [0.000] - INFO Main : Scene: Cornell Box
 [0.003] - INFO Mesh : Loaded 36961 bytes from file meshes/teapot.off
-[0.017] - INFO KDTree : Built KD-tree for 1452 nodes in 32912740 cycles
-[0.017] - INFO Mesh : loaded meshes/teapot.off: 726 vertices, 1452 faces
-[0.017] - INFO Scene : Building culling tree for scene with 9 finite scene objects
-[0.017] - INFO KDTree : Built KD-tree for 9 nodes in 3028 cycles
-[0.017] - INFO Scene : Tree depth=1 nodes=1
-[0.017] - INFO Scene : done
-[0.037] - INFO UI : Resizing output to 512x512
-[0.039] - INFO Raytracer : Raytrace 1 (512x512):
-[0.126] - INFO Raytracer : Duration: 0.086872s
-[0.196] - INFO UI : primaryRays 262144/0
-[0.196] - INFO UI : secondaryRays 255326/93971
-[0.196] - INFO UI : shadowRays 703166/697995
-[0.196] - INFO UI : objectShadowRays 484255/426977
-[0.196] - INFO UI : kdTree nodesVisited=1441195 rootOverlapMisses=1180446
-[0.198] - INFO UI : Saving ray-traced image ...
-[0.210] - INFO UI : ray-traced.png saved: 1
+[0.018] - INFO KDTree : Built KD-tree for 1452 nodes in 35963120 cycles
+[0.018] - INFO Mesh : loaded meshes/teapot.off: 726 vertices, 1452 faces
+[0.018] - INFO Scene : Building culling tree for scene with 9 finite scene objects
+[0.018] - INFO KDTree : Built KD-tree for 9 nodes in 4067 cycles
+[0.018] - INFO Scene : Tree depth=1 nodes=1
+[0.018] - INFO Scene : done
+[0.041] - INFO UI : Resizing output to 512x512
+[0.043] - INFO Raytracer : Raytrace 1 (512x512):
+[0.132] - INFO Raytracer : Duration: 0.088319s
+[0.201] - INFO UI : primaryRays 262144/0
+[0.201] - INFO UI : secondaryRays 255329/93971
+[0.201] - INFO UI : shadowRays 736213/730760
+[0.202] - INFO UI : objectShadowRays 511964/454061
+[0.202] - INFO UI : kdTree nodesVisited=1474260 rootOverlapMisses=1213211
+[0.203] - INFO UI : Saving ray-traced image ...
+[0.215] - INFO UI : ray-traced.png saved: 1
 ```
 
 The ray counters are deterministic for a build (glossy reflections and sphere lights sample by integer hashes of the
@@ -200,6 +200,9 @@ cd data
   `--max-trace-depth=<n>` traces secondary rays also in debug builds (`MAX_TRACE_DEPTH` is 0 there).
   `--glossy-samples=0 --sphere-light-samples=0` turns the distribution ray tracing off (Whitted: mirror reflections,
   hard shadows), which also makes renders much faster.
+- Noise: render the same image with `--seed=0` and `--seed=1` (other sample patterns) and compare them; a full render
+  with `--super-sampling=7` serves as a reference. `.backlog/DONE/rendering-distribution-noise.md` has the method
+  and the measurements.
 - Scene ids are listed in `sources/raytracerui/src/tests/SceneCatalog.cpp` (`cornell-box`, `forms`, `lighting`,
   `shading`, `materials`, `meshes`, `showcase`, ...). The test scenes cover forms, lights, shaders, materials and
   meshes, so pick the one the change touches; `cornell-box` is the regression baseline.

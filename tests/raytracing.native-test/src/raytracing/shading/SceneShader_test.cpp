@@ -6,6 +6,7 @@
 #include <raytracing/scene/Resources.h>
 #include <raytracing/scene/Scene.h>
 #include <raytracing/shading/Raytrace.h>
+#include <raytracing/shading/SceneShaderContainment.h>
 #include <raytracing/shading/spectral/wavelengths.h>
 
 namespace raytracer::test {
@@ -61,7 +62,54 @@ namespace raytracer::test {
       return horizontalSum(lighting.diffuse.data) / 8.0f;
     }
 
+    // A white light 3 above a floor point, dimmed to 1/16 by its attenuation, as SceneShader::sample lights the point
+    // for a ray of the visibility index and the importance, with the cutoff 1/512. Returns the diffuse lighting.
+    static Float dimLightFor(const Float visibilityIndex, const Float importance) {
+      Scene scene{};
+      auto aside = std::make_unique<SceneObject>("sphere aside");
+      aside->setForm(std::make_unique<Sphere>());
+      aside->translate(Float3(5.0f, 0.0f, 0.0f));
+      scene.getSceneObjects().push_back(std::move(aside));
+      scene.buildSceneGraph();
+
+      auto light = std::make_unique<LightInfo>();
+      light->position = Float4(0.0f, 2.0f, 0.0f, 1.0f);
+      light->emittance = RGBS(1.0f, 1.0f, 1.0f);
+      light->attenuationFactors = Float4(16.0f, 0.0f, 0.0f, 0.0f);
+      scene.getLights().push_back(std::move(light));
+
+      const auto context = scene.createSpectralContext(spectral::LAMBDA_MIN + 0.5f * spectral::LAMBDA_RANGE);
+      SceneIntersection floor{};
+      floor.vertex = Float4(0.0f, -1.0f, 0.0f, 1.0f);
+      floor.surfaceNormal = Float4(0.0f, 1.0f, 0.0f, 0.0f);
+      floor.smoothedNormal = floor.surfaceNormal;
+      PerLightShadowCache::ShadowCacheType shadowCache(1);
+      StatisticsCookie statistics{};
+      SceneShaderContainment containment{shadowCache, statistics};
+      containment.incidentRay = Raytrace{
+          RayCast{Ray{Float4(0.0f, 0.0f, -2.0f, 1.0f), normalize3(Float4(0.0f, -1.0f, 2.0f, 0.0f))},
+                  Zero<Float4::VectorBoolType>(), Size2(0, 0), 100.0f},
+          nullptr, 1, visibilityIndex, &context
+      };
+      containment.incidentRay.importance = importance;
+      containment.F0 = Zero<spectral::SpectralVector>();
+      containment.roughness = 0.5f;
+      containment.visibilityCutoff = 1.0f / 512.0f;
+
+      const auto lighting = scene.sample(containment, floor);
+      return horizontalSum(lighting.diffuse.data) / 8.0f;
+    }
+
   public:
+    TEST_METHOD(lightCutoffReadsTheImportanceNotTheVisibilityIndex) {
+      // One of 64 glossy rays has the visibility index 1/64 but estimates the whole reflection (importance 1): the
+      // light of 1/16 stays above its cutoff. A ray of the importance 1/64 has the cutoff 64/512 and skips it.
+      const auto glossyRay = dimLightFor(1.0f / 64.0f, 1.0f);
+      const auto dimRay = dimLightFor(1.0f / 64.0f, 1.0f / 64.0f);
+      Assert::IsTrue(glossyRay > 0.01f, L"one of 64 glossy rays gets the dim light", LINE_INFO());
+      Assert::AreEqual(0.0f, dimRay, 1e-6f, L"a ray that dim skips it", LINE_INFO());
+    }
+
     TEST_METHOD(opaqueSphereCastsFullShadow) {
       Assert::AreEqual(0.0f, diffuseBelowSphere(Zero<Float4>(), RefractionIndices::Glass), 1e-6f, L"no light",
                        LINE_INFO());

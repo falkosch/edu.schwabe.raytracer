@@ -95,6 +95,26 @@ namespace raytracer::test
             Assert::AreEqual(6.0f, x1(a.data), L"lane 0", LINE_INFO());
         }
 
+        TEST_METHOD(limitPeakScalesBrightSpectraDownKeepingTheirColour)
+        {
+            const Spectrum bright{Float8(8.0f, 4.0f, 2.0f, 1.0f, 0.0f, 0.5f, 6.0f, 3.0f)};
+
+            const auto limited = limitPeak(bright, 2.0f);
+
+            Assert::AreEqual(2.0f, spectralMax(limited), 1e-6f, L"the peak is the limit", LINE_INFO());
+            Assert::AreEqual(1.0f, x2(limited.data), 1e-6f, L"every lane scaled by 1/4", LINE_INFO());
+            Assert::AreEqual(1.5f, x7(limited.data), 1e-6f, L"every lane scaled by 1/4", LINE_INFO());
+        }
+
+        TEST_METHOD(limitPeakLeavesDimSpectraAndAZeroLimitAlone)
+        {
+            const Spectrum dim{Float8(0.5f, 1.0f, 0.25f, 0.0f, 0.0f, 0.0f, 0.0f, 1.5f)};
+
+            Assert::AreEqual(1.0f, x2(limitPeak(dim, 2.0f).data), L"below the limit", LINE_INFO());
+            Assert::AreEqual(1.5f, x8(limitPeak(dim, 0.0f).data), L"0: no limit", LINE_INFO());
+            Assert::AreEqual(1.5f, x8(limitPeak(dim, 1.5f).data), L"at the limit", LINE_INFO());
+        }
+
         TEST_METHOD(monochromaticHitsHeroBin)
         {
             const auto s = monochromatic(500.0f, 500.0f, 1.0f);

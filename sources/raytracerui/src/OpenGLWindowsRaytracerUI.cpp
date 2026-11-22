@@ -413,6 +413,19 @@ namespace raytracerui
                     changed = true;
                 }
 
+                // against fireflies: the most radiance of one glossy reflection ray, 0 for no limit
+                auto glossyClamp = static_cast<float>(parameters.glossyClamp);
+                if (ImGui::SliderFloat("Glossy Clamp", &glossyClamp, 0.0f, 16.0f, "%.1f"))
+                {
+                    parameters.glossyClamp = static_cast<Float>(glossyClamp);
+                    changed = true;
+                }
+
+                if (ImGui::Checkbox("Regularize Paths", &parameters.regularizePaths))
+                {
+                    changed = true;
+                }
+
                 auto superSampling = static_cast<int>(parameters.superSamplingFactor);
                 if (ImGui::SliderInt("Super Sampling", &superSampling, 0, 4))
                 {
