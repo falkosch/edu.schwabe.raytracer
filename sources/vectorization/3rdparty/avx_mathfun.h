@@ -33,6 +33,10 @@
   - AVX2 compatibility: _mm256_and_si128/_mm256_andnot_si128 mapped to _mm256_*_si256 equivalents
   - Internal linkage: all functions made static to avoid duplicate symbol warnings with LTCG
   - C4838 fix: sign_mask constant cast to int to avoid narrowing conversion warning under /permissive-
+  - AVX without AVX2 under MSVC, which declares every intrinsic whatever /arch says: the SSE2 fallbacks are named
+    avx_mathfun_* and reached through macros of the intrinsics' names, undefined at the end of this header; the
+    unions of COPY_IMM_TO_XMM/COPY_XMM_TO_IMM use ALIGN32_BEG/END instead of __attribute__; the #warning lines
+    became comments
 */
 
 #include <immintrin.h>
@@ -105,7 +109,7 @@ typedef union imm_xmm_union {
 
 #define COPY_IMM_TO_XMM(imm_, xmm0_, xmm1_)       \
   {                                               \
-    imm_xmm_union u __attribute__((aligned(32))); \
+    ALIGN32_BEG imm_xmm_union u ALIGN32_END;      \
     u.imm = imm_;                                 \
     xmm0_ = u.xmm[0];                             \
     xmm1_ = u.xmm[1];                             \
@@ -113,14 +117,14 @@ typedef union imm_xmm_union {
 
 #define COPY_XMM_TO_IMM(xmm0_, xmm1_, imm_)       \
   {                                               \
-    imm_xmm_union u __attribute__((aligned(32))); \
+    ALIGN32_BEG imm_xmm_union u ALIGN32_END;      \
     u.xmm[0] = xmm0_;                             \
     u.xmm[1] = xmm1_;                             \
     imm_ = u.imm;                                 \
   }
 
 #define AVX2_BITOP_USING_SSE2(fn)                        \
-  static inline v8si _mm256_##fn(v8si x, int a) {        \
+  static inline v8si avx_mathfun_##fn(v8si x, int a) {   \
     /* use SSE2 instruction to perform the bitop AVX2 */ \
     v4si x1, x2;                                         \
     v8si ret;                                            \
@@ -131,12 +135,12 @@ typedef union imm_xmm_union {
     return (ret);                                        \
   }
 
-#warning "Using SSE2 to perform AVX2 bitshift ops"
+/* Using SSE2 to perform AVX2 bitshift ops */
 AVX2_BITOP_USING_SSE2(slli_epi32)
 AVX2_BITOP_USING_SSE2(srli_epi32)
 
 #define AVX2_INTOP_USING_SSE2(fn)                                     \
-  static inline v8si _mm256_##fn(v8si x, v8si y) {                    \
+  static inline v8si avx_mathfun_##fn(v8si x, v8si y) {               \
     /* use SSE2 instructions to perform the AVX2 integer operation */ \
     v4si x1, x2;                                                      \
     v4si y1, y2;                                                      \
@@ -149,12 +153,21 @@ AVX2_BITOP_USING_SSE2(srli_epi32)
     return (ret);                                                     \
   }
 
-#warning "Using SSE2 to perform AVX2 integer ops"
+/* Using SSE2 to perform AVX2 integer ops */
 AVX2_INTOP_USING_SSE2(and_si128)
 AVX2_INTOP_USING_SSE2(andnot_si128)
 AVX2_INTOP_USING_SSE2(cmpeq_epi32)
 AVX2_INTOP_USING_SSE2(sub_epi32)
 AVX2_INTOP_USING_SSE2(add_epi32)
+
+/* the code below calls the intrinsics' names, which MSVC declares also without AVX2 */
+#define _mm256_slli_epi32 avx_mathfun_slli_epi32
+#define _mm256_srli_epi32 avx_mathfun_srli_epi32
+#define _mm256_and_si128 avx_mathfun_and_si128
+#define _mm256_andnot_si128 avx_mathfun_andnot_si128
+#define _mm256_cmpeq_epi32 avx_mathfun_cmpeq_epi32
+#define _mm256_sub_epi32 avx_mathfun_sub_epi32
+#define _mm256_add_epi32 avx_mathfun_add_epi32
 
 #else /* __AVX2__ */
 
@@ -720,3 +733,13 @@ static void sincos256_ps(v8sf x, v8sf *s, v8sf *c) {
   *s = _mm256_xor_ps(xmm1, sign_bit_sin);
   *c = _mm256_xor_ps(xmm2, sign_bit_cos);
 }
+
+#ifndef __AVX2__
+#undef _mm256_slli_epi32
+#undef _mm256_srli_epi32
+#undef _mm256_and_si128
+#undef _mm256_andnot_si128
+#undef _mm256_cmpeq_epi32
+#undef _mm256_sub_epi32
+#undef _mm256_add_epi32
+#endif /* __AVX2__ */

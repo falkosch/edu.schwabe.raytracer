@@ -19,6 +19,12 @@ namespace raytracer
     // leaf above that level takes one lane), so one wide node stands for Levels levels. Lanes are in depth-first order,
     // child A before child B. Lane i of the boxes belongs to descendant i. Links are wide node indices, or leaf indices
     // with KDTreeRoot::LeafFlag set (the binary tree's leaves).
+    // One cache line per node start: below AVX, KDTreeWideLanes is two 128-bit halves, the node's natural size isn't a
+    // multiple of 64, and MSVC reports the padding (C4324)
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable : 4324)
+#endif
     struct alignas(64) KDTreeWideNode
     {
         static constexpr ASizeT Width = KDTreeWideLanes::SIZE;
@@ -29,6 +35,9 @@ namespace raytracer
         // bit i set for each used lane
         std::uint32_t lanes;
     };
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 
     // Bit i set if the ray overlaps lane i's box: overlaps(rayCast, a, b) per lane, with the same operations in the
     // same order, so it decides like the binary traversal.

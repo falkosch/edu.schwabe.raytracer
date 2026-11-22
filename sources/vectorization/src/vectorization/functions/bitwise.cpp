@@ -24,7 +24,12 @@ namespace vectorization {
   }
 
   PackedInts_256 bitwiseNot(const PackedInts_256 &v) noexcept {
+#if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX2
     return _mm256_xor_si256(v, MaskAll<PackedInts_256>());
+#else
+    // AVX has no 256-bit integer logic, the float domain's flips the same bits
+    return _mm256_castps_si256(_mm256_xor_ps(_mm256_castsi256_ps(v), MaskAll<PackedFloat8_256>()));
+#endif
   }
 
   // bitwiseAnd
@@ -49,7 +54,11 @@ namespace vectorization {
   }
 
   PackedInts_256 bitwiseAnd(const PackedInts_256 &a, const PackedInts_256 &b) noexcept {
+#if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX2
     return _mm256_and_si256(a, b);
+#else
+    return _mm256_castps_si256(_mm256_and_ps(_mm256_castsi256_ps(a), _mm256_castsi256_ps(b)));
+#endif
   }
 
   // bitwiseOr
@@ -74,7 +83,11 @@ namespace vectorization {
   }
 
   PackedInts_256 bitwiseOr(const PackedInts_256 &a, const PackedInts_256 &b) noexcept {
+#if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX2
     return _mm256_or_si256(a, b);
+#else
+    return _mm256_castps_si256(_mm256_or_ps(_mm256_castsi256_ps(a), _mm256_castsi256_ps(b)));
+#endif
   }
 
   // bitwiseXor
@@ -99,7 +112,11 @@ namespace vectorization {
   }
 
   PackedInts_256 bitwiseXor(const PackedInts_256 &a, const PackedInts_256 &b) noexcept {
+#if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX2
     return _mm256_xor_si256(a, b);
+#else
+    return _mm256_castps_si256(_mm256_xor_ps(_mm256_castsi256_ps(a), _mm256_castsi256_ps(b)));
+#endif
   }
 
   // bitwiseAndNot: (~a) & b
@@ -124,6 +141,10 @@ namespace vectorization {
   }
 
   PackedInts_256 bitwiseAndNot(const PackedInts_256 &a, const PackedInts_256 &b) noexcept {
+#if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX2
     return _mm256_andnot_si256(a, b);
+#else
+    return _mm256_castps_si256(_mm256_andnot_ps(_mm256_castsi256_ps(a), _mm256_castsi256_ps(b)));
+#endif
   }
 }

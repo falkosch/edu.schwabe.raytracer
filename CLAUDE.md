@@ -48,6 +48,10 @@ vstest.console.exe build-release/tests/primitives.native-test/primitives.native-
 vstest.console.exe build-release/tests/raytracing.native-test/raytracing.native-test.dll
 ```
 
+**Intrinsics levels:** the presets build the AVX2 level. Code that uses AVX2 instructions must guard them and come with
+AVX and SSE 4.2 versions (SSE 4.2 is the 128-bit fallback, see `sources/vectorization/CLAUDE.md`); building the other
+levels isn't required.
+
 ## Architecture
 
 Six libraries with dependency chain:

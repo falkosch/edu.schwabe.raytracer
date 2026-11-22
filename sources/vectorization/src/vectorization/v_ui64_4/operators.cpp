@@ -22,7 +22,7 @@ namespace vectorization {
   }
 
   v_ui64_4 operator~(const v_ui64_4 &v) noexcept {
-#if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX2
+#if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
     return bitwiseNot(v.components);
 #else
     return {{bitwiseNot(v.components.lo), bitwiseNot(v.components.hi)}};
@@ -59,7 +59,7 @@ namespace vectorization {
   }
 
   v_ui64_4 operator&(const v_ui64_4 &a, const v_ui64_4 &b) noexcept {
-#if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX2
+#if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
     return bitwiseAnd(a.components, b.components);
 #else
     return {{bitwiseAnd(a.components.lo, b.components.lo), bitwiseAnd(a.components.hi, b.components.hi)}};
@@ -67,7 +67,7 @@ namespace vectorization {
   }
 
   v_ui64_4 operator|(const v_ui64_4 &a, const v_ui64_4 &b) noexcept {
-#if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX2
+#if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
     return bitwiseOr(a.components, b.components);
 #else
     return {{bitwiseOr(a.components.lo, b.components.lo), bitwiseOr(a.components.hi, b.components.hi)}};
@@ -75,7 +75,7 @@ namespace vectorization {
   }
 
   v_ui64_4 operator^(const v_ui64_4 &a, const v_ui64_4 &b) noexcept {
-#if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX2
+#if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
     return bitwiseXor(a.components, b.components);
 #else
     return {{bitwiseXor(a.components.lo, b.components.lo), bitwiseXor(a.components.hi, b.components.hi)}};
