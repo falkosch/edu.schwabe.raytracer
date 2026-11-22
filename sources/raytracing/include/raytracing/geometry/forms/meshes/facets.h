@@ -9,6 +9,12 @@
 #include <vector>
 
 namespace raytracer {
+  // Removes the facets without area (coincident or collinear vertices, up to rounding): they can't be hit, and their
+  // normal is zero or noise. Returns the number of removed facets.
+  vectorization::ASizeT removeDegenerateFacets(
+      const std::vector<vectorization::Float4> &vertices, std::vector<vectorization::UInt3> &facetIndices
+  ) noexcept;
+
   void computeFacets(
       const std::vector<vectorization::Float4> &vertices, const std::vector<vectorization::UInt3> &facetIndices,
       std::vector<primitives::Facet> &facets

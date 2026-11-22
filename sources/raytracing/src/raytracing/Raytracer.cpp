@@ -6,6 +6,7 @@
 #include "raytracing/shading/ObjectShader.h"
 #include "raytracing/shading/SpectralContext.h"
 #include "raytracing/shading/brdf/ggx.h"
+#include "raytracing/shading/sampling.h"
 #include "raytracing/shading/spectral/conversion.h"
 #include "raytracing/shading/spectral/spectrum.h"
 #include "raytracing/shading/spectral/wavelengths.h"
@@ -21,6 +22,25 @@ static const auto Log = logging::scope("Raytracer");
 
 namespace raytracer
 {
+    namespace
+    {
+        // Seeds of the secondary rays: the transmitted one and the sample-th reflected one
+        constexpr UInt_32 TransmissionSeed = 0u;
+
+        UInt_32 reflectionSeed(const UInt_32 seed, const ASizeT sample)
+        {
+            return deriveSeed(seed, static_cast<UInt_32>(sample) + One<UInt_32>());
+        }
+
+        // Smith's masking function G1 of the GGX distribution for one direction
+        Float smithG1(const Float cosine, const Float alpha)
+        {
+            const auto a2 = sqr(alpha);
+            const auto root = vectorization::sqrt(multiplyAdd(One<Float>() - a2, sqr(cosine), a2));
+            return Two<Float>() * cosine / (cosine + root);
+        }
+    }
+
     Raytracer::Raytracer()
         : runId(0), running(), current(), mutex(), workAvailable(),
           workerThread([this](const std::stop_token& stopToken) { workerLoop(stopToken); })
@@ -111,14 +131,14 @@ namespace raytracer
         }
     }
 
-    void Raytracer::trigger(const RaytraceParameters& parameters)
+    ASizeT Raytracer::trigger(const RaytraceParameters& parameters)
     {
         assert(parameters.observer);
         assert(parameters.camera);
         assert(parameters.sceneShader);
 
+        const auto newRunId = ++runId;
         {
-            const auto newRunId = ++runId;
             const auto samplingResolution =
                 max(One<Size2>(), convert<Size2>(convert<Float4>(parameters.resolution) * parameters.samplingFactor));
             std::lock_guard lock(mutex);
@@ -133,6 +153,7 @@ namespace raytracer
             current.runId = newRunId;
         }
         workAvailable.notify_one();
+        return newRunId;
     }
 
     Int_64 perPixelTiming()
@@ -223,7 +244,8 @@ namespace raytracer
                     configuration.maxDistance
                 );
                 const auto newRaytrace = Raytrace(
-                    newRayCast, nullptr, Zero<ASizeT>(), One<Float>(), &spectralContexts[s]
+                    newRayCast, nullptr, Zero<ASizeT>(), One<Float>(), &spectralContexts[s],
+                    deriveSeed(static_cast<UInt_32>(imageIndex), static_cast<UInt_32>(s))
                 );
                 list.emplace_back(newRaytrace, outputPixel);
             }
@@ -363,13 +385,19 @@ namespace raytracer
 
         assert(brdf.intersection.object);
         const auto& objectShader = *dynamic_cast<const ObjectShader*const>(brdf.intersection.object);
+
+        // a glossy reflection gets a sphere light by its highlight: the light's emissive sphere would add it twice
+        if (raytrace.glossy && objectShader.isLightEmitter())
+        {
+            return {brdf.viewDistance, spectral::Spectrum::zero()};
+        }
         brdf.surface = objectShader.shade(brdf.intersection, *raytrace.spectralContext);
 
         const auto adapted_visibility_cutoff = SceneShader::adaptedVisibilityCutoff(
             cache.configuration.visibilityCutoff, raytrace.visibilityIndex);
         brdf.lighting = cache.configuration.sceneShader->sampleLighting(
             raytrace, adapted_visibility_cutoff, x(brdf.surface.roughness), brdf.surface.specular.data,
-            brdf.intersection, cache.shadowCache, cache.statistics
+            brdf.intersection, cache.configuration.sphereLightSamples, cache.shadowCache, cache.statistics
         );
 
         cache.statistics.shadingTicks += __rdtsc() - shadingStart;
@@ -432,16 +460,28 @@ namespace raytracer
             return;
         }
 
+        // without distribution ray tracing (glossySamples 0), a rough surface reflects one mirror ray too
+        const auto roughness = x(brdf.surface.roughness);
+        const auto rough = roughness > brdf::MirrorRoughness;
+        if (rough && cache.configuration.glossySamples > Zero<ASizeT>())
+        {
+            traceGlossyReflection(incidentRaytrace, maxDistance, reflectionVisibilityIndex, roughness, cache, brdf);
+            return;
+        }
+
         const auto reflectedRay = Ray(brdf.intersection.vertex, brdf.intersection.reflectedDirection);
         const auto reflectedRayCast = RayCast(
             reflectedRay, incidentRaytrace.rayCast.cullingMask,
             Size2(reinterpret_cast<ASizeT>(brdf.intersection.object), reinterpret_cast<ASizeT>(brdf.intersection.node)),
             maxDistance
         );
-        const auto reflectedRaytrace = Raytrace(
+        auto reflectedRaytrace = Raytrace(
             reflectedRayCast, &brdf.intersection, incidentRaytrace.traceDepth + One<ASizeT>(),
-            reflectionVisibilityIndex, incidentRaytrace.spectralContext
+            reflectionVisibilityIndex, incidentRaytrace.spectralContext,
+            reflectionSeed(incidentRaytrace.seed, Zero<ASizeT>())
         );
+        // a rough surface gets sphere lights by its highlight, also without glossy samples
+        reflectedRaytrace.glossy = rough;
         const auto reflectedHit = trace(reflectedRaytrace, cache);
 
         brdf.lighting.reflected = reflectedHit.color;
@@ -449,6 +489,58 @@ namespace raytracer
         cache.statistics.secondaryRays += One<ASizeT>();
         cache.statistics.missedSecondaryRays +=
             static_cast<ASizeT>(outOfReach(reflectedRaytrace.rayCast, x(reflectedHit.depth)));
+    }
+
+    // Averages reflection rays in directions of microfacet normals drawn from the GGX distribution of visible normals
+    // (Heitz 2018), each weighted by Smith's masking of its direction. Directions below the surface count as black.
+    void Raytracer::traceGlossyReflection(
+        const Raytrace& incidentRaytrace, const Float maxDistance, const Float reflectionVisibilityIndex,
+        const Float roughness, RaytracerCache& cache, BRDFParameters& brdf
+    )
+    {
+        const auto& intersection = brdf.intersection;
+        // the normals on the side the ray comes from, which isn't the outside for a ray inside a transmissive object
+        const auto towardsViewer = x(intersection.smoothedNdotI) < Zero<Float>() ? One<Float>() : NegativeOne<Float>();
+        const auto N = intersection.smoothedNormal * towardsViewer;
+        const auto geometricNormal = intersection.surfaceNormal * towardsViewer;
+        const auto V = -incidentRaytrace.rayCast.ray.direction;
+
+        const auto lobeWidth = min(One<Float>(), Two<Float>() * Two<Float>() * roughness);
+        const auto maxSamples = static_cast<Float>(cache.configuration.glossySamples);
+        const auto samples = static_cast<ASizeT>(
+            clamp(vectorization::ceil(maxSamples * reflectionVisibilityIndex * lobeWidth), One<Float>(), maxSamples)
+        );
+        const auto sampleVisibilityIndex = reflectionVisibilityIndex / static_cast<Float>(samples);
+
+        auto reflected = spectral::Spectrum::zero();
+        for (auto sample = Zero<ASizeT>(); sample < samples; ++sample)
+        {
+            const auto direction =
+                brdf::sampleGGX(N, V, sequencePoint2D(incidentRaytrace.seed, sample), roughness);
+            const auto NoL = dot3(N, direction);
+            if (NoL <= Zero<Float>() || dot3(geometricNormal, direction) <= Zero<Float>())
+            {
+                continue;
+            }
+
+            const auto reflectedRayCast = RayCast(
+                Ray(intersection.vertex, direction), incidentRaytrace.rayCast.cullingMask,
+                Size2(reinterpret_cast<ASizeT>(intersection.object), reinterpret_cast<ASizeT>(intersection.node)),
+                maxDistance
+            );
+            auto reflectedRaytrace = Raytrace(
+                reflectedRayCast, &intersection, incidentRaytrace.traceDepth + One<ASizeT>(), sampleVisibilityIndex,
+                incidentRaytrace.spectralContext, reflectionSeed(incidentRaytrace.seed, sample)
+            );
+            reflectedRaytrace.glossy = true;
+            const auto reflectedHit = trace(reflectedRaytrace, cache);
+            reflected += reflectedHit.color * smithG1(NoL, roughness);
+
+            cache.statistics.secondaryRays += One<ASizeT>();
+            cache.statistics.missedSecondaryRays +=
+                static_cast<ASizeT>(outOfReach(reflectedRaytrace.rayCast, x(reflectedHit.depth)));
+        }
+        brdf.lighting.reflected = reflected * (One<Float>() / static_cast<Float>(samples));
     }
 
     void Raytracer::traceTransmission(
@@ -498,7 +590,8 @@ namespace raytracer
         );
         const auto refractedRaytrace = Raytrace(
             refractedRayCast, &brdf.intersection, incidentRaytrace.traceDepth + One<ASizeT>(),
-            transmissionVisibilityIndex, incidentRaytrace.spectralContext
+            transmissionVisibilityIndex, incidentRaytrace.spectralContext,
+            deriveSeed(incidentRaytrace.seed, TransmissionSeed)
         );
 
         const auto refractedHit = trace(refractedRaytrace, cache);

@@ -23,13 +23,15 @@ namespace raytracer
         {
             auto noise = Zero<Float4>();
             auto frequency = One<Float4>();
+            auto weight = One<Float>();
 
+            // Fractal noise: octave i at the frequency 2^i weighs 2^-i, so the coarsest octave dominates.
+            // 3D noise: the w of the texture coordinates is the homogeneous 1
             for (auto i = Zero<ASizeT>(); i < OctavesCount; ++i)
             {
-                noise =
-                    noise * Half<Float4>() + Float4(
-                        vectorization::sin(generator->noise4(intersection.texCoords * frequency)));
+                noise += Float4(weight * vectorization::sin(generator->noise3(intersection.texCoords * frequency)));
                 frequency += frequency;
+                weight *= Half<Float>();
             }
 
             return replaceW(clamp(noise * Half<Float4>() + Half<Float4>(), Zero<Float4>(), One<Float4>()),

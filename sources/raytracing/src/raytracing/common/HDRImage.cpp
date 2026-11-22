@@ -185,28 +185,44 @@ namespace raytracer
     void HDRImage::init()
     {
         resolutionf = convert<Float4>(resolution);
+        lastTexelf = resolutionf - One<Float4>();
+        resolutioni = xyxy(convert<Int4>(resolutionf));
+        lastTexeli = resolutioni - One<Int4>();
         const auto size = x(resolution) * y(resolution);
         data = std::make_unique<VectorType[]>(size);
     }
 
-    Float4 HDRImage::sampleBilinear(const Float4& texCoords) const
+    Float4 HDRImage::sampleBilinear(const Float4& texCoords, const TextureWrap wrap) const
     {
-        // compute bi-linear weighting
-        const Float4 uv = (texCoords * resolutionf) % resolutionf;
-        const Float4 partialArea = fract(uv);
+        using Lane = Int4::ValueType;
 
-        // get reference-indices for the texel
-        const Size2 uvTL = convert<Size2>(floor(uv)) % resolution;
-        const Size2 uvBR = (uvTL + One<Size2>()) % resolution;
-        const Size2 row = y_y(uvTL, uvBR) * xx(resolution);
-        const Size2 column = x_x(uvTL, uvBR);
-        const Size2 TL_TR = xx(row) + column;
-        const Size2 BL_BR = yy(row) + column;
+        // the lanes (u, v, u, v) that are clamped instead of wrapped around, from TextureWrap's bits (1: u, 2: v)
+        const Int4 axisBits(One<Lane>(), Two<Lane>(), One<Lane>(), Two<Lane>());
+        const Int4 clampedLanes = (Int4(static_cast<Lane>(wrap)) & axisBits) != Zero<Int4>();
 
-        // finally bi-interpolate
+        // bi-linear weights between the texel centers; clamped lanes stay between the centers of the edge texels
+        // (wrapping would blend v = 1 with the bottom row)
+        const Float4 texels = texCoords * resolutionf - Half<Float4>();
+        const Float4 uv = select(clampedLanes, clamp(texels, Zero<Float4>(), lastTexelf), texels % resolutionf);
+        const Float4 cell = floor(uv);
+        const Float4 partialArea = uv - cell;
+
+        // column and row of the texel and of its successor. A wrapped lane at the resolution (the successor of the
+        // last texel, or rounding in the modulo) goes back to 0. The clamp keeps a clamped lane's successor at the
+        // last texel and every index within the image, also for NaN coordinates (converted to the lowest integer).
+        const Int4 corners =
+            xyxy(convert<Int4>(cell)) + Int4(Zero<Lane>(), Zero<Lane>(), One<Lane>(), One<Lane>());
+        const Int4 wraps = (corners >= resolutioni) & ~clampedLanes & resolutioni;
+        const Int4 texel = clamp(corners - wraps, Zero<Int4>(), lastTexeli);
+
+        // the indices of (x0, y0), (x1, y0), (x0, y1) and (x1, y1)
+        const Int4 rows = swizzle<VectorIndices::Y, VectorIndices::Y, VectorIndices::W, VectorIndices::W>(texel);
+        const Int4 columns = swizzle<VectorIndices::X, VectorIndices::Z, VectorIndices::X, VectorIndices::Z>(texel);
+        const Int4 indices = rows * xxxx(resolutioni) + columns;
+
         return mix(
-            mix(data[x(TL_TR)], data[y(TL_TR)], xxxx(partialArea)),
-            mix(data[x(BL_BR)], data[y(BL_BR)], xxxx(partialArea)),
+            mix(data[static_cast<ASizeT>(x(indices))], data[static_cast<ASizeT>(y(indices))], xxxx(partialArea)),
+            mix(data[static_cast<ASizeT>(z(indices))], data[static_cast<ASizeT>(w(indices))], xxxx(partialArea)),
             yyyy(partialArea)
         );
     }

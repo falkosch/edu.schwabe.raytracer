@@ -2,10 +2,15 @@
 #include "../../../stdafx.h"
 
 #include "raytracing/shading/SpectralContext.h"
+#include "raytracing/shading/shaders/environment_coordinates.h"
 
 namespace raytracer
 {
-    EnvironmentShader::EnvironmentShader(const HDRImage& imageIn) : environmentImage(&imageIn)
+    EnvironmentShader::EnvironmentShader(const HDRImage& imageIn, const EnvironmentProjection projectionIn)
+        : environmentImage(&imageIn), projection(projectionIn),
+          // A latitude-longitude map's rows end at the poles, the other projections fill a disc that ends at the
+          // image's border
+          wrap(projectionIn == EnvironmentProjection::LatitudeLongitude ? TextureWrap::ClampV : TextureWrap::Clamp)
     {
     }
 
@@ -13,8 +18,8 @@ namespace raytracer
 
     spectral::Spectrum EnvironmentShader::sample(const SceneShader&, const BackgroundQuery& query) const
     {
-        const Float4 texCoords = multiplyAdd(Half<Float4>(), xz_xz(query.direction, query.direction), Half<Float4>());
-        const Float4 rgbPixel = environmentImage->sampleBilinear(texCoords);
+        const Float4 rgbPixel =
+            environmentImage->sampleBilinear(environmentCoordinates(projection, query.direction), wrap);
         return query.spectralContext.fromRGB(rgbPixel);
     }
 }

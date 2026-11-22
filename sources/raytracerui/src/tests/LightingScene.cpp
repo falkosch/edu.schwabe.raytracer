@@ -62,9 +62,10 @@ namespace raytracerui
             "white sphere", std::make_unique<Sphere>(), white,
             {Float3(0.3f, 0.3f, 0.3f), Float3(0.f, 0.f, 0.f), Float3(0.f, -0.7f, -0.6f)}
         ));
-        objects.push_back(createSceneObject(
-            "emissive sphere", std::make_unique<Sphere>(), SceneMaterial::emissive(Float4(0.25f, 0.08f, 0.01f, 0.f)),
-            {Float3(0.12f, 0.12f, 0.12f), Float3(0.f, 0.f, 0.f), Float3(0.95f, -0.88f, 0.2f)}
-        ));
+
+        // An orange sphere light on the floor: its emissive sphere, and soft shadows
+        addSphereLight(
+            scene, "orange sphere light", Float4(0.95f, -0.88f, 0.2f, 1.f), 0.12f, Float4(3.f, 1.f, 0.12f, 0.f)
+        );
     }
 }

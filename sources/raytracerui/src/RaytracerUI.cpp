@@ -4,6 +4,8 @@
 #include <logging.h>
 #include <raytracing/shading/color/primaries.h>
 #include <raytracing/shading/color/view_transform.h>
+
+#include <cmath>
 #include <string>
 
 static const auto Log = logging::scope("UI");
@@ -44,11 +46,41 @@ namespace raytracerui
         {
             parameters.resolution = clampedScreenSize;
         }
-        raytracer->trigger(parameters);
+
+        if (fastPreview)
+        {
+            raytracer->trigger(parameters);
+            return;
+        }
+        auto fullRender = parameters;
+        fullRender.superSamplingFactor = max(parameters.superSamplingFactor, fullRenderSuperSamplingFactor);
+        lastFullRenderRunId = raytracer->trigger(fullRender);
+    }
+
+    void RaytracerUI::setExposure(const Float stops)
+    {
+        exposure = stops;
+    }
+
+    void RaytracerUI::setFullRenderSuperSamplingFactor(const ASizeT factor)
+    {
+        fullRenderSuperSamplingFactor = factor;
+    }
+
+    void RaytracerUI::setFullFirstRender()
+    {
+        triggerRaytracing(false);
+        firstImageRunId = lastFullRenderRunId;
     }
 
     void RaytracerUI::notifyUpdate(const RaytraceConfiguration& configuration)
     {
+        // fast previews requested before the full render of the first image
+        if (configuration.runId < firstImageRunId)
+        {
+            return;
+        }
+
         lastStatistics = configuration.statistics;
         lastRenderDuration = configuration.durationSeconds;
 
@@ -81,10 +113,12 @@ namespace raytracerui
             const auto resolution = outputHDR->getResolution();
             const auto count = static_cast<int>(x(resolution) * y(resolution));
             const auto displayImage = std::make_shared<HDRImage>(resolution);
+            const auto exposureScale = Float4(std::exp2(exposure));
+            // AgX already encodes for the display: no sRGB encoding on top
 #pragma omp parallel for
             for (int i = 0; i < count; ++i)
             {
-                displayImage->getData()[i] = color::srgbEncode(color::agx((*outputHDR)[static_cast<ASizeT>(i)]));
+                displayImage->getData()[i] = color::agx((*outputHDR)[static_cast<ASizeT>(i)] * exposureScale);
             }
             outputHDR = displayImage;
         }

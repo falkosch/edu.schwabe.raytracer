@@ -7,11 +7,14 @@
 #include <logging.h>
 
 #include <algorithm>
+#include <csignal>
+#include <cstdlib>
 #include <memory>
 #include <sstream>
 #include <string>
 #include <string_view>
 
+#include <crtdbg.h>
 #include <windows.h>
 
 // MAX_TRACE_DEPTH >= 969 causes stack overflows
@@ -38,6 +41,17 @@ constexpr Float SAMPLING_FACTOR = 1.0f;
 // n => (n+1)x(n+1) samples/image-pixel
 constexpr ASizeT SUPER_SAMPLING_FACTOR = 0;
 
+// distribution ray tracing: the most reflection rays per glossy hit and shadow rays per sphere light, 0 for Whitted
+constexpr ASizeT GLOSSY_SAMPLES = 16;
+constexpr ASizeT SPHERE_LIGHT_SAMPLES = 16;
+
+// the least super-sampling factor of a full render (Enter)
+#ifdef NDEBUG
+constexpr ASizeT FULL_RENDER_SUPER_SAMPLING_FACTOR = 2;
+#else
+constexpr ASizeT FULL_RENDER_SUPER_SAMPLING_FACTOR = 0;
+#endif
+
 constexpr Float MAX_DISTANCE = std::numeric_limits<Float>::max();
 
 constexpr Int CULLING_ORIENTATION = -1;
@@ -47,16 +61,53 @@ const Float VISIBILITY_CUTOFF = reciprocal(512.0f);
 // n => (n+1)x(n+1) image-pixels/packet
 constexpr ASizeT RAY_PACKET_SIZE = 15;
 
-// Command-line options: --scene=<id> picks the start scene (ids in tests/SceneCatalog.cpp), --exit-after-render
-// closes the window once the first image is saved as ray-traced.png.
+// Command-line options: --scene=<id> picks the start scene (ids in tests/SceneCatalog.cpp), --exposure=<stops> scales
+// the displayed image by 2^stops, --max-trace-depth=<n>, --glossy-samples=<n> and --sphere-light-samples=<n> replace
+// MAX_TRACE_DEPTH, GLOSSY_SAMPLES and SPHERE_LIGHT_SAMPLES, --full-render renders the first image like Enter does,
+// --exit-after-render closes the window once the first image is saved as ray-traced.png.
 constexpr std::string_view SCENE_OPTION = "--scene=";
+constexpr std::string_view EXPOSURE_OPTION = "--exposure=";
+constexpr std::string_view MAX_TRACE_DEPTH_OPTION = "--max-trace-depth=";
+constexpr std::string_view GLOSSY_SAMPLES_OPTION = "--glossy-samples=";
+constexpr std::string_view SPHERE_LIGHT_SAMPLES_OPTION = "--sphere-light-samples=";
+constexpr std::string_view FULL_RENDER_OPTION = "--full-render";
 constexpr std::string_view EXIT_AFTER_RENDER_OPTION = "--exit-after-render";
 
 static const auto Log = logging::scope("Main");
 
+namespace
+{
+    // the number after the option's name
+    ASizeT parseCount(const std::string& argument, const std::string_view option)
+    {
+        const auto count = argument.substr(option.size());
+        return static_cast<ASizeT>(std::strtoul(count.c_str(), nullptr, 10));
+    }
+}
+
 namespace raytracerui
 {
-    LRESULT runRaytracerUI(const ASizeT sceneIndex, const bool exitAfterRender)
+    // Unattended runs (--exit-after-render) have nobody to answer the modal dialog of a failed assert or debug CRT
+    // check: print the message to stderr instead, write the log and abort.
+    void reportFailuresWithoutDialogs()
+    {
+        _set_error_mode(_OUT_TO_STDERR);
+        _set_abort_behavior(0, _WRITE_ABORT_MSG | _CALL_REPORTFAULT);
+        _CrtSetReportMode(_CRT_ASSERT, _CRTDBG_MODE_FILE | _CRTDBG_MODE_DEBUG);
+        _CrtSetReportFile(_CRT_ASSERT, _CRTDBG_FILE_STDERR);
+        _CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_FILE | _CRTDBG_MODE_DEBUG);
+        _CrtSetReportFile(_CRT_ERROR, _CRTDBG_FILE_STDERR);
+        std::signal(SIGABRT, [](int)
+        {
+            Log.error([] { return "Aborted by a failed assertion or runtime check, see stderr"; });
+            logging::Logger::instance().stop();
+        });
+    }
+
+    LRESULT runRaytracerUI(
+        const ASizeT sceneIndex, const Float exposure, const RaytraceBaseParameters& tracing, const bool fullRender,
+        const bool exitAfterRender
+    )
     {
         Resources resources{};
         Scene scene{
@@ -74,7 +125,9 @@ namespace raytracerui
         RaytraceParameters parameters{};
         parameters.visibilityCutoff = VISIBILITY_CUTOFF;
         parameters.maxDistance = MAX_DISTANCE;
-        parameters.maxTraceDepth = MAX_TRACE_DEPTH;
+        parameters.maxTraceDepth = tracing.maxTraceDepth;
+        parameters.glossySamples = tracing.glossySamples;
+        parameters.sphereLightSamples = tracing.sphereLightSamples;
         parameters.sceneShader = &scene;
         parameters.cullingOrientation = CULLING_ORIENTATION;
         parameters.perspectiveZPlanes = PERSPECTIVE_Z_PLANES;
@@ -89,6 +142,12 @@ namespace raytracerui
         auto ui = std::make_unique<
             OpenGLWindowsRaytracerUI>(raytracer, parameters, FAST_PREVIEW_SIZE, scene, resources);
         ui->setSceneIndex(static_cast<int>(sceneIndex));
+        ui->setExposure(exposure);
+        ui->setFullRenderSuperSamplingFactor(FULL_RENDER_SUPER_SAMPLING_FACTOR);
+        if (fullRender)
+        {
+            ui->setFullFirstRender();
+        }
         ui->setExitAfterFirstImage(exitAfterRender);
         WPARAM returnCode{};
         try
@@ -123,6 +182,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR commandLine, int)
     Log.info([path] { return "Working directory: " + path; });
 
     auto sceneIndex = Zero<ASizeT>();
+    auto exposure = Zero<Float>();
+    // the options for the ray tracing, the rest of the parameters is set up in runRaytracerUI
+    RaytraceBaseParameters tracing{};
+    tracing.maxTraceDepth = MAX_TRACE_DEPTH;
+    tracing.glossySamples = GLOSSY_SAMPLES;
+    tracing.sphereLightSamples = SPHERE_LIGHT_SAMPLES;
+    auto fullRender = false;
     auto exitAfterRender = false;
     std::istringstream arguments{commandLine};
     for (std::string argument; arguments >> argument;)
@@ -139,6 +205,27 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR commandLine, int)
                 Log.error([id] { return "Unknown scene '" + id + "', starting the default scene"; });
             }
         }
+        else if (argument.starts_with(EXPOSURE_OPTION))
+        {
+            const auto stops = argument.substr(EXPOSURE_OPTION.size());
+            exposure = std::strtof(stops.c_str(), nullptr);
+        }
+        else if (argument.starts_with(MAX_TRACE_DEPTH_OPTION))
+        {
+            tracing.maxTraceDepth = parseCount(argument, MAX_TRACE_DEPTH_OPTION);
+        }
+        else if (argument.starts_with(GLOSSY_SAMPLES_OPTION))
+        {
+            tracing.glossySamples = parseCount(argument, GLOSSY_SAMPLES_OPTION);
+        }
+        else if (argument.starts_with(SPHERE_LIGHT_SAMPLES_OPTION))
+        {
+            tracing.sphereLightSamples = parseCount(argument, SPHERE_LIGHT_SAMPLES_OPTION);
+        }
+        else if (argument == FULL_RENDER_OPTION)
+        {
+            fullRender = true;
+        }
         else if (argument == EXIT_AFTER_RENDER_OPTION)
         {
             exitAfterRender = true;
@@ -149,8 +236,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR commandLine, int)
         }
     }
     Log.info([sceneIndex] { return std::string{"Scene: "} + raytracerui::sceneCatalog()[sceneIndex].label; });
+    if (exitAfterRender)
+    {
+        raytracerui::reportFailuresWithoutDialogs();
+    }
 
-    const auto result = static_cast<int>(raytracerui::runRaytracerUI(sceneIndex, exitAfterRender));
+    const auto result = static_cast<int>(
+        raytracerui::runRaytracerUI(sceneIndex, exposure, tracing, fullRender, exitAfterRender)
+    );
     logging::Logger::instance().stop();
     return result;
 }

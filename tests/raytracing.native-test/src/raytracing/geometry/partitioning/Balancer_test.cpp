@@ -1,9 +1,16 @@
 #include "raytracing_tests.h"
 
+#include "../../common/TempFile.h"
+
+#include "raytracing/geometry/forms/meshes/Mesh.h"
 #include "raytracing/geometry/partitioning/treebalancer/ArithmeticMeanKDTreeBalancer.h"
 #include "raytracing/geometry/partitioning/treebalancer/BruteForceSAHKDTreeBalancer.h"
 #include "raytracing/geometry/partitioning/treebalancer/MaxAxisKDTreeBalancer.h"
 #include "raytracing/geometry/partitioning/treebalancer/MedianKDTreeBalancer.h"
+#include "raytracing/geometry/partitioning/treetraverser/NaiveKDTreeTraverser.h"
+
+#include <fstream>
+#include <random>
 
 namespace raytracer::test {
   // KDTreeBalancer::build() defaults maxNodesSize to 16, so any input <=16 primitives stays a leaf.
@@ -41,6 +48,24 @@ namespace raytracer::test {
       }
       const auto &children = root.childLinks[link];
       return countLeafGeometry(root, children.childA) + countLeafGeometry(root, children.childB);
+    }
+
+    // Writes an OFF mesh of long, thin, randomly oriented triangles in the unit cube.
+    static void writeSliverMesh(const TempFile &file, const int count, const unsigned seed) {
+      std::mt19937 random{seed};
+      std::uniform_real_distribution<float> unit{0.f, 1.f};
+      std::ofstream off{file.path};
+      off << "OFF" << '\n' << 3 * count << ' ' << count << " 0" << '\n';
+      for (int i = 0; i < count; ++i) {
+        const float c[3] = {unit(random), unit(random), unit(random)};
+        const float d[3] = {unit(random) - .5f, unit(random) - .5f, unit(random) - .5f};
+        off << c[0] - d[0] << ' ' << c[1] - d[1] << ' ' << c[2] - d[2] << '\n';
+        off << c[0] + d[0] << ' ' << c[1] + d[1] << ' ' << c[2] + d[2] << '\n';
+        off << c[0] + d[0] + .01f << ' ' << c[1] + d[1] << ' ' << c[2] + d[2] + .01f << '\n';
+      }
+      for (int i = 0; i < count; ++i) {
+        off << "3 " << 3 * i << ' ' << 3 * i + 1 << ' ' << 3 * i + 2 << '\n';
+      }
     }
 
   public:
@@ -246,6 +271,24 @@ namespace raytracer::test {
       auto root = balancer.build(storage.nodes);
       Assert::IsNotNull(root.get(), L"single primitive tree should exist", LINE_INFO());
       Assert::IsTrue(rootIsNonEmptyLeaf(*root), L"single primitive is a leaf", LINE_INFO());
+    }
+
+    TEST_METHOD(sahSplitWithEmptySideGrowsNoEmptyLeaf) {
+      // The SAH sweep counts the facets by their bounding boxes, the sort tests their exact overlap. Long slanted
+      // facets cross the bounding of a deep node outside the node, so a sweep candidate can leave one side empty after
+      // the sort (this seed and count do). The build continues with the other side instead of growing an empty child.
+      TempFile file{".off"};
+      writeSliverMesh(file, 2000, 1);
+      const auto mesh = Mesh::loadFromOffFile(
+          file.str(), false, std::make_unique<NaiveKDTreeTraverser<FacetIntersection>>(),
+          std::make_unique<BruteForceSAHKDTreeBalancer>()
+      );
+      const auto *root = mesh->getGraph();
+      Assert::IsNotNull(root, L"tree should exist", LINE_INFO());
+      for (const auto &leaf : root->leaves) {
+        Assert::IsTrue(leaf.count > 0u, L"no empty leaf", LINE_INFO());
+      }
+      Assert::IsTrue(countLeafGeometry(*root, root->rootLink) >= ASizeT{2000}, L"all facets in leaves", LINE_INFO());
     }
   };
 }

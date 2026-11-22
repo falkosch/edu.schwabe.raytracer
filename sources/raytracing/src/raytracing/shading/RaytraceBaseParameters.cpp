@@ -4,7 +4,8 @@
 namespace raytracer
 {
     RaytraceBaseParameters::RaytraceBaseParameters()
-        : visibilityCutoff(), maxDistance(), maxTraceDepth(), sceneShader(), cullingOrientation()
+        : visibilityCutoff(), maxDistance(), maxTraceDepth(), sceneShader(), cullingOrientation(), glossySamples(16),
+          sphereLightSamples(16)
     {
     }
 }

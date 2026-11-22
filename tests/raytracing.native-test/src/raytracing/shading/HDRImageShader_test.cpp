@@ -36,23 +36,23 @@ namespace raytracer::test {
       const SceneObject object{"test"};
       FacetIntersection intersection{};
 
-      // Texel-center samples land on integer floor indices (no interpolation).
-      intersection.texCoords = Float4{0.0f, 0.0f, 0.0f, 0.0f};
+      // Samples at the texel centers, (i + 0.5) / 2, return the texels without blending.
+      intersection.texCoords = Float4{0.25f, 0.25f, 0.0f, 0.0f};
       auto color = shader.sample(object, intersection);
-      Assert::AreEqual(1.0f, x(color), 1e-6f, L"(0,0) -> data[0] r", LINE_INFO());
+      Assert::AreEqual(1.0f, x(color), 1e-6f, L"(0.25,0.25) -> data[0] r", LINE_INFO());
 
-      intersection.texCoords = Float4{0.5f, 0.0f, 0.0f, 0.0f};
+      intersection.texCoords = Float4{0.75f, 0.25f, 0.0f, 0.0f};
       color = shader.sample(object, intersection);
-      Assert::AreEqual(1.0f, y(color), 1e-6f, L"(0.5,0) -> data[1] g", LINE_INFO());
+      Assert::AreEqual(1.0f, y(color), 1e-6f, L"(0.75,0.25) -> data[1] g", LINE_INFO());
 
-      intersection.texCoords = Float4{0.0f, 0.5f, 0.0f, 0.0f};
+      intersection.texCoords = Float4{0.25f, 0.75f, 0.0f, 0.0f};
       color = shader.sample(object, intersection);
-      Assert::AreEqual(1.0f, z(color), 1e-6f, L"(0,0.5) -> data[2] b", LINE_INFO());
+      Assert::AreEqual(1.0f, z(color), 1e-6f, L"(0.25,0.75) -> data[2] b", LINE_INFO());
 
-      intersection.texCoords = Float4{0.5f, 0.5f, 0.0f, 0.0f};
+      intersection.texCoords = Float4{0.75f, 0.75f, 0.0f, 0.0f};
       color = shader.sample(object, intersection);
-      Assert::AreEqual(1.0f, x(color), 1e-6f, L"(0.5,0.5) -> data[3] r", LINE_INFO());
-      Assert::AreEqual(1.0f, y(color), 1e-6f, L"(0.5,0.5) -> data[3] g", LINE_INFO());
+      Assert::AreEqual(1.0f, x(color), 1e-6f, L"(0.75,0.75) -> data[3] r", LINE_INFO());
+      Assert::AreEqual(1.0f, y(color), 1e-6f, L"(0.75,0.75) -> data[3] g", LINE_INFO());
     }
 
     TEST_METHOD(preservesHDRRangeValues) {
@@ -85,6 +85,21 @@ namespace raytracer::test {
       Assert::AreEqual(x(colorA), x(colorB), 1e-6f, L"r same", LINE_INFO());
       Assert::AreEqual(y(colorA), y(colorB), 1e-6f, L"g same", LINE_INFO());
       Assert::AreEqual(z(colorA), z(colorB), 1e-6f, L"b same", LINE_INFO());
+    }
+
+    TEST_METHOD(passesItsWrapToTheImage) {
+      // Bottom row black, top row white: at v = 1 Repeat blends both rows, ClampV reads the top row
+      HDRImage image{Size2{1, 2}};
+      image[0] = Float4{0.0f, 0.0f, 0.0f, 1.0f};
+      image[1] = Float4{1.0f, 1.0f, 1.0f, 1.0f};
+      const HDRImageShader repeating{image};
+      const HDRImageShader clamping{image, TextureWrap::ClampV};
+      const SceneObject object{"test"};
+      FacetIntersection intersection{};
+      intersection.texCoords = Float4{0.5f, 1.0f, 0.0f, 1.0f};
+
+      Assert::AreEqual(0.5f, x(repeating.sample(object, intersection)), 1e-6f, L"Repeat", LINE_INFO());
+      Assert::AreEqual(1.0f, x(clamping.sample(object, intersection)), 1e-6f, L"ClampV", LINE_INFO());
     }
   };
 }

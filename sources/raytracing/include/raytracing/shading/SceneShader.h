@@ -48,12 +48,12 @@ namespace raytracer
         LightShading
         sample(const SceneShaderContainment& containment, const SceneIntersection& intersection) const override;
 
-        // Computes the lighting of a facet in the scene.
+        // Computes the lighting of a facet in the scene, with up to sphereLightSamples shadow rays to a sphere light
         LightShading sampleLighting(
             const Raytrace& incidentRay, const Float4& adaptedVisibilityCutoff,
             Float roughness, const spectral::SpectralVector& F0,
-            const SceneIntersection& intersection, PerLightShadowCache::ShadowCacheType& shadowCache,
-            StatisticsCookie& statistics
+            const SceneIntersection& intersection, ASizeT sphereLightSamples,
+            PerLightShadowCache::ShadowCacheType& shadowCache, StatisticsCookie& statistics
         ) const;
 
         // Scale visibilityCutoff according to the current visibilityIndex, which allows us to filter out unnecessary
@@ -66,9 +66,28 @@ namespace raytracer
         RGBS ambientLight;
         LightsCollection lights;
 
-        Float4 computeLitAreaFraction(
+        // The fraction of the light that reaches the intersection along the shadow ray, per wavelength
+        spectral::SpectralVector computeLitAreaFraction(
             const RayCast& shadowRay, const SceneIntersection& intersection, ASizeT lightIndex,
-            PerLightShadowCache::ShadowCacheType& shadowCache, StatisticsCookie& statistics
+            const SpectralContext& spectralContext, PerLightShadowCache::ShadowCacheType& shadowCache,
+            StatisticsCookie& statistics
+        ) const;
+
+        // The mean lit fraction over shadow rays to points spread over the cap of a sphere light (LightInfo::radius)
+        // that is visible from the intersection: up to maxSamples rays, fewer the less the intersection adds to the
+        // pixel. With 0, one ray to the cap's center (a hard shadow).
+        spectral::SpectralVector computeLitSphereFraction(
+            RayCast shadowRay, const SceneIntersection& intersection, ASizeT lightIndex, const LightInfo& light,
+            const Raytrace& incidentRay, ASizeT maxSamples, PerLightShadowCache::ShadowCacheType& shadowCache,
+            StatisticsCookie& statistics
+        ) const;
+
+        // Follows a shadow ray through transmissive objects up to the light: each object lets the Fresnel transmission
+        // of its entry and exit pass (Schlick) and absorbs along the straight chord between them (Beer-Lambert). The
+        // ray isn't refracted, so there are no caustics. An opaque object blocks the light.
+        spectral::SpectralVector transmitShadowRay(
+            const RayCast& shadowRay, const SceneIntersection& intersection, ASizeT lightIndex,
+            const SpectralContext& spectralContext, PerLightShadowCache::ShadowCacheType& shadowCache
         ) const;
 
         // Calculates the diffuse intensity according to Lambert's cosine law (Lambertian reflection). Vector

@@ -80,18 +80,20 @@ and the facet block test (FacetLanes, FacetNormalsBlock, FacetBlockRay, FacetBlo
 
 ### raytracing (`sources/raytracing/`)
 
-Core engine. Rendering pipeline: hero-wavelength spectral sampling (Wilkie 2014), GGX microfacet BRDF with VNDF
-importance sampling, spectral Schlick-Fresnel reflectance, Beer-Lambert absorption. View transform:
-spectrum -> XYZ -> sRGB-linear -> AgX -> sRGB.
+Core engine. Rendering pipeline: hero-wavelength spectral sampling (Wilkie 2014), GGX microfacet highlights and glossy
+reflections by VNDF importance sampling (Heitz 2018), spectral Schlick-Fresnel reflectance, Beer-Lambert absorption,
+point and sphere lights (soft shadows), shadows through transmissive objects. View transform:
+spectrum -> XYZ -> sRGB-linear -> AgX (display-encoded, no extra sRGB encoding).
 
 - **Scene**: Scene, SceneObject, Camera, Resources (OFF mesh loading, HDR/PPM textures)
 - **Forms**: Sphere, Box, Plane, Mesh (triangle mesh with KD-tree acceleration)
 - **KD-Tree**: Balancers (BruteForceSAH, FixedIterationsSAH, Median, ArithmeticMean, MaxAxis, RotatingAxis) and
   traversers (Naive with an explicit stack, Wide over the tree's eight-wide view for meshes and the scene,
   Voxelization debug view) over a flat-array tree (`KDTreeRoot`)
-- **Shading**: SceneShader (per-light Lambert diffuse + Phong specular + attenuation + shadow cache),
-  ObjectShader (7 material channels: diffusion, reflectance, specular, roughness, transmittance, refractionEta,
-  emittance), concrete shaders (Const, HDRImage, EnvironmentMap, IntersectionNormal, NoiseGeneratorMap)
+- **Shading**: SceneShader (per-light Lambert diffuse + GGX specular + attenuation, shadows with a cache, through
+  transmissive objects and soft for sphere lights), ObjectShader (7 material channels: diffusion, reflectance,
+  specular, roughness, transmittance, refractionEta, emittance), concrete shaders (Const, HDRImage, Environment with
+  four projections, IntersectionNormal, MultiplyByConst, Concatenating, NoiseGeneratorMap)
 - **Color**: sRGB/Rec.2020 primaries, Bradford chromatic adaptation, AgX and ACES filmic view transforms
 - **Utilities**: RGBS color type, Bitmap, HDRImage, Perlin/Simplex noise, StatisticsCookie, RaytracerPackets
 
@@ -99,7 +101,8 @@ spectrum -> XYZ -> sRGB-linear -> AgX -> sRGB.
 
 Win32+OpenGL+ImGui application. Predefined scenes (dropdown, or `--scene=<id>`): CornellBox (default), TestScene1/2,
 Dragon, Procedural, and the test scenes Forms, Lighting, Shading, Materials & Noise, Meshes and the Showcase.
-`--exit-after-render` closes the window once the first image is saved as `ray-traced.png`.
+`--exit-after-render` closes the window once the first image is saved as `ray-traced.png`; `--full-render`,
+`--exposure=<stops>` and `--max-trace-depth=<n>` are listed in `sources/raytracerui/CLAUDE.md`.
 Runtime-configurable: KD-tree balancer, trace depth, super-sampling, ray packet size, FOV, interaction mode
 (Camera/Object/Light), display mode (image/timing/depth). ImGui panels toggled via F1-F4.
 
@@ -150,22 +153,29 @@ Normal logs right after start:
 [0.000] - INFO Epsilon : Machine epsilon for float is 1.19209e-07
 [0.000] - INFO Epsilon : Machine epsilon for double is 2.22045e-16
 [0.000] - INFO Main : Working directory: D:\edu.schwabe.raytracer\data
-[0.010] - INFO Mesh : Loaded 36961 bytes from file meshes/teapot.off
-[0.023] - INFO KDTree : Built KD-tree for 1452 nodes in 28232885 cycles
-[0.023] - INFO Mesh : loaded meshes/teapot.off: 726 vertices, 1452 faces
-[0.023] - INFO Scene : Building culling tree for scene ...
-[0.023] - INFO KDTree : Built KD-tree for 8 nodes in 164 cycles
-[0.023] - INFO Scene : done
-[0.040] - INFO UI : Resizing output to 512x512
-[0.042] - INFO Raytracer : Raytrace 1 (512x512):
-[0.081] - INFO Raytracer : Duration: 0.0389018s
-[0.185] - INFO UI : primaryRays 262144/0
-[0.185] - INFO UI : secondaryRays 121821/17871
-[0.185] - INFO UI : shadowRays 253286/253005
-[0.185] - INFO UI : objectShadowRays 231066/199568
-[0.185] - INFO UI : Saving ray-traced image ...
-[0.196] - INFO UI : ray-traced.png
+[0.000] - INFO Main : Scene: Cornell Box
+[0.003] - INFO Mesh : Loaded 36961 bytes from file meshes/teapot.off
+[0.017] - INFO KDTree : Built KD-tree for 1452 nodes in 32912740 cycles
+[0.017] - INFO Mesh : loaded meshes/teapot.off: 726 vertices, 1452 faces
+[0.017] - INFO Scene : Building culling tree for scene with 9 finite scene objects
+[0.017] - INFO KDTree : Built KD-tree for 9 nodes in 3028 cycles
+[0.017] - INFO Scene : Tree depth=1 nodes=1
+[0.017] - INFO Scene : done
+[0.037] - INFO UI : Resizing output to 512x512
+[0.039] - INFO Raytracer : Raytrace 1 (512x512):
+[0.126] - INFO Raytracer : Duration: 0.086872s
+[0.196] - INFO UI : primaryRays 262144/0
+[0.196] - INFO UI : secondaryRays 255326/93971
+[0.196] - INFO UI : shadowRays 703166/697995
+[0.196] - INFO UI : objectShadowRays 484255/426977
+[0.196] - INFO UI : kdTree nodesVisited=1441195 rootOverlapMisses=1180446
+[0.198] - INFO UI : Saving ray-traced image ...
+[0.210] - INFO UI : ray-traced.png saved: 1
 ```
+
+The ray counters are deterministic for a build (glossy reflections and sphere lights sample by integer hashes of the
+pixel and sub-sample); timings vary. The rough mirror sphere's glossy reflections make up most of the secondary
+rays.
 
 Baseline numbers incorporate: CMake Unity compilation, LTCG, FMA3 intrinsics, BruteForceSAH default balancer,
 sweep-based SAH partitioning, RGBS color type, precompiled headers.
@@ -181,6 +191,11 @@ cd data
 
 - The app renders the scene once at the fast-preview size (512x512 in release), saves `data/ray-traced.png`, logs
   the ray counters and exits. Read the PNG to judge it; compare `data/raytracer.log` with a baseline.
+- `--full-render` renders that image like Enter does (3x3 samples per pixel in release): use it to judge aliasing,
+  glossy reflections and soft shadows. `--exposure=<stops>` brightens or darkens the image,
+  `--max-trace-depth=<n>` traces secondary rays also in debug builds (`MAX_TRACE_DEPTH` is 0 there).
+  `--glossy-samples=0 --sphere-light-samples=0` turns the distribution ray tracing off (Whitted: mirror reflections,
+  hard shadows), which also makes renders much faster.
 - Scene ids are listed in `sources/raytracerui/src/tests/SceneCatalog.cpp` (`cornell-box`, `forms`, `lighting`,
   `shading`, `materials`, `meshes`, `showcase`, ...). The test scenes cover forms, lights, shaders, materials and
   meshes, so pick the one the change touches; `cornell-box` is the regression baseline.
@@ -188,9 +203,10 @@ cd data
   start overwrites both files.
 - To compare against a commit, build that commit's `raytracerui` in a throwaway worktree with a short build directory
   (Windows path length) and render the same scene; byte-identical PNGs mean an unchanged image.
-- Debug builds open a modal dialog on a failed assert, which blocks the run: prefer release, or expect the dialog.
-- The `clang-release` executable needs LLVM's `bin` directory (`libomp.dll`) on `PATH`, e.g.
-  `C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\Llvm\x64\bin`.
+- With `--exit-after-render`, a failed assert or debug CRT check doesn't open a dialog: the message goes to stderr
+  (redirect it, e.g. `Start-Process -RedirectStandardError`), the log notes the abort and the exit code is 3.
+- The `clang-release` build copies `libomp.dll` next to its executables and test DLLs (`copy_openmp_runtime` in the
+  root `CMakeLists.txt`), so they start outside a developer shell.
 
 ## Code Style
 

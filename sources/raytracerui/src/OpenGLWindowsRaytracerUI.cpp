@@ -244,7 +244,7 @@ namespace raytracerui
                 ImGui::BulletText("3: Light (right-drag moves)");
 
                 ImGui::SeparatorText("Rendering");
-                ImGui::BulletText("Enter: Full quality render");
+                ImGui::BulletText("Enter: Full quality render (super-sampled)");
                 ImGui::BulletText("Save As: PNG/BMP (in Config)");
                 ImGui::BulletText("E: Cycle display mode");
                 ImGui::BulletText("T: Toggle fast preview");
@@ -398,6 +398,21 @@ namespace raytracerui
                     changed = true;
                 }
 
+                // distribution ray tracing, 0 for Whitted ray tracing
+                auto glossySamples = static_cast<int>(parameters.glossySamples);
+                if (ImGui::SliderInt("Glossy Rays", &glossySamples, 0, 64))
+                {
+                    parameters.glossySamples = static_cast<ASizeT>(glossySamples);
+                    changed = true;
+                }
+
+                auto sphereLightSamples = static_cast<int>(parameters.sphereLightSamples);
+                if (ImGui::SliderInt("Sphere Light Rays", &sphereLightSamples, 0, 64))
+                {
+                    parameters.sphereLightSamples = static_cast<ASizeT>(sphereLightSamples);
+                    changed = true;
+                }
+
                 auto superSampling = static_cast<int>(parameters.superSamplingFactor);
                 if (ImGui::SliderInt("Super Sampling", &superSampling, 0, 4))
                 {
@@ -409,6 +424,11 @@ namespace raytracerui
                 if (ImGui::SliderInt("Ray Packet Size", &rayPacketSize, 0, 31))
                 {
                     parameters.rayPacketSize = static_cast<ASizeT>(rayPacketSize);
+                    changed = true;
+                }
+
+                if (ImGui::SliderFloat("Exposure (stops)", &exposure, -6.0f, 6.0f, "%.1f"))
+                {
                     changed = true;
                 }
 

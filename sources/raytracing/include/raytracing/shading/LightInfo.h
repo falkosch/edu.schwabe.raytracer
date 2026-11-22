@@ -14,14 +14,20 @@ namespace raytracer
     {
         Float4 position;
         RGBS emittance; // used when kind == RGB; ignored otherwise
-        RGBS glare;
 
         // describes the fall-off of the lighting intensity over distance: x
         // is the constant, y is the linear, and z is the quadratic factor in
         // [(L/|L|) dot N] / (x + y * |L| + z * |L| * |L|), where L is the
         // vector between the light-position and the facet's
-        // intersection-point.
+        // intersection-point. w is unused.
         Float4 attenuationFactors;
+
+        // 0 for a point light. Otherwise a spherical area light of this radius around the position: shadow rays to
+        // points spread over its cap visible from the intersection give soft shadows. Show it by an emissive sphere of
+        // the same center and radius, marked by ObjectShader::setLightEmitter: mirrors reflect that sphere, rough
+        // surfaces get the light's highlight (widened by the light's size), and their glossy reflections skip the
+        // sphere.
+        Float radius;
 
         EmitterKind kind;
         Float temperatureKelvin; // used when kind == Blackbody

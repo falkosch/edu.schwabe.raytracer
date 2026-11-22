@@ -117,6 +117,11 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 
         link_libraries(libomp)
 
+        # The OpenMP runtime DLL lives next to clang-cl, which only a developer shell puts on PATH: the executables
+        # and test DLLs get a copy (copy_openmp_runtime), so they also start outside of it
+        get_filename_component(LLVM_BIN_DIR "${CMAKE_CXX_COMPILER}" DIRECTORY)
+        set(LIBOMP_DLL "${LLVM_BIN_DIR}/libomp.dll")
+
         add_link_options(
                 $<$<CONFIG:Release>:/OPT:REF>
                 $<$<CONFIG:Release>:/OPT:ICF>
@@ -150,6 +155,15 @@ else ()
 
 endif ()
 
+
+# Copies clang-cl's OpenMP runtime DLL next to the target's output file (nothing to do for the other compilers)
+function(copy_openmp_runtime target)
+    if (DEFINED LIBOMP_DLL AND EXISTS "${LIBOMP_DLL}")
+        add_custom_command(TARGET ${target} POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different "${LIBOMP_DLL}" "$<TARGET_FILE_DIR:${target}>"
+        )
+    endif ()
+endfunction()
 
 add_subdirectory(sources)
 add_subdirectory(tests)

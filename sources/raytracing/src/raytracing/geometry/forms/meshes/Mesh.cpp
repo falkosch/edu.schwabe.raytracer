@@ -643,6 +643,10 @@ namespace raytracer
   void Mesh::setupMesh()
   {
     bounding = computeStandardMesh(vertices);
+    if (const auto removed = removeDegenerateFacets(vertices, facetIndices))
+    {
+      Log.warn([removed] { return "Removed " + std::to_string(removed) + " facets without area"; });
+    }
     computeFacets(vertices, facetIndices, facets);
     computeNormals(vertices, facetIndices, facets, vertexNormals, flatNormals, smoothNormals, planeNormals, facetEdges);
     graph = computeNodesAndGraph(facets, balancer.get(), nodes);

@@ -32,8 +32,12 @@ namespace raytracer {
     const auto lo1 = select(x(uvw) < y(uvw), Zero<Int>(), One<Int>());
     const auto lo2 = select(y(uvw) < z(uvw), One<Int>(), Two<Int>());
     const auto lo = select(x(uvw) < z(uvw), lo1, lo2);
+    // K() walks the simplex's corners by advancing A, so the calls must run in this order
     auto A = Zero<Float3>();
-    return K(hi, ijk, uvw, A) + K(3 - hi - lo, ijk, uvw, A) + K(lo, ijk, uvw, A) + K(Zero<Int>(), ijk, uvw, A);
+    auto sum = K(hi, ijk, uvw, A);
+    sum += K(3 - hi - lo, ijk, uvw, A);
+    sum += K(lo, ijk, uvw, A);
+    return sum + K(Zero<Int>(), ijk, uvw, A);
   }
 
   Float SimplexNoiseGenerator::noise4(const Float4 &v) const {
@@ -53,15 +57,19 @@ namespace raytracer {
   }
 
   Float SimplexNoiseGenerator::K(const Int a, const Float4 &ijk, const Float4 &uvw, Float4 &A) const {
+    // the corner A of the simplex, hashed before A advances to the next corner (Perlin's reference order)
     const auto xyz = uvw - A + Half<Float>() * staticAverage<3, Float4::ValueType>(&A[0]);
+    const auto h = shuffle(convert<Int3>(ijk + A));
     A = replaceComponent(A, A + One<Float4>(), a);
 
-    auto t = Half<Float>() - dot(xyz, xyz);
+    // only x, y and z: the w lanes of uvw and A hold leftovers of the skewing. The squared kernel radius 0.6 is the
+    // reference's; it reaches slightly beyond the simplex (0.5 would end at its faces), which leaves steps of up to
+    // about 1e-3 at the faces, small against the output range of about +-0.3.
+    auto t = static_cast<Float>(0.6) - dot3(xyz, xyz);
     if (t < Zero<Float>()) {
       return Zero<Float>();
     }
 
-    const auto h = shuffle(convert<Int3>(ijk + A));
     const auto b5 = (h >> 5) & One<Int>();
     const auto b4 = (h >> 4) & One<Int>();
     const auto b3 = (h >> 3) & One<Int>();

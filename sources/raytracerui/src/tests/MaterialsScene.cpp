@@ -130,8 +130,7 @@ namespace raytracerui
         );
         addSphere(scene, "emitter", SceneMaterial::emissive(Float4(0.05f, 0.25f, 0.3f, 0.f)), 6, 2);
 
-        // Row 4: noise generators by octaves, and noise as roughness. The Simplex spheres stay plain: the generator
-        // returns almost only zeros (K() uses the 4-component dot, see the scene's report).
+        // Row 4: noise generators by octaves, and noise as roughness
         addNoiseSphere(scene, "Perlin, 1 octave", noise<1>(perlin()), 0);
         addNoiseSphere(scene, "Perlin, 4 octaves", noise<4>(perlin()), 1);
         addNoiseSphere(scene, "Perlin, 8 octaves", noise<8>(perlin()), 2);

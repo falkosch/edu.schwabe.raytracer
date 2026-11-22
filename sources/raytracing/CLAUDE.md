@@ -15,7 +15,12 @@ Core rendering engine. Static library depending on `primitives` and `vectorizati
 6. `SceneShader::sampleLighting()` computes per-light contributions in spectral domain (Lambert diffuse,
    GGX microfacet specular with spectral Schlick-Fresnel, distance attenuation, shadow rays with caching)
 7. `Raytracer::applyBRDF()` composites: spectral BRDF, Fresnel reflectance, Beer-Lambert absorption
-8. Reflection/transmission rays are traced recursively up to `maxTraceDepth`; the `SpectralContext` propagates
+8. Reflection/transmission rays are traced recursively up to `maxTraceDepth`; the `SpectralContext` propagates. A
+   surface rougher than `brdf::MirrorRoughness` reflects up to `glossySamples` VNDF-sampled rays
+   (`traceGlossyReflection`, fewer the less the reflection adds to the pixel); `Raytrace::seed` (pixel and
+   sub-sample, `shading/sampling.h`) makes the sampling deterministic. `RaytraceBaseParameters::glossySamples` and
+   `sphereLightSamples` cap the rays of this distribution ray tracing (default 16); 0 is Whitted ray tracing (mirror
+   reflections, hard shadows)
 9. Output: `spectrumToXYZ` (with the context's XYZ context) `→ xyzToDisplayRGB` per pixel → HDRImage
    (sRGB-linear) + depth map + timing map
 
@@ -69,7 +74,12 @@ Traversers (template on intersection type):
 
 ### Shading (`shading/`)
 
-- `SceneShader` -- scene-level: background shader, ambient light, light collection, shadow computation
+- `SceneShader` -- scene-level: background shader, ambient light, light collection, shadow computation. Shadow rays
+  pass transmissive objects (Fresnel transmission and absorption along the straight chord, no caustics); a sphere light
+  (`LightInfo::radius`) gets up to `sphereLightSamples` shadow rays to its visible cap. Its emissive sphere
+  (`setLightEmitter`) shows in mirrors, while rough surfaces get the light's widened highlight and their glossy rays
+  skip the sphere. Only these `LightInfo`s light the scene: the emittance of any other object (boxes, meshes,
+  emissive textures) makes it glow where it is seen, but it casts no light
 - `ObjectShader` -- per-object: 7 `MaterialShader` slots (diffusion, reflectance, specular, roughness,
   transmittance, refractionEta, emittance) + texture transform
 - `SpectralContext` -- per hero wavelength: wavelengths, Smits basis, XYZ context, ambient and per-light spectra;
@@ -77,6 +87,14 @@ Traversers (template on intersection type):
 - `Shader<C, I, O>` -- template base for all shaders (Containment, Intersection -> Output)
 - Concrete shaders: `ConstShader`, `HDRImageShader`, `EnvironmentShader`, `IntersectionNormalShader`,
   `MultiplyByConstShader`, `ConcatenatingShader`, `NoiseGeneratorMap<Octaves>`
+- `EnvironmentShader` maps the ray direction into its image by an `EnvironmentProjection`
+  (`environment_coordinates.h`; the image center faces the start camera's view direction -z; latitude-longitude maps
+  sample with `TextureWrap::ClampV`, the disc projections with `Clamp`). The projections of `data/textures`:
+    - `FisheyeDome` (default): `env_eso_bright_night_at_paranal` (all-sky photo), `distorted_environment`
+    - `MirrorBall`: `env_spherical_cameraman`, `env_spherical_forest` (photos of a chrome ball), and the radial
+      `env_spherical_supernova`, `env_spherical_gradient`, `env_spherical_phong_gradient`
+    - `AngularMap`: `env_spherical_stpeters`, `env_spherical_uffizium` (Debevec's light probes)
+    - `LatitudeLongitude`: `env_latitude_checker`
 
 ### BRDF (`shading/brdf/`)
 
@@ -86,19 +104,25 @@ Traversers (template on intersection type):
 - `evaluateGGX()` -- full microfacet BRDF (D * G * F / 4NoVNoL)
 - `evaluateGGX_DG()` -- BRDF without Fresnel (D * G / 4NoVNoL), from precomputed NoV, NoL, NoH
 - `schlickFresnelSpectral()` -- per-wavelength Schlick approximation on Spectrum
-- `sampleGGX()` -- VNDF importance sampling (Heitz 2018)
+- `sampleGGX()` -- VNDF importance sampling (Heitz 2018), for the glossy reflections
+- The roughness channel is the GGX alpha itself (highlights and glossy reflections), not its square root
 
 ### Color (`shading/color/`)
 
 - `primaries.h` -- sRGB/Rec.2020 <-> XYZ matrices, Bradford chromatic adaptation
-- `view_transform.h` -- `agx()` (Sobotka AgX), `acesFilmic()` (Narkowicz 2015), `srgbEncode()`/`srgbDecode()`
+- `view_transform.h` -- `agx()` (Sobotka AgX, output already display-encoded), `acesFilmic()` (Narkowicz 2015),
+  `srgbEncode()`/`srgbDecode()`
 
 ### Common (`common/`)
 
 - `RGBS` -- RGB color wrapper over Float4 with arithmetic operators
-- `HDRImage` -- Float4-per-pixel image with bilinear sampling
+- `HDRImage` -- Float4-per-pixel image with bilinear sampling (texel i's center at (i + 0.5) / resolution, row 0 at
+  v = 0). `TextureWrap::Repeat` tiles (default), `ClampV` keeps the rows of images that span a sphere once apart at
+  the poles, `Clamp` keeps both axes at the edges; `HDRImageShader` takes the mode. No mipmaps: minified textures
+  alias
 - `Bitmap` -- LDR image (8-bit per channel)
 - `PNGWriter` -- PNG file output (uses libpng)
-- `PerlinNoiseGenerator`, `SimplexNoiseGenerator` -- procedural noise
+- `PerlinNoiseGenerator`, `SimplexNoiseGenerator` -- procedural noise (Simplex follows Ken Perlin's reference, but
+  with a seeded hash table; `NoiseGeneratorMap` sums octaves of `noise3`, octave i at frequency 2^i weighing 2^-i)
 - `RefractionIndices` -- physical IOR constants (Vacuum, Air, Water, Glass, Diamond, etc.)
 - `StatisticsCookie` -- ray counts, KD-tree visits, cycle timings

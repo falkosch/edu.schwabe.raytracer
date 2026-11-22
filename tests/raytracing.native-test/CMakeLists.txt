@@ -4,6 +4,8 @@ set(SOURCES
         src/raytracing/common/Bitmap_test.cpp
         src/raytracing/common/HDRImage_test.cpp
         src/raytracing/common/RGBS_test.cpp
+        src/raytracing/common/noise/PerlinNoiseGenerator_test.cpp
+        src/raytracing/common/noise/SimplexNoiseGenerator_test.cpp
         src/raytracing/geometry/forms/Box_test.cpp
         src/raytracing/geometry/forms/Plane_test.cpp
         src/raytracing/geometry/forms/Sphere_test.cpp
@@ -13,14 +15,19 @@ set(SOURCES
         src/raytracing/scene/Camera_test.cpp
         src/raytracing/shading/BRDF_test.cpp
         src/raytracing/shading/BeerLambert_test.cpp
+        src/raytracing/shading/ConcatenatingShader_test.cpp
         src/raytracing/shading/EnvironmentShader_test.cpp
         src/raytracing/shading/Fresnel_test.cpp
         src/raytracing/shading/HDRImageShader_test.cpp
         src/raytracing/shading/IntersectionNormalShader_test.cpp
         src/raytracing/shading/LightInfo_test.cpp
+        src/raytracing/shading/SceneShader_test.cpp
+        src/raytracing/shading/sampling_test.cpp
         src/raytracing/shading/SpectralContext_test.cpp
         src/raytracing/shading/Phong_test.cpp
         src/raytracing/shading/brdf/ggx_test.cpp
+        src/raytracing/shading/shaders/environment_coordinates_test.cpp
+        src/raytracing/shading/shaders/NoiseGeneratorMap_test.cpp
         src/raytracing/shading/color/primaries_test.cpp
         src/raytracing/shading/color/view_transform_test.cpp
         src/raytracing/shading/spectral/blackbody_test.cpp
@@ -45,6 +52,7 @@ set(HEADERS
 )
 
 add_library(${PROJECT_NAME} SHARED ${SOURCES} ${HEADERS})
+copy_openmp_runtime(${PROJECT_NAME})
 
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} PREFIX "Files" REGULAR_EXPRESSION ".+\\.(h|cpp)")
 

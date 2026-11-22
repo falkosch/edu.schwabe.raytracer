@@ -8,6 +8,10 @@ namespace raytracer::brdf
 {
     using namespace vectorization;
 
+    // The roughness (the GGX alpha) up to which a reflection is a mirror: one ray in the mirrored direction instead of
+    // glossy samples, and sphere lights show by their emissive sphere instead of a highlight
+    constexpr Float MirrorRoughness = 0.02f;
+
     // Trowbridge-Reitz (GGX) normal distribution function
     Float ggxD(Float NoH, Float alpha) noexcept;
 

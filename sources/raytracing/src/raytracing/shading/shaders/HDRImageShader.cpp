@@ -3,7 +3,7 @@
 
 namespace raytracer
 {
-    HDRImageShader::HDRImageShader(const HDRImage& imageIn) : image(&imageIn)
+    HDRImageShader::HDRImageShader(const HDRImage& imageIn, const TextureWrap wrapIn) : image(&imageIn), wrap(wrapIn)
     {
     }
 
@@ -11,6 +11,6 @@ namespace raytracer
 
     Float4 HDRImageShader::sample(const ObjectShader&, const FacetIntersection& intersection) const
     {
-        return image->sampleBilinear(intersection.texCoords);
+        return image->sampleBilinear(intersection.texCoords, wrap);
     }
 }

@@ -200,11 +200,13 @@ namespace raytracerui
         static PerlinNoiseGenerator perlinNoise{42};
 
         auto sceneObject = std::make_unique<SceneObject>("large box, diffuse perlin noise");
-        sceneObject->setForm(std::make_unique<Box>());
+        // spherical texture coordinates: the noise continues around the edges
+        sceneObject->setForm(std::make_unique<Box>(BoxTextureMapping::Spherical));
         sceneObject->scale(Float3(0.35f, 0.60f, 0.35f));
         sceneObject->rotate(Float3(0.0f, 20.0f, 0.0f));
         sceneObject->translate(Float3(-0.35f, -0.39f, -0.35f));
-        sceneObject->scaleTexture(Float2(0.6f, 0.6f));
+        // the noise of the Materials scene's 8-octave Perlin sphere
+        sceneObject->scaleTexture(Float2(4.0f, 4.0f));
         sceneObject->setEmittanceShader(
             std::make_unique<Resources::ConstMaterialShader>(Float4(0.0f, 0.0f, 0.0f, 0.0f)));
         sceneObject->setDiffusionShader(
@@ -264,7 +266,6 @@ namespace raytracerui
         // Warm tungsten ceiling light (~3000K). Was RGB(0.1, 0.09, 0.08).
         auto ceilingLight = std::make_unique<LightInfo>(LightInfo::blackbody(3000.f, 0.1f));
         ceilingLight->position = Float4(0.0f, 0.98f, 0.0f, 1.0f);
-        ceilingLight->glare = RGBS(0.4f, 0.4f, 0.4f);
         ceilingLight->attenuationFactors = Float4(0.0f, 0.13f, 1.0f, 1.0f);
         scene.getLights().push_back(std::move(ceilingLight));
 

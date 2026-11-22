@@ -42,6 +42,11 @@ namespace raytracer
         const MaterialShader* getEmittanceShader() const;
         void setEmittanceShader(std::unique_ptr<const MaterialShader> value);
 
+        // The emissive sphere of a sphere light (LightInfo::radius): glossy reflections get the light by its highlight
+        // and don't see the object
+        bool isLightEmitter() const;
+        void setLightEmitter(bool value);
+
         void resetTextureMatrix();
 
         void rotateTexture(Float angle);
@@ -53,6 +58,11 @@ namespace raytracer
         SurfaceShading sample(const SceneShader& sceneShader, const SceneIntersection& intersection) const override;
 
         SurfaceShading shade(const SceneIntersection& intersection, const SpectralContext& spectralContext) const;
+
+        // The transmittance (RGB absorption lengths, zero for opaque surfaces) and the refraction indices at the
+        // intersection alone, without the other channels of shade(): what a shadow ray needs to pass the object
+        Float4 sampleTransmittance(const FacetIntersection& intersection) const;
+        Float4 sampleRefractionEta(const FacetIntersection& intersection) const;
 
     protected:
         MFloat4x4 textureMatrix;
@@ -66,6 +76,8 @@ namespace raytracer
         std::unique_ptr<const MaterialShader> transmittanceShader;
         std::unique_ptr<const MaterialShader> refractionEtaShader;
         std::unique_ptr<const MaterialShader> emittanceShader;
+
+        bool lightEmitter{};
 
         void updateTextureMatrix();
     };

@@ -3,33 +3,42 @@
 
 #include "tests/SceneObjects.h"
 
+#include <raytracing/shading/shaders/ConcatenatingShader.h>
 #include <raytracing/shading/shaders/EnvironmentShader.h>
 #include <raytracing/shading/shaders/IntersectionNormalShader.h>
 
 #include <array>
+#include <functional>
 
 namespace raytracerui
 {
     namespace
     {
         using MaterialShader = ObjectShader::MaterialShader;
+        using MultiplyingMaterialShader = ConcatenatingShader<
+            ObjectShader, FacetIntersection, Float4, std::multiplies<Float4>, MaterialShader, MaterialShader>;
 
-        // MultiplyByConstShader doesn't own its inner shader, and scene objects are destroyed on every scene switch:
-        // the inner shader lives as long as the resources it samples.
+        // MultiplyByConstShader and ConcatenatingShader don't own their inner shaders, and scene objects are destroyed
+        // on every scene switch: the inner shaders live as long as the resources they sample.
         const MaterialShader& marbleShader(Resources& resources)
         {
             static const HDRImageShader marble{*resources.getPPM("marble")};
             return marble;
         }
 
+        const MaterialShader& checkerShader(Resources& resources)
+        {
+            static const HDRImageShader checker{*resources.getPPM("checker")};
+            return checker;
+        }
     }
 
     void ShadingScene::setup(Scene& scene, Resources& resources)
     {
-        // EnvironmentShader maps the direction's x and z onto the image, which fits an all-sky fisheye photo
-        scene.setBackgroundShader(
-            std::make_unique<EnvironmentShader>(*resources.getPPM("env_eso_bright_night_at_paranal"))
-        );
+        // Debevec's light probe of St. Peter's as an angular map: the background and the mirror sphere show it
+        scene.setBackgroundShader(std::make_unique<EnvironmentShader>(
+            *resources.getPPM("env_spherical_stpeters"), EnvironmentProjection::AngularMap
+        ));
         scene.setAmbientLight(RGBS(0.03f, 0.03f, 0.03f));
 
         auto key = std::make_unique<LightInfo>(LightInfo::blackbody(6000.f, 0.5f));
@@ -74,12 +83,17 @@ namespace raytracerui
         auto srgbEarth = createSceneObject(
             "earth, sRGB", std::make_unique<Sphere>(), satin, ball(COLUMNS[0], BACK_Y, BACK_Z)
         );
-        srgbEarth->setDiffusionShader(std::make_unique<HDRImageShader>(*resources.getPPM("earth_ice_free")));
+        // The map spans the sphere once: its rows end at the poles
+        srgbEarth->setDiffusionShader(
+            std::make_unique<HDRImageShader>(*resources.getPPM("earth_ice_free"), TextureWrap::ClampV)
+        );
         objects.push_back(std::move(srgbEarth));
         auto linearEarth = createSceneObject(
             "earth, linear", std::make_unique<Sphere>(), satin, ball(COLUMNS[1], BACK_Y, BACK_Z)
         );
-        linearEarth->setDiffusionShader(std::make_unique<HDRImageShader>(*resources.getLinearPPM("earth_ice_free")));
+        linearEarth->setDiffusionShader(
+            std::make_unique<HDRImageShader>(*resources.getLinearPPM("earth_ice_free"), TextureWrap::ClampV)
+        );
         objects.push_back(std::move(linearEarth));
         objects.push_back(createSceneObject(
             "mirror sphere", std::make_unique<Sphere>(), SceneMaterial::metal(Float4(0.95f, 0.95f, 0.95f, 0.f), 0.05f),
@@ -94,8 +108,7 @@ namespace raytracerui
         normals->setEmittanceShader(std::make_unique<IntersectionNormalShader>());
         objects.push_back(std::move(normals));
 
-        // Front row: constant color, marble times blue next to plain marble, transformed checker on a box.
-        // ConcatenatingShader is left out: it doesn't compile (C2555, sample() returns const OutputType).
+        // Front row: constant color, marble times blue, checker times marble, transformed checker on a box
         const auto cube = [](const Float x, const Float rotation)
         {
             return Placement{
@@ -112,9 +125,13 @@ namespace raytracerui
             Float4(0.4f, 0.6f, 1.f, 1.f), marbleShader(resources)
         ));
         objects.push_back(std::move(tinted));
-        auto marble = createSceneObject("marble", std::make_unique<Box>(), satin, cube(COLUMNS[2], -25.f));
-        marble->setDiffusionShader(std::make_unique<HDRImageShader>(*resources.getPPM("marble")));
-        objects.push_back(std::move(marble));
+        auto product = createSceneObject(
+            "checker times marble", std::make_unique<Box>(), satin, cube(COLUMNS[2], -25.f)
+        );
+        product->setDiffusionShader(std::make_unique<MultiplyingMaterialShader>(
+            std::multiplies<Float4>{}, checkerShader(resources), marbleShader(resources)
+        ));
+        objects.push_back(std::move(product));
         auto transformed = createSceneObject(
             "box, transformed checker", std::make_unique<Box>(), satin, cube(COLUMNS[3], 40.f)
         );

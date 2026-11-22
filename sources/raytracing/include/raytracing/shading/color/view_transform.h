@@ -11,7 +11,8 @@ namespace raytracer::color
     Float4 acesFilmic(const Float4& linearRGB) noexcept;
 
     // Simplified AgX view transform (Sobotka): input matrix, log2 encode, polynomial sigmoid, output matrix.
-    // Input: linear RGB, Output: display-referred [0,1]
+    // Input: linear RGB, Output: display-referred [0,1], already encoded for an sRGB (2.2) display: don't apply
+    // srgbEncode() on top (18% grey maps to about 0.5)
     Float4 agx(const Float4& linearRGB) noexcept;
 
     // IEC 61966-2-1 sRGB transfer functions (piecewise: linear segment + gamma curve)

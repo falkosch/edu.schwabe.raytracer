@@ -17,6 +17,8 @@ namespace raytracer
         spectral::SpectralVector F0;
         Float roughness;
         Float visibilityCutoff;
+        // the most shadow rays to a sphere light (RaytraceBaseParameters::sphereLightSamples)
+        ASizeT sphereLightSamples;
         PerLightShadowCache::ShadowCacheType* shadowCache;
         StatisticsCookie* statistics;
 

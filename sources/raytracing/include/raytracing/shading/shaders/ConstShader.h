@@ -21,7 +21,7 @@ namespace raytracer
             return constant;
         }
 
-        OutputType& getConstant() const
+        const OutputType& getConstant() const
         {
             return constant;
         }

@@ -85,6 +85,16 @@ namespace raytracer
         emittanceShader = std::move(value);
     }
 
+    bool ObjectShader::isLightEmitter() const
+    {
+        return lightEmitter;
+    }
+
+    void ObjectShader::setLightEmitter(const bool value)
+    {
+        lightEmitter = value;
+    }
+
     void ObjectShader::resetTextureMatrix()
     {
         textureTransformInfo = TextureTransformInfo();
@@ -124,6 +134,16 @@ namespace raytracer
     SurfaceShading ObjectShader::sample(const SceneShader&, const SceneIntersection& intersection) const
     {
         return shade(intersection, SpectralContext(spectral::LAMBDA_MIN + spectral::LAMBDA_RANGE * Half<Float>()));
+    }
+
+    Float4 ObjectShader::sampleTransmittance(const FacetIntersection& intersection) const
+    {
+        return transmittanceShader->sample(*this, intersection);
+    }
+
+    Float4 ObjectShader::sampleRefractionEta(const FacetIntersection& intersection) const
+    {
+        return refractionEtaShader->sample(*this, intersection);
     }
 
     SurfaceShading ObjectShader::shade(

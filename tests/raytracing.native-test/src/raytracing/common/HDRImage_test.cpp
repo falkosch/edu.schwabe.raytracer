@@ -1,6 +1,7 @@
 #include "raytracing_tests.h"
 
 #include <cmath>
+#include <limits>
 
 namespace raytracer::test {
   TEST_CLASS(HDRImageTest) {
@@ -162,9 +163,120 @@ namespace raytracer::test {
       image[2] = Float4{0.0f, 0.0f, 1.0f, 1.0f};
       image[3] = Float4{1.0f, 1.0f, 1.0f, 1.0f};
 
-      const auto sample = image.sampleBilinear(Float4{0.0f, 0.0f, 0.0f, 0.0f});
-      Assert::AreEqual(1.0f, x(sample), 0.001f, L"sample x", LINE_INFO());
-      Assert::AreEqual(0.0f, y(sample), 0.001f, L"sample y", LINE_INFO());
+      // texel i's center lies at (i + 0.5) / 2
+      const auto first = image.sampleBilinear(Float4{0.25f, 0.25f, 0.0f, 0.0f});
+      const auto last = image.sampleBilinear(Float4{0.75f, 0.75f, 0.0f, 0.0f});
+      Assert::AreEqual(1.0f, x(first), 0.001f, L"texel 0 x", LINE_INFO());
+      Assert::AreEqual(0.0f, y(first), 0.001f, L"texel 0 y", LINE_INFO());
+      Assert::AreEqual(1.0f, y(last), 0.001f, L"texel 3 y", LINE_INFO());
+      Assert::AreEqual(1.0f, z(last), 0.001f, L"texel 3 z", LINE_INFO());
+    }
+
+    // 2 columns, 4 rows: x is the row (row 0 at v = 0), y the column. Row centers at v = 0.125, 0.375, 0.625 and
+    // 0.875, column centers at u = 0.25 and 0.75.
+    static void fillRowsAndColumns(HDRImage &image) {
+      for (auto row = Zero<ASizeT>(); row < 4; ++row) {
+        for (auto column = Zero<ASizeT>(); column < 2; ++column) {
+          image[row * 2 + column] =
+              Float4{static_cast<Float>(row), static_cast<Float>(column), 0.0f, 1.0f};
+        }
+      }
+    }
+
+    TEST_METHOD(sampleBilinearRepeatBlendsTheEdgesWithEachOther) {
+      HDRImage image{Size2{2, 4}};
+      fillRowsAndColumns(image);
+
+      const auto top = image.sampleBilinear(Float4{0.25f, 1.0f, 0.0f, 0.0f});
+      const auto bottom = image.sampleBilinear(Float4{0.25f, 0.0f, 0.0f, 0.0f});
+      const auto topRow = image.sampleBilinear(Float4{0.25f, 0.875f, 0.0f, 0.0f});
+      const auto beyond = image.sampleBilinear(Float4{1.25f, -0.625f, 0.0f, 0.0f});
+
+      Assert::AreEqual(1.5f, x(top), 1e-5f, L"v = 1: half row 3, half row 0", LINE_INFO());
+      Assert::AreEqual(1.5f, x(bottom), 1e-5f, L"v = 0: the same seam", LINE_INFO());
+      Assert::AreEqual(3.0f, x(topRow), 1e-5f, L"row 3's center", LINE_INFO());
+      Assert::AreEqual(1.0f, x(beyond), 1e-5f, L"v = -0.625 is row 1", LINE_INFO());
+      Assert::AreEqual(0.0f, y(beyond), 1e-5f, L"u = 1.25 is column 0", LINE_INFO());
+    }
+
+    TEST_METHOD(sampleBilinearClampVKeepsThePolesApart) {
+      HDRImage image{Size2{2, 4}};
+      fillRowsAndColumns(image);
+
+      const auto top = image.sampleBilinear(Float4{0.25f, 1.0f, 0.0f, 0.0f}, TextureWrap::ClampV);
+      const auto nearTop = image.sampleBilinear(Float4{0.25f, 0.9375f, 0.0f, 0.0f}, TextureWrap::ClampV);
+      const auto justBelowTop = image.sampleBilinear(Float4{0.25f, 0.99f, 0.0f, 0.0f}, TextureWrap::ClampV);
+      const auto bottom = image.sampleBilinear(Float4{0.25f, 0.0f, 0.0f, 0.0f}, TextureWrap::ClampV);
+      const auto nearBottom = image.sampleBilinear(Float4{0.25f, 0.0625f, 0.0f, 0.0f}, TextureWrap::ClampV);
+      const auto belowBottom = image.sampleBilinear(Float4{0.25f, -0.1f, 0.0f, 0.0f}, TextureWrap::ClampV);
+      const auto beyondTop = image.sampleBilinear(Float4{0.25f, 1.5f, 0.0f, 0.0f}, TextureWrap::ClampV);
+      const auto between = image.sampleBilinear(Float4{0.25f, 0.5f, 0.0f, 0.0f}, TextureWrap::ClampV);
+      const auto rowCenter = image.sampleBilinear(Float4{0.25f, 0.625f, 0.0f, 0.0f}, TextureWrap::ClampV);
+
+      Assert::AreEqual(3.0f, x(top), 1e-6f, L"v = 1 is the top row", LINE_INFO());
+      Assert::AreEqual(3.0f, x(nearTop), 1e-6f, L"above the top row's center", LINE_INFO());
+      Assert::AreEqual(3.0f, x(justBelowTop), 1e-6f, L"just below v = 1", LINE_INFO());
+      Assert::AreEqual(0.0f, x(bottom), 1e-6f, L"v = 0 is the bottom row", LINE_INFO());
+      Assert::AreEqual(0.0f, x(nearBottom), 1e-6f, L"below the bottom row's center", LINE_INFO());
+      Assert::AreEqual(0.0f, x(belowBottom), 1e-6f, L"clamped below", LINE_INFO());
+      Assert::AreEqual(3.0f, x(beyondTop), 1e-6f, L"clamped above", LINE_INFO());
+      Assert::AreEqual(1.5f, x(between), 1e-5f, L"rows 1 and 2 interpolate", LINE_INFO());
+      Assert::AreEqual(2.0f, x(rowCenter), 1e-5f, L"row 2's center", LINE_INFO());
+    }
+
+    TEST_METHOD(sampleBilinearClampVStillWrapsU) {
+      HDRImage image{Size2{2, 4}};
+      fillRowsAndColumns(image);
+
+      const auto seam = image.sampleBilinear(Float4{0.0f, 0.625f, 0.0f, 0.0f}, TextureWrap::ClampV);
+      const auto lastColumn = image.sampleBilinear(Float4{0.75f, 0.625f, 0.0f, 0.0f}, TextureWrap::ClampV);
+      const auto beyond = image.sampleBilinear(Float4{1.25f, 0.625f, 0.0f, 0.0f}, TextureWrap::ClampV);
+
+      Assert::AreEqual(0.5f, y(seam), 1e-5f, L"last and first column blend", LINE_INFO());
+      Assert::AreEqual(1.0f, y(lastColumn), 1e-5f, L"column 1's center", LINE_INFO());
+      Assert::AreEqual(0.0f, y(beyond), 1e-5f, L"u = 1.25 is column 0", LINE_INFO());
+      Assert::AreEqual(2.0f, x(seam), 1e-5f, L"row 2", LINE_INFO());
+    }
+
+    TEST_METHOD(sampleBilinearClampKeepsBothAxesAtTheEdges) {
+      HDRImage image{Size2{2, 4}};
+      fillRowsAndColumns(image);
+
+      const auto left = image.sampleBilinear(Float4{0.0f, 0.625f, 0.0f, 0.0f}, TextureWrap::Clamp);
+      const auto right = image.sampleBilinear(Float4{1.0f, 0.625f, 0.0f, 0.0f}, TextureWrap::Clamp);
+      const auto farLeft = image.sampleBilinear(Float4{-3.0f, 0.625f, 0.0f, 0.0f}, TextureWrap::Clamp);
+      const auto topRight = image.sampleBilinear(Float4{1.0f, 1.0f, 0.0f, 0.0f}, TextureWrap::Clamp);
+      const auto between = image.sampleBilinear(Float4{0.5f, 0.5f, 0.0f, 0.0f}, TextureWrap::Clamp);
+
+      Assert::AreEqual(0.0f, y(left), 1e-6f, L"u = 0 is column 0", LINE_INFO());
+      Assert::AreEqual(1.0f, y(right), 1e-6f, L"u = 1 is column 1", LINE_INFO());
+      Assert::AreEqual(0.0f, y(farLeft), 1e-6f, L"clamped left", LINE_INFO());
+      Assert::AreEqual(2.0f, x(left), 1e-5f, L"row 2", LINE_INFO());
+      Assert::AreEqual(3.0f, x(topRight), 1e-6f, L"top row", LINE_INFO());
+      Assert::AreEqual(1.0f, y(topRight), 1e-6f, L"last column", LINE_INFO());
+      Assert::AreEqual(0.5f, y(between), 1e-5f, L"columns interpolate", LINE_INFO());
+      Assert::AreEqual(1.5f, x(between), 1e-5f, L"rows interpolate", LINE_INFO());
+    }
+
+    TEST_METHOD(sampleBilinearStaysWithinTheImageForAnyCoordinates) {
+      HDRImage image{Size2{2, 4}};
+      fillRowsAndColumns(image);
+      const auto infinity = std::numeric_limits<Float>::infinity();
+      const auto nan = std::numeric_limits<Float>::quiet_NaN();
+
+      for (const auto wrap : {TextureWrap::Repeat, TextureWrap::ClampV, TextureWrap::Clamp}) {
+        // Huge coordinates lose their fraction but still read texels of the image
+        for (const auto coordinate : {1e30f, -1e30f, 3e9f, -3e9f}) {
+          const auto sample = image.sampleBilinear(Float4{coordinate, coordinate, 0.0f, 0.0f}, wrap);
+          Assert::IsTrue(x(sample) >= 0.0f && x(sample) <= 3.0f, L"a row", LINE_INFO());
+          Assert::IsTrue(y(sample) >= 0.0f && y(sample) <= 1.0f, L"a column", LINE_INFO());
+        }
+        // NaN and infinite coordinates give no meaningful color, but must not read outside the image
+        for (const auto coordinate : {nan, infinity, -infinity}) {
+          image.sampleBilinear(Float4{coordinate, coordinate, 0.0f, 0.0f}, wrap);
+          image.sampleBilinear(Float4{0.25f, coordinate, 0.0f, 0.0f}, wrap);
+        }
+      }
     }
 
     TEST_METHOD(getResolutionStableAfterBitmapConstruction) {

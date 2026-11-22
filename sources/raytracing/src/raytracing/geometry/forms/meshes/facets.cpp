@@ -7,6 +7,22 @@
 
 namespace raytracer
 {
+    ASizeT removeDegenerateFacets(const std::vector<Float4>& vertices, std::vector<UInt3>& facetIndices) noexcept
+    {
+        // |edge1 x edge2| = |edge1| |edge2| sin(angle): collinear vertices leave a sine near the rounding error
+        constexpr Float MaxSineSquared = 1e-12f;
+        const auto count = facetIndices.size();
+        std::erase_if(facetIndices, [&vertices](const UInt3& indices)
+        {
+            const auto& v0 = vertices[x(indices)];
+            const auto edge1 = vertices[y(indices)] - v0;
+            const auto edge2 = vertices[z(indices)] - v0;
+            const auto planeNormal = cross3(edge1, edge2);
+            return dot3(planeNormal, planeNormal) <= MaxSineSquared * dot3(edge1, edge1) * dot3(edge2, edge2);
+        });
+        return count - facetIndices.size();
+    }
+
     void computeFacets(
         const std::vector<Float4>& vertices, const std::vector<UInt3>& facetIndices, std::vector<Facet>& facets
     ) noexcept
@@ -91,12 +107,17 @@ namespace raytracer
             vertexNormals[index] = accumulated;
         }
 
-        // normalize vertex-normals
+        // normalize vertex-normals; a vertex of no facet keeps a zero normal, and so does one whose facet normals cancel
+        // out, the smooth normals below then fall back to the flat normal
 #pragma omp parallel for
         for (auto i = int{0}; i < static_cast<int>(vertices.size()); i++)
         {
             auto index = static_cast<ASizeT>(i);
-            vertexNormals[index] = normalize3(vertexNormals[index]);
+            const auto& accumulated = vertexNormals[index];
+            if (!allTrue3(accumulated == Zero<Float4>()))
+            {
+                vertexNormals[index] = normalize3(accumulated);
+            }
         }
 
         // build smooth normals

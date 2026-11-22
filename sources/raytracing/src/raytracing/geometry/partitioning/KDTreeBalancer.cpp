@@ -148,8 +148,18 @@ namespace raytracer
         leftBounding = clamp(leftBounding, KDTreeBounding::findMinimumBoundingOfGeometry(*leftGeometry));
         rightBounding = clamp(rightBounding, KDTreeBounding::findMinimumBoundingOfGeometry(*rightGeometry));
 
-        // post-check the termination-conditions again
+        // The splitter search counts the geometry by its bounding boxes, the sort tests the exact overlap with each side.
+        // So a side can end up empty, when its geometry only crosses that side's bounding outside the parent bounding.
+        // Such a split separates nothing, but the other side holds all the geometry in a tighter bounding: continue
+        // with that one instead of growing an empty child.
         const ASizeT treeDepthNext = treeDepth + One<ASizeT>();
+        if (leftGeometry->empty() || rightGeometry->empty())
+        {
+            build(parameters, treeDepthNext, &splitter, leftGeometry->empty() ? rightBounding : leftBounding, parentNode);
+            return;
+        }
+
+        // post-check the termination-conditions again
         if (isTerminalPostCheck(
             parameters, parentBounding, parentGeometry, leftBounding, rightBounding, *leftGeometry, *rightGeometry
         ))
@@ -288,7 +298,9 @@ namespace raytracer
 
         // overall costs for testing left and right bounding
         const Float4 testingLeavesCost = intersectionCostFactor * SAleftAndRight * TleftAndRight;
-        assert(allTrue(xyxy(testingLeavesCost) > Zero<Float4>()));
+        // A side can have a zero surface area: its bounding is clamped to the bounding box of its geometry, which may
+        // meet the side only along a line.
+        assert(allTrue(xyxy(testingLeavesCost) >= Zero<Float4>()));
 
         // summed up costs for splitting parent bounding into given left and right bounding with given left and right
         // geometries

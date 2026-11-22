@@ -27,7 +27,9 @@ namespace raytracer
 
         void requestUpdate();
 
-        void trigger(const RaytraceParameters& parameters);
+        // Requests a render with the parameters, replacing any requested before; returns the id of its run
+        // (RaytraceConfiguration::runId)
+        ASizeT trigger(const RaytraceParameters& parameters);
 
         void stop();
 
@@ -55,6 +57,11 @@ namespace raytracer
         static spectral::Spectrum applyBRDF(const BRDFParameters& brdf);
 
         static IlluminatedIntersection trace(const Raytrace& raytrace, RaytracerCache& cache);
+
+        static void traceGlossyReflection(
+            const Raytrace& incidentRaytrace, Float maxDistance, Float reflectionVisibilityIndex, Float roughness,
+            RaytracerCache& cache, BRDFParameters& brdf
+        );
 
         static void
         traceReflection(const Raytrace& incidentRaytrace, Float maxDistance, RaytracerCache& cache,

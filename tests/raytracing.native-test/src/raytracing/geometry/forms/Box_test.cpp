@@ -298,7 +298,7 @@ namespace raytracer::test {
     }
 
     TEST_METHOD(findNearestIntersectionTexCoordsVaryWithHitPosition) {
-      const Box box{};
+      const Box box{BoxTextureMapping::Spherical};
       const RayCast rayCastZ{
           Ray{Float4{0.0f, 0.0f, -5.0f, 0.0f}, Float4{0.0f, 0.0f, 1.0f, 0.0f}},
           Zero<Float4::VectorBoolType>(), Size2(0, 0), 100.0f
@@ -313,6 +313,45 @@ namespace raytracer::test {
       box.findNearestIntersection(rayCastX, nullptr, intersectionX);
 
       Assert::AreNotEqual(x(intersectionZ.texCoords), x(intersectionX.texCoords), L"u should differ for different faces", LINE_INFO());
+    }
+
+    static Float4 texCoordsOfHit(const Box &box, const Float4 &origin, const Float4 &direction) {
+      const RayCast rayCast{Ray{origin, direction}, Zero<Float4::VectorBoolType>(), Size2(0, 0), 100.0f};
+      FacetIntersection intersection{};
+      box.findNearestIntersection(rayCast, nullptr, intersection);
+      return intersection.texCoords;
+    }
+
+    TEST_METHOD(perFaceTexCoordsAreUprightOnEachFace) {
+      // the default box spans [-1, 1]^3, so a face coordinate is (position + 1) / 2
+      const Box box{};
+      const auto front = texCoordsOfHit(box, Float4{0.5f, -0.5f, -5.0f, 1.0f}, Float4{0.0f, 0.0f, 1.0f, 0.0f});
+      Assert::AreEqual(0.25f, x(front), 1e-5f, L"-z face: u grows towards -x", LINE_INFO());
+      Assert::AreEqual(0.25f, y(front), 1e-5f, L"-z face: v grows towards +y", LINE_INFO());
+      const auto back = texCoordsOfHit(box, Float4{0.5f, -0.5f, 5.0f, 1.0f}, Float4{0.0f, 0.0f, -1.0f, 0.0f});
+      Assert::AreEqual(0.75f, x(back), 1e-5f, L"+z face: u grows towards +x", LINE_INFO());
+      const auto side = texCoordsOfHit(box, Float4{5.0f, 0.5f, 0.5f, 1.0f}, Float4{-1.0f, 0.0f, 0.0f, 0.0f});
+      Assert::AreEqual(0.25f, x(side), 1e-5f, L"+x face: u grows towards -z", LINE_INFO());
+      Assert::AreEqual(0.75f, y(side), 1e-5f, L"+x face: v grows towards +y", LINE_INFO());
+      const auto top = texCoordsOfHit(box, Float4{0.5f, 5.0f, -0.5f, 1.0f}, Float4{0.0f, -1.0f, 0.0f, 0.0f});
+      Assert::AreEqual(0.75f, x(top), 1e-5f, L"top face: u grows towards +x", LINE_INFO());
+      Assert::AreEqual(0.75f, y(top), 1e-5f, L"top face: v grows towards -z", LINE_INFO());
+      Assert::AreEqual(1.0f, w(top), L"homogeneous w", LINE_INFO());
+    }
+
+    TEST_METHOD(longBoxHitNearItsEndKeepsTheTopFace) {
+      const Box box{Float4{-2.0f, -0.5f, -0.5f, 1.0f}, Float4{2.0f, 0.5f, 0.5f, 1.0f}};
+      const RayCast rayCast{
+          Ray{Float4{1.8f, 5.0f, 0.0f, 1.0f}, Float4{0.0f, -1.0f, 0.0f, 0.0f}}, Zero<Float4::VectorBoolType>(),
+          Size2(0, 0), 100.0f
+      };
+      FacetIntersection intersection{};
+
+      box.findNearestIntersection(rayCast, nullptr, intersection);
+
+      Assert::AreEqual(0.0f, x(intersection.surfaceNormal), L"normal x", LINE_INFO());
+      Assert::AreEqual(1.0f, y(intersection.surfaceNormal), L"normal y of the top face", LINE_INFO());
+      Assert::AreEqual(0.95f, x(intersection.texCoords), 1e-5f, L"u along the box's length", LINE_INFO());
     }
 
     TEST_METHOD(findNearestIntersectionOnSurfaceWithSelfOcclusion) {

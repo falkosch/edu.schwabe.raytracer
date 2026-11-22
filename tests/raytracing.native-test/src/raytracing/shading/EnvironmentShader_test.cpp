@@ -67,6 +67,24 @@ namespace raytracer::test
             Assert::AreEqual(z(a), z(b), 0.01f, L"y=-1 vs y=1 b", LINE_INFO());
         }
 
+        TEST_METHOD(latitudeLongitudeZenithShowsTheTopRow)
+        {
+            // Black rows with a white top row (v = 1): straight up must not wrap to the bottom row
+            HDRImage image{Size2{4, 4}};
+            for (auto i = Zero<ASizeT>(); i < 16; ++i)
+            {
+                image[i] = i < 12 ? Float4{0.0f, 0.0f, 0.0f, 1.0f} : Float4{1.0f, 1.0f, 1.0f, 1.0f};
+            }
+            const EnvironmentShader shader{image, EnvironmentProjection::LatitudeLongitude};
+            const StubSceneShader sceneShader{};
+
+            const auto up = toRGB(shader.sample(sceneShader, query(Float4{0.0f, 1.0f, 0.0f, 0.0f})));
+            const auto down = toRGB(shader.sample(sceneShader, query(Float4{0.0f, -1.0f, 0.0f, 0.0f})));
+
+            Assert::IsTrue(y(up) > 0.5f, L"zenith white", LINE_INFO());
+            Assert::AreEqual(0.0f, y(down), 1e-6f, L"nadir black", LINE_INFO());
+        }
+
         TEST_METHOD(blackBackgroundProducesZeroSpectrum)
         {
             HDRImage image{Size2{1, 1}};

@@ -35,13 +35,13 @@ namespace raytracerui
     void ShowcaseScene::setup(Scene& scene, Resources& resources)
     {
         scene.setBackgroundShader(std::make_unique<RGBBackgroundShader>(RGBS::black()));
-        scene.setAmbientLight(RGBS(0.004f, 0.004f, 0.005f));
+        scene.setAmbientLight(RGBS(0.01f, 0.01f, 0.012f));
 
-        // Warm key from the upper left, cool rim from behind on the right, cool glow on the backdrop. Quadratic
-        // falloff keeps the far backdrop dark.
+        // Warm softbox from the upper left (a sphere light: soft shadows, seen in the chrome sphere), cool rim from
+        // behind on the right, cool glow on the backdrop. Quadratic falloff keeps the far backdrop dark.
+        addSphereLight(scene, "softbox", Float4(-2.f, 2.5f, 2.5f, 1.f), 0.6f, Float4(14.f, 11.f, 8.f, 0.f));
         const Float4 quadratic{0.f, 0.f, 1.f, 1.f};
-        addLight(scene, LightInfo::blackbody(3200.f, 7.f), Float4(-2.f, 2.5f, 2.5f, 1.f), quadratic);
-        addLight(scene, LightInfo::blackbody(9000.f, 2.f), Float4(2.5f, 1.5f, -1.2f, 1.f), quadratic);
+        addLight(scene, LightInfo::blackbody(9000.f, 3.f), Float4(2.5f, 1.5f, -1.2f, 1.f), quadratic);
         addLight(scene, LightInfo::blackbody(12000.f, 0.3f), Float4(0.f, 0.f, -2.1f, 1.f), quadratic);
 
         auto& objects = scene.getSceneObjects();
@@ -49,11 +49,11 @@ namespace raytracerui
         // Black lacquer floor: barely diffuse, Fresnel reflections that grow towards grazing angles
         objects.push_back(createSceneObject(
             "lacquer floor", std::make_unique<Plane>(),
-            SceneMaterial::plastic(Float4(0.015f, 0.015f, 0.018f, 0.f), 0.05f, 0.1f),
+            SceneMaterial::plastic(Float4(0.03f, 0.03f, 0.035f, 0.f), 0.05f, 0.1f),
             {Float3(1.f, 1.f, 1.f), Float3(-90.f, 0.f, 0.f), Float3(0.f, FLOOR_Y, 0.f)}
         ));
         objects.push_back(createSceneObject(
-            "backdrop", std::make_unique<Plane>(), SceneMaterial::matte(Float4(0.02f, 0.022f, 0.026f, 0.f)),
+            "backdrop", std::make_unique<Plane>(), SceneMaterial::matte(Float4(0.08f, 0.085f, 0.1f, 0.f)),
             {Float3(1.f, 1.f, 1.f), Float3(0.f, 0.f, 0.f), Float3(0.f, 0.f, -2.5f)}
         ));
 

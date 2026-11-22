@@ -21,8 +21,8 @@ namespace raytracer
     }
 
     LightInfo::LightInfo()
-        : position(OneW<Float4>()), emittance(), glare(Two<Float4>()),
-          attenuationFactors(One<Float>(), Zero<Float>(), Zero<Float>(), One<Float>()),
+        : position(OneW<Float4>()), emittance(),
+          attenuationFactors(One<Float>(), Zero<Float>(), Zero<Float>(), One<Float>()), radius(Zero<Float>()),
           kind(EmitterKind::RGB), temperatureKelvin(Zero<Float>()), intensity(One<Float>())
     {
     }

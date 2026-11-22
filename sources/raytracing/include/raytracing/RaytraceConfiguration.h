@@ -20,6 +20,8 @@ namespace raytracer {
       this->maxTraceDepth = parameters.maxTraceDepth;
       this->sceneShader = parameters.sceneShader;
       this->cullingOrientation = parameters.cullingOrientation;
+      this->glossySamples = parameters.glossySamples;
+      this->sphereLightSamples = parameters.sphereLightSamples;
 
       this->resolution = parameters.resolution;
       this->perspectiveZPlanes = parameters.perspectiveZPlanes;

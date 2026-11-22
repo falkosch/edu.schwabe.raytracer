@@ -24,6 +24,17 @@ namespace raytracerui
 
         ASizeT frameCount;
 
+        // exposure of the displayed image in stops: the HDR image is scaled by 2^exposure before the view transform
+        Float exposure{};
+
+        // the least super-sampling factor of a full render (Enter), against the aliasing of one sample per pixel
+        ASizeT fullRenderSuperSamplingFactor{};
+
+        // the run of the full render that is the first image (setFullFirstRender), 0 without; earlier runs are ignored
+        ASizeT firstImageRunId{};
+
+        ASizeT lastFullRenderRunId{};
+
         StatisticsCookie lastStatistics;
 
         Float_64 lastRenderDuration{};
@@ -44,6 +55,13 @@ namespace raytracerui
         ~RaytracerUI() override;
 
         virtual void triggerRaytracing(bool fastPreview);
+
+        void setExposure(Float stops);
+
+        void setFullRenderSuperSamplingFactor(ASizeT factor);
+
+        // makes a full render the first image (saved as ray-traced.png), instead of the first fast preview
+        void setFullFirstRender();
 
         void notifyUpdate(const RaytraceConfiguration& configuration) override;
 

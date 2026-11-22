@@ -1,5 +1,6 @@
 #pragma once
 
+#include "BoxTextureMapping.h"
 #include "Form.h"
 
 namespace raytracer {
@@ -8,8 +9,10 @@ namespace raytracer {
 
   struct Box : Form {
     AxisAlignedBoundingBox bounding;
+    BoxTextureMapping textureMapping;
 
     Box();
+    explicit Box(BoxTextureMapping textureMapping);
     explicit Box(const AxisAlignedBoundingBox &bounding);
     explicit Box(const Float4 &min, const Float4 &max);
 

@@ -24,12 +24,12 @@ namespace raytracer
             return constant * otherShader->sample(containment, intersection);
         }
 
-        OutputType& getConstant() const
+        const OutputType& getConstant() const
         {
             return constant;
         }
 
-        OtherShader& getOtherShader() const
+        const OtherShader& getOtherShader() const
         {
             return *otherShader;
         }

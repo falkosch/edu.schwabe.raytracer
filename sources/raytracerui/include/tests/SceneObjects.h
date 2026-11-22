@@ -22,4 +22,9 @@ namespace raytracerui {
 
   // Scale that fits the mesh's largest extent into the given size (meshes load with their smallest extent as 1)
   Float fitMeshScale(const Form &mesh, Float size);
+
+  // A spherical area light with its emitter: an emissive sphere of the radiance (what the camera sees), marked as the
+  // light's emitter, and a light at its center that lights the scene as the sphere does, with the intensity
+  // radiance * pi * radius^2 and quadratic falloff
+  void addSphereLight(Scene &scene, std::string id, const Float4 &center, Float radius, const Float4 &radiance);
 }

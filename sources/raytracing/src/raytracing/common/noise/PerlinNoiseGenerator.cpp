@@ -54,8 +54,9 @@ namespace raytracer {
   }
 
   void PerlinNoiseGenerator::setup(const Float &v, Int4 &b, Float4 &r) const {
-    const Int bOffset = static_cast<Int>(v);
-    const Float t = fract(v);
+    // the cell below v, also for negative v (a truncating cast would repeat the cell above zero)
+    const Int bOffset = static_cast<Int>(vectorization::floor(v));
+    const Float t = v - static_cast<Float>(bOffset);
     b = Int4(bOffset, bOffset + One<Int>()) & Int4(iPermutationsCount - One<Int>());
     r = Float4(t, t - One<Float>());
   }
@@ -128,18 +129,21 @@ namespace raytracer {
     const auto b0 = Int4(permutations[x(ij) + x(by)], permutations[x(ij) + y(by)]);
     const auto b1 = Int4(permutations[y(ij) + x(by)], permutations[y(ij) + y(by)]);
     const Float4 s = splineCurve(Float4(x(rx), x(ry), x(rz), x(rw)));
-    const Float a =
-        mix(dot(Float4(x(rx), x(ry), x(rz), One<Float>()), gradients4[x(b0) + x(bz)]),
-            dot(Float4(y(rx), x(ry), x(rz), One<Float>()), gradients4[x(b1) + x(bz)]), x(s));
-    const Float b =
-        mix(dot(Float4(x(rx), y(ry), x(rz), One<Float>()), gradients4[y(b0) + x(bz)]),
-            dot(Float4(y(rx), y(ry), x(rz), One<Float>()), gradients4[y(b1) + x(bz)]), x(s));
-    const Float c =
-        mix(dot(Float4(x(rx), x(ry), y(rz), One<Float>()), gradients4[x(b0) + y(bz)]),
-            dot(Float4(y(rx), x(ry), y(rz), One<Float>()), gradients4[x(b1) + y(bz)]), x(s));
-    const Float d =
-        mix(dot(Float4(x(rx), y(ry), y(rz), One<Float>()), gradients4[y(b0) + y(bz)]),
-            dot(Float4(y(rx), y(ry), y(rz), One<Float>()), gradients4[y(b1) + y(bz)]), x(s));
-    return mix(mix(a, b, y(s)), mix(c, d, y(s)), z(s));
+
+    // the gradient of corner (i, j, k, l) of the cell, i to l being 0 for the lower and 1 for the upper bound
+    const auto corner = [&](const ASizeT i, const ASizeT j, const ASizeT k, const ASizeT l) {
+      const auto bij = (i == Zero<ASizeT>() ? b0 : b1)[j];
+      const auto gradient = gradients4[permutations[bij + bz[k]] + bw[l]];
+      return dot(Float4(rx[i], ry[j], rz[k], rw[l]), gradient);
+    };
+    // interpolates the corners of one w bound
+    const auto cube = [&](const ASizeT l) {
+      const Float a = mix(corner(0, 0, 0, l), corner(1, 0, 0, l), x(s));
+      const Float b = mix(corner(0, 1, 0, l), corner(1, 1, 0, l), x(s));
+      const Float c = mix(corner(0, 0, 1, l), corner(1, 0, 1, l), x(s));
+      const Float d = mix(corner(0, 1, 1, l), corner(1, 1, 1, l), x(s));
+      return mix(mix(a, b, y(s)), mix(c, d, y(s)), z(s));
+    };
+    return mix(cube(0), cube(1), w(s));
   }
 }

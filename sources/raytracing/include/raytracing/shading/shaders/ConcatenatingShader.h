@@ -19,7 +19,7 @@ namespace raytracer
 
         ~ConcatenatingShader() override = default;
 
-        const OutputType sample(const ContainmentType& containment, const IntersectionType& intersection) const override
+        OutputType sample(const ContainmentType& containment, const IntersectionType& intersection) const override
         {
             return concat(left->sample(containment, intersection), right->sample(containment, intersection));
         }

@@ -1,8 +1,11 @@
 #include "raytracing_tests.h"
 
+#include "../../../common/TempFile.h"
+
 #include "raytracing/geometry/forms/meshes/Mesh.h"
 #include "raytracing/geometry/partitioning/treebalancer/MedianKDTreeBalancer.h"
 
+#include <fstream>
 #include <random>
 #include <vector>
 
@@ -388,6 +391,29 @@ namespace raytracer::test {
         }
       }
       Assert::IsTrue(hits > 1000, L"enough hits to compare", LINE_INFO());
+    }
+
+    TEST_METHOD(loadingRemovesFacetsWithoutArea) {
+      // A square of two facets, plus a facet with collinear vertices and one with a repeated vertex. Both share vertices
+      // with the square: their zero normals must not reach its smoothed normals.
+      TempFile file{".off"};
+      {
+        std::ofstream off{file.path};
+        off << "OFF\n5 4 0\n-1 -1 0\n1 -1 0\n1 1 0\n-1 1 0\n0 -1 0\n";
+        off << "3 0 1 2\n3 0 2 3\n3 0 4 1\n3 2 2 3\n";
+      }
+      const auto mesh = Mesh::loadFromOffFile(file.str(), false, nullptr, nullptr);
+      Assert::AreEqual(ASizeT{2}, mesh->getFaceCount(), L"facets without area removed", LINE_INFO());
+
+      const Ray ray{Float4{0.2f, -0.3f, -5.0f, 1.0f}, Float4{0.0f, 0.0f, 1.0f, 0.0f}};
+      const RayCast rayCast{ray, Zero<Float4::VectorBoolType>(), Size2(0, 0), 100.0f};
+      FacetIntersection intersection{};
+      const auto distance = mesh->findNearestIntersection(rayCast, nullptr, intersection);
+
+      Assert::AreEqual(5.0f, distance, 0.001f, L"hits the square", LINE_INFO());
+      Assert::AreEqual(0.0f, x(intersection.smoothedNormal), 0.001f, L"smoothed normal x", LINE_INFO());
+      Assert::AreEqual(0.0f, y(intersection.smoothedNormal), 0.001f, L"smoothed normal y", LINE_INFO());
+      Assert::AreEqual(1.0f, z(intersection.smoothedNormal), 0.001f, L"smoothed normal z", LINE_INFO());
     }
   };
 }

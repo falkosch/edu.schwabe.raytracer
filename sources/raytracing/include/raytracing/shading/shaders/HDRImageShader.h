@@ -8,9 +8,10 @@ namespace raytracer {
 
   class HDRImageShader : public Shader<ObjectShader, FacetIntersection, Float4> {
     const HDRImage *image;
+    TextureWrap wrap;
 
   public:
-    HDRImageShader(const HDRImage &image);
+    HDRImageShader(const HDRImage &image, TextureWrap wrap = TextureWrap::Repeat);
 
     ~HDRImageShader() override;
 

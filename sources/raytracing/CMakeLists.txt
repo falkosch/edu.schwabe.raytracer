@@ -70,7 +70,9 @@ set(SOURCES
         src/raytracing/shading/brdf/ggx.cpp
         src/raytracing/shading/color/primaries.cpp
         src/raytracing/shading/color/view_transform.cpp
+        src/raytracing/shading/sampling.cpp
         src/raytracing/shading/shaders/EnvironmentShader.cpp
+        src/raytracing/shading/shaders/environment_coordinates.cpp
         src/raytracing/shading/shaders/HDRImageShader.cpp
         src/raytracing/shading/shaders/IntersectionNormalShader.cpp
         src/raytracing/shading/shaders/RGBBackgroundShader.cpp
@@ -102,6 +104,7 @@ set(HEADERS
         include/raytracing/common/PNGWriter.h
         include/raytracing/common/RGBS.h
         include/raytracing/common/RefractionIndices.h
+        include/raytracing/common/TextureWrap.h
         include/raytracing/common/StatisticsCookie.h
         include/raytracing/common/Tools.h
         include/raytracing/common/noise/NoiseGenerator.h
@@ -114,6 +117,7 @@ set(HEADERS
         include/raytracing/geometry/SceneIntersection.h
         include/raytracing/geometry/TransformInfo.h
         include/raytracing/geometry/forms/Box.h
+        include/raytracing/geometry/forms/BoxTextureMapping.h
         include/raytracing/geometry/forms/Form.h
         include/raytracing/geometry/forms/Plane.h
         include/raytracing/geometry/forms/Sphere.h
@@ -185,7 +189,10 @@ set(HEADERS
         include/raytracing/shading/spectral/wavelengths.h
         include/raytracing/shading/shaders/ConcatenatingShader.h
         include/raytracing/shading/shaders/ConstShader.h
+        include/raytracing/shading/sampling.h
+        include/raytracing/shading/shaders/EnvironmentProjection.h
         include/raytracing/shading/shaders/EnvironmentShader.h
+        include/raytracing/shading/shaders/environment_coordinates.h
         include/raytracing/shading/shaders/HDRImageShader.h
         include/raytracing/shading/shaders/IntersectionNormalShader.h
         include/raytracing/shading/shaders/MultiplyByConstShader.h
