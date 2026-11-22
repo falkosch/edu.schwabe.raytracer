@@ -28,6 +28,25 @@ namespace vectorization
     v_f64_2 distancev(const v_f64_2& a, const v_f64_2& b) noexcept;
     v_f64_2::ValueType distance(const v_f64_2& a, const v_f64_2& b) noexcept;
 
+    v_f64_2 reflect(const v_f64_2& incident, const v_f64_2& normal) noexcept;
+    v_f64_2 reflect(const v_f64_2& incident, const v_f64_2& normal, const v_f64_2& NdotI) noexcept;
+
+    // refractEta takes the ratio of refraction indices in both components of eta. refract takes the ratio for
+    // entering (NdotI < 0) in x and the one for leaving in y, like v_f32_4.
+    v_f64_2 refractEta(const v_f64_2& incident, const v_f64_2& normal, const v_f64_2& eta) noexcept;
+    v_f64_2 refractEta(const v_f64_2& incident, const v_f64_2& normal, const v_f64_2& NdotI,
+                       const v_f64_2& eta) noexcept;
+    v_f64_2 refract(const v_f64_2& incident, const v_f64_2& normal, const v_f64_2& eta) noexcept;
+    v_f64_2 refract(const v_f64_2& incident, const v_f64_2& normal, const v_f64_2& NdotI, const v_f64_2& eta) noexcept;
+    v_f64_2 refract(
+        const v_f64_2::VectorBoolType& cullingOrientation, const v_f64_2& incident, const v_f64_2& normal,
+        const v_f64_2& eta
+    ) noexcept;
+    v_f64_2 refract(
+        const v_f64_2::VectorBoolType& cullingOrientation, const v_f64_2& incident, const v_f64_2& normal,
+        const v_f64_2& NdotI, const v_f64_2& eta
+    ) noexcept;
+
     v_f64_2 mix(const v_f64_2& a, const v_f64_2& b, const v_f64_2& factor) noexcept;
     v_f64_2 mix(const v_f64_2& a, const v_f64_2& b, v_f64_2::ValueType factor) noexcept;
 
@@ -62,6 +81,12 @@ namespace vectorization
     v_f64_2 abs(const v_f64_2& v) noexcept;
     v_f64_2 clamp(const v_f64_2& v, const v_f64_2& lower, const v_f64_2& upper) noexcept;
 
+    // Index of the smallest/largest component; of several equal ones, the highest index. With NaN components the
+    // index is unspecified, but a valid one.
+    ASizeT argmin(const v_f64_2& v) noexcept;
+    ASizeT argmax(const v_f64_2& v) noexcept;
+
+    // A component is true if its sign bit is set, like isNegative tests it and comparison masks set it.
     bool anyTrue(const v_f64_2& v) noexcept;
     bool anyFalse(const v_f64_2& v) noexcept;
     bool allTrue(const v_f64_2& v) noexcept;

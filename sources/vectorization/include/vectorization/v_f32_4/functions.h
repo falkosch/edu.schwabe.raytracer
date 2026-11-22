@@ -115,8 +115,22 @@ namespace vectorization
     v_f32_4 mapOrthogonal(const v_f32_4& v, const v_f32_4& sPlane, const v_f32_4& tPlane) noexcept;
     v_f32_4 mapSpherical(const v_f32_4& v) noexcept;
 
+    // Index of the smallest/largest component; of several equal ones, the highest index. With NaN components the
+    // index is unspecified, but a valid one.
+    ASizeT argmin(const v_f32_4& v) noexcept;
+    ASizeT argmax(const v_f32_4& v) noexcept;
     ASizeT argmin3(const v_f32_4& v) noexcept;
     ASizeT argmax3(const v_f32_4& v) noexcept;
 
     v_f32_4 axisAlignedNormal3(const v_f32_4& normal) noexcept;
+
+    // A component is true if its sign bit is set, like isNegative tests it and comparison masks set it.
+    bool anyTrue(const v_f32_4& v) noexcept;
+    bool anyTrue3(const v_f32_4& v) noexcept;
+    bool anyFalse(const v_f32_4& v) noexcept;
+    bool anyFalse3(const v_f32_4& v) noexcept;
+    bool allTrue(const v_f32_4& v) noexcept;
+    bool allTrue3(const v_f32_4& v) noexcept;
+    bool allFalse(const v_f32_4& v) noexcept;
+    bool allFalse3(const v_f32_4& v) noexcept;
 }

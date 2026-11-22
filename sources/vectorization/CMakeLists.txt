@@ -82,6 +82,7 @@ set(SOURCES
         src/vectorization/functions/exp.cpp
         src/vectorization/functions/floor.cpp
         src/vectorization/functions/fract.cpp
+        src/vectorization/functions/highest_lane.cpp
         src/vectorization/functions/horizontal_add.cpp
         src/vectorization/functions/horizontal_subtract.cpp
         src/vectorization/functions/is_nan.cpp
@@ -347,6 +348,7 @@ set(HEADERS
         include/vectorization/functions/exp.h
         include/vectorization/functions/floor.h
         include/vectorization/functions/fract.h
+        include/vectorization/functions/highest_lane.h
         include/vectorization/functions/horizontal_add.h
         include/vectorization/functions/horizontal_subtract.h
         include/vectorization/functions/is_nan.h

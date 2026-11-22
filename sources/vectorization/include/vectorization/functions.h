@@ -24,6 +24,7 @@
 #include "functions/exp.h"
 #include "functions/floor.h"
 #include "functions/fract.h"
+#include "functions/highest_lane.h"
 #include "functions/horizontal_add.h"
 #include "functions/horizontal_subtract.h"
 #include "functions/is_nan.h"

@@ -13,6 +13,7 @@
 
 #include "vectorization/v_i32_4/accessors.h"
 #include "vectorization/v_i32_4/blends.h"
+#include "vectorization/v_i32_4/functions.h"
 #include "vectorization/v_i32_4/swizzles.h"
 
 #include "vectorization/functions/abs.h"
@@ -24,6 +25,7 @@
 #include "vectorization/functions/copysign.h"
 #include "vectorization/functions/floor.h"
 #include "vectorization/functions/fract.h"
+#include "vectorization/functions/highest_lane.h"
 #include "vectorization/functions/is_nan.h"
 #include "vectorization/functions/max.h"
 #include "vectorization/functions/min.h"
@@ -51,8 +53,9 @@ namespace vectorization
 
     v_f32_4 minv(const v_f32_4& v) noexcept
     {
-        const v_f32_4 XZ_YW = min(v, zwzw(v));
-        return min(XZ_YW, yyww(XZ_YW));
+        // the minimum of (x, z), (y, w), (z, x) and (w, y), then of each pair: the minimum in all lanes
+        const v_f32_4 XZ_YW = min(v, zwxy(v));
+        return min(XZ_YW, yxwz(XZ_YW));
     }
 
     v_f32_4::ValueType min(const v_f32_4& v) noexcept
@@ -78,8 +81,8 @@ namespace vectorization
 
     v_f32_4 maxv(const v_f32_4& v) noexcept
     {
-        const v_f32_4 XZ_YW = max(v, zwzw(v));
-        return max(XZ_YW, yyww(XZ_YW));
+        const v_f32_4 XZ_YW = max(v, zwxy(v));
+        return max(XZ_YW, yxwz(XZ_YW));
     }
 
     v_f32_4::ValueType max(const v_f32_4& v) noexcept
@@ -448,6 +451,16 @@ namespace vectorization
         );
     }
 
+    ASizeT argmin(const v_f32_4& v) noexcept
+    {
+        return highestLane(isNegative(v == minv(v)));
+    }
+
+    ASizeT argmax(const v_f32_4& v) noexcept
+    {
+        return highestLane(isNegative(v == maxv(v)));
+    }
+
     ASizeT argmin3(const v_f32_4& v) noexcept
     {
         using VBT = v_f32_4::VectorBoolType;
@@ -479,5 +492,45 @@ namespace vectorization
         const v_f32_4 normalSigns = copySign(normal.components);
         const ASizeT maxAxis = argmax3(abs(normal));
         return replaceComponent(Zero<v_f32_4>(), normalSigns, maxAxis);
+    }
+
+    bool anyTrue(const v_f32_4& v) noexcept
+    {
+        return movemask(v.components) != 0;
+    }
+
+    bool anyTrue3(const v_f32_4& v) noexcept
+    {
+        return (movemask(v.components) & 0x7) != 0;
+    }
+
+    bool anyFalse(const v_f32_4& v) noexcept
+    {
+        return !allTrue(v);
+    }
+
+    bool anyFalse3(const v_f32_4& v) noexcept
+    {
+        return !allTrue3(v);
+    }
+
+    bool allTrue(const v_f32_4& v) noexcept
+    {
+        return movemask(v.components) == 0xF;
+    }
+
+    bool allTrue3(const v_f32_4& v) noexcept
+    {
+        return (movemask(v.components) & 0x7) == 0x7;
+    }
+
+    bool allFalse(const v_f32_4& v) noexcept
+    {
+        return movemask(v.components) == 0;
+    }
+
+    bool allFalse3(const v_f32_4& v) noexcept
+    {
+        return (movemask(v.components) & 0x7) == 0;
     }
 }

@@ -6,6 +6,8 @@
 #include "vectorization/v_f64_2/operators.h"
 #include "vectorization/v_f64_2/swizzles.h"
 
+#include "vectorization/v_ui64_2/accessors.h"
+
 #include <cassert>
 
 #include "vectorization/functions/abs.h"
@@ -13,8 +15,10 @@
 #include "vectorization/functions/broadcast.h"
 #include "vectorization/functions/ceil.h"
 #include "vectorization/functions/clamp.h"
+#include "vectorization/functions/compare.h"
 #include "vectorization/functions/floor.h"
 #include "vectorization/functions/fract.h"
+#include "vectorization/functions/highest_lane.h"
 #include "vectorization/functions/is_nan.h"
 #include "vectorization/functions/max.h"
 #include "vectorization/functions/min.h"
@@ -123,6 +127,77 @@ namespace vectorization
     v_f64_2::ValueType distance(const v_f64_2& a, const v_f64_2& b) noexcept
     {
         return x(distancev(a, b));
+    }
+
+    v_f64_2 reflect(const v_f64_2& incident, const v_f64_2& normal) noexcept
+    {
+        return reflect(incident, normal, dotv(normal, incident));
+    }
+
+    v_f64_2 reflect(const v_f64_2& incident, const v_f64_2& normal, const v_f64_2& NdotI) noexcept
+    {
+        return negativeMultiplyAdd(normal, NdotI + NdotI, incident);
+    }
+
+    v_f64_2
+    refractEta(const v_f64_2& incident, const v_f64_2& normal, const v_f64_2& NdotI, const v_f64_2& eta) noexcept
+    {
+        // By Snell's law: https://en.wikipedia.org/wiki/Snell%27s_law#Vector_form
+        const v_f64_2 etaNdotI = eta * NdotI;
+        const v_f64_2 sinSqrPhiT = multiplySub(eta, eta, etaNdotI * etaNdotI);
+        const v_f64_2 cosSqrPhiT = One<v_f64_2>() - sinSqrPhiT;
+
+        if (isNegative(cosSqrPhiT))
+        {
+            // Total internal reflection
+            return Zero<v_f64_2>();
+        }
+
+        return multiplySub(eta, incident, (etaNdotI + sqrt(cosSqrPhiT)) * normal);
+    }
+
+    v_f64_2 refractEta(const v_f64_2& incident, const v_f64_2& normal, const v_f64_2& eta) noexcept
+    {
+        return refractEta(incident, normal, dotv(normal, incident), eta);
+    }
+
+    v_f64_2 refract(const v_f64_2& incident, const v_f64_2& normal, const v_f64_2& eta) noexcept
+    {
+        return refract(incident, normal, dotv(normal, incident), eta);
+    }
+
+    v_f64_2 refract(const v_f64_2& incident, const v_f64_2& normal, const v_f64_2& NdotI, const v_f64_2& eta) noexcept
+    {
+        if (isNegative(NdotI))
+        {
+            return refractEta(incident, normal, NdotI, xx(eta));
+        }
+        return refractEta(incident, -normal, -NdotI, yy(eta));
+    }
+
+    v_f64_2 refract(
+        const v_f64_2::VectorBoolType& cullingOrientation, const v_f64_2& incident, const v_f64_2& normal,
+        const v_f64_2& eta
+    ) noexcept
+    {
+        return refract(cullingOrientation, incident, normal, dotv(normal, incident), eta);
+    }
+
+    v_f64_2 refract(
+        const v_f64_2::VectorBoolType& cullingOrientation, const v_f64_2& incident, const v_f64_2& normal,
+        const v_f64_2& NdotI, const v_f64_2& eta
+    ) noexcept
+    {
+        if (x(cullingOrientation)) // => NdotI < 0
+        {
+            return refractEta(incident, normal, NdotI, xx(eta));
+        }
+        if (y(cullingOrientation)) // => NdotI > 0
+        {
+            return refractEta(incident, -normal, -NdotI, yy(eta));
+        }
+        // cullingOrientation is zero => "no culling" set => no implicit ray-orientation set
+        return refract(incident, normal, NdotI, eta);
     }
 
     v_f64_2 mix(const v_f64_2& a, const v_f64_2& b, const v_f64_2& factor) noexcept
@@ -238,6 +313,16 @@ namespace vectorization
     v_f64_2 clamp(const v_f64_2& v, const v_f64_2& lower, const v_f64_2& upper) noexcept
     {
         return max(lower, min(v, upper));
+    }
+
+    ASizeT argmin(const v_f64_2& v) noexcept
+    {
+        return highestLane(movemask(compareEqual(v.components, minv(v).components)));
+    }
+
+    ASizeT argmax(const v_f64_2& v) noexcept
+    {
+        return highestLane(movemask(compareEqual(v.components, maxv(v).components)));
     }
 
     bool anyTrue(const v_f64_2& v) noexcept

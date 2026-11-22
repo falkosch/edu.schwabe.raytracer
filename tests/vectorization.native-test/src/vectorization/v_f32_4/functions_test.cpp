@@ -550,5 +550,64 @@ namespace vectorization::test
             Assert::AreEqual(1.0f, z(result2), L"Z (2)", LINE_INFO());
             Assert::AreEqual(0.0f, w(result2), L"W (2)", LINE_INFO());
         }
+
+        TEST_METHOD(broadcastsVectorMinAndMax)
+        {
+            // the extremum in each lane, so that every lane has to receive it
+            for (const auto& given : {
+                     v_f32_4{1.0f, 4.0f, 2.0f, 3.0f}, v_f32_4{4.0f, 1.0f, 2.0f, 3.0f}, v_f32_4{4.0f, 2.0f, 1.0f, 3.0f},
+                     v_f32_4{4.0f, 2.0f, 3.0f, 1.0f}
+                 })
+            {
+                Assert::IsTrue(allTrue(v_f32_4{1.0f} == minv(given)), L"minv mismatch", LINE_INFO());
+                Assert::IsTrue(allTrue(v_f32_4{-1.0f} == maxv(-given)), L"maxv mismatch", LINE_INFO());
+            }
+        }
+
+        TEST_METHOD(findsArgMinAndArgMax)
+        {
+            Assert::AreEqual(ASizeT{1}, argmin(v_f32_4{3.0f, -1.0f, 4.0f, 2.0f}), L"argmin mismatch", LINE_INFO());
+            Assert::AreEqual(ASizeT{3}, argmin(v_f32_4{3.0f, 1.0f, 4.0f, -2.0f}), L"argmin W mismatch", LINE_INFO());
+            Assert::AreEqual(ASizeT{2}, argmax(v_f32_4{3.0f, 1.0f, 4.0f, 2.0f}), L"argmax mismatch", LINE_INFO());
+            Assert::AreEqual(ASizeT{0}, argmax(v_f32_4{5.0f, 1.0f, 4.0f, 2.0f}), L"argmax X mismatch", LINE_INFO());
+        }
+
+        TEST_METHOD(picksHighestIndexOfEqualExtrema)
+        {
+            Assert::AreEqual(ASizeT{2}, argmin(v_f32_4{1.0f, 5.0f, 1.0f, 7.0f}), L"argmin tie", LINE_INFO());
+            Assert::AreEqual(ASizeT{3}, argmax(v_f32_4{7.0f, 5.0f, 1.0f, 7.0f}), L"argmax tie", LINE_INFO());
+            // argmin3 and argmax3 pick the highest index as well
+            Assert::AreEqual(ASizeT{1}, argmin3(v_f32_4{1.0f, 1.0f, 5.0f, 0.0f}), L"argmin3 tie", LINE_INFO());
+            Assert::AreEqual(ASizeT{2}, argmin3(v_f32_4{1.0f, 5.0f, 1.0f, 0.0f}), L"argmin3 tie XZ", LINE_INFO());
+            Assert::AreEqual(ASizeT{2}, argmax3(v_f32_4{5.0f, 1.0f, 5.0f, 9.0f}), L"argmax3 tie", LINE_INFO());
+            Assert::AreEqual(ASizeT{2}, argmax3(v_f32_4{2.0f, 2.0f, 2.0f, 9.0f}), L"argmax3 all equal", LINE_INFO());
+        }
+
+        TEST_METHOD(testsTruthBySignBit)
+        {
+            const v_f32_4 negative{-1.0f};
+            const v_f32_4 mixed{-1.0f, 2.0f, -0.5f, 1.0f};
+            const v_f32_4 positive{1.0f};
+            Assert::IsTrue(allTrue(negative), L"allTrue of negatives", LINE_INFO());
+            Assert::IsFalse(anyFalse(negative), L"anyFalse of negatives", LINE_INFO());
+            Assert::IsTrue(anyTrue(mixed), L"anyTrue of mixed", LINE_INFO());
+            Assert::IsTrue(anyFalse(mixed), L"anyFalse of mixed", LINE_INFO());
+            Assert::IsFalse(allTrue(mixed), L"allTrue of mixed", LINE_INFO());
+            Assert::IsFalse(allFalse(mixed), L"allFalse of mixed", LINE_INFO());
+            Assert::IsTrue(allFalse(positive), L"allFalse of positives", LINE_INFO());
+            Assert::IsFalse(anyTrue(positive), L"anyTrue of positives", LINE_INFO());
+        }
+
+        TEST_METHOD(testsTruth3IgnoringW)
+        {
+            Assert::IsTrue(anyTrue3(v_f32_4{1.0f, 1.0f, -1.0f, 1.0f}), L"anyTrue3 with Z set", LINE_INFO());
+            Assert::IsFalse(anyTrue3(v_f32_4{1.0f, 1.0f, 1.0f, -1.0f}), L"anyTrue3 ignores W", LINE_INFO());
+            Assert::IsTrue(anyFalse3(v_f32_4{-1.0f, 1.0f, -1.0f, -1.0f}), L"anyFalse3 with Y clear", LINE_INFO());
+            Assert::IsFalse(anyFalse3(v_f32_4{-1.0f, -1.0f, -1.0f, 1.0f}), L"anyFalse3 ignores W", LINE_INFO());
+            Assert::IsTrue(allTrue3(v_f32_4{-1.0f, -1.0f, -1.0f, 1.0f}), L"allTrue3 ignores W", LINE_INFO());
+            Assert::IsFalse(allTrue3(v_f32_4{-1.0f, 1.0f, -1.0f, -1.0f}), L"allTrue3 with Y clear", LINE_INFO());
+            Assert::IsTrue(allFalse3(v_f32_4{1.0f, 1.0f, 1.0f, -1.0f}), L"allFalse3 ignores W", LINE_INFO());
+            Assert::IsFalse(allFalse3(v_f32_4{1.0f, -1.0f, 1.0f, 1.0f}), L"allFalse3 with Y set", LINE_INFO());
+        }
     };
 }

@@ -1,10 +1,38 @@
 #include "vectorization/v_ui32_8/functions.h"
 
+#include "vectorization/v_ui32_8/accessors.h"
+#include "vectorization/v_ui32_8/blends.h"
 #include "vectorization/v_ui32_8/constants.h"
 #include "vectorization/v_ui32_8/operators.h"
+#include "vectorization/v_ui32_8/swizzles.h"
+
+#include "vectorization/constants/masks/mask_all.h"
+#include "vectorization/functions/highest_lane.h"
+#include "vectorization/functions/modulo.h"
 
 namespace vectorization
 {
+    // Swaps the 128-bit halves: {x5, x6, x7, x8, x1, x2, x3, x4}
+    inline v_ui32_8 swapHalves(const v_ui32_8& v) noexcept
+    {
+#if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
+        return _mm256_permute2f128_si256(v.components, v.components, 0x01);
+#else
+        return {{v.components.hi, v.components.lo}};
+#endif
+    }
+
+    // One bit per lane, set where the lane is a set comparison mask
+    inline Int_32 laneBits(const v_ui32_8& mask) noexcept
+    {
+#if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
+        return _mm256_movemask_ps(_mm256_castsi256_ps(mask.components));
+#else
+        return _mm_movemask_ps(_mm_castsi128_ps(mask.components.lo))
+            | (_mm_movemask_ps(_mm_castsi128_ps(mask.components.hi)) << 4);
+#endif
+    }
+
     v_ui32_8 sqr(const v_ui32_8& v) noexcept
     {
         return v * v;
@@ -43,6 +71,19 @@ namespace vectorization
 #endif
     }
 
+    v_ui32_8 minv(const v_ui32_8& v) noexcept
+    {
+        // the minimum of each half in all of its lanes, then the minimum of both halves
+        const v_ui32_8 XZ_YW = min(v, zwzw(v));
+        const v_ui32_8 halves = xxxx(min(XZ_YW, yyww(XZ_YW)));
+        return min(halves, swapHalves(halves));
+    }
+
+    v_ui32_8::ValueType min(const v_ui32_8& v) noexcept
+    {
+        return x1(minv(v));
+    }
+
     v_ui32_8 max(const v_ui32_8& a, const v_ui32_8& b) noexcept
     {
 #if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX2
@@ -57,9 +98,119 @@ namespace vectorization
 #endif
     }
 
-    v_ui32_8 clamp(const v_ui32_8& v, const v_ui32_8& l, const v_ui32_8& m) noexcept
+    v_ui32_8 maxv(const v_ui32_8& v) noexcept
     {
-        return max(l, min(v, m));
+        const v_ui32_8 XZ_YW = max(v, zwzw(v));
+        const v_ui32_8 halves = xxxx(max(XZ_YW, yyww(XZ_YW)));
+        return max(halves, swapHalves(halves));
+    }
+
+    v_ui32_8::ValueType max(const v_ui32_8& v) noexcept
+    {
+        return x1(maxv(v));
+    }
+
+    v_ui32_8 horizontalSumv(const v_ui32_8& v) noexcept
+    {
+        const v_ui32_8 XZ_YW = v + zwzw(v);
+        const v_ui32_8 halves = xxxx(XZ_YW + yyww(XZ_YW));
+        return halves + swapHalves(halves);
+    }
+
+    v_ui32_8::ValueType horizontalSum(const v_ui32_8& v) noexcept
+    {
+        return x1(horizontalSumv(v));
+    }
+
+    v_ui32_8 dotv(const v_ui32_8& a, const v_ui32_8& b) noexcept
+    {
+        return horizontalSumv(a * b);
+    }
+
+    v_ui32_8::ValueType dot(const v_ui32_8& a, const v_ui32_8& b) noexcept
+    {
+        return x1(dotv(a, b));
+    }
+
+    v_ui32_8 lengthv(const v_ui32_8& v) noexcept
+    {
+        return horizontalSumv(v);
+    }
+
+    v_ui32_8::ValueType length(const v_ui32_8& v) noexcept
+    {
+        return x1(lengthv(v));
+    }
+
+    // The larger minus the smaller component, so that the difference doesn't wrap around
+    v_ui32_8 distancev(const v_ui32_8& a, const v_ui32_8& b) noexcept
+    {
+        return lengthv(max(a, b) - min(a, b));
+    }
+
+    v_ui32_8::ValueType distance(const v_ui32_8& a, const v_ui32_8& b) noexcept
+    {
+        return x1(distancev(a, b));
+    }
+
+    v_ui32_8 multiplyAdd(const v_ui32_8& a, const v_ui32_8& b, const v_ui32_8& c) noexcept
+    {
+        return a * b + c;
+    }
+
+    v_ui32_8 multiplySub(const v_ui32_8& a, const v_ui32_8& b, const v_ui32_8& c) noexcept
+    {
+        return a * b - c;
+    }
+
+    v_ui32_8 multiplyAddSub(const v_ui32_8& a, const v_ui32_8& b, const v_ui32_8& c) noexcept
+    {
+        return addSubtract(a * b, c);
+    }
+
+    v_ui32_8 multiplySubAdd(const v_ui32_8& a, const v_ui32_8& b, const v_ui32_8& c) noexcept
+    {
+        const v_ui32_8 product = a * b;
+        return blend<false, true, false, true, false, true, false, true>(product + c, product - c);
+    }
+
+    v_ui32_8 negativeMultiplyAdd(const v_ui32_8& a, const v_ui32_8& b, const v_ui32_8& c) noexcept
+    {
+        return c - a * b;
+    }
+
+    v_ui32_8 negativeMultiplySub(const v_ui32_8& a, const v_ui32_8& b, const v_ui32_8& c) noexcept
+    {
+        return Zero<v_ui32_8>() - a * b - c;
+    }
+
+    v_ui32_8 addSubtract(const v_ui32_8& a, const v_ui32_8& b) noexcept
+    {
+        return blend<false, true, false, true, false, true, false, true>(a - b, a + b);
+    }
+
+    v_ui32_8 modulo(const v_ui32_8& a, const v_ui32_8& b) noexcept
+    {
+        // No SIMD integer division
+        return v_ui32_8(
+            modulo(x1(a), x1(b)), modulo(x2(a), x2(b)), modulo(x3(a), x3(b)), modulo(x4(a), x4(b)),
+            modulo(x5(a), x5(b)), modulo(x6(a), x6(b)), modulo(x7(a), x7(b)), modulo(x8(a), x8(b))
+        );
+    }
+
+    v_ui32_8 clamp(const v_ui32_8& v, const v_ui32_8& lower, const v_ui32_8& upper) noexcept
+    {
+        return max(lower, min(v, upper));
+    }
+
+    ASizeT argmin(const v_ui32_8& v) noexcept
+    {
+        return highestLane(laneBits(v == minv(v)));
+    }
+
+    ASizeT argmax(const v_ui32_8& v) noexcept
+    {
+        return highestLane(laneBits(v == maxv(v)));
     }
 
     bool anyTrue(const v_ui32_8& v) noexcept
@@ -79,16 +230,12 @@ namespace vectorization
 
     bool allTrue(const v_ui32_8& v) noexcept
     {
-#if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX2
-        return _mm256_movemask_epi8(_mm256_cmpeq_epi32(v.components, Zero<v_ui32_8::PackedType>())) == 0;
-#elif VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
-        const auto z = Zero<PackedInts_128>();
-        return _mm_movemask_epi8(_mm_cmpeq_epi32(_mm256_castsi256_si128(v.components), z)) == 0
-            && _mm_movemask_epi8(_mm_cmpeq_epi32(_mm256_extractf128_si256(v.components, 1), z)) == 0;
+#if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
+        return _mm256_testc_si256(v.components, MaskAll<v_ui32_8::PackedType>());
 #else
-        const auto z = Zero<v_ui32_8::HalfPackedType>();
-        return _mm_movemask_epi8(_mm_cmpeq_epi32(v.components.lo, z)) == 0
-            && _mm_movemask_epi8(_mm_cmpeq_epi32(v.components.hi, z)) == 0;
+        const auto ones = MaskAll<v_ui32_8::HalfPackedType>();
+        return _mm_testc_si128(v.components.lo, ones)
+            && _mm_testc_si128(v.components.hi, ones);
 #endif
     }
 

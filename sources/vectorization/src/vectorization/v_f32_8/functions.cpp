@@ -32,10 +32,24 @@
 #include "vectorization/functions/sqr.h"
 #include "vectorization/functions/sqrt.h"
 
+#include "vectorization/functions/highest_lane.h"
 #include "vectorization/functions/movemask.h"
+
+#include "vectorization/v_i32_8/accessors.h"
+#include "vectorization/v_i32_8/functions.h"
 
 namespace vectorization
 {
+    // Copies the lower half into the upper one: {x1, x2, x3, x4, x1, x2, x3, x4}
+    inline v_f32_8 lowerHalves(const v_f32_8& v) noexcept
+    {
+#if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
+        return _mm256_permute2f128_ps(v.components, v.components, 0x00);
+#else
+        return {{v.components.lo, v.components.lo}};
+#endif
+    }
+
     v_f32_8 min(const v_f32_8& a, const v_f32_8& b) noexcept
     {
 #if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
@@ -179,6 +193,77 @@ namespace vectorization
     v_f32_8::ValueType distance(const v_f32_8& a, const v_f32_8& b) noexcept
     {
         return x1(distancev(a, b));
+    }
+
+    v_f32_8 reflect(const v_f32_8& incident, const v_f32_8& normal) noexcept
+    {
+        return reflect(incident, normal, dotv(normal, incident));
+    }
+
+    v_f32_8 reflect(const v_f32_8& incident, const v_f32_8& normal, const v_f32_8& NdotI) noexcept
+    {
+        return negativeMultiplyAdd(normal, NdotI + NdotI, incident);
+    }
+
+    v_f32_8
+    refractEta(const v_f32_8& incident, const v_f32_8& normal, const v_f32_8& NdotI, const v_f32_8& eta) noexcept
+    {
+        // By Snell's law: https://en.wikipedia.org/wiki/Snell%27s_law#Vector_form
+        const v_f32_8 etaNdotI = eta * NdotI;
+        const v_f32_8 sinSqrPhiT = multiplySub(eta, eta, etaNdotI * etaNdotI);
+        const v_f32_8 cosSqrPhiT = One<v_f32_8>() - sinSqrPhiT;
+
+        if (isNegative(cosSqrPhiT))
+        {
+            // Total internal reflection
+            return Zero<v_f32_8>();
+        }
+
+        return multiplySub(eta, incident, (etaNdotI + sqrt(cosSqrPhiT)) * normal);
+    }
+
+    v_f32_8 refractEta(const v_f32_8& incident, const v_f32_8& normal, const v_f32_8& eta) noexcept
+    {
+        return refractEta(incident, normal, dotv(normal, incident), eta);
+    }
+
+    v_f32_8 refract(const v_f32_8& incident, const v_f32_8& normal, const v_f32_8& eta) noexcept
+    {
+        return refract(incident, normal, dotv(normal, incident), eta);
+    }
+
+    v_f32_8 refract(const v_f32_8& incident, const v_f32_8& normal, const v_f32_8& NdotI, const v_f32_8& eta) noexcept
+    {
+        if (isNegative(NdotI))
+        {
+            return refractEta(incident, normal, NdotI, xxxx(lowerHalves(eta)));
+        }
+        return refractEta(incident, -normal, -NdotI, yyyy(lowerHalves(eta)));
+    }
+
+    v_f32_8 refract(
+        const v_f32_8::VectorBoolType& cullingOrientation, const v_f32_8& incident, const v_f32_8& normal,
+        const v_f32_8& eta
+    ) noexcept
+    {
+        return refract(cullingOrientation, incident, normal, dotv(normal, incident), eta);
+    }
+
+    v_f32_8 refract(
+        const v_f32_8::VectorBoolType& cullingOrientation, const v_f32_8& incident, const v_f32_8& normal,
+        const v_f32_8& NdotI, const v_f32_8& eta
+    ) noexcept
+    {
+        if (x1(cullingOrientation)) // => NdotI < 0
+        {
+            return refractEta(incident, normal, NdotI, xxxx(lowerHalves(eta)));
+        }
+        if (x2(cullingOrientation)) // => NdotI > 0
+        {
+            return refractEta(incident, -normal, -NdotI, yyyy(lowerHalves(eta)));
+        }
+        // cullingOrientation is zero => "no culling" set => no implicit ray-orientation set
+        return refract(incident, normal, NdotI, eta);
     }
 
     v_f32_8 mix(const v_f32_8& a, const v_f32_8& b, const v_f32_8& factor) noexcept
@@ -424,6 +509,16 @@ namespace vectorization
     v_f32_8 clamp(const v_f32_8& v, const v_f32_8& lower, const v_f32_8& upper) noexcept
     {
         return max(lower, min(v, upper));
+    }
+
+    ASizeT argmin(const v_f32_8& v) noexcept
+    {
+        return highestLane(isNegative(v == minv(v)));
+    }
+
+    ASizeT argmax(const v_f32_8& v) noexcept
+    {
+        return highestLane(isNegative(v == maxv(v)));
     }
 
     bool anyTrue(const v_f32_8& v) noexcept

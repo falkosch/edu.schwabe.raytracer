@@ -16,6 +16,9 @@ namespace vectorization {
 
   v_ui64_4 operator-(const v_ui64_4 &a, const v_ui64_4 &b) noexcept;
 
+  // Wraps around on overflow
+  v_ui64_4 operator*(const v_ui64_4 &a, const v_ui64_4 &b) noexcept;
+
   v_ui64_4 operator&(const v_ui64_4 &a, const v_ui64_4 &b) noexcept;
 
   v_ui64_4 operator|(const v_ui64_4 &a, const v_ui64_4 &b) noexcept;

@@ -6,15 +6,21 @@
 #include "vectorization/v_f64_4/operators.h"
 #include "vectorization/v_f64_4/swizzles.h"
 
+#include "vectorization/v_i64_4/accessors.h"
+#include "vectorization/v_i64_4/functions.h"
+
 #include <cassert>
 
 #include "vectorization/functions/abs.h"
+#include "vectorization/functions/acos.h"
 #include "vectorization/functions/add_subtract.h"
+#include "vectorization/functions/atan2.h"
 #include "vectorization/functions/ceil.h"
 #include "vectorization/functions/clamp.h"
 #include "vectorization/functions/divide.h"
 #include "vectorization/functions/floor.h"
 #include "vectorization/functions/fract.h"
+#include "vectorization/functions/highest_lane.h"
 #include "vectorization/functions/is_nan.h"
 #include "vectorization/functions/max.h"
 #include "vectorization/functions/min.h"
@@ -64,6 +70,16 @@ namespace vectorization
         return x(minv(v));
     }
 
+    v_f64_4 min3v(const v_f64_4& v) noexcept
+    {
+        return min(min(xxxx(v), yyyy(v)), zzzz(v));
+    }
+
+    v_f64_4::ValueType min3(const v_f64_4& v) noexcept
+    {
+        return x(min3v(v));
+    }
+
     v_f64_4 max(const v_f64_4& a, const v_f64_4& b) noexcept
     {
 #if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
@@ -93,6 +109,16 @@ namespace vectorization
         return x(maxv(v));
     }
 
+    v_f64_4 max3v(const v_f64_4& v) noexcept
+    {
+        return max(max(xxxx(v), yyyy(v)), zzzz(v));
+    }
+
+    v_f64_4::ValueType max3(const v_f64_4& v) noexcept
+    {
+        return x(max3v(v));
+    }
+
     // Sums as (p0 + p1) + (p2 + p3), the order of v_f32_4's horizontalSumv and dotv (_mm_dp_ps): v_f64_4 is Float4 in
     // high precision.
     v_f64_4 horizontalSumv(const v_f64_4& v) noexcept
@@ -113,6 +139,17 @@ namespace vectorization
         return x(horizontalSumv(v));
     }
 
+    // Sums as (p0 + p1) + p2, the order of v_f32_4's horizontalSum3v and dot3v (_mm_dp_ps)
+    v_f64_4 horizontalSum3v(const v_f64_4& v) noexcept
+    {
+        return xxxx(v) + yyyy(v) + zzzz(v);
+    }
+
+    v_f64_4::ValueType horizontalSum3(const v_f64_4& v) noexcept
+    {
+        return x(horizontalSum3v(v));
+    }
+
     v_f64_4 dotv(const v_f64_4& a, const v_f64_4& b) noexcept
     {
         return horizontalSumv(a * b);
@@ -121,6 +158,16 @@ namespace vectorization
     v_f64_4::ValueType dot(const v_f64_4& a, const v_f64_4& b) noexcept
     {
         return x(dotv(a, b));
+    }
+
+    v_f64_4 dot3v(const v_f64_4& a, const v_f64_4& b) noexcept
+    {
+        return horizontalSum3v(a * b);
+    }
+
+    v_f64_4::ValueType dot3(const v_f64_4& a, const v_f64_4& b) noexcept
+    {
+        return x(dot3v(a, b));
     }
 
     v_f64_4 lengthv(const v_f64_4& v) noexcept
@@ -143,6 +190,26 @@ namespace vectorization
         return x(rlengthv(v));
     }
 
+    v_f64_4 length3v(const v_f64_4& v) noexcept
+    {
+        return sqrt(dot3v(v, v));
+    }
+
+    v_f64_4::ValueType length3(const v_f64_4& v) noexcept
+    {
+        return x(length3v(v));
+    }
+
+    v_f64_4 rlength3v(const v_f64_4& v) noexcept
+    {
+        return rsqrt(dot3v(v, v));
+    }
+
+    v_f64_4::ValueType rlength3(const v_f64_4& v) noexcept
+    {
+        return x(rlength3v(v));
+    }
+
     v_f64_4 normalize(const v_f64_4& v) noexcept
     {
         assert(dot(v, v) > Zero<v_f64_4::ValueType>() && "normalize of zero-length vector");
@@ -150,6 +217,16 @@ namespace vectorization
         return v * rlengthv(v);
 #else
         return v / lengthv(v);
+#endif
+    }
+
+    v_f64_4 normalize3(const v_f64_4& v) noexcept
+    {
+        assert(dot3(v, v) > Zero<v_f64_4::ValueType>() && "normalize3 of zero-length vector");
+#ifdef VECTORIZATION_APPROXIMATIONS
+        return zeroW(v * rlength3v(v));
+#else
+        return zeroW(v / length3v(v));
 #endif
     }
 
@@ -161,6 +238,87 @@ namespace vectorization
     v_f64_4::ValueType distance(const v_f64_4& a, const v_f64_4& b) noexcept
     {
         return x(distancev(a, b));
+    }
+
+    v_f64_4 distance3v(const v_f64_4& a, const v_f64_4& b) noexcept
+    {
+        return length3v(b - a);
+    }
+
+    v_f64_4::ValueType distance3(const v_f64_4& a, const v_f64_4& b) noexcept
+    {
+        return x(distance3v(a, b));
+    }
+
+    v_f64_4 reflect(const v_f64_4& incident, const v_f64_4& normal) noexcept
+    {
+        return reflect(incident, normal, dotv(normal, incident));
+    }
+
+    v_f64_4 reflect(const v_f64_4& incident, const v_f64_4& normal, const v_f64_4& NdotI) noexcept
+    {
+        return negativeMultiplyAdd(normal, NdotI + NdotI, incident);
+    }
+
+    v_f64_4
+    refractEta(const v_f64_4& incident, const v_f64_4& normal, const v_f64_4& NdotI, const v_f64_4& eta) noexcept
+    {
+        // By Snell's law: https://en.wikipedia.org/wiki/Snell%27s_law#Vector_form
+        const v_f64_4 etaNdotI = eta * NdotI;
+        const v_f64_4 sinSqrPhiT = multiplySub(eta, eta, etaNdotI * etaNdotI);
+        const v_f64_4 cosSqrPhiT = One<v_f64_4>() - sinSqrPhiT;
+
+        if (isNegative(cosSqrPhiT))
+        {
+            // Total internal reflection
+            return Zero<v_f64_4>();
+        }
+
+        return multiplySub(eta, incident, (etaNdotI + sqrt(cosSqrPhiT)) * normal);
+    }
+
+    v_f64_4 refractEta(const v_f64_4& incident, const v_f64_4& normal, const v_f64_4& eta) noexcept
+    {
+        return refractEta(incident, normal, dotv(normal, incident), eta);
+    }
+
+    v_f64_4 refract(const v_f64_4& incident, const v_f64_4& normal, const v_f64_4& eta) noexcept
+    {
+        return refract(incident, normal, dotv(normal, incident), eta);
+    }
+
+    v_f64_4 refract(const v_f64_4& incident, const v_f64_4& normal, const v_f64_4& NdotI, const v_f64_4& eta) noexcept
+    {
+        if (isNegative(NdotI))
+        {
+            return refractEta(incident, normal, NdotI, xxxx(eta));
+        }
+        return refractEta(incident, -normal, -NdotI, yyyy(eta));
+    }
+
+    v_f64_4 refract(
+        const v_f64_4::VectorBoolType& cullingOrientation, const v_f64_4& incident, const v_f64_4& normal,
+        const v_f64_4& eta
+    ) noexcept
+    {
+        return refract(cullingOrientation, incident, normal, dotv(normal, incident), eta);
+    }
+
+    v_f64_4 refract(
+        const v_f64_4::VectorBoolType& cullingOrientation, const v_f64_4& incident, const v_f64_4& normal,
+        const v_f64_4& NdotI, const v_f64_4& eta
+    ) noexcept
+    {
+        if (x(cullingOrientation)) // => NdotI < 0
+        {
+            return refractEta(incident, normal, NdotI, xxxx(eta));
+        }
+        if (y(cullingOrientation)) // => NdotI > 0
+        {
+            return refractEta(incident, -normal, -NdotI, yyyy(eta));
+        }
+        // cullingOrientation is zero => "no culling" set => no implicit ray-orientation set
+        return refract(incident, normal, NdotI, eta);
     }
 
     v_f64_4 mix(const v_f64_4& a, const v_f64_4& b, const v_f64_4& factor) noexcept
@@ -264,6 +422,16 @@ namespace vectorization
             }
         };
 #endif
+    }
+
+    v_f64_4 zeroW(const v_f64_4& v) noexcept
+    {
+        return blend<false, false, false, true>(v, Zero<v_f64_4>());
+    }
+
+    v_f64_4 oneW(const v_f64_4& v) noexcept
+    {
+        return blend<false, false, false, true>(v, One<v_f64_4>());
     }
 
     v_f64_4::BoolType isNegative(const v_f64_4& v) noexcept
@@ -408,6 +576,46 @@ namespace vectorization
         return max(lower, min(v, upper));
     }
 
+    v_f64_4 cross3(const v_f64_4& a, const v_f64_4& b) noexcept
+    {
+        return multiplySub(yzxw(a), zxyw(b), zxyw(a) * yzxw(b));
+    }
+
+    v_f64_4 mapOrthogonal(const v_f64_4& v, const v_f64_4& sPlane, const v_f64_4& tPlane) noexcept
+    {
+        // {v . sPlane, v . tPlane, 0, 1}
+        const v_f64_4 st = blend<false, true, false, false>(dotv(v, sPlane), dotv(v, tPlane));
+        return blend<false, false, true, true>(st, oneW(Zero<v_f64_4>()));
+    }
+
+    v_f64_4 mapSpherical(const v_f64_4& v) noexcept
+    {
+        return v_f64_4(
+            atan2(z(v), x(v)) * RadianToUniform<v_f64_4::ValueType>() + Half<v_f64_4::ValueType>(),
+            acos(-y(v)) * ReciprocalPi<v_f64_4::ValueType>(), Zero<v_f64_4::ValueType>(), One<v_f64_4::ValueType>()
+        );
+    }
+
+    ASizeT argmin(const v_f64_4& v) noexcept
+    {
+        return highestLane(static_cast<Int_32>(isNegative(v == minv(v))));
+    }
+
+    ASizeT argmax(const v_f64_4& v) noexcept
+    {
+        return highestLane(static_cast<Int_32>(isNegative(v == maxv(v))));
+    }
+
+    ASizeT argmin3(const v_f64_4& v) noexcept
+    {
+        return highestLane(static_cast<Int_32>(isNegative(zeroW(v == min3v(v)))));
+    }
+
+    ASizeT argmax3(const v_f64_4& v) noexcept
+    {
+        return highestLane(static_cast<Int_32>(isNegative(zeroW(v == max3v(v)))));
+    }
+
     bool anyTrue(const v_f64_4& v) noexcept
     {
 #if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX
@@ -441,5 +649,25 @@ namespace vectorization
         return movemask(v.components.lo) == 0
             && movemask(v.components.hi) == 0;
 #endif
+    }
+
+    bool anyTrue3(const v_f64_4& v) noexcept
+    {
+        return (isNegative(v) & 0x7) != 0;
+    }
+
+    bool anyFalse3(const v_f64_4& v) noexcept
+    {
+        return !allTrue3(v);
+    }
+
+    bool allTrue3(const v_f64_4& v) noexcept
+    {
+        return (isNegative(v) & 0x7) == 0x7;
+    }
+
+    bool allFalse3(const v_f64_4& v) noexcept
+    {
+        return (isNegative(v) & 0x7) == 0;
     }
 }

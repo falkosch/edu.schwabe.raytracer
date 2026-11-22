@@ -28,6 +28,25 @@ namespace vectorization
     v_f32_8 distancev(const v_f32_8& a, const v_f32_8& b) noexcept;
     v_f32_8::ValueType distance(const v_f32_8& a, const v_f32_8& b) noexcept;
 
+    v_f32_8 reflect(const v_f32_8& incident, const v_f32_8& normal) noexcept;
+    v_f32_8 reflect(const v_f32_8& incident, const v_f32_8& normal, const v_f32_8& NdotI) noexcept;
+
+    // refractEta takes the ratio of refraction indices in all components of eta. refract takes the ratio for
+    // entering (NdotI < 0) in the first and the one for leaving in the second component, like v_f32_4.
+    v_f32_8 refractEta(const v_f32_8& incident, const v_f32_8& normal, const v_f32_8& eta) noexcept;
+    v_f32_8 refractEta(const v_f32_8& incident, const v_f32_8& normal, const v_f32_8& NdotI,
+                       const v_f32_8& eta) noexcept;
+    v_f32_8 refract(const v_f32_8& incident, const v_f32_8& normal, const v_f32_8& eta) noexcept;
+    v_f32_8 refract(const v_f32_8& incident, const v_f32_8& normal, const v_f32_8& NdotI, const v_f32_8& eta) noexcept;
+    v_f32_8 refract(
+        const v_f32_8::VectorBoolType& cullingOrientation, const v_f32_8& incident, const v_f32_8& normal,
+        const v_f32_8& eta
+    ) noexcept;
+    v_f32_8 refract(
+        const v_f32_8::VectorBoolType& cullingOrientation, const v_f32_8& incident, const v_f32_8& normal,
+        const v_f32_8& NdotI, const v_f32_8& eta
+    ) noexcept;
+
     v_f32_8 mix(const v_f32_8& a, const v_f32_8& b, const v_f32_8& factor) noexcept;
     v_f32_8 mix(const v_f32_8& a, const v_f32_8& b, v_f32_8::ValueType factor) noexcept;
 
@@ -58,6 +77,12 @@ namespace vectorization
     v_f32_8 abs(const v_f32_8& v) noexcept;
     v_f32_8 clamp(const v_f32_8& v, const v_f32_8& lower, const v_f32_8& upper) noexcept;
 
+    // Index of the smallest/largest component; of several equal ones, the highest index. With NaN components the
+    // index is unspecified, but a valid one.
+    ASizeT argmin(const v_f32_8& v) noexcept;
+    ASizeT argmax(const v_f32_8& v) noexcept;
+
+    // A component is true if its sign bit is set, like isNegative tests it and comparison masks set it.
     bool anyTrue(const v_f32_8& v) noexcept;
     bool anyFalse(const v_f32_8& v) noexcept;
     bool allTrue(const v_f32_8& v) noexcept;

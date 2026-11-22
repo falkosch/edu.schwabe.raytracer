@@ -53,6 +53,11 @@ namespace vectorization {
 #endif
   }
 
+  v_ui64_4 operator*(const v_ui64_4 &a, const v_ui64_4 &b) noexcept {
+    // No packed 64-bit multiplication below AVX-512
+    return v_ui64_4(x(a) * x(b), y(a) * y(b), z(a) * z(b), w(a) * w(b));
+  }
+
   v_ui64_4 operator&(const v_ui64_4 &a, const v_ui64_4 &b) noexcept {
 #if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX2
     return bitwiseAnd(a.components, b.components);

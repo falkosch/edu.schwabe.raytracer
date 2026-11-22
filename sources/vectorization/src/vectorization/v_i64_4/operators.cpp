@@ -67,6 +67,14 @@ namespace vectorization {
 #endif
   }
 
+  v_i64_4 operator*(const v_i64_4 &a, const v_i64_4 &b) noexcept {
+    // No packed 64-bit multiplication below AVX-512; multiplying unsigned makes overflow wrap around
+    const auto product = [](const Int_64 p, const Int_64 q) noexcept {
+      return static_cast<Int_64>(static_cast<UInt_64>(p) * static_cast<UInt_64>(q));
+    };
+    return v_i64_4(product(x(a), x(b)), product(y(a), y(b)), product(z(a), z(b)), product(w(a), w(b)));
+  }
+
   v_i64_4 operator&(const v_i64_4 &a, const v_i64_4 &b) noexcept {
 #if VECTORIZATION_INTRINSICS_LEVEL >= VECTORIZATION_AVX2
     return bitwiseAnd(a.components, b.components);

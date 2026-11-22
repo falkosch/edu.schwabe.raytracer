@@ -69,6 +69,7 @@ set(SOURCES
         src/vectorization/functions/bitwise_test.cpp
         src/vectorization/functions/broadcast_test.cpp
         src/vectorization/functions/compare_test.cpp
+        src/vectorization/functions/highest_lane_test.cpp
         src/vectorization/functions/horizontal_add_test.cpp
         src/vectorization/functions/horizontal_subtract_test.cpp
         src/vectorization/functions/movemask_test.cpp

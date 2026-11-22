@@ -123,3 +123,37 @@ Consumers CAN broad-include via `#include <vectorization.h>`.
 - 3-component variants use a `3` suffix: `dot3()`, `length3()`, `normalize3()`.
 - Vector-result variants use a `v` suffix: `dotv()` returns a broadcast vector, `dot()` extracts a scalar.
 - Suffixes combine: `dot3v()` returns broadcast vector of scalar returned by `dot3()`.
+- Parameter names: `v` for a single vector, `a`, `b`, `c` for operands, `lower`/`upper` for bounds.
+
+### Function set of the vector types
+
+Every mid-tier vector type (`m_f32_4x4` excluded) implements, with tests in its `functions_test.cpp` (`v_f32_4`'s
+multiply-add family in `fma_functions_test.cpp`):
+
+- **All types:** `min`, `minv`, `max`, `maxv`, `horizontalSum`, `horizontalSumv`, `dot`, `dotv`, `length`,
+  `lengthv`, `distance`, `distancev`, `multiplyAdd`, `multiplySub`, `multiplyAddSub`, `multiplySubAdd`,
+  `negativeMultiplyAdd`, `negativeMultiplySub`, `addSubtract`, `sqr`, `modulo`, `clamp`, `argmin`, `argmax`,
+  `anyTrue`, `anyFalse`, `allTrue`, `allFalse`
+- **Float types:** `rlength`, `rlengthv`, `normalize`, `reflect`, `refractEta`, `refract`, `mix`, `isNegative`,
+  `isNaN`, `sqrt`, `reciprocal`, `rsqrt`, `ceil`, `floor`, `round`, `fract`, `abs`
+- **Signed integer types:** `isNegative`, `abs`
+- **4-component types:** `oneW`, `zeroW` and the `3` variants of `min`, `max`, `horizontalSum`, `dot`, `length`,
+  `distance` (each also with `v`), `argmin`, `argmax`, `anyTrue`, `anyFalse`, `allTrue`, `allFalse`; float ones also
+  `rlength3`, `rlength3v`, `normalize3`, `cross3`, `mapOrthogonal`, `mapSpherical`
+
+Shared semantics:
+
+- `v` variants broadcast the result to all lanes.
+- Integer `length` and `distance` are Manhattan lengths; unsigned `distance` subtracts the smaller from the larger
+  component, so it doesn't wrap around.
+- The integer multiply-add family, `dot` and `horizontalSum` wrap around on overflow.
+- Alternating operations subtract in even and add in odd lanes (`addSubtract`, `multiplyAddSub`); `multiplySubAdd`
+  is the reverse.
+- Integer `modulo` truncates like `%` (result has the sign of `a`); float `modulo` floors (sign of `b`).
+- `argmin`/`argmax` return the highest index among equal extrema.
+- `isNegative` returns one bit per lane.
+- `anyTrue` and friends are bitwise on integer types (`allTrue` needs every bit set) and test the sign bit on float
+  types.
+- `refract` takes the ratio for entering in the first and for leaving in the second component of `eta`.
+- Integer types call intrinsics in the mid tier: `__m128i`/`__m256i` carry no element type for basic-tier overloads.
+  No AVX-512 intrinsics (`_mm_min_epi64`, `_mm_abs_epi64`, `_mm_mullo_epi64`); emulate them.

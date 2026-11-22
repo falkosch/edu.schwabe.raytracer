@@ -38,6 +38,20 @@ namespace vectorization::test {
       Assert::IsTrue(allTrue(expected == (a - b)), L"'-' op value mismatch", LINE_INFO());
     }
 
+    TEST_METHOD(testMultiplyVectorOperator) {
+      const v_i64_4 a{3LL, -4LL, 3000000000LL, -5LL};
+      const v_i64_4 b{5LL, 6LL, 3LL, -7LL};
+      const v_i64_4 expected{15LL, -24LL, 9000000000LL, 35LL};
+      Assert::IsTrue(allTrue(expected == (a * b)), L"'*' op value mismatch", LINE_INFO());
+    }
+
+    TEST_METHOD(testMultiplyVectorOperatorWrapsAround) {
+      const v_i64_4 a{std::numeric_limits<Int_64>::max(), std::numeric_limits<Int_64>::min(), 2LL, 1LL};
+      const v_i64_4 b{2LL, 2LL, 2LL, 1LL};
+      const v_i64_4 expected{-2LL, 0LL, 4LL, 1LL};
+      Assert::IsTrue(allTrue(expected == (a * b)), L"'*' op should wrap around", LINE_INFO());
+    }
+
     TEST_METHOD(testBitwiseAndOperator) {
       const v_i64_4 a{Int_64{-1}};
       const v_i64_4 b{10LL, 20LL, 30LL, 40LL};

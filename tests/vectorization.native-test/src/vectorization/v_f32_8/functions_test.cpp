@@ -491,5 +491,90 @@ namespace vectorization::test
             Assert::AreEqual(16.0f, x2(r), 1e-5f, L"2*3+10", LINE_INFO());
             Assert::AreEqual(82.0f, x8(r), 1e-5f, L"8*9+10", LINE_INFO());
         }
+
+        TEST_METHOD(computesVectorDistanceAndReciprocalLength)
+        {
+            const v_f32_8 a{1.0f, 2.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+            const v_f32_8 b{4.0f, 6.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+            const auto d = distancev(a, b);
+            Assert::AreEqual(5.0f, x1(d), 1e-5f, L"distancev X1", LINE_INFO());
+            Assert::AreEqual(5.0f, x8(d), 1e-5f, L"distancev X8", LINE_INFO());
+            Assert::AreEqual(0.2f, rlength(b - a), 1e-3f, L"rlength", LINE_INFO());
+        }
+
+        TEST_METHOD(findsArgMinAndArgMax)
+        {
+            const v_f32_8 given{3.0f, 1.0f, 4.0f, 2.0f, 8.0f, -6.0f, 5.0f, 7.0f};
+            Assert::AreEqual(ASizeT{5}, argmin(given), L"argmin mismatch", LINE_INFO());
+            Assert::AreEqual(ASizeT{4}, argmax(given), L"argmax mismatch", LINE_INFO());
+            const v_f32_8 ends{-9.0f, 1.0f, 4.0f, 2.0f, 8.0f, 6.0f, 5.0f, 9.0f};
+            Assert::AreEqual(ASizeT{0}, argmin(ends), L"argmin X1 mismatch", LINE_INFO());
+            Assert::AreEqual(ASizeT{7}, argmax(ends), L"argmax X8 mismatch", LINE_INFO());
+        }
+
+        TEST_METHOD(picksHighestIndexOfEqualExtrema)
+        {
+            const v_f32_8 given{1.0f, 5.0f, 1.0f, 7.0f, 2.0f, 3.0f, 1.0f, 7.0f};
+            Assert::AreEqual(ASizeT{6}, argmin(given), L"argmin tie", LINE_INFO());
+            Assert::AreEqual(ASizeT{7}, argmax(given), L"argmax tie", LINE_INFO());
+        }
+
+        TEST_METHOD(computesReflect)
+        {
+            const v_f32_8 incident{1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+            const v_f32_8 normal{0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+            const auto r = reflect(incident, normal);
+            Assert::AreEqual(1.0f, x1(r), 1e-6f, L"reflect X1", LINE_INFO());
+            Assert::AreEqual(1.0f, x2(r), 1e-6f, L"reflect X2", LINE_INFO());
+            Assert::AreEqual(0.0f, x3(r), 1e-6f, L"reflect X3", LINE_INFO());
+            Assert::AreEqual(0.0f, x8(r), 1e-6f, L"reflect X8", LINE_INFO());
+            const auto precomputed = reflect(incident, normal, dotv(normal, incident));
+            Assert::AreEqual(1.0f, x2(precomputed), 1e-6f, L"reflect with NdotI X2", LINE_INFO());
+        }
+
+        TEST_METHOD(computesRefractEta)
+        {
+            // 45 degrees into a medium with eta = 0.5: sin(phiT) = 0.5 * sin(45)
+            const v_f32_8 incident{Sin45<Float_32>(), -Sin45<Float_32>(), 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+            const v_f32_8 normal{0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+            const auto t = refractEta(incident, normal, v_f32_8{0.5f});
+            Assert::AreEqual(0.3535534f, x1(t), 1e-5f, L"refractEta X1", LINE_INFO());
+            Assert::AreEqual(-0.9354143f, x2(t), 1e-5f, L"refractEta X2", LINE_INFO());
+            Assert::AreEqual(0.0f, x5(t), 1e-6f, L"refractEta X5", LINE_INFO());
+            // sin(phiT) = 2 * sin(45) > 1: total internal reflection
+            const auto reflected = refractEta(incident, normal, v_f32_8{2.0f});
+            Assert::IsTrue(allTrue(Zero<v_f32_8>() == reflected), L"total internal reflection", LINE_INFO());
+        }
+
+        TEST_METHOD(computesRefractPickingEtaByOrientation)
+        {
+            // eta for entering in X1, for leaving in X2; the other components must not be used
+            const v_f32_8 eta{0.5f, 1.2f, 9.0f, 9.0f, 9.0f, 9.0f, 9.0f, 9.0f};
+            const v_f32_8 normal{0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+            const v_f32_8 entering{Sin45<Float_32>(), -Sin45<Float_32>(), 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+            const auto in = refract(entering, normal, eta);
+            Assert::AreEqual(0.3535534f, x1(in), 1e-5f, L"entering X1", LINE_INFO());
+            Assert::AreEqual(-0.9354143f, x2(in), 1e-5f, L"entering X2", LINE_INFO());
+            const v_f32_8 leaving{Sin45<Float_32>(), Sin45<Float_32>(), 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+            const auto out = refract(leaving, normal, eta);
+            Assert::AreEqual(0.8485281f, x1(out), 1e-5f, L"leaving X1", LINE_INFO());
+            Assert::AreEqual(0.5291503f, x2(out), 1e-5f, L"leaving X2", LINE_INFO());
+            Assert::AreEqual(0.0f, x3(out), 1e-6f, L"leaving X3", LINE_INFO());
+        }
+
+        TEST_METHOD(computesRefractWithCullingOrientation)
+        {
+            const v_f32_8 eta{0.5f, 1.2f, 9.0f, 9.0f, 9.0f, 9.0f, 9.0f, 9.0f};
+            const v_f32_8 normal{0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+            const v_f32_8 entering{Sin45<Float_32>(), -Sin45<Float_32>(), 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+            const v_f32_8 leaving{Sin45<Float_32>(), Sin45<Float_32>(), 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+            const v_i32_8 frontFaces{-1, 0, 0, 0, 0, 0, 0, 0};
+            const v_i32_8 backFaces{0, -1, 0, 0, 0, 0, 0, 0};
+            Assert::AreEqual(-0.9354143f, x2(refract(frontFaces, entering, normal, eta)), 1e-5f, L"front", LINE_INFO());
+            Assert::AreEqual(0.5291503f, x2(refract(backFaces, leaving, normal, eta)), 1e-5f, L"back", LINE_INFO());
+            Assert::AreEqual(
+                -0.9354143f, x2(refract(Zero<v_i32_8>(), entering, normal, eta)), 1e-5f, L"no culling", LINE_INFO()
+            );
+        }
     };
 }
