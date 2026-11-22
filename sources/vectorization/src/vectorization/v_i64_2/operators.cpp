@@ -26,7 +26,11 @@ namespace vectorization {
   }
 
   v_i64_2 operator*(const v_i64_2 &a, const v_i64_2 &b) noexcept {
-    return v_i64_2(x(a) * x(b), y(a) * y(b));
+    // Multiplying unsigned makes overflow wrap around instead of being undefined
+    const auto product = [](const Int_64 p, const Int_64 q) noexcept {
+      return static_cast<Int_64>(static_cast<UInt_64>(p) * static_cast<UInt_64>(q));
+    };
+    return v_i64_2(product(x(a), x(b)), product(y(a), y(b)));
   }
 
   v_i64_2 operator/(const v_i64_2 &a, const v_i64_2 &b) noexcept {

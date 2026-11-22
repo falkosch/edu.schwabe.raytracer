@@ -48,6 +48,13 @@ namespace vectorization::test {
       Assert::IsTrue(allTrue(expected == (a * b)), L"'*' op value mismatch", LINE_INFO());
     }
 
+    TEST_METHOD(testMultiplyVectorOperatorWrapsAround) {
+      const v_i64_2 a{std::numeric_limits<Int_64>::max(), std::numeric_limits<Int_64>::min()};
+      const v_i64_2 b{Int_64{2LL}, Int_64{2LL}};
+      const v_i64_2 expected{Int_64{-2LL}, Int_64{0LL}};
+      Assert::IsTrue(allTrue(expected == (a * b)), L"'*' op should wrap around", LINE_INFO());
+    }
+
     TEST_METHOD(testDivideVectorOperator) {
       const v_i64_2 a{Int_64{30LL}, Int_64{-20LL}};
       const v_i64_2 b{Int_64{10LL}, Int_64{5LL}};

@@ -126,6 +126,17 @@ namespace vectorization::test {
       Assert::AreEqual(UInt_64{0}, y(actual), L"'>' op Y mismatch", LINE_INFO());
     }
 
+    TEST_METHOD(testComparisonUnsignedSemantics) {
+      const v_ui64_2 a{std::numeric_limits<UInt_64>::max(), UInt_64{0}};
+      const v_ui64_2 b{UInt_64{0}, std::numeric_limits<UInt_64>::max()};
+      const auto greater = a > b;
+      Assert::AreEqual(std::numeric_limits<UInt_64>::max(), x(greater), L"MAX > 0 (unsigned)", LINE_INFO());
+      Assert::AreEqual(UInt_64{0}, y(greater), L"0 > MAX (unsigned)", LINE_INFO());
+      const auto less = a < b;
+      Assert::AreEqual(UInt_64{0}, x(less), L"MAX < 0 (unsigned)", LINE_INFO());
+      Assert::AreEqual(std::numeric_limits<UInt_64>::max(), y(less), L"0 < MAX (unsigned)", LINE_INFO());
+    }
+
     TEST_METHOD(testLessThanOrEqualOperator) {
       const v_ui64_2 a{UInt_64{10}, UInt_64{20}};
       const v_ui64_2 b{UInt_64{20}, UInt_64{20}};

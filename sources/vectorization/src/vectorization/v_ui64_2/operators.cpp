@@ -82,7 +82,9 @@ namespace vectorization {
   }
 
   v_ui64_2 operator>(const v_ui64_2 &a, const v_ui64_2 &b) noexcept {
-    return _mm_cmpgt_epi64(a.components, b.components);
+    // _mm_cmpgt_epi64 compares signed; flipping the sign bits maps the unsigned order onto the signed one
+    const auto signBit = _mm_set1_epi64x(static_cast<long long>(0x8000000000000000ULL));
+    return _mm_cmpgt_epi64(_mm_xor_si128(a.components, signBit), _mm_xor_si128(b.components, signBit));
   }
 
   v_ui64_2 operator<=(const v_ui64_2 &a, const v_ui64_2 &b) noexcept {
