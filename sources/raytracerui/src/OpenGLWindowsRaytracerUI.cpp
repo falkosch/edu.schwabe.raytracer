@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <logging.h>
 #include <string>
+#include <vector>
 
 #include <raytracing/geometry/partitioning/treebalancer/ArithmeticMeanKDTreeBalancer.h>
 #include <raytracing/geometry/partitioning/treebalancer/BruteForceSAHKDTreeBalancer.h>
@@ -15,11 +16,7 @@
 #include <raytracing/geometry/partitioning/treebalancer/RotatingAxisKDTreeBalancer.h>
 #include <raytracing/scene/Scene.h>
 
-#include "tests/CornellBoxScene.h"
-#include "tests/DragonScene.h"
-#include "tests/ProceduralScene.h"
-#include "tests/TestScene1.h"
-#include "tests/TestScene2.h"
+#include "tests/SceneCatalog.h"
 
 #include <imgui.h>
 #include <imgui_impl_opengl2.h>
@@ -117,6 +114,11 @@ namespace raytracerui
         ImGui_ImplOpenGL2_Init();
         ImGui::StyleColorsDark();
         ImGui::GetStyle().Alpha = 0.9f;
+    }
+
+    void OpenGLWindowsRaytracerUI::setSceneIndex(const int index)
+    {
+        sceneIndex = index;
     }
 
     OpenGLWindowsRaytracerUI::~OpenGLWindowsRaytracerUI()
@@ -412,34 +414,27 @@ namespace raytracerui
 
                 ImGui::Separator();
 
-                const char* sceneItems[] = {
-                    "Cornell Box", "Test Scene 1", "Test Scene 2", "Dragon", "Procedural"
-                };
-                if (ImGui::Combo("Scene", &sceneIndex, sceneItems, 5))
+                static const auto sceneLabels = []
                 {
-                    const auto idx = sceneIndex;
+                    std::vector<const char*> labels;
+                    for (const auto& entry : sceneCatalog())
+                    {
+                        labels.push_back(entry.label);
+                    }
+                    return labels;
+                }();
+                if (ImGui::Combo("Scene", &sceneIndex, sceneLabels.data(), static_cast<int>(sceneLabels.size())))
+                {
+                    const auto setup = sceneCatalog()[static_cast<ASizeT>(sceneIndex)].setup;
                     auto* s = scene;
                     auto* r = resources;
-                    raytracer->enqueueWork([s, r, idx]
+                    raytracer->enqueueWork([s, r, setup]
                     {
                         s->getSceneObjects().clear();
                         s->getLights().clear();
                         s->setBackgroundShader(nullptr);
                         s->setAmbientLight(RGBS::black());
-                        switch (idx)
-                        {
-                        case 0: CornellBoxScene::setup(*s, *r);
-                            break;
-                        case 1: TestScene1::setup(*s, *r);
-                            break;
-                        case 2: TestScene2::setup(*s, *r);
-                            break;
-                        case 3: DragonScene::setup(*s, *r);
-                            break;
-                        case 4: ProceduralScene<>::setup(*s, *r);
-                            break;
-                        default: break;
-                        }
+                        setup(*s, *r);
                         s->buildSceneGraph();
                     });
                     changed = true;

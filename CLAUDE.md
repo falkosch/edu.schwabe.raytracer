@@ -97,7 +97,9 @@ spectrum -> XYZ -> sRGB-linear -> AgX -> sRGB.
 
 ### raytracerui (`sources/raytracerui/`)
 
-Win32+OpenGL+ImGui application. Predefined scenes: CornellBox (default), Dragon, Procedural, TestScene1/2, TestLight.
+Win32+OpenGL+ImGui application. Predefined scenes (dropdown, or `--scene=<id>`): CornellBox (default), TestScene1/2,
+Dragon, Procedural, and the test scenes Forms, Lighting, Shading, Materials & Noise, Meshes and the Showcase.
+`--exit-after-render` closes the window once the first image is saved as `ray-traced.png`.
 Runtime-configurable: KD-tree balancer, trace depth, super-sampling, ray packet size, FOV, interaction mode
 (Camera/Object/Light), display mode (image/timing/depth). ImGui panels toggled via F1-F4.
 
@@ -167,6 +169,28 @@ Normal logs right after start:
 
 Baseline numbers incorporate: CMake Unity compilation, LTCG, FMA3 intrinsics, BruteForceSAH default balancer,
 sweep-based SAH partitioning, RGBS color type, precompiled headers.
+
+### Rendering a scene
+
+Use this to check any change that affects the image, and look at the result:
+
+```bash
+cd data
+../build-release/sources/raytracerui/raytracerui.exe --scene=<id> --exit-after-render
+```
+
+- The app renders the scene once at the fast-preview size (512x512 in release), saves `data/ray-traced.png`, logs
+  the ray counters and exits. Read the PNG to judge it; compare `data/raytracer.log` with a baseline.
+- Scene ids are listed in `sources/raytracerui/src/tests/SceneCatalog.cpp` (`cornell-box`, `forms`, `lighting`,
+  `shading`, `materials`, `meshes`, `showcase`, ...). The test scenes cover forms, lights, shaders, materials and
+  meshes, so pick the one the change touches; `cornell-box` is the regression baseline.
+- The logger writes `raytracer.log` only when the app exits, so wait for the process to end before reading it. Each
+  start overwrites both files.
+- To compare against a commit, build that commit's `raytracerui` in a throwaway worktree with a short build directory
+  (Windows path length) and render the same scene; byte-identical PNGs mean an unchanged image.
+- Debug builds open a modal dialog on a failed assert, which blocks the run: prefer release, or expect the dialog.
+- The `clang-release` executable needs LLVM's `bin` directory (`libomp.dll`) on `PATH`, e.g.
+  `C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\Llvm\x64\bin`.
 
 ## Code Style
 

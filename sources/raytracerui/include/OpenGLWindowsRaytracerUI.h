@@ -73,6 +73,9 @@ namespace raytracerui
 
         ~OpenGLWindowsRaytracerUI() override;
 
+        // Selects the entry of the scene dropdown that matches the scene set up before the UI starts.
+        void setSceneIndex(int index);
+
         void notifyUpdate(const RaytraceConfiguration& configuration) override;
     };
 }

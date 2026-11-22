@@ -8,6 +8,15 @@ set(SOURCES
         src/main.cpp
         src/tests/CornellBoxScene.cpp
         src/tests/DragonScene.cpp
+        src/tests/FormsScene.cpp
+        src/tests/LightingScene.cpp
+        src/tests/MaterialsScene.cpp
+        src/tests/MeshesScene.cpp
+        src/tests/SceneCatalog.cpp
+        src/tests/SceneMaterial.cpp
+        src/tests/SceneObjects.cpp
+        src/tests/ShadingScene.cpp
+        src/tests/ShowcaseScene.cpp
         src/tests/TestLightScene.cpp
         src/tests/TestResources.cpp
         src/tests/TestScene1.cpp
@@ -25,7 +34,18 @@ set(HEADERS
         include/WindowsRaytracerUI.h
         include/tests/CornellBoxScene.h
         include/tests/DragonScene.h
+        include/tests/FormsScene.h
+        include/tests/LightingScene.h
+        include/tests/MaterialsScene.h
+        include/tests/MeshesScene.h
+        include/tests/Placement.h
         include/tests/ProceduralScene.h
+        include/tests/SceneCatalog.h
+        include/tests/SceneEntry.h
+        include/tests/SceneMaterial.h
+        include/tests/SceneObjects.h
+        include/tests/ShadingScene.h
+        include/tests/ShowcaseScene.h
         include/tests/TestLightScene.h
         include/tests/TestResources.h
         include/tests/TestScene1.h

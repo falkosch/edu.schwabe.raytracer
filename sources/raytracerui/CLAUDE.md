@@ -24,11 +24,33 @@ MessageLoopBasedUI (abstract, Windows message loop)
 
 ## Scenes (`include/tests/`, `src/tests/`)
 
-- `CornellBoxScene` -- default; classic Cornell box with a glass sphere, noise-textured box, teapot mesh
-- `DragonScene` -- dragon mesh with marble texture
-- `TestScene1` -- multi-object with various materials
-- `TestScene2` -- plane and emissive sphere
-- `ProceduralScene<L,O>` -- parametric grid of lights and objects
+`SceneCatalog.cpp` lists every scene with its command-line id and dropdown label; the dropdown and `--scene=<id>`
+both use it. Append new scenes there (and keep the order, the dropdown index follows it).
+
+- `CornellBoxScene` (`cornell-box`) -- default; classic Cornell box with a glass sphere, noise-textured box, teapot
+- `TestScene1` (`test-scene-1`) -- multi-object with various materials
+- `TestScene2` (`test-scene-2`) -- plane and emissive sphere
+- `DragonScene` (`dragon`) -- dragon mesh with marble texture
+- `ProceduralScene<L,O>` (`procedural`) -- parametric grid of lights and objects
+- `FormsScene` (`forms`) -- every form type with the checker texture: analytic and mesh sphere, ellipsoid, boxes,
+  planes, low-poly mesh
+- `LightingScene` (`lighting`) -- every emitter kind as light pools on a wall, RGB lights with colored shadows,
+  falloff variants, ambient light, an emitter that doesn't light its surroundings
+- `ShadingScene` (`shading`) -- the shader classes and texture transforms (environment map, sRGB vs. linear texture,
+  normals as colors, tinted texture)
+- `MaterialsScene` (`materials`) -- chart of metal roughness, every refraction index, plastics and metals, Perlin and
+  Simplex noise by octaves
+- `MeshesScene` (`meshes`) -- all meshes of `data/meshes` in a grid; loading takes about 10 s
+- `ShowcaseScene` (`showcase`) -- studio demo: glass dragon, gold bunny, chrome sphere on marble, diamond
+
+The new scenes are composed for the start camera (the dropdown doesn't move the camera) and build on
+`SceneMaterial` (the seven material channels as constants, with factories) and `createSceneObject`.
+
+## Command line
+
+- `--scene=<id>` -- start with that scene instead of the Cornell box
+- `--exit-after-render` -- close the window once the first image is rendered and saved as `ray-traced.png`, e.g.
+  `raytracerui.exe --scene=showcase --exit-after-render` from `data/` to render a scene without interaction
 
 ## Controls
 

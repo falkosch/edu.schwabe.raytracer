@@ -1,10 +1,6 @@
 #include "stdafx.h"
 
-#include "tests/CornellBoxScene.h"
-#include "tests/DragonScene.h"
-#include "tests/ProceduralScene.h"
-#include "tests/TestScene1.h"
-#include "tests/TestScene2.h"
+#include "tests/SceneCatalog.h"
 
 #include "OpenGLWindowsRaytracerUI.h"
 
@@ -12,7 +8,9 @@
 
 #include <algorithm>
 #include <memory>
+#include <sstream>
 #include <string>
+#include <string_view>
 
 #include <windows.h>
 
@@ -49,22 +47,23 @@ const Float VISIBILITY_CUTOFF = reciprocal(512.0f);
 // n => (n+1)x(n+1) image-pixels/packet
 constexpr ASizeT RAY_PACKET_SIZE = 15;
 
+// Command-line options: --scene=<id> picks the start scene (ids in tests/SceneCatalog.cpp), --exit-after-render
+// closes the window once the first image is saved as ray-traced.png.
+constexpr std::string_view SCENE_OPTION = "--scene=";
+constexpr std::string_view EXIT_AFTER_RENDER_OPTION = "--exit-after-render";
+
 static const auto Log = logging::scope("Main");
 
 namespace raytracerui
 {
-    LRESULT runRaytracerUI()
+    LRESULT runRaytracerUI(const ASizeT sceneIndex, const bool exitAfterRender)
     {
         Resources resources{};
         Scene scene{
             std::make_unique<WideKDTreeTraverser<SceneIntersection>>(), std::make_unique<BruteForceSAHKDTreeBalancer>()
         };
 
-        CornellBoxScene::setup(scene, resources);
-        // TestScene1::setup(scene, resources);
-        // TestScene2::setup(scene, resources);
-        // DragonScene::setup(scene, resources);
-        // ProceduralScene<3, 10>::setup(scene, resources);
+        sceneCatalog()[sceneIndex].setup(scene, resources);
 
         scene.buildSceneGraph();
 
@@ -89,6 +88,8 @@ namespace raytracerui
 
         auto ui = std::make_unique<
             OpenGLWindowsRaytracerUI>(raytracer, parameters, FAST_PREVIEW_SIZE, scene, resources);
+        ui->setSceneIndex(static_cast<int>(sceneIndex));
+        ui->setExitAfterFirstImage(exitAfterRender);
         WPARAM returnCode{};
         try
         {
@@ -108,7 +109,7 @@ namespace raytracerui
     }
 }
 
-int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
+int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR commandLine, int)
 {
     logging::Logger::instance().setLogFile("raytracer.log");
     logging::Logger::instance().start();
@@ -121,7 +122,35 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
     std::transform(wpath.begin(), wpath.end(), path.begin(), [](wchar_t c) { return static_cast<char>(c); });
     Log.info([path] { return "Working directory: " + path; });
 
-    const auto result = static_cast<int>(raytracerui::runRaytracerUI());
+    auto sceneIndex = Zero<ASizeT>();
+    auto exitAfterRender = false;
+    std::istringstream arguments{commandLine};
+    for (std::string argument; arguments >> argument;)
+    {
+        if (argument.starts_with(SCENE_OPTION))
+        {
+            const auto id = argument.substr(SCENE_OPTION.size());
+            if (const auto found = raytracerui::findScene(id))
+            {
+                sceneIndex = *found;
+            }
+            else
+            {
+                Log.error([id] { return "Unknown scene '" + id + "', starting the default scene"; });
+            }
+        }
+        else if (argument == EXIT_AFTER_RENDER_OPTION)
+        {
+            exitAfterRender = true;
+        }
+        else
+        {
+            Log.warn([argument] { return "Ignoring unknown argument '" + argument + "'"; });
+        }
+    }
+    Log.info([sceneIndex] { return std::string{"Scene: "} + raytracerui::sceneCatalog()[sceneIndex].label; });
+
+    const auto result = static_cast<int>(raytracerui::runRaytracerUI(sceneIndex, exitAfterRender));
     logging::Logger::instance().stop();
     return result;
 }

@@ -47,6 +47,11 @@ namespace raytracerui
         DestroyWindow(hWnd);
     }
 
+    void WindowsRaytracerUI::setExitAfterFirstImage(const bool value)
+    {
+        exitAfterFirstImage = value;
+    }
+
     void WindowsRaytracerUI::InitWindowClass()
     {
         windowClass.hInstance = GetModuleHandle(nullptr);
@@ -358,6 +363,10 @@ namespace raytracerui
 
         case WM_RENDER_COMPLETE:
             onRenderComplete();
+            if (exitAfterFirstImage && frameCount > Zero<ASizeT>())
+            {
+                PostMessage(hWnd, WM_CLOSE, 0, 0);
+            }
             break;
 
         default:

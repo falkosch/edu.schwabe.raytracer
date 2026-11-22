@@ -30,6 +30,8 @@ namespace raytracerui
 
         bool keyDown[256]{};
 
+        bool exitAfterFirstImage{false};
+
         LRESULT WndProc(UINT message, WPARAM wParam, LPARAM lParam);
 
         void delegateReshape();
@@ -73,6 +75,9 @@ namespace raytracerui
         WindowsRaytracerUI(Raytracer& raytracer, const RaytraceParameters& parameters, const Size2& fastPreviewSize);
 
         ~WindowsRaytracerUI() override;
+
+        // Closes the window once the first image is rendered and saved (--exit-after-render).
+        void setExitAfterFirstImage(bool value);
 
         WPARAM run() override;
     };
