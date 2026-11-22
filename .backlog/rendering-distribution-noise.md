@@ -16,6 +16,10 @@ glitters:
 The sparkle of the glass dragon is a real optical effect (sharp refraction of a small, bright light) and nice to keep.
 The goal is less noise for the same number of rays, or the same noise for fewer rays, not a dull image.
 
+The measurement (`--seed`, references, metric), joint stratification, the firefly clamp (default 4 in `raytracerui`),
+path regularization (an option) and the bias of the visibility cutoff are done: `DONE/rendering-distribution-noise.md`,
+with the numbers per candidate.
+
 ## Causes
 
 1. Glossy rays that reach small, bright regions: the ceiling hotspot, or the softbox seen through the dragon. The
@@ -27,31 +31,22 @@ The goal is less noise for the same number of rays, or the same noise for fewer 
    roughness 0.05 blurs its reflections, but not its transmission (rough transmission isn't implemented).
 3. Few rays where the reflection is weak: the floor's plastic gets one or two glossy rays (Fresnel at normal
    incidence about 4 %), which at grazing angles hit the dragon's sparkles.
-4. No joint stratification: every sub-sample shifts the R2 sequence by its own random offset, so the 9 sub-samples of
-   a full render don't fill one evenly spread set of directions.
+
+## Current noise
+
+With the defaults (joint stratification, clamp 4, the cutoff fix), full render / preview noise, 8-bit display values,
+4 seeds (method in `DONE/rendering-distribution-noise.md`): Cornell rough mirror 2.61 / 6.19, Showcase bunny
+1.57 / 3.89, dragon 5.51 / 7.92, floor 2.79 / 5.44, Materials metals 3.23 / 10.59. The fast preview has one sample
+per pixel, so only the clamp lowers its noise.
 
 ## Scope
 
-### 1. Measure the noise
-
-- A seed offset parameter (render the same image with other seeds) and a noise metric: the RMS difference between
-  two seeds, or against a reference with many rays. Per-pixel variance across the sub-samples is a cheaper indicator.
-- Scenes: Cornell box (rough mirror sphere), Showcase (bunny, dragon, floor), Materials (row 1). Fast preview and
-  full render. Record noise and render time per approach.
-
-### 2. Candidates, to evaluate with the metric
+### 1. Candidates, to evaluate with the metric
 
 - **Multiple importance sampling** (Veach 1997) for sphere lights: combine light sampling (points on the visible cap,
   as the soft shadows already pick them) and BRDF sampling (glossy rays that hit the emissive sphere) by the power
   heuristic. Replaces the current split (rough surfaces: highlight only, emitter hidden from glossy rays) by an
   unbiased combination; the standard answer to glossy surfaces under area lights.
-- **Joint stratification** across sub-samples: one sequence per pixel, sub-sample s takes its points s * n to
-  (s + 1) * n - 1, or an Owen-scrambled Sobol sequence. Cheap, unbiased, helps every sampled effect.
-- **Path regularization**: carry `Raytrace::glossy` along the path (emitters invisible after any glossy bounce), or
-  raise the roughness after a glossy bounce (Kaplanyan and Dachsbacher 2013). Removes the glossy -> specular -> light
-  glitter at the cost of bias (that light goes missing).
-- **Firefly clamping**: cap the radiance of a glossy sample (fixed, or relative to the other samples of the hit).
-  Simplest and robust, biased (very bright reflections get darker).
 - **Adaptive sampling**: estimate each pixel's variance from its sub-samples and trace more sub-samples where it's
   high (also the "adaptive sampling at high-contrast edges" left open by 5.7 of the findings item).
 - **Rough transmission** (GGX BTDF, Walter et al. 2007) for dielectrics with roughness: blurs the dragon's sparkles
@@ -60,6 +55,22 @@ The goal is less noise for the same number of rays, or the same noise for fewer 
   Intel Open Image Denoise as a dependency.
 - **The Cornell hotspot**: a minimum distance in the light attenuation (or giving the light a radius) bounds the
   irradiance next to a point light; that removes the hotspot itself rather than its noise.
+
+### 2. Measuring the candidates
+
+The open candidates are measured like the done parts (method and numbers in `DONE/rendering-distribution-noise.md`).
+The scripts lived in a session's scratchpad and stay out of the repository (the user's decision, 2026-11-22): rebuild
+them when a candidate is evaluated.
+
+What they did:
+
+- Render each candidate's options with `--exit-after-render`, preview and `--full-render`, with `--seed=0` to `3`, the
+  references with `--full-render --super-sampling=7 --glossy-clamp=0` (seeds 0 and 1).
+- Render from a working directory of their own (in the session's scratchpad, never outside the project otherwise)
+  that links `data/meshes` and `data/textures` (directory junctions): the user often runs `raytracerui` in `data/`,
+  and every run overwrites `ray-traced.png` and `raytracer.log` there.
+- Read the 8-bit PNGs (512 x 512) and compute per crop: the noise (square root of the per-pixel variance across the
+  seeds, averaged), the RMS error and the mean brightness shift in % against the references.
 
 ### 3. Constraints
 
