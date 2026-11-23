@@ -1,30 +1,26 @@
 #include "raytracing_tests.h"
 
-#include <cmath>
+#include <raytracing/shading/brdf/fresnel_reflectance.h>
 
 namespace raytracer::test {
-  // Schlick-Fresnel approximation reproduced from raytracing/Raytracer.cpp::schlickFresnel.
-  // The production helper is file-local (no header export); these tests lock in the formula by
-  // computing it from the same public primitives. Eta layout: (etaA/etaB, etaB/etaA, etaA, etaB).
+  // brdf::fresnelReflectance without total internal reflection (Schlick's approximation) for a ray from a medium of
+  // index etaI towards one of index etaT
+  static Float schlickFresnelFrom(const Float negNdotI, const Float etaI, const Float etaT) {
+    const auto eta = RefractionIndices::refractionEta(etaI, etaT);
+    return x(brdf::fresnelReflectance(false, Float4(negNdotI), eta));
+  }
+
   static Float schlickFresnelDenseToLessDense(const Float negNdotI, const Float etaA, const Float etaB) {
-    const Float etaItoT = etaA / etaB;
-    const Float cosSqrPhiT = 1.0f - (etaItoT * etaItoT - etaItoT * negNdotI * etaItoT * negNdotI);
-    const Float cosPhi = std::sqrt(std::max(0.0f, cosSqrPhiT));
-    const Float sqrtR0 = (etaA - etaB) / (etaA + etaB);
-    const Float R0 = sqrtR0 * sqrtR0;
-    const Float oneSubCosPhi = 1.0f - cosPhi;
-    return R0 + (1.0f - R0) * oneSubCosPhi * oneSubCosPhi * oneSubCosPhi * oneSubCosPhi * oneSubCosPhi;
+    Assert::IsTrue(etaB < etaA, L"towards the less dense medium", LINE_INFO());
+    return schlickFresnelFrom(negNdotI, etaA, etaB);
   }
 
   static Float schlickFresnelLessDenseToDense(const Float negNdotI, const Float etaA, const Float etaB) {
-    const Float cosPhi = std::max(0.0f, negNdotI);
-    const Float sqrtR0 = (etaA - etaB) / (etaA + etaB);
-    const Float R0 = sqrtR0 * sqrtR0;
-    const Float oneSubCosPhi = 1.0f - cosPhi;
-    return R0 + (1.0f - R0) * oneSubCosPhi * oneSubCosPhi * oneSubCosPhi * oneSubCosPhi * oneSubCosPhi;
+    Assert::IsTrue(etaB >= etaA, L"towards the denser medium", LINE_INFO());
+    return schlickFresnelFrom(negNdotI, etaA, etaB);
   }
 
-  TEST_CLASS(FresnelTest) {
+  TEST_CLASS(FresnelReflectanceTest) {
   public:
     TEST_METHOD(schlickAtNormalIncidenceEqualsR0AirToGlass) {
       const Float etaAir = 1.0f;
@@ -83,6 +79,37 @@ namespace raytracer::test {
       Assert::AreEqual(expectedR0Sq, r, 1e-6f, L"glass->air at normal incidence", LINE_INFO());
     }
 
+    TEST_METHOD(schlickEnteringLessDenseTakesTheTransmittedCosine) {
+      // Glass -> air at cos 0.9: Snell gives cos 0.75664 for the transmitted ray, so the reflectance is
+      // 0.04 + 0.96 * (1 - 0.75664)^5 = 0.040819, not the 0.0400096 of the incident cosine
+      const Float r = schlickFresnelDenseToLessDense(0.9f, 1.5f, 1.0f);
+      Assert::AreEqual(0.0408195f, r, 1e-6f, L"glass->air at cos 0.9", LINE_INFO());
+    }
+
+    TEST_METHOD(schlickFillsAllLanes) {
+      const auto r = brdf::fresnelReflectance(false, Float4(0.5f), RefractionIndices::refractionEta(1.0f, 1.5f));
+      Assert::AreEqual(x(r), y(r), L"lane y", LINE_INFO());
+      Assert::AreEqual(x(r), z(r), L"lane z", LINE_INFO());
+      Assert::AreEqual(x(r), w(r), L"lane w", LINE_INFO());
+    }
+
+    TEST_METHOD(fresnelReflectanceIsOneForTotalInternalReflection) {
+      const auto r = brdf::fresnelReflectance(true, Float4(0.05f), RefractionIndices::refractionEta(1.5f, 1.0f));
+      Assert::AreEqual(1.0f, x(r), L"glass->air beyond the critical angle reflects all", LINE_INFO());
+      Assert::AreEqual(1.0f, w(r), L"in all lanes", LINE_INFO());
+    }
+
+    TEST_METHOD(fresnelReflectanceIgnoresTotalInternalReflectionTowardsDenserMedium) {
+      // A ray into a denser medium is never totally reflected, so the flag doesn't apply
+      const auto eta = RefractionIndices::refractionEta(1.0f, 1.5f);
+      const auto r = brdf::fresnelReflectance(true, Float4(0.3f), eta);
+      Assert::AreEqual(schlickFresnelFrom(0.3f, 1.0f, 1.5f), x(r), L"Schlick", LINE_INFO());
+    }
+  };
+
+  // vectorization's refract and reflect with the eta layout fresnelReflectance takes
+  TEST_CLASS(FresnelRefractionTest) {
+  public:
     TEST_METHOD(refractAirToGlassDirection) {
       // 45 degree incidence in xy-plane, normal +y, going into glass
       const Float4 incident = normalize3(Float4{1.0f, -1.0f, 0.0f, 0.0f});

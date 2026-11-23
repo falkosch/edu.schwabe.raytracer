@@ -2,18 +2,19 @@
 
 #include "TempFile.h"
 
+#include <cstring>
 #include <filesystem>
 #include <fstream>
+#include <memory>
 #include <string>
 #include <vector>
 
 namespace raytracer::test {
   namespace {
-    // Bitmap's only file loader is loadPPM; saveAs* writes BMP/PNG (no symmetric loader). The
-    // round-trip exercised here is therefore:
+    // Bitmap stores each pixel as b,g,r, the bottom scanline first (a Windows DIB). The round-trips
+    // exercised here:
     //  - construct a binary PPM in a temp file → loadPPM → assert pixels
-    //  - construct a Bitmap in memory → saveAsBMP/saveAsPNG → assert file exists and starts with
-    //    the expected magic bytes
+    //  - construct a Bitmap in memory → saveAsBMP/saveAsPNG → loadBMP/loadPNG → assert pixels
 
     void writePPM(const std::filesystem::path& path, ASizeT width, ASizeT height,
                   const std::vector<unsigned char>& rgbRows) {
@@ -38,6 +39,53 @@ namespace raytracer::test {
       std::error_code ec;
       const auto sz = std::filesystem::file_size(path, ec);
       return ec ? 0u : sz;
+    }
+
+    // A bitmap with a different value in every pixel byte; 5 pixels wide, so each scanline has a padding byte
+    std::unique_ptr<Bitmap> patternBitmap() {
+      auto bitmap = std::make_unique<Bitmap>(Size2{5, 3});
+      for (ASizeT row = 0; row < 3; ++row) {
+        for (ASizeT byte = 0; byte < bitmap->getStride(); ++byte) {
+          (*bitmap)[row * bitmap->getStride() + byte] = static_cast<Bitmap::VectorType::ValueType>(16 * row + byte);
+        }
+      }
+      return bitmap;
+    }
+
+    // The pixel bytes must match, the padding bytes may differ
+    void assertSamePixels(const Bitmap& expected, const Bitmap& actual) {
+      Assert::AreEqual(x(expected.getResolution()), x(actual.getResolution()), L"width", LINE_INFO());
+      Assert::AreEqual(y(expected.getResolution()), y(actual.getResolution()), L"height", LINE_INFO());
+      Assert::AreEqual(expected.getStride(), actual.getStride(), L"stride", LINE_INFO());
+      const auto rowBytes = Bitmap::VectorType::SIZE * x(expected.getResolution());
+      for (ASizeT row = 0; row < y(expected.getResolution()); ++row) {
+        for (ASizeT byte = 0; byte < rowBytes; ++byte) {
+          const auto index = row * expected.getStride() + byte;
+          Assert::AreEqual(static_cast<int>(expected[index]), static_cast<int>(actual[index]), L"pixel byte",
+                           LINE_INFO());
+        }
+      }
+    }
+
+    // An uncompressed BMP with the given height (negative: top-down) and bit count, 1 pixel wide
+    void writeBMP(const std::filesystem::path& path, const LONG height, const WORD bitCount,
+                  const std::vector<unsigned char>& rows) {
+      BITMAPINFOHEADER info{};
+      info.biSize = sizeof(BITMAPINFOHEADER);
+      info.biWidth = 1;
+      info.biHeight = height;
+      info.biPlanes = 1;
+      info.biBitCount = bitCount;
+      info.biCompression = BI_RGB;
+      info.biSizeImage = static_cast<DWORD>(rows.size());
+      BITMAPFILEHEADER header{};
+      header.bfType = 0x4d42;
+      header.bfOffBits = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER);
+      header.bfSize = header.bfOffBits + info.biSizeImage;
+      std::ofstream out(path, std::ios::binary | std::ios::trunc);
+      out.write(reinterpret_cast<const char*>(&header), sizeof(header));
+      out.write(reinterpret_cast<const char*>(&info), sizeof(info));
+      out.write(reinterpret_cast<const char*>(rows.data()), static_cast<std::streamsize>(rows.size()));
     }
   }
 
@@ -98,14 +146,14 @@ namespace raytracer::test {
       Assert::AreEqual(static_cast<Size2::ValueType>(1), y(loaded->getResolution()),
                        L"resolution y", LINE_INFO());
 
-      // Bitmap stores the pixel as RGB triples in operator[] (despite BGR in BITMAPINFO).
-      // Lock in the observed convention: data[0]=R, [1]=G, [2]=B for a max-value=255 PPM.
-      Assert::AreEqual(static_cast<Bitmap::VectorType::ValueType>(255), (*loaded)[0],
-                       L"channel 0 = R", LINE_INFO());
+      // Bitmap stores the pixel as BGR triples, as BITMAPINFO, saveAsBMP and saveAsPNG read them:
+      // data[0]=B, [1]=G, [2]=R for a max-value=255 PPM.
+      Assert::AreEqual(static_cast<Bitmap::VectorType::ValueType>(0), (*loaded)[0],
+                       L"channel 0 = B", LINE_INFO());
       Assert::AreEqual(static_cast<Bitmap::VectorType::ValueType>(0), (*loaded)[1],
                        L"channel 1 = G", LINE_INFO());
-      Assert::AreEqual(static_cast<Bitmap::VectorType::ValueType>(0), (*loaded)[2],
-                       L"channel 2 = B", LINE_INFO());
+      Assert::AreEqual(static_cast<Bitmap::VectorType::ValueType>(255), (*loaded)[2],
+                       L"channel 2 = R", LINE_INFO());
     }
 
     TEST_METHOD(loadPPMFlipsYAxis) {
@@ -121,11 +169,11 @@ namespace raytracer::test {
       // So data row 0 corresponds to disk row 1 (green).
       // Stride may include padding; only the first three bytes are pixel data for a 1-pixel row.
       Assert::AreEqual(static_cast<Bitmap::VectorType::ValueType>(0), (*loaded)[0],
-                       L"row 0 R (was disk-bottom green)", LINE_INFO());
+                       L"row 0 B", LINE_INFO());
       Assert::AreEqual(static_cast<Bitmap::VectorType::ValueType>(255), (*loaded)[1],
                        L"row 0 G (was disk-bottom green)", LINE_INFO());
       Assert::AreEqual(static_cast<Bitmap::VectorType::ValueType>(0), (*loaded)[2],
-                       L"row 0 B", LINE_INFO());
+                       L"row 0 R (was disk-bottom green)", LINE_INFO());
     }
 
     TEST_METHOD(loadPPMRejectsNonP6) {
@@ -195,6 +243,71 @@ namespace raytracer::test {
       const std::string badPath = "Z:/__nonexistent_directory__/file.bmp";
       Assert::IsFalse(bitmap.saveAsBMP(badPath), L"saveAsBMP should fail on bad path",
                       LINE_INFO());
+    }
+
+    TEST_METHOD(saveAsBMPLoadBMPRoundTrip) {
+      TempFile temp{".bmp"};
+      const auto bitmap = patternBitmap();
+      Assert::IsTrue(bitmap->saveAsBMP(temp.str()), L"saveAsBMP succeeds", LINE_INFO());
+      const auto loaded = Bitmap::loadBMP(temp.str());
+      Assert::IsNotNull(loaded.get(), L"loadBMP succeeds", LINE_INFO());
+      assertSamePixels(*bitmap, *loaded);
+    }
+
+    TEST_METHOD(loadBMPReadsBottomUpRows) {
+      TempFile temp{".bmp"};
+      // two scanlines of one pixel, each padded to 4 bytes: bottom blue, top red
+      writeBMP(temp.path, 2, 24, {255, 0, 0, 0, 0, 0, 255, 0});
+      const auto loaded = Bitmap::loadBMP(temp.str());
+      Assert::IsNotNull(loaded.get(), L"loadBMP succeeds", LINE_INFO());
+      Assert::AreEqual(255, static_cast<int>((*loaded)[0]), L"row 0 B", LINE_INFO());
+      Assert::AreEqual(255, static_cast<int>((*loaded)[loaded->getStride() + 2]), L"row 1 R", LINE_INFO());
+    }
+
+    TEST_METHOD(loadBMPFlipsTopDownRows) {
+      TempFile temp{".bmp"};
+      // a negative height stores the top scanline first: top red, bottom blue
+      writeBMP(temp.path, -2, 24, {0, 0, 255, 0, 255, 0, 0, 0});
+      const auto loaded = Bitmap::loadBMP(temp.str());
+      Assert::IsNotNull(loaded.get(), L"loadBMP succeeds", LINE_INFO());
+      Assert::AreEqual(static_cast<Size2::ValueType>(2), y(loaded->getResolution()), L"height", LINE_INFO());
+      Assert::AreEqual(255, static_cast<int>((*loaded)[0]), L"row 0 B", LINE_INFO());
+      Assert::AreEqual(255, static_cast<int>((*loaded)[loaded->getStride() + 2]), L"row 1 R", LINE_INFO());
+    }
+
+    TEST_METHOD(loadBMPRejectsOtherBitCounts) {
+      TempFile temp{".bmp"};
+      writeBMP(temp.path, 1, 32, {1, 2, 3, 4});
+      Assert::IsNull(Bitmap::loadBMP(temp.str()).get(), L"32-bit BMP is rejected", LINE_INFO());
+    }
+
+    TEST_METHOD(loadBMPRejectsTruncatedFile) {
+      TempFile temp{".bmp"};
+      writeBMP(temp.path, 2, 24, {255, 0, 0, 0});
+      Assert::IsNull(Bitmap::loadBMP(temp.str()).get(), L"missing scanline is rejected", LINE_INFO());
+    }
+
+    TEST_METHOD(loadBMPRejectsOtherFiles) {
+      TempFile temp{".bmp"};
+      writePPM(temp.path, 1, 1, {255, 0, 0});
+      Assert::IsNull(Bitmap::loadBMP(temp.str()).get(), L"PPM is rejected", LINE_INFO());
+      Assert::IsNull(Bitmap::loadBMP("this_file_should_not_exist_xyzzy.bmp").get(), L"missing file", LINE_INFO());
+    }
+
+    TEST_METHOD(saveAsPNGLoadPNGRoundTrip) {
+      TempFile temp{".png"};
+      const auto bitmap = patternBitmap();
+      Assert::IsTrue(bitmap->saveAsPNG(temp.str()), L"saveAsPNG succeeds", LINE_INFO());
+      const auto loaded = Bitmap::loadPNG(temp.str());
+      Assert::IsNotNull(loaded.get(), L"loadPNG succeeds", LINE_INFO());
+      assertSamePixels(*bitmap, *loaded);
+    }
+
+    TEST_METHOD(loadPNGRejectsOtherFiles) {
+      TempFile temp{".png"};
+      Assert::IsTrue(patternBitmap()->saveAsBMP(temp.str()), L"saveAsBMP succeeds", LINE_INFO());
+      Assert::IsNull(Bitmap::loadPNG(temp.str()).get(), L"BMP is rejected", LINE_INFO());
+      Assert::IsNull(Bitmap::loadPNG("this_file_should_not_exist_xyzzy.png").get(), L"missing file", LINE_INFO());
     }
 
     TEST_METHOD(allBlackPPMRoundTrip) {

@@ -10,8 +10,9 @@ namespace raytracer
 {
   using namespace vectorization;
 
-  // Bitmap with 8-bit-width red, green and blue color-channels but no alpha-channel.
-  // The width of each scanline is padded to be a multiple of 4 bytes.
+  // Bitmap with 8-bit-width red, green and blue color-channels but no alpha-channel, laid out as a Windows DIB: each
+  // pixel blue, green, red (in this order), the bottom scanline first. The width of each scanline is padded to be a
+  // multiple of 4 bytes.
   class Bitmap final
   {
   public:
@@ -87,6 +88,13 @@ namespace raytracer
 
     bool saveAsPNG(const std::string& filename) const;
 
+    // Loads an uncompressed 24-bit BMP file as saveAsBMP writes it (bottom-up or top-down rows); nullptr on failure
+    static std::unique_ptr<Bitmap> loadBMP(const std::string& filename);
+
+    // Loads a PNG file of any pixel format, the alpha channel dropped; nullptr on failure
+    static std::unique_ptr<Bitmap> loadPNG(const std::string& filename);
+
+    // Loads a binary PPM file (P6); nullptr on failure
     static std::unique_ptr<Bitmap> loadPPM(const std::string& filename);
   };
 }

@@ -4,13 +4,31 @@
 #include "raytracing/shading/color/primaries.h"
 #include "raytracing/shading/color/view_transform.h"
 
+#include <bit>
+#include <cstdint>
+#include <fstream>
+#include <logging.h>
+#include <vector>
+
 #ifndef MSVC
 #include <memory>
 #include <type_traits>
 #endif
 
+static const auto Log = logging::scope("HDRImage");
+
 namespace raytracer
 {
+    namespace
+    {
+        // PFM stores IEEE float32; the writer and the little-endian detection rely on the native float format
+        using PFMValueType = float;
+        static_assert(sizeof(PFMValueType) == sizeof(std::uint32_t));
+        static_assert(std::endian::native == std::endian::little);
+
+        constexpr ASizeT PFMColorChannels = 3;
+    }
+
     HDRImage::HDRImage() : resolution(One<ASizeT>()), resolutionf(), data()
     {
         init();
@@ -46,10 +64,11 @@ namespace raytracer
 
             for (ASizeT x = Zero<ASizeT>(); x < width; ++x)
             {
+                // the bitmap stores b,g,r
                 const ASizeT indexIn = scanlineIn + x * Bitmap::VectorType::SIZE;
                 const auto texel =
-                    Int4(bitmap[indexIn + Zero<ASizeT>()], bitmap[indexIn + One<ASizeT>()],
-                         bitmap[indexIn + Two<ASizeT>()]);
+                    Int4(bitmap[indexIn + Two<ASizeT>()], bitmap[indexIn + One<ASizeT>()],
+                         bitmap[indexIn + Zero<ASizeT>()]);
                 const auto normalized = zeroW(convert<Float4>(texel) + OFFSET) * RSCALE;
                 data[scanlineOut + x] = srgbColorConversion
                                             ? color::srgbDecode(normalized)
@@ -225,5 +244,102 @@ namespace raytracer
             mix(data[static_cast<ASizeT>(z(indices))], data[static_cast<ASizeT>(w(indices))], xxxx(partialArea)),
             yyyy(partialArea)
         );
+    }
+
+    bool HDRImage::saveAsPFM(const std::string& filename) const
+    {
+        std::ofstream file(filename.c_str(), std::ios::binary | std::ios::trunc);
+        if (!file.is_open())
+        {
+            Log.error([fn = filename] { return "opening file " + fn + " failed"; });
+            return false;
+        }
+
+        // a negative scale marks little-endian data
+        const auto width = x(resolution);
+        const auto height = y(resolution);
+        file << "PF\n" << width << ' ' << height << "\n-1.0\n";
+
+        std::vector<PFMValueType> scanline(PFMColorChannels * width);
+        for (auto row = Zero<ASizeT>(); row < height; ++row)
+        {
+            for (auto column = Zero<ASizeT>(); column < width; ++column)
+            {
+                const auto& texel = data[row * width + column];
+                auto* const values = &scanline[PFMColorChannels * column];
+                values[0] = static_cast<PFMValueType>(x(texel));
+                values[1] = static_cast<PFMValueType>(y(texel));
+                values[2] = static_cast<PFMValueType>(z(texel));
+            }
+            file.write(
+                reinterpret_cast<const char*>(scanline.data()),
+                static_cast<std::streamsize>(scanline.size() * sizeof(PFMValueType))
+            );
+        }
+
+        file.flush();
+        file.close();
+        return file.good();
+    }
+
+    std::unique_ptr<HDRImage> HDRImage::loadPFM(const std::string& filename)
+    {
+        std::ifstream file(filename.c_str(), std::ios::binary);
+        if (!file.is_open())
+        {
+            Log.error([fn = filename] { return "opening file " + fn + " failed"; });
+            return nullptr;
+        }
+
+        // the header: magic, width, height and scale separated by whitespace, then a single whitespace character
+        std::string magic;
+        auto width = Zero<ASizeT>();
+        auto height = Zero<ASizeT>();
+        auto scale = Zero<double>();
+        file >> magic >> width >> height >> scale;
+        file.get();
+        if (!file || (magic != "PF" && magic != "Pf") || width == Zero<ASizeT>() || height == Zero<ASizeT>()
+            || scale == Zero<double>())
+        {
+            Log.error([fn = filename] { return "File " + fn + " is not a PFM file"; });
+            return nullptr;
+        }
+
+        const auto channels = magic == "PF" ? PFMColorChannels : One<ASizeT>();
+        // a positive scale marks big-endian data
+        const auto byteSwapped = scale > Zero<double>();
+        auto loaded = std::make_unique<HDRImage>(Size2(width, height));
+
+        std::vector<std::uint32_t> scanline(channels * width);
+        const auto value = [&scanline, byteSwapped](const ASizeT index)
+        {
+            const auto bits = byteSwapped ? std::byteswap(scanline[index]) : scanline[index];
+            return static_cast<Float>(std::bit_cast<PFMValueType>(bits));
+        };
+        for (auto row = Zero<ASizeT>(); row < height; ++row)
+        {
+            file.read(
+                reinterpret_cast<char*>(scanline.data()),
+                static_cast<std::streamsize>(scanline.size() * sizeof(std::uint32_t))
+            );
+            if (!file)
+            {
+                Log.error([fn = filename] { return "File " + fn + " is truncated"; });
+                return nullptr;
+            }
+            for (auto column = Zero<ASizeT>(); column < width; ++column)
+            {
+                const auto index = channels * column;
+                loaded->data[row * width + column] = channels == PFMColorChannels
+                    ? Float4(value(index), value(index + One<ASizeT>()), value(index + Two<ASizeT>()), Zero<Float>())
+                    : zeroW(Float4(value(index)));
+            }
+        }
+
+        Log.info([fn = filename, width, height]
+        {
+            return "Image " + fn + "; " + std::to_string(width) + "x" + std::to_string(height) + " loaded.";
+        });
+        return loaded;
     }
 }

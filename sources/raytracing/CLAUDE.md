@@ -14,7 +14,7 @@ Core rendering engine. Static library depending on `primitives` and `vectorizati
 5. `ObjectShader::shade()` evaluates 7 material channels, upsamples RGB to `Spectrum` via the context's Smits basis
 6. `SceneShader::sampleLighting()` computes per-light contributions in spectral domain (Lambert diffuse,
    GGX microfacet specular with spectral Schlick-Fresnel, distance attenuation, shadow rays with caching)
-7. `Raytracer::applyBRDF()` composites: spectral BRDF, Fresnel reflectance, Beer-Lambert absorption
+7. `brdf::applyBRDF()` composites: spectral BRDF, Fresnel reflectance, Beer-Lambert absorption
 8. Reflection/transmission rays are traced recursively up to `maxTraceDepth`; the `SpectralContext` propagates. A
    surface rougher than `brdf::MirrorRoughness` reflects up to `glossySamples` VNDF-sampled rays
    (`traceGlossyReflection`, fewer the less the reflection adds to the pixel); `Raytrace::seed` (pixel and sub-sample,
@@ -37,7 +37,9 @@ Core rendering engine. Static library depending on `primitives` and `vectorizati
 
 - `Scene` -- owns SceneObjects, builds scene-level KD-tree via `buildSceneGraph()`
 - `SceneObject` -- Form + ObjectShader + transform + ID string
-- `Camera` -- perspective projection, view/model matrices, frustum plane computation
+- `Camera` -- perspective projection, view/model matrices, frustum plane computation. Its header documents the
+  conventions: the frustum's "top left" is image row 0, the bottom of the view; `translate(v)` moves the camera by
+  -v; `rotate` takes yaw, pitch and roll
 - `Resources` -- loads OFF meshes and HDR/PPM textures
 
 ### Geometry (`geometry/`)
@@ -47,7 +49,8 @@ Core rendering engine. Static library depending on `primitives` and `vectorizati
   the plane normals in `leafGeometry` order, component-wise in blocks of 8 (primitives' `FacetLanes`,
   `FacetNormalsBlock`), and test a block at once with `intersectionsHavel` (`nearestIntersectionHavel`'s steps
   lane-wise). Its dot products are explicit FMA chains, so results can differ from the single-facet test in the last
-  bits
+  bits. `buildCubeMesh`, `buildPlaneMesh` and `buildTriangleMesh` take a traverser and a balancer like
+  `loadFromOffFile`; without them the mesh has no KD-tree and tests every facet (also after `setTreeBalancer`)
 - `FacetIntersection` -- model-space intersection data (position, geometric normal, tex coords)
 - `SceneIntersection` -- world-space data (smoothed normal, reflection direction, parent object ref)
 
@@ -101,6 +104,8 @@ Traversers (template on intersection type):
 - `SpectralContext` -- per hero wavelength: wavelengths, Smits basis, XYZ context, ambient and per-light spectra;
   built once per sub-sample and frame (`SceneShader::createSpectralContext()`)
 - `Shader<C, I, O>` -- template base for all shaders (Containment, Intersection -> Output)
+- `beerLambertTransmittance()` (`beer_lambert_transmittance.h`) -- the absorption along a path through a
+  transmissive material, for transmitted rays (`traceTransmission`) and shadow rays (`transmitShadowRay`)
 - Concrete shaders: `ConstShader`, `HDRImageShader`, `EnvironmentShader`, `IntersectionNormalShader`,
   `MultiplyByConstShader`, `ConcatenatingShader`, `NoiseGeneratorMap<Octaves>`
 - `EnvironmentShader` maps the ray direction into its image by an `EnvironmentProjection`
@@ -122,6 +127,9 @@ Traversers (template on intersection type):
 - `evaluateGGX()` -- full microfacet BRDF (D * G * F / 4NoVNoL)
 - `evaluateGGX_DG()` -- BRDF without Fresnel (D * G / 4NoVNoL), from precomputed NoV, NoL, NoH
 - `schlickFresnelSpectral()` -- per-wavelength Schlick approximation on Spectrum
+- `fresnelReflectance()` (`fresnel_reflectance.h`) -- Schlick reflectance at a dielectric interface, from the eta
+  layout of `RefractionIndices::refractionEta`; 1 for a total internal reflection
+- `applyBRDF()` (`apply_brdf.h`) -- the radiance of a hit from its `BRDFParameters`
 - `sampleGGX()` -- VNDF importance sampling (Heitz 2018), for the glossy reflections
 - The roughness channel is the GGX alpha itself (highlights and glossy reflections), not its square root
 
@@ -138,8 +146,11 @@ Traversers (template on intersection type):
   v = 0). `TextureWrap::Repeat` tiles (default), `ClampV` keeps the rows of images that span a sphere once apart at
   the poles, `Clamp` keeps both axes at the edges; `HDRImageShader` takes the mode. No mipmaps: minified textures
   alias
-- `Bitmap` -- LDR image (8-bit per channel)
-- `PNGWriter` -- PNG file output (uses libpng)
+- `HDRImage::saveAsPFM()`, `loadPFM()` -- Portable Float Map file I/O (PF/Pf, either byte order on load)
+- `Bitmap` -- LDR image (8-bit per channel), laid out as a Windows DIB: b,g,r per pixel, the bottom row first.
+  `saveAsBMP`/`loadBMP` (uncompressed 24-bit), `saveAsPNG`/`loadPNG`, `loadPPM`; `HDRImage(Bitmap)` and
+  `Bitmap(Image)` convert between the channel orders
+- `savePNG()` (`save_png.h`), `loadPNG()` (`load_png.h`) -- PNG file output and input (WIC)
 - `PerlinNoiseGenerator`, `SimplexNoiseGenerator` -- procedural noise (Simplex follows Ken Perlin's reference, but
   with a seeded hash table; `NoiseGeneratorMap` sums octaves of `noise3`, octave i at frequency 2^i weighing 2^-i)
 - `RefractionIndices` -- physical IOR constants (Vacuum, Air, Water, Glass, Diamond, etc.)

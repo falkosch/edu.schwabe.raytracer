@@ -54,8 +54,6 @@ namespace raytracer
 
         void trace();
 
-        static spectral::Spectrum applyBRDF(const BRDFParameters& brdf);
-
         static IlluminatedIntersection trace(const Raytrace& raytrace, RaytracerCache& cache);
 
         static void traceGlossyReflection(

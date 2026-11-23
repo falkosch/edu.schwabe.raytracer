@@ -12,13 +12,14 @@ set(SOURCES
         src/raytracing/RaytracerPackets.cpp
         src/raytracing/common/Bitmap.cpp
         src/raytracing/common/HDRImage.cpp
-        src/raytracing/common/PNGWriter.cpp
         src/raytracing/common/RGBS.cpp
         src/raytracing/common/RefractionIndices.cpp
         src/raytracing/common/StatisticsCookie.cpp
         src/raytracing/common/Tools.cpp
+        src/raytracing/common/load_png.cpp
         src/raytracing/common/noise/PerlinNoiseGenerator.cpp
         src/raytracing/common/noise/SimplexNoiseGenerator.cpp
+        src/raytracing/common/save_png.cpp
         src/raytracing/geometry/FacetIntersection.cpp
         src/raytracing/geometry/ObjectGeometry.cpp
         src/raytracing/geometry/SceneGeometry.cpp
@@ -68,6 +69,9 @@ set(SOURCES
         src/raytracing/shading/SpectralContext.cpp
         src/raytracing/shading/SurfaceShading.cpp
         src/raytracing/shading/TextureTransformInfo.cpp
+        src/raytracing/shading/beer_lambert_transmittance.cpp
+        src/raytracing/shading/brdf/apply_brdf.cpp
+        src/raytracing/shading/brdf/fresnel_reflectance.cpp
         src/raytracing/shading/brdf/ggx.cpp
         src/raytracing/shading/color/primaries.cpp
         src/raytracing/shading/color/view_transform.cpp
@@ -102,7 +106,6 @@ set(HEADERS
         include/raytracing/common/Bitmap.h
         include/raytracing/common/HDRImage.h
         include/raytracing/common/Image.h
-        include/raytracing/common/PNGWriter.h
         include/raytracing/common/RGBS.h
         include/raytracing/common/RefractionIndices.h
         include/raytracing/common/TextureWrap.h
@@ -175,6 +178,9 @@ set(HEADERS
         include/raytracing/shading/Shader.h
         include/raytracing/shading/SurfaceShading.h
         include/raytracing/shading/TextureTransformInfo.h
+        include/raytracing/shading/beer_lambert_transmittance.h
+        include/raytracing/shading/brdf/apply_brdf.h
+        include/raytracing/shading/brdf/fresnel_reflectance.h
         include/raytracing/shading/brdf/ggx.h
         include/raytracing/shading/color/primaries.h
         include/raytracing/shading/color/view_transform.h
@@ -213,7 +219,9 @@ target_link_libraries(${PROJECT_NAME} PUBLIC vectorization primitives ole32 wind
 
 target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
-set_source_files_properties(src/raytracing/common/PNGWriter.cpp PROPERTIES SKIP_PRECOMPILE_HEADERS ON)
+set_source_files_properties(
+        src/raytracing/common/load_png.cpp src/raytracing/common/save_png.cpp PROPERTIES SKIP_PRECOMPILE_HEADERS ON
+)
 
 target_precompile_headers(${PROJECT_NAME} PRIVATE src/stdafx.h)
 

@@ -3,19 +3,129 @@
 #include "../../../common/TempFile.h"
 
 #include "raytracing/geometry/forms/meshes/Mesh.h"
+#include "raytracing/geometry/forms/meshes/MeshGeometryNode.h"
+#include "raytracing/geometry/partitioning/treebalancer/BruteForceSAHKDTreeBalancer.h"
 #include "raytracing/geometry/partitioning/treebalancer/MedianKDTreeBalancer.h"
+#include "raytracing/geometry/partitioning/treetraverser/NaiveKDTreeTraverser.h"
+#include "raytracing/geometry/partitioning/treetraverser/WideKDTreeTraverser.h"
 
 #include <fstream>
 #include <random>
+#include <utility>
 #include <vector>
 
 namespace raytracer::test {
+  namespace {
+    // Counts the queries the mesh hands to its traverser, then traverses with the wide traverser
+    class CountingKDTreeTraverser : public KDTreeTraverser<FacetIntersection> {
+    public:
+      mutable int queries = 0;
+
+      Float findNearestIntersection(
+          const GeometryNodesTraverser<FacetIntersection> &geometryNodesTraverser, const KDTreeRoot &root,
+          const RayCast &rayCast, const FacetIntersection *const originIntersection,
+          FacetIntersection &intersectionOut
+      ) const override {
+        ++queries;
+        return traverser.findNearestIntersection(
+            geometryNodesTraverser, root, rayCast, originIntersection, intersectionOut
+        );
+      }
+
+      Float findAnyIntersection(
+          const GeometryNodesTraverser<FacetIntersection> &geometryNodesTraverser, const KDTreeRoot &root,
+          const RayCast &rayCast, const FacetIntersection *const originIntersection,
+          FacetIntersection &intersectionOut
+      ) const override {
+        ++queries;
+        return traverser.findAnyIntersection(
+            geometryNodesTraverser, root, rayCast, originIntersection, intersectionOut
+        );
+      }
+
+    private:
+      WideKDTreeTraverser<FacetIntersection> traverser;
+    };
+
+    ASizeT facetIndexOf(const FacetIntersection &intersection) {
+      const auto *node = dynamic_cast<const MeshGeometryNode *>(intersection.node);
+      Assert::IsNotNull(node, L"hit a mesh facet", LINE_INFO());
+      return node->index;
+    }
+
+    // Rays from outside towards points in the cube and from inside the cube in any direction
+    std::vector<Ray> cubeRays() {
+      auto generator = std::mt19937{0x5eed1234u};
+      auto uniform = std::uniform_real_distribution<Float>(-1.0f, 1.0f);
+      std::vector<Ray> rays;
+      for (auto i = 0; i < 32; ++i) {
+        const auto origin = Float4{3.0f * uniform(generator), 3.0f * uniform(generator), -3.0f, 1.0f};
+        const auto target =
+          Float4{0.5f * uniform(generator), 0.5f * uniform(generator), 0.5f * uniform(generator), 1.0f};
+        rays.emplace_back(origin, normalize3(target - origin));
+        const auto inside =
+          Float4{0.4f * uniform(generator), 0.4f * uniform(generator), 0.4f * uniform(generator), 1.0f};
+        const auto direction = Float4{uniform(generator), uniform(generator), uniform(generator), 0.0f};
+        rays.emplace_back(inside, normalize3(direction));
+      }
+      return rays;
+    }
+
+    // Every ray in every culling mode, also continued from its hit facet as a secondary ray, must hit the same facet
+    // of both meshes at the same distance. Returns the count of nearest hits.
+    int assertSameIntersections(const Mesh &expected, const Mesh &actual) {
+      // relative to distances of up to about 6; the KD-tree's leaves take the block test, whose FMA chains differ in
+      // the last bits
+      constexpr auto DistanceTolerance = 1e-5f;
+      auto hits = 0;
+      for (const auto culling : {-1, 0, 1}) {
+        for (const auto &ray : cubeRays()) {
+          const RayCast rayCast{ray, cullingOrientationToMask(culling), Size2(0, 0), 100.0f};
+          auto expectedHit = FacetIntersection{};
+          auto actualHit = FacetIntersection{};
+          const auto expectedDistance = expected.findNearestIntersection(rayCast, nullptr, expectedHit);
+          const auto actualDistance = actual.findNearestIntersection(rayCast, nullptr, actualHit);
+          Assert::AreEqual(expectedDistance, actualDistance, DistanceTolerance, L"nearest distance", LINE_INFO());
+
+          auto expectedAny = FacetIntersection{};
+          auto actualAny = FacetIntersection{};
+          Assert::AreEqual(
+              expected.findAnyIntersection(rayCast, nullptr, expectedAny) < rayCast.maxDistance,
+              actual.findAnyIntersection(rayCast, nullptr, actualAny) < rayCast.maxDistance, L"any hit", LINE_INFO()
+          );
+          if (expectedDistance >= rayCast.maxDistance) {
+            continue;
+          }
+          ++hits;
+          Assert::AreEqual(facetIndexOf(expectedHit), facetIndexOf(actualHit), L"nearest facet", LINE_INFO());
+
+          // the secondary ray from the hit facet must skip it
+          const RayCast continued{
+              Ray{ray.origin + ray.direction * Float4(expectedDistance), ray.direction},
+              cullingOrientationToMask(culling), Size2(0, 0), 100.0f
+          };
+          auto expectedNext = FacetIntersection{};
+          auto actualNext = FacetIntersection{};
+          const auto expectedNextDistance = expected.findNearestIntersection(continued, &expectedHit, expectedNext);
+          const auto actualNextDistance = actual.findNearestIntersection(continued, &actualHit, actualNext);
+          Assert::AreEqual(
+              expectedNextDistance, actualNextDistance, DistanceTolerance, L"secondary distance", LINE_INFO()
+          );
+          if (expectedNextDistance < continued.maxDistance) {
+            Assert::AreEqual(facetIndexOf(expectedNext), facetIndexOf(actualNext), L"secondary facet", LINE_INFO());
+          }
+        }
+      }
+      return hits;
+    }
+  }
+
   TEST_CLASS(MeshTest) {
-    // Mesh::buildXxxMesh static helpers default-construct (no traverser, no balancer), so the
-    // returned mesh has no KD-tree and findNearestIntersection takes the brute-force fallback over
-    // the geometryNodes list. Note: setupMesh() rescales/translates the input vertices via
-    // computeStandardMesh() — the input shape is centered at the origin and uniformly scaled to fit
-    // within [-0.5, 0.5] along the axes with non-zero extent.
+    // Mesh::buildXxxMesh static helpers without a traverser and a balancer build a mesh without a
+    // KD-tree, so findNearestIntersection takes the brute-force fallback over the geometryNodes list.
+    // Given both, they wire the KD-tree as loadFromOffFile does. Note: setupMesh() rescales/translates
+    // the input vertices via computeStandardMesh() — the input shape is centered at the origin and
+    // uniformly scaled to fit within [-0.5, 0.5] along the axes with non-zero extent.
     static std::unique_ptr<Mesh> makeTriangleMesh() {
       return Mesh::buildTriangleMesh();
     }
@@ -391,6 +501,99 @@ namespace raytracer::test {
         }
       }
       Assert::IsTrue(hits > 1000, L"enough hits to compare", LINE_INFO());
+    }
+
+    TEST_METHOD(builtMeshWithTraverserAndBalancerHasKDTree) {
+      const auto mesh = Mesh::buildCubeMesh(
+          std::make_unique<WideKDTreeTraverser<FacetIntersection>>(), std::make_unique<BruteForceSAHKDTreeBalancer>()
+      );
+      Assert::IsNotNull(mesh->getGraph(), L"KD-tree built", LINE_INFO());
+      Assert::IsNull(makeCubeMesh()->getGraph(), L"no KD-tree without a balancer", LINE_INFO());
+    }
+
+    TEST_METHOD(builtMeshIntersectsThroughItsTraverser) {
+      auto traverser = std::make_unique<CountingKDTreeTraverser>();
+      const auto &counter = *traverser;
+      const auto mesh = Mesh::buildCubeMesh(std::move(traverser), std::make_unique<BruteForceSAHKDTreeBalancer>());
+
+      const Ray ray{Float4{0.1f, 0.2f, -5.0f, 1.0f}, Float4{0.0f, 0.0f, 1.0f, 0.0f}};
+      const RayCast rayCast{ray, Zero<Float4::VectorBoolType>(), Size2(0, 0), 100.0f};
+      FacetIntersection intersection{};
+      Assert::AreEqual(
+          4.5f, mesh->findNearestIntersection(rayCast, nullptr, intersection), 0.001f, L"nearest", LINE_INFO()
+      );
+      // without culling, any hit may also be the back face
+      Assert::IsTrue(mesh->findAnyIntersection(rayCast, nullptr, intersection) < rayCast.maxDistance, L"any",
+                     LINE_INFO());
+      Assert::AreEqual(2, counter.queries, L"both queries traverse the KD-tree", LINE_INFO());
+    }
+
+    TEST_METHOD(kdTreeCubeMatchesBruteForce) {
+      const auto bruteForce = makeCubeMesh();
+      const auto naiveSAH = Mesh::buildCubeMesh(
+          std::make_unique<NaiveKDTreeTraverser<FacetIntersection>>(), std::make_unique<BruteForceSAHKDTreeBalancer>()
+      );
+      const auto wideSAH = Mesh::buildCubeMesh(
+          std::make_unique<WideKDTreeTraverser<FacetIntersection>>(), std::make_unique<BruteForceSAHKDTreeBalancer>()
+      );
+      const auto wideMedian = Mesh::buildCubeMesh(
+          std::make_unique<WideKDTreeTraverser<FacetIntersection>>(), std::make_unique<MedianKDTreeBalancer>()
+      );
+      for (const auto *mesh : {naiveSAH.get(), wideSAH.get(), wideMedian.get()}) {
+        Assert::IsTrue(assertSameIntersections(*bruteForce, *mesh) > 100, L"enough hits to compare", LINE_INFO());
+      }
+    }
+
+    TEST_METHOD(kdTreePlaneAndTriangleMatchBruteForce) {
+      // Rays towards the z = 0 plane from both sides, so the culling modes give hits and misses
+      const auto planeBruteForce = Mesh::buildPlaneMesh();
+      const auto plane = Mesh::buildPlaneMesh(
+          std::make_unique<WideKDTreeTraverser<FacetIntersection>>(), std::make_unique<BruteForceSAHKDTreeBalancer>()
+      );
+      const auto triangleBruteForce = Mesh::buildTriangleMesh();
+      const auto triangle = Mesh::buildTriangleMesh(
+          std::make_unique<WideKDTreeTraverser<FacetIntersection>>(), std::make_unique<BruteForceSAHKDTreeBalancer>()
+      );
+      Assert::IsNotNull(plane->getGraph(), L"plane KD-tree", LINE_INFO());
+      Assert::IsNotNull(triangle->getGraph(), L"triangle KD-tree", LINE_INFO());
+      const auto pairs = {
+          std::pair{planeBruteForce.get(), plane.get()}, std::pair{triangleBruteForce.get(), triangle.get()}
+      };
+      auto hits = 0;
+      for (const auto culling : {-1, 0, 1}) {
+        for (const auto side : {-1.0f, 1.0f}) {
+          for (auto i = 0; i < 9; ++i) {
+            const auto px = 0.3f * static_cast<Float>(i % 3 - 1) + 0.05f;
+            const auto py = 0.3f * static_cast<Float>(i / 3 - 1) + 0.05f;
+            const Ray ray{Float4{px, py, 5.0f * side, 1.0f}, Float4{0.0f, 0.0f, -side, 0.0f}};
+            const RayCast rayCast{ray, cullingOrientationToMask(culling), Size2(0, 0), 100.0f};
+            for (const auto &[expected, actual] : pairs) {
+              auto expectedHit = FacetIntersection{};
+              auto actualHit = FacetIntersection{};
+              const auto distance = expected->findNearestIntersection(rayCast, nullptr, expectedHit);
+              Assert::AreEqual(
+                  distance, actual->findNearestIntersection(rayCast, nullptr, actualHit), 1e-5f, L"nearest distance",
+                  LINE_INFO()
+              );
+              Assert::AreEqual(
+                  expected->findAnyIntersection(rayCast, nullptr, expectedHit),
+                  actual->findAnyIntersection(rayCast, nullptr, actualHit), 1e-5f, L"any-hit distance", LINE_INFO()
+              );
+              hits += distance < rayCast.maxDistance ? 1 : 0;
+            }
+          }
+        }
+      }
+      Assert::IsTrue(hits > 10, L"enough hits to compare", LINE_INFO());
+    }
+
+    TEST_METHOD(setTreeBalancerWithoutTraverserKeepsTestingEveryFacet) {
+      // Scene::setMeshTreeBalancer also reaches meshes built without a traverser
+      const auto bruteForce = makeCubeMesh();
+      const auto balanced = makeCubeMesh();
+      balanced->setTreeBalancer(std::make_unique<BruteForceSAHKDTreeBalancer>());
+      Assert::IsNotNull(balanced->getGraph(), L"KD-tree built", LINE_INFO());
+      Assert::IsTrue(assertSameIntersections(*bruteForce, *balanced) > 100, L"enough hits to compare", LINE_INFO());
     }
 
     TEST_METHOD(loadingRemovesFacetsWithoutArea) {

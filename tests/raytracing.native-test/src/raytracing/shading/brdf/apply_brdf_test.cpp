@@ -1,5 +1,6 @@
 #include "raytracing_tests.h"
 
+#include <raytracing/shading/brdf/apply_brdf.h>
 #include <raytracing/shading/spectral/conversion.h>
 #include <raytracing/shading/spectral/spectrum.h>
 #include <raytracing/shading/spectral/wavelengths.h>
@@ -10,20 +11,19 @@ namespace raytracer::test
 {
     using namespace spectral;
 
+    // brdf::applyBRDF on a hit with the given surface, lighting and coefficients
     static Spectrum applyBRDFFormula(const SurfaceShading& surface, const LightShading& lighting,
                                      const Spectrum& reflectanceCoefficient, const Spectrum& fractionTransmitted)
     {
-        const auto ambient = surface.diffusion * lighting.ambient;
-        const auto diffuse = surface.diffusion * lighting.diffuse;
-        const auto directLighting = ambient + diffuse + lighting.specular;
-
-        const auto reflection = surface.reflectance * lighting.reflected;
-        const auto transmitted = fractionTransmitted * lighting.transmitted;
-
-        return surface.emittance + directLighting + spectralMix(transmitted, reflection, reflectanceCoefficient.data);
+        BRDFParameters parameters;
+        parameters.surface = surface;
+        parameters.lighting = lighting;
+        parameters.reflectanceCoefficient = reflectanceCoefficient.data;
+        parameters.fractionTransmitted = fractionTransmitted.data;
+        return brdf::applyBRDF(parameters);
     }
 
-    TEST_CLASS (BRDFTest)
+    TEST_CLASS (ApplyBRDFTest)
     {
         public
         :
@@ -88,6 +88,55 @@ namespace raytracer::test
                                                  Spectrum::zero(), Spectrum::constant(1.0f));
 
             Assert::AreEqual(0.9f, x1(result.data), 1e-5f, L"transmission at coef=0", LINE_INFO());
+        }
+
+        TEST_METHOD(diffuseLightIsScaledByDiffusion)
+        {
+            SurfaceShading surface;
+            surface.diffusion = Spectrum::constant(0.5f);
+            LightShading lighting;
+            lighting.diffuse = Spectrum::constant(0.6f);
+            const auto result = applyBRDFFormula(surface, lighting, Spectrum::zero(), Spectrum::zero());
+
+            Assert::AreEqual(0.3f, x1(result.data), 1e-6f, L"0.5 * 0.6 = 0.3", LINE_INFO());
+        }
+
+        TEST_METHOD(specularIsAddedUnscaled)
+        {
+            SurfaceShading surface;
+            surface.diffusion = Spectrum::constant(0.5f);
+            surface.reflectance = Spectrum::constant(0.5f);
+            LightShading lighting;
+            lighting.specular = Spectrum::constant(0.25f);
+            const auto result = applyBRDFFormula(surface, lighting, Spectrum::zero(), Spectrum::zero());
+
+            Assert::AreEqual(0.25f, x1(result.data), 1e-6f, L"highlights carry their Fresnel already", LINE_INFO());
+        }
+
+        TEST_METHOD(fractionTransmittedAbsorbsTransmission)
+        {
+            SurfaceShading surface;
+            LightShading lighting;
+            lighting.transmitted = Spectrum::constant(0.8f);
+            const auto result = applyBRDFFormula(surface, lighting, Spectrum::zero(), Spectrum::constant(0.25f));
+
+            Assert::AreEqual(0.2f, x1(result.data), 1e-6f, L"0.8 * 0.25 = 0.2", LINE_INFO());
+        }
+
+        TEST_METHOD(reflectanceCoefficientMixesPerWavelength)
+        {
+            SurfaceShading surface;
+            surface.reflectance = Spectrum::constant(1.0f);
+            LightShading lighting;
+            lighting.reflected = Spectrum::constant(1.0f);
+            lighting.transmitted = Spectrum::constant(0.0f);
+            const auto coefficient = Spectrum{Float8{0.0f, 0.25f, 0.5f, 0.75f, 1.0f, 0.1f, 0.2f, 0.3f}};
+            const auto result = applyBRDFFormula(surface, lighting, coefficient, Spectrum::constant(1.0f));
+
+            Assert::AreEqual(0.0f, x1(result.data), 1e-6f, L"lane 0", LINE_INFO());
+            Assert::AreEqual(0.5f, x3(result.data), 1e-6f, L"lane 2", LINE_INFO());
+            Assert::AreEqual(1.0f, x5(result.data), 1e-6f, L"lane 4", LINE_INFO());
+            Assert::AreEqual(0.3f, x8(result.data), 1e-6f, L"lane 7", LINE_INFO());
         }
 
         TEST_METHOD(allZeroProducesZero)

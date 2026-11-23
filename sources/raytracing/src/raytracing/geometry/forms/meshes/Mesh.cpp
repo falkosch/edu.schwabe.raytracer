@@ -58,7 +58,8 @@ namespace raytracer
     const RayCast& rayCast, const FacetIntersection* const originIntersection, FacetIntersection& intersectionOut
   ) const
   {
-    if (graph)
+    // a mesh without a traverser tests every facet, also when setTreeBalancer gave it a KD-tree
+    if (graph && traverser)
     {
       return traverser->findNearestIntersection(*this, *graph, rayCast, originIntersection, intersectionOut);
     }
@@ -69,7 +70,8 @@ namespace raytracer
     const RayCast& rayCast, const FacetIntersection* const originIntersection, FacetIntersection& intersectionOut
   ) const
   {
-    if (graph)
+    // a mesh without a traverser tests every facet, also when setTreeBalancer gave it a KD-tree
+    if (graph && traverser)
     {
       return traverser->findAnyIntersection(*this, *graph, rayCast, originIntersection, intersectionOut);
     }
@@ -355,9 +357,12 @@ namespace raytracer
     );
   }
 
-  std::unique_ptr<Mesh> Mesh::buildCubeMesh()
+  std::unique_ptr<Mesh> Mesh::buildCubeMesh(
+    std::unique_ptr<const KDTreeTraverser<FacetIntersection>> traverser,
+    std::unique_ptr<const KDTreeBalancer> balancer
+  )
   {
-    auto mesh = std::make_unique<Mesh>();
+    auto mesh = std::make_unique<Mesh>(std::move(traverser), std::move(balancer));
 
     mesh->vertices.reserve(8);
     mesh->vertices.push_back(Float4(-1.0f, -1.0f, -1.0f, 1.0f));
@@ -398,9 +403,12 @@ namespace raytracer
     return mesh;
   }
 
-  std::unique_ptr<Mesh> Mesh::buildPlaneMesh()
+  std::unique_ptr<Mesh> Mesh::buildPlaneMesh(
+    std::unique_ptr<const KDTreeTraverser<FacetIntersection>> traverser,
+    std::unique_ptr<const KDTreeBalancer> balancer
+  )
   {
-    auto mesh = std::make_unique<Mesh>();
+    auto mesh = std::make_unique<Mesh>(std::move(traverser), std::move(balancer));
 
     mesh->vertices.reserve(4);
     mesh->vertices.push_back(Float4{-1.0f, -1.0f, 0.0f, 1.0f});
@@ -421,9 +429,12 @@ namespace raytracer
     return mesh;
   }
 
-  std::unique_ptr<Mesh> Mesh::buildTriangleMesh()
+  std::unique_ptr<Mesh> Mesh::buildTriangleMesh(
+    std::unique_ptr<const KDTreeTraverser<FacetIntersection>> traverser,
+    std::unique_ptr<const KDTreeBalancer> balancer
+  )
   {
-    auto mesh = std::make_unique<Mesh>();
+    auto mesh = std::make_unique<Mesh>(std::move(traverser), std::move(balancer));
 
     mesh->vertices.reserve(3);
     mesh->vertices.push_back(Float4{-0.5f, 0.0f, 0.0f, 1.0f});

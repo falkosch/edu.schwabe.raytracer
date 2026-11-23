@@ -4,6 +4,7 @@
 #include "TextureWrap.h"
 
 #include <memory>
+#include <string>
 
 namespace raytracer
 {
@@ -38,6 +39,7 @@ namespace raytracer
 
         explicit HDRImage(const Size2& resolution);
 
+        // Converts each pixel of the bitmap to [0, 1], decoded from sRGB to linear with srgbColorConversion; w is 0
         explicit HDRImage(const Bitmap& bitmap, bool srgbColorConversion = true);
 
         ~HDRImage() override;
@@ -60,5 +62,13 @@ namespace raytracer
 
         // Texel i's center lies at (i + 0.5) / resolution, row 0 at the bottom (v = 0)
         Float4 sampleBilinear(const Float4& texCoords, TextureWrap wrap = TextureWrap::Repeat) const;
+
+        // Saves x, y and z of each pixel (red, green, blue) as a Portable Float Map: PF, little-endian float32, the
+        // bottom row first as in the image
+        bool saveAsPFM(const std::string& filename) const;
+
+        // Loads a Portable Float Map, color (PF) or grayscale (Pf, into all three channels), of either byte order; w
+        // is 0. The scale's magnitude is ignored. nullptr on failure
+        static std::unique_ptr<HDRImage> loadPFM(const std::string& filename);
     };
 }

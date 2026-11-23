@@ -1,8 +1,10 @@
 #include "raytracing/common/Bitmap.h"
-#include "raytracing/common/PNGWriter.h"
+#include "raytracing/common/load_png.h"
+#include "raytracing/common/save_png.h"
 #include "../../stdafx.h"
 
 #include <array>
+#include <cassert>
 #include <cstring>
 #include <fstream>
 #include <logging.h>
@@ -159,16 +161,93 @@ namespace raytracer
                         + scaleOffset)
                     * scale;
 
+                // swap r,g,b to b,g,r
                 BitmapValueType* dataLoaded = &(loaded->data[scanline + j]);
-                *(dataLoaded++) = static_cast<BitmapValueType>(x(texel));
+                *(dataLoaded++) = static_cast<BitmapValueType>(z(texel));
                 *(dataLoaded++) = static_cast<BitmapValueType>(y(texel));
-                *(dataLoaded) = static_cast<BitmapValueType>(z(texel));
+                *(dataLoaded) = static_cast<BitmapValueType>(x(texel));
             }
         }
 
         Log.info([fn = filename, rx = x(resolution), ry = y(resolution)]
         {
             return "Image " + fn + "; " + std::to_string(rx) + "x" + std::to_string(ry) + " loaded.";
+        });
+        return loaded;
+    }
+
+    std::unique_ptr<Bitmap> Bitmap::loadBMP(const std::string& filename)
+    {
+        std::ifstream file(filename.c_str(), std::ios::binary);
+        if (!file.is_open())
+        {
+            Log.error([fn = filename] { return "opening file " + fn + " failed"; });
+            return nullptr;
+        }
+
+        BITMAPFILEHEADER fileHeader{};
+        BITMAPINFOHEADER infoHeader{};
+        file.read(reinterpret_cast<char*>(&fileHeader), sizeof(BITMAPFILEHEADER));
+        file.read(reinterpret_cast<char*>(&infoHeader), sizeof(BITMAPINFOHEADER));
+        if (!file || fileHeader.bfType != static_cast<WORD>(0x4d42) || infoHeader.biSize < sizeof(BITMAPINFOHEADER))
+        {
+            Log.error([fn = filename] { return "File " + fn + " is not a BMP file"; });
+            return nullptr;
+        }
+        const auto bitCount = static_cast<ASizeT>(VectorType::SIZE * sizeof(VectorType::ValueType)) << ASizeT{3};
+        if (infoHeader.biPlanes != WORD{1} || infoHeader.biBitCount != bitCount
+            || infoHeader.biCompression != BI_RGB || infoHeader.biWidth <= LONG{0}
+            || infoHeader.biHeight == LONG{0})
+        {
+            Log.error([fn = filename] { return "File " + fn + " is not an uncompressed 24-bit BMP file"; });
+            return nullptr;
+        }
+
+        // a negative height stores the top scanline first
+        const auto topDown = infoHeader.biHeight < LONG{0};
+        const auto height = static_cast<ASizeT>(topDown ? -infoHeader.biHeight : infoHeader.biHeight);
+        auto loaded = std::make_unique<Bitmap>(Size2(static_cast<ASizeT>(infoHeader.biWidth), height));
+
+        // the file pads its scanlines to 4 bytes as the bitmap does
+        file.seekg(static_cast<std::streamoff>(fileHeader.bfOffBits));
+        for (auto row = Zero<ASizeT>(); row < height; ++row)
+        {
+            const auto scanline = topDown ? height - row - One<ASizeT>() : row;
+            file.read(
+                reinterpret_cast<char*>(&loaded->data[scanline * loaded->stride]),
+                static_cast<std::streamsize>(loaded->stride)
+            );
+        }
+        if (!file)
+        {
+            Log.error([fn = filename] { return "File " + fn + " is truncated"; });
+            return nullptr;
+        }
+
+        Log.info([fn = filename, rx = x(loaded->resolution), ry = height]
+        {
+            return "Image " + fn + "; " + std::to_string(rx) + "x" + std::to_string(ry) + " loaded.";
+        });
+        return loaded;
+    }
+
+    std::unique_ptr<Bitmap> Bitmap::loadPNG(const std::string& filename)
+    {
+        auto width = Zero<int>();
+        auto height = Zero<int>();
+        std::vector<unsigned char> bgrData;
+        if (!raytracer::loadPNG(filename, width, height, bgrData))
+        {
+            return nullptr;
+        }
+
+        auto loaded = std::make_unique<Bitmap>(Size2(static_cast<ASizeT>(width), static_cast<ASizeT>(height)));
+        assert(bgrData.size() == loaded->stride * y(loaded->resolution));
+        std::memcpy(loaded->data.get(), bgrData.data(), bgrData.size());
+
+        Log.info([fn = filename, width, height]
+        {
+            return "Image " + fn + "; " + std::to_string(width) + "x" + std::to_string(height) + " loaded.";
         });
         return loaded;
     }

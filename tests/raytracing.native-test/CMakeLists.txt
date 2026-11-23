@@ -14,18 +14,17 @@ set(SOURCES
         src/raytracing/geometry/partitioning/Traverser_test.cpp
         src/raytracing/scene/Camera_test.cpp
         src/raytracing/shading/BoxLightFaces_test.cpp
-        src/raytracing/shading/BRDF_test.cpp
-        src/raytracing/shading/BeerLambert_test.cpp
+        src/raytracing/shading/beer_lambert_transmittance_test.cpp
         src/raytracing/shading/ConcatenatingShader_test.cpp
         src/raytracing/shading/EnvironmentShader_test.cpp
-        src/raytracing/shading/Fresnel_test.cpp
         src/raytracing/shading/HDRImageShader_test.cpp
         src/raytracing/shading/IntersectionNormalShader_test.cpp
         src/raytracing/shading/LightInfo_test.cpp
         src/raytracing/shading/SceneShader_test.cpp
         src/raytracing/shading/sampling_test.cpp
         src/raytracing/shading/SpectralContext_test.cpp
-        src/raytracing/shading/Phong_test.cpp
+        src/raytracing/shading/brdf/apply_brdf_test.cpp
+        src/raytracing/shading/brdf/fresnel_reflectance_test.cpp
         src/raytracing/shading/brdf/ggx_test.cpp
         src/raytracing/shading/shaders/environment_coordinates_test.cpp
         src/raytracing/shading/shaders/NoiseGeneratorMap_test.cpp

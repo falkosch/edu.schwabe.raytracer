@@ -22,6 +22,20 @@ namespace raytracer::test {
       const auto topLeft = camera.getVFFarTopLeft() + Half<Float4>() * (farRightDir + farBottomDir);
       return topLeft + farRightDir * xxxx(pixelCoords) + farBottomDir * yyyy(pixelCoords);
     }
+
+    // The unit direction of the ray through the image center (between the 4 center pixels)
+    Float4 viewDirection(const Camera& camera) {
+      const Size2 resolution{512, 512};
+      const Float4 centerPixel{255.5f, 255.5f, 0.0f, 0.0f};
+      return normalize3(pixelFarTopLeft(camera, resolution, centerPixel)
+                        - pixelNearTopLeft(camera, resolution, centerPixel));
+    }
+
+    Camera projectedCamera() {
+      Camera camera{};
+      camera.setProjection(45.0f, Float2{2.0f, 2.0f}, Float2{0.01f, 2.0f});
+      return camera;
+    }
   }
 
   TEST_CLASS(CameraTest) {
@@ -221,7 +235,7 @@ namespace raytracer::test {
 
       Camera rotated{};
       rotated.setProjection(45.0f, Float2{2.0f, 2.0f}, Float2{0.01f, 2.0f});
-      // Camera::rotate maps rotation.y to the OneX axis (see Camera.cpp). Rotating by 90° around
+      // Camera::rotate maps rotation.y to the OneX axis (see Camera.h). Rotating by 90° around
       // OneX must rotate the bottom direction (originally on +y) into +z.
       rotated.rotate(Float3{0.0f, 90.0f, 0.0f});
       const auto rotBottom = rotated.getVFNearBottomDirection();
@@ -229,6 +243,53 @@ namespace raytracer::test {
       const auto delta = std::abs(x(rotBottom) - x(refBottom)) + std::abs(y(rotBottom) - y(refBottom))
                          + std::abs(z(rotBottom) - z(refBottom));
       Assert::IsTrue(delta > 0.0f, L"rotation changes the bottom direction", LINE_INFO());
+    }
+
+    TEST_METHOD(cameraLooksAlongNegativeZ) {
+      const auto direction = viewDirection(projectedCamera());
+      Assert::AreEqual(-1.0f, z(direction), 1e-4f, L"view direction -z", LINE_INFO());
+    }
+
+    TEST_METHOD(firstImageRowLiesAtTheBottomOfTheView) {
+      // The "top left" corner is image row 0, which images store as their bottom row
+      const auto camera = projectedCamera();
+      Assert::IsTrue(x(camera.getVFNearTopLeft()) < 0.0f, L"left of the view", LINE_INFO());
+      Assert::IsTrue(y(camera.getVFNearTopLeft()) < 0.0f, L"below the view center", LINE_INFO());
+      Assert::IsTrue(y(camera.getVFFarTopLeft()) < 0.0f, L"far corner below the view center", LINE_INFO());
+    }
+
+    TEST_METHOD(rotateTurnsAboutTheCameraPosition) {
+      auto camera = projectedCamera();
+      camera.translate(Float3{1.0f, 2.0f, -3.0f});
+      camera.rotate(Float3{30.0f, 20.0f, 10.0f});
+      const auto pos = camera.getWorldPosition();
+      Assert::AreEqual(-1.0f, x(pos), 1e-4f, L"world pos x kept", LINE_INFO());
+      Assert::AreEqual(-2.0f, y(pos), 1e-4f, L"world pos y kept", LINE_INFO());
+      Assert::AreEqual(3.0f, z(pos), 1e-4f, L"world pos z kept", LINE_INFO());
+    }
+
+    TEST_METHOD(yawTurnsAboutTheUpAxis) {
+      auto camera = projectedCamera();
+      camera.rotate(Float3{90.0f, 0.0f, 0.0f});
+      const auto direction = viewDirection(camera);
+      Assert::AreEqual(1.0f, std::abs(x(direction)), 1e-4f, L"looks along x", LINE_INFO());
+      Assert::AreEqual(0.0f, y(direction), 1e-4f, L"stays level", LINE_INFO());
+    }
+
+    TEST_METHOD(pitchTurnsAboutTheRightAxis) {
+      auto camera = projectedCamera();
+      camera.rotate(Float3{0.0f, 90.0f, 0.0f});
+      const auto direction = viewDirection(camera);
+      Assert::AreEqual(1.0f, std::abs(y(direction)), 1e-4f, L"looks along y", LINE_INFO());
+      Assert::AreEqual(0.0f, x(direction), 1e-4f, L"no yaw", LINE_INFO());
+    }
+
+    TEST_METHOD(rollKeepsTheViewDirection) {
+      auto camera = projectedCamera();
+      camera.rotate(Float3{0.0f, 0.0f, 90.0f});
+      Assert::AreEqual(-1.0f, z(viewDirection(camera)), 1e-4f, L"still looks along -z", LINE_INFO());
+      const auto right = normalize3(camera.getVFNearRightDirection());
+      Assert::AreEqual(1.0f, std::abs(y(right)), 1e-4f, L"right turned onto y", LINE_INFO());
     }
 
     TEST_METHOD(farFrustumDiffersFromNear) {

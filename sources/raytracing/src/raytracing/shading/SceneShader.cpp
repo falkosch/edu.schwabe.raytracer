@@ -4,6 +4,7 @@
 #include "raytracing/common/StatisticsCookie.h"
 #include "raytracing/shading/BoxLightFaces.h"
 #include "raytracing/shading/ObjectShader.h"
+#include "raytracing/shading/beer_lambert_transmittance.h"
 #include "raytracing/shading/brdf/ggx.h"
 #include "raytracing/shading/sampling.h"
 #include "raytracing/shading/spectral/spectrum.h"
@@ -238,7 +239,7 @@ namespace raytracer
             auto exit = entry;
             const auto chord = entry.object->findNearestIntersection(inside, &entry, exit);
             const auto absorbingDistance = spectral::SpectralVector(min(chord, inside.maxDistance));
-            fraction *= spectral::spectralExp(-absorbingDistance / absorptionLengths);
+            fraction *= beerLambertTransmittance(absorbingDistance, absorptionLengths);
             if (outOfReach(inside, chord))
             {
                 // the light is inside the object
@@ -525,12 +526,5 @@ namespace raytracer
             lightDistance,
             multiplyAdd(lightDistance, zzzz(attenuationFactors), yyyy(attenuationFactors)),
             xxxx(attenuationFactors));
-    }
-
-    Float4 SceneShader::phongSpecularIntensityPerReflectedIncident(
-        const Float4& reflectedIncidentDirection, const Float4& lightDirection, const Float4& shininess
-    )
-    {
-        return pow3(max(dotv(lightDirection, reflectedIncidentDirection), Zero<Float4>()), shininess);
     }
 }

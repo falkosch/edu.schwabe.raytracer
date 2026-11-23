@@ -1,9 +1,37 @@
 #include "raytracing_tests.h"
 
+#include "TempFile.h"
+
+#include <bit>
 #include <cmath>
+#include <cstdint>
+#include <fstream>
 #include <limits>
+#include <string>
+#include <vector>
 
 namespace raytracer::test {
+  namespace {
+    // A PFM file with the given header and float32 values, byte-swapped for a big-endian file
+    void writePFM(const std::filesystem::path& path, const std::string& header, const std::vector<float>& values,
+                  const bool bigEndian) {
+      std::ofstream out(path, std::ios::binary | std::ios::trunc);
+      out << header;
+      for (const auto value : values) {
+        const auto bits = std::bit_cast<std::uint32_t>(value);
+        const auto stored = bigEndian ? std::byteswap(bits) : bits;
+        out.write(reinterpret_cast<const char*>(&stored), sizeof(stored));
+      }
+    }
+
+    void assertTexel(const Float4& expected, const Float4& actual, const wchar_t* message) {
+      Assert::AreEqual(x(expected), x(actual), message, LINE_INFO());
+      Assert::AreEqual(y(expected), y(actual), message, LINE_INFO());
+      Assert::AreEqual(z(expected), z(actual), message, LINE_INFO());
+      Assert::AreEqual(w(expected), w(actual), message, LINE_INFO());
+    }
+  }
+
   TEST_CLASS(HDRImageTest) {
   public:
     TEST_METHOD(defaultConstructsOneByOne) {
@@ -100,6 +128,95 @@ namespace raytracer::test {
       Assert::AreEqual(-0.5f, x(image[0]), L"negative x preserved", LINE_INFO());
       Assert::AreEqual(-2.0f, y(image[0]), L"negative y preserved", LINE_INFO());
       Assert::AreEqual(-100.0f, z(image[0]), L"large negative z preserved", LINE_INFO());
+    }
+
+    TEST_METHOD(bitmapRoundTripKeepsTheChannelOrder) {
+      // Bitmap(HDRImage) stores b,g,r and HDRImage(Bitmap) reads them back as r,g,b
+      HDRImage image{Size2{1, 1}};
+      image[0] = Float4{1.0f, 0.0f, 0.0f, 0.0f};
+      const HDRImage roundTrip{Bitmap{image}, false};
+      Assert::AreEqual(1.0f, x(roundTrip[0]), 1e-6f, L"red stays red", LINE_INFO());
+      Assert::AreEqual(0.0f, z(roundTrip[0]), 1e-6f, L"blue stays dark", LINE_INFO());
+    }
+
+    TEST_METHOD(fromBitmapReadsBlueGreenRed) {
+      Bitmap bitmap{Size2{1, 1}};
+      bitmap[0] = 255; // B
+      bitmap[1] = 0;   // G
+      bitmap[2] = 0;   // R
+      const HDRImage image{bitmap, false};
+      Assert::AreEqual(0.0f, x(image[0]), 1e-6f, L"r", LINE_INFO());
+      Assert::AreEqual(1.0f, z(image[0]), 1e-6f, L"b", LINE_INFO());
+    }
+
+    TEST_METHOD(saveAsPFMLoadPFMRoundTrip) {
+      // values beyond [0, 1] survive exactly; w isn't stored
+      TempFile temp{".pfm"};
+      HDRImage image{Size2{3, 2}};
+      for (ASizeT i = 0; i < 6; ++i) {
+        const auto f = static_cast<Float>(i);
+        image[i] = Float4{f * 1.5f - 2.0f, f * 100.0f + 0.1f, 1.0f / (f + 3.0f), 7.0f};
+      }
+      Assert::IsTrue(image.saveAsPFM(temp.str()), L"saveAsPFM succeeds", LINE_INFO());
+
+      const auto loaded = HDRImage::loadPFM(temp.str());
+      Assert::IsNotNull(loaded.get(), L"loadPFM succeeds", LINE_INFO());
+      Assert::AreEqual(static_cast<Size2::ValueType>(3), x(loaded->getResolution()), L"width", LINE_INFO());
+      Assert::AreEqual(static_cast<Size2::ValueType>(2), y(loaded->getResolution()), L"height", LINE_INFO());
+      for (ASizeT i = 0; i < 6; ++i) {
+        assertTexel(zeroW(image[i]), (*loaded)[i], L"texel");
+      }
+    }
+
+    TEST_METHOD(saveAsPFMWritesLittleEndianColorHeader) {
+      TempFile temp{".pfm"};
+      HDRImage image{Size2{3, 2}};
+      Assert::IsTrue(image.saveAsPFM(temp.str()), L"saveAsPFM succeeds", LINE_INFO());
+      std::ifstream in(temp.path, std::ios::binary);
+      std::string header(12, '\0');
+      in.read(header.data(), static_cast<std::streamsize>(header.size()));
+      Assert::AreEqual(std::string{"PF\n3 2\n-1.0\n"}, header, L"header", LINE_INFO());
+      in.seekg(0, std::ios::end);
+      Assert::AreEqual(static_cast<std::streamoff>(12 + 3 * 2 * 3 * 4), static_cast<std::streamoff>(in.tellg()),
+                       L"three float32 per pixel", LINE_INFO());
+    }
+
+    TEST_METHOD(loadPFMReadsTheBottomRowFirst) {
+      // PFM and HDRImage both store the bottom row first
+      TempFile temp{".pfm"};
+      writePFM(temp.path, "PF\n1 2\n-1.0\n", {1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f}, false);
+      const auto loaded = HDRImage::loadPFM(temp.str());
+      Assert::IsNotNull(loaded.get(), L"loadPFM succeeds", LINE_INFO());
+      assertTexel(Float4{1.0f, 2.0f, 3.0f, 0.0f}, (*loaded)[0], L"row 0");
+      assertTexel(Float4{4.0f, 5.0f, 6.0f, 0.0f}, (*loaded)[1], L"row 1");
+    }
+
+    TEST_METHOD(loadPFMReadsBigEndianFiles) {
+      TempFile temp{".pfm"};
+      writePFM(temp.path, "PF\n1 1\n1.0\n", {0.25f, -3.0f, 1e6f}, true);
+      const auto loaded = HDRImage::loadPFM(temp.str());
+      Assert::IsNotNull(loaded.get(), L"loadPFM succeeds", LINE_INFO());
+      assertTexel(Float4{0.25f, -3.0f, 1e6f, 0.0f}, (*loaded)[0], L"swapped bytes");
+    }
+
+    TEST_METHOD(loadPFMSpreadsGrayscaleOverTheChannels) {
+      TempFile temp{".pfm"};
+      writePFM(temp.path, "Pf\n2 1\n-1.0\n", {0.5f, 8.0f}, false);
+      const auto loaded = HDRImage::loadPFM(temp.str());
+      Assert::IsNotNull(loaded.get(), L"loadPFM succeeds", LINE_INFO());
+      assertTexel(Float4{0.5f, 0.5f, 0.5f, 0.0f}, (*loaded)[0], L"first pixel");
+      assertTexel(Float4{8.0f, 8.0f, 8.0f, 0.0f}, (*loaded)[1], L"second pixel");
+    }
+
+    TEST_METHOD(loadPFMRejectsBrokenFiles) {
+      TempFile temp{".pfm"};
+      writePFM(temp.path, "PF\n2 2\n-1.0\n", {1.0f, 2.0f, 3.0f}, false);
+      Assert::IsNull(HDRImage::loadPFM(temp.str()).get(), L"truncated", LINE_INFO());
+      writePFM(temp.path, "P6\n1 1\n255\n", {}, false);
+      Assert::IsNull(HDRImage::loadPFM(temp.str()).get(), L"PPM", LINE_INFO());
+      writePFM(temp.path, "PF\n1 1\n0.0\n", {1.0f, 2.0f, 3.0f}, false);
+      Assert::IsNull(HDRImage::loadPFM(temp.str()).get(), L"zero scale", LINE_INFO());
+      Assert::IsNull(HDRImage::loadPFM("this_file_should_not_exist_xyzzy.pfm").get(), L"missing file", LINE_INFO());
     }
 
     TEST_METHOD(hdrToBitmapClampsValuesGreaterThanOne) {

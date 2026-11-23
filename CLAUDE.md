@@ -243,7 +243,7 @@ must be run from or with access to the `data/` directory.
 
 Each target has a `src/stdafx.h` used as PCH via `target_precompile_headers`. The vectorization library itself has no
 PCH (narrow per-file includes). Raytracing's stdafx.h contains `using namespace std;` — files that include Windows
-headers (e.g. `PNGWriter.cpp`) must be excluded via `SKIP_PRECOMPILE_HEADERS` to avoid `std::byte` ambiguity.
+headers (e.g. `save_png.cpp`) must be excluded via `SKIP_PRECOMPILE_HEADERS` to avoid `std::byte` ambiguity.
 
 ## Development Rules
 

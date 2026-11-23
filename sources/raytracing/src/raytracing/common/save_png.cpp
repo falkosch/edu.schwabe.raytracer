@@ -1,4 +1,4 @@
-#include "raytracing/common/PNGWriter.h"
+#include "raytracing/common/save_png.h"
 
 #include <logging.h>
 #include <memory>
@@ -82,7 +82,7 @@ namespace raytracer
       if (FAILED(frame->WritePixels(1, strideBytes, strideBytes, const_cast<BYTE *>(bgrData + srcRow))))
       {
         Log.error([r = row] { return "PNG pixel write failed at row " + std::to_string(r); });
-        CoUninitialize();
+        if (comOwned) CoUninitialize();
         return false;
       }
     }

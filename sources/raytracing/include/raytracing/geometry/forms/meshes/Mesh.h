@@ -55,13 +55,23 @@ namespace raytracer {
     // KD-tree over the facets; nullptr if the mesh was built without a balancer
     const KDTreeRoot *getGraph() const;
 
-    // Builders and test methods
+    // Builders and test methods. With a traverser and a balancer, the mesh intersects through a KD-tree over its facets
+    // as a loaded one does; without them, it tests every facet.
 
-    static std::unique_ptr<Mesh> buildCubeMesh();
+    static std::unique_ptr<Mesh> buildCubeMesh(
+        std::unique_ptr<const KDTreeTraverser<FacetIntersection>> traverser = nullptr,
+        std::unique_ptr<const KDTreeBalancer> balancer = nullptr
+    );
 
-    static std::unique_ptr<Mesh> buildPlaneMesh();
+    static std::unique_ptr<Mesh> buildPlaneMesh(
+        std::unique_ptr<const KDTreeTraverser<FacetIntersection>> traverser = nullptr,
+        std::unique_ptr<const KDTreeBalancer> balancer = nullptr
+    );
 
-    static std::unique_ptr<Mesh> buildTriangleMesh();
+    static std::unique_ptr<Mesh> buildTriangleMesh(
+        std::unique_ptr<const KDTreeTraverser<FacetIntersection>> traverser = nullptr,
+        std::unique_ptr<const KDTreeBalancer> balancer = nullptr
+    );
 
     static std::unique_ptr<Mesh> loadFromOffFile(
         const std::string &filename, bool flipNormals, std::unique_ptr<const KDTreeTraverser<FacetIntersection>> traverser,

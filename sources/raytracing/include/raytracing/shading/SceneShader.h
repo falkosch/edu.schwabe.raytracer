@@ -118,12 +118,5 @@ namespace raytracer
         static Float4 attenuateDiffuseIntensity(
             const Float4& attenuationFactors, const Float4& lightDistance, const Float4& diffuseIntensity
         );
-
-        // Calculates the specular intensity according to Phong's lighting model but assumes a pre-given incident
-        // vector that is the reflected vector of the incident vector. Vector lightDirection is the direction from
-        // the facet to the light source. Vector shininess determines the smoothness of the facet.
-        static Float4 phongSpecularIntensityPerReflectedIncident(
-            const Float4& reflectedIncidentDirection, const Float4& lightDirection, const Float4& shininess
-        );
     };
 }

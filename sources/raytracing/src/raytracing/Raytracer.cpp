@@ -5,6 +5,9 @@
 
 #include "raytracing/shading/ObjectShader.h"
 #include "raytracing/shading/SpectralContext.h"
+#include "raytracing/shading/beer_lambert_transmittance.h"
+#include "raytracing/shading/brdf/apply_brdf.h"
+#include "raytracing/shading/brdf/fresnel_reflectance.h"
 #include "raytracing/shading/brdf/ggx.h"
 #include "raytracing/shading/sampling.h"
 #include "raytracing/shading/spectral/conversion.h"
@@ -332,45 +335,6 @@ namespace raytracer
         running.depthMap->normalizeEachChannel();
     }
 
-    Float4 schlickFresnel(const bool enteringLessDense, const Float4& negNdotI, const Float4& eta)
-    {
-        // calculate cosPhiT from Snell's law (TIR is already excluded)
-        Float4 cosPhi;
-        if (enteringLessDense)
-        {
-            const auto etaItoT = xxxx(eta);
-            const auto etaItoTMulNdotI = etaItoT * negNdotI;
-            const auto cosSqrPhiT = One<v_f32_4>() - multiplySub(etaItoT, etaItoT, etaItoTMulNdotI * etaItoTMulNdotI);
-            assert(!isNegative(cosSqrPhiT));
-            cosPhi = sqrt(cosSqrPhiT);
-        }
-        else
-        {
-            cosPhi = max(Zero<Float4>(), negNdotI);
-        }
-
-        // Schlick approximation for polarized light refraction/reflection model:
-        // R0 = ((eta_i - eta_t) / (eta_i + eta_t))²
-        const auto refractions = addSubtract(zzzz(eta), wwww(eta));
-        const auto sqrtR0 = xxxx(refractions) / yyyy(refractions);
-        const auto R0 = sqrtR0 * sqrtR0;
-        const auto oneSubCosPhi = One<Float4>() - cosPhi;
-        const auto sqrOneSubCosPhi = oneSubCosPhi * oneSubCosPhi;
-        const auto reflectance = multiplyAdd(One<Float4>() - R0, oneSubCosPhi * sqrOneSubCosPhi * sqrOneSubCosPhi, R0);
-        return reflectance;
-    }
-
-    Float4 fresnelReflectance(const bool totalInternalReflection, const Float4& negNdotI, const Float4& eta)
-    {
-        // entering less dense material and TIR is the case
-        const auto enteringLessDense = !!isNegative(wwww(eta) - zzzz(eta));
-        if (totalInternalReflection & enteringLessDense)
-        {
-            return One<Float4>();
-        }
-        return schlickFresnel(enteringLessDense, negNdotI, eta);
-    }
-
     // checks intersections, applies lighting and texturing and shoots secondary rays
     IlluminatedIntersection Raytracer::trace(const Raytrace& raytrace, RaytracerCache& cache)
     {
@@ -425,7 +389,7 @@ namespace raytracer
             || (notCulled(raytrace.rayCast) && isNegative(-brdf.intersection.smoothedNdotI));
 
         const auto totalInternalReflection = allTrue3(!transmittedDirection);
-        const auto scalarReflectance = fresnelReflectance(
+        const auto scalarReflectance = brdf::fresnelReflectance(
             totalInternalReflection,
             select(leavingMaterial, brdf.intersection.smoothedNdotI, -brdf.intersection.smoothedNdotI),
             select(leavingMaterial, yxwz(brdf.surface.refractionEta), brdf.surface.refractionEta)
@@ -448,7 +412,7 @@ namespace raytracer
         traceReflection(raytrace, maxDistance, cache, brdf);
         traceTransmission(raytrace, maxDistance, leavingMaterial, transmittedDirection, cache, brdf);
 
-        return {brdf.viewDistance, applyBRDF(brdf)};
+        return {brdf.viewDistance, brdf::applyBRDF(brdf)};
     }
 
     void Raytracer::traceReflection(
@@ -634,25 +598,12 @@ namespace raytracer
         // now that we have the transmission distance through the material, recompute the fractionTransmitted coefficient
         if (!leavingMaterial)
         {
-            brdf.fractionTransmitted = spectral::spectralExp(
-                -Float8(refractedHit.depth) / brdf.surface.transmittance.data);
+            brdf.fractionTransmitted = beerLambertTransmittance(
+                Float8(refractedHit.depth), brdf.surface.transmittance.data);
         }
 
         cache.statistics.secondaryRays += One<ASizeT>();
         cache.statistics.missedSecondaryRays +=
             static_cast<ASizeT>(outOfReach(refractedRaytrace.rayCast, x(refractedHit.depth)));
-    }
-
-    spectral::Spectrum Raytracer::applyBRDF(const BRDFParameters& brdf)
-    {
-        const auto ambient = brdf.surface.diffusion * brdf.lighting.ambient;
-        const auto diffuse = brdf.surface.diffusion * brdf.lighting.diffuse;
-        const auto directLighting = ambient + diffuse + brdf.lighting.specular;
-
-        const auto reflection = brdf.surface.reflectance * brdf.lighting.reflected;
-        const auto transmitted = brdf.lighting.transmitted * brdf.fractionTransmitted;
-
-        return brdf.surface.emittance + directLighting
-            + spectral::spectralMix(transmitted, reflection, brdf.reflectanceCoefficient);
     }
 }
