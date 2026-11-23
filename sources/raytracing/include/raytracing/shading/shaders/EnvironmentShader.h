@@ -16,11 +16,14 @@ namespace raytracer
         Float4 alignedSize;
         const HDRImage* environmentImage;
         EnvironmentProjection projection;
+        Float horizonRadius;
         TextureWrap wrap;
 
     public:
+        // horizonRadius: where the horizon lies in the image (AllSkyFisheye only), half its width by default
         explicit EnvironmentShader(
-            const HDRImage& image, EnvironmentProjection projection = EnvironmentProjection::FisheyeDome
+            const HDRImage& image, EnvironmentProjection projection = EnvironmentProjection::FisheyeDome,
+            Float horizonRadius = Half<Float>()
         );
 
         ~EnvironmentShader() override;

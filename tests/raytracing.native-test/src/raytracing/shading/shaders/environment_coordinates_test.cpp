@@ -89,5 +89,27 @@ namespace raytracer::test {
       Assert::AreEqual(1.0f, x(right), 1e-3f, L"right of the seam at u = 1", LINE_INFO());
       Assert::AreEqual(0.0f, x(left), 1e-3f, L"left of the seam at u = 0", LINE_INFO());
     }
+
+    TEST_METHOD(allSkyFisheyeRadiusIsLinearInTheAngleToTheZenith) {
+      constexpr auto horizon = 0.4f;
+      const auto at = [](const Float4 &direction) {
+        return environmentCoordinates(EnvironmentProjection::AllSkyFisheye, normalize3(direction), horizon);
+      };
+      const auto assertAt = [&](const Float4 &direction, const Float u, const Float v, const wchar_t *message) {
+        const auto coordinates = at(direction);
+        Assert::AreEqual(u, x(coordinates), Tolerance, (std::wstring(message) + L": u").c_str(), LINE_INFO());
+        Assert::AreEqual(v, y(coordinates), Tolerance, (std::wstring(message) + L": v").c_str(), LINE_INFO());
+      };
+      assertAt(Float4{0.0f, 1.0f, 0.0f, 0.0f}, 0.5f, 0.5f, L"zenith in the center");
+      assertAt(Float4{1.0f, 0.0f, 0.0f, 0.0f}, 0.5f + horizon, 0.5f, L"+x on the horizon, to the right");
+      assertAt(Float4{0.0f, 0.0f, -1.0f, 0.0f}, 0.5f, 0.5f - horizon, L"-z on the horizon, at the bottom");
+      assertAt(Float4{1.0f, 1.0f, 0.0f, 0.0f}, 0.5f + 0.5f * horizon, 0.5f, L"45 degrees up: half the radius");
+      // 30 degrees below the horizon: 120 of 90 degrees from the zenith, beyond the horizon
+      assertAt(
+          Float4{std::cos(0.5236f), -std::sin(0.5236f), 0.0f, 0.0f}, 0.5f + horizon * 4.0f / 3.0f, 0.5f,
+          L"below the horizon"
+      );
+      assertAt(Float4{0.0f, -1.0f, 0.0f, 0.0f}, 0.5f, 0.5f - 2.0f * horizon, L"nadir as -z, twice the radius");
+    }
   };
 }

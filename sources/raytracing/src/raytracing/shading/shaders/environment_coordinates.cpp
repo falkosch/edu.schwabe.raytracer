@@ -36,6 +36,22 @@ namespace raytracer
             );
         }
 
+        // The radius horizonRadius * angle / (pi / 2) for the angle to the zenith, towards (x, z) as with the dome. The
+        // nadir has no such direction: it takes -z's.
+        Float4 allSkyFisheyeCoordinates(const Float4& direction, const Float horizonRadius) noexcept
+        {
+            const auto angle = vectorization::acos(clamp(y(direction), NegativeOne<Float>(), One<Float>()));
+            const auto sine = vectorization::sqrt(sqr(x(direction)) + sqr(z(direction)));
+            const auto onAxis = !(sine > std::numeric_limits<Float>::min());
+            const auto towardsX = onAxis ? Zero<Float>() : x(direction) / sine;
+            const auto towardsZ = onAxis ? NegativeOne<Float>() : z(direction) / sine;
+            const auto radius = horizonRadius * Two<Float>() * ReciprocalPi<Float>() * angle;
+            return Float4(
+                multiplyAdd(radius, towardsX, Half<Float>()), multiplyAdd(radius, towardsZ, Half<Float>()),
+                Zero<Float>(), Zero<Float>()
+            );
+        }
+
         Float4 latitudeLongitudeCoordinates(const Float4& direction) noexcept
         {
             // vectorization's atan2 takes x first: this is std::atan2(x, -z), the azimuth from -z towards +x
@@ -48,7 +64,9 @@ namespace raytracer
         }
     }
 
-    Float4 environmentCoordinates(const EnvironmentProjection projection, const Float4& direction) noexcept
+    Float4 environmentCoordinates(
+        const EnvironmentProjection projection, const Float4& direction, const Float horizonRadius
+    ) noexcept
     {
         switch (projection)
         {
@@ -58,6 +76,8 @@ namespace raytracer
             return angularMapCoordinates(direction);
         case EnvironmentProjection::LatitudeLongitude:
             return latitudeLongitudeCoordinates(direction);
+        case EnvironmentProjection::AllSkyFisheye:
+            return allSkyFisheyeCoordinates(direction, horizonRadius);
         case EnvironmentProjection::FisheyeDome:
         default:
             return fisheyeDomeCoordinates(direction);

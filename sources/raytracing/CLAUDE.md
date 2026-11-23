@@ -97,7 +97,9 @@ Traversers (template on intersection type):
 - `EnvironmentShader` maps the ray direction into its image by an `EnvironmentProjection`
   (`environment_coordinates.h`; the image center faces the start camera's view direction -z; latitude-longitude maps
   sample with `TextureWrap::ClampV`, the disc projections with `Clamp`). The projections of `data/textures`:
-    - `FisheyeDome` (default): `env_eso_bright_night_at_paranal` (all-sky photo), `distorted_environment`
+    - `FisheyeDome` (default): `distorted_environment`
+    - `AllSkyFisheye` (equidistant, the horizon at a radius the shader takes): `env_eso_bright_night_at_paranal`
+      (all-sky photo, horizon at 0.43; the walkway around the camera fills the ring beyond)
     - `MirrorBall`: `env_spherical_cameraman`, `env_spherical_forest` (photos of a chrome ball), and the radial
       `env_spherical_supernova`, `env_spherical_gradient`, `env_spherical_phong_gradient`
     - `AngularMap`: `env_spherical_stpeters`, `env_spherical_uffizium` (Debevec's light probes)

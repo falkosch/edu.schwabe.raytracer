@@ -97,7 +97,7 @@ spectrum -> XYZ -> sRGB-linear -> AgX (display-encoded, no extra sRGB encoding).
 - **Shading**: SceneShader (per-light Lambert diffuse + GGX specular + attenuation, shadows with a cache, through
   transmissive objects and soft for sphere lights), ObjectShader (7 material channels: diffusion, reflectance,
   specular, roughness, transmittance, refractionEta, emittance), concrete shaders (Const, HDRImage, Environment with
-  four projections, IntersectionNormal, MultiplyByConst, Concatenating, NoiseGeneratorMap)
+  five projections, IntersectionNormal, MultiplyByConst, Concatenating, NoiseGeneratorMap)
 - **Color**: sRGB/Rec.2020 primaries, Bradford chromatic adaptation, AgX and ACES filmic view transforms
 - **Utilities**: RGBS color type, Bitmap, HDRImage, Perlin/Simplex noise, StatisticsCookie, RaytracerPackets
 

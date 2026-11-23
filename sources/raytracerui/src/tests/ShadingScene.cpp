@@ -35,9 +35,10 @@ namespace raytracerui
 
     void ShadingScene::setup(Scene& scene, Resources& resources)
     {
-        // Debevec's light probe of St. Peter's as an angular map: the background and the mirror sphere show it
+        // ESO's all-sky photo of the night over Paranal, the background and in the mirror sphere: an equidistant
+        // fisheye whose sky ends 0.43 of the image's width from its center, the walkway around the camera beyond
         scene.setBackgroundShader(std::make_unique<EnvironmentShader>(
-            *resources.getPPM("env_spherical_stpeters"), EnvironmentProjection::AngularMap
+            *resources.getPPM("env_eso_bright_night_at_paranal"), EnvironmentProjection::AllSkyFisheye, 0.43f
         ));
         scene.setAmbientLight(RGBS(0.03f, 0.03f, 0.03f));
 

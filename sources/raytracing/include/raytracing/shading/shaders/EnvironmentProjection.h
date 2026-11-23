@@ -22,5 +22,11 @@ namespace raytracer
         // Equirectangular: u is the azimuth (0.5 towards -z, growing towards +x, the seam at +z), v the elevation (1 at
         // +y, 0 at -y).
         LatitudeLongitude,
+
+        // An all-sky photo from an equidistant fisheye looking up: the zenith in the center, -z at the bottom and +x on
+        // the right as with FisheyeDome, but the radius grows linearly with the angle to the zenith, up to the horizon
+        // at the shader's horizon radius and on beyond it for lenses that see more than a hemisphere (the ground
+        // around the camera fills the ring outside the horizon).
+        AllSkyFisheye,
     };
 }

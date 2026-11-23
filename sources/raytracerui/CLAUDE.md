@@ -40,7 +40,7 @@ both use it. Append new scenes there (and keep the order, the dropdown index fol
   planes, low-poly mesh
 - `LightingScene` (`lighting`) -- every emitter kind as light pools on a wall, RGB lights with colored shadows,
   falloff variants, ambient light, an orange sphere light with soft shadows
-- `ShadingScene` (`shading`) -- the shader classes and texture transforms (St. Peter's light probe as angular map,
+- `ShadingScene` (`shading`) -- the shader classes and texture transforms (ESO's Paranal night sky as all-sky fisheye,
   sRGB vs. linear texture, normals as colors, tinted texture, checker times marble)
 - `MaterialsScene` (`materials`) -- chart of metal roughness, every refraction index, plastics and metals, Perlin and
   Simplex noise by octaves
