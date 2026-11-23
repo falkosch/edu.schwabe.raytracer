@@ -48,7 +48,8 @@ namespace raytracer
         LightShading
         sample(const SceneShaderContainment& containment, const SceneIntersection& intersection) const override;
 
-        // Computes the lighting of a facet in the scene, with up to sphereLightSamples shadow rays to a sphere light
+        // Computes the lighting of a facet in the scene, with up to sphereLightSamples shadow rays to an area light (a
+        // sphere or box light)
         LightShading sampleLighting(
             const Raytrace& incidentRay, const Float4& adaptedVisibilityCutoff,
             Float roughness, const spectral::SpectralVector& F0,
@@ -80,6 +81,21 @@ namespace raytracer
             RayCast shadowRay, const SceneIntersection& intersection, ASizeT lightIndex, const LightInfo& light,
             const Raytrace& incidentRay, ASizeT maxSamples, PerLightShadowCache::ShadowCacheType& shadowCache,
             StatisticsCookie& statistics
+        ) const;
+
+        // Adds the lighting of a box light (LightInfo::halfExtents) to lighting: the exact irradiance of its faces that
+        // the intersection sees (BoxLightFaces) times their lit fraction, from up to maxSamples shadow rays to points
+        // spread evenly over their area, fewer the less the intersection adds to the pixel. The lit fraction weighs
+        // each ray by the irradiance from its point (the ratio estimator of Heitz et al. 2018), so only penumbrae are
+        // noisy. Rough surfaces get the light's highlight from the same rays: the GGX BRDF towards their points, lit
+        // ones only, averaged over the visible area (light sampling: no bias, exact shadows). With 0, one ray to the
+        // faces' nearest point (a hard shadow), and each face's highlight from its representative point (Karis 2013),
+        // the lobe widened by the face's size: 0.26 to 1.8 times the integrated BRDF for large faces.
+        void sampleBoxLight(
+            const Raytrace& incidentRay, const Float4& adaptedVisibilityCutoff, Float roughness,
+            const spectral::SpectralVector& F0, const SceneIntersection& intersection, ASizeT lightIndex,
+            const LightInfo& light, ASizeT maxSamples, PerLightShadowCache::ShadowCacheType& shadowCache,
+            StatisticsCookie& statistics, LightShading& lighting
         ) const;
 
         // Follows a shadow ray through transmissive objects up to the light: each object lets the Fresnel transmission

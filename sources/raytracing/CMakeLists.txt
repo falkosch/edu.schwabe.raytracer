@@ -55,6 +55,7 @@ set(SOURCES
         src/raytracing/scene/Resources.cpp
         src/raytracing/scene/Scene.cpp
         src/raytracing/scene/SceneObject.cpp
+        src/raytracing/shading/BoxLightFaces.cpp
         src/raytracing/shading/EmitterSPD.cpp
         src/raytracing/shading/LightInfo.cpp
         src/raytracing/shading/LightShading.cpp
@@ -158,6 +159,7 @@ set(HEADERS
         include/raytracing/scene/Resources.h
         include/raytracing/scene/Scene.h
         include/raytracing/scene/SceneObject.h
+        include/raytracing/shading/BoxLightFaces.h
         include/raytracing/shading/EmitterKind.h
         include/raytracing/shading/EmitterSPD.h
         include/raytracing/shading/LightInfo.h

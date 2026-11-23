@@ -31,7 +31,9 @@ MessageLoopBasedUI (abstract, Windows message loop)
 `SceneCatalog.cpp` lists every scene with its command-line id and dropdown label; the dropdown and `--scene=<id>`
 both use it. Append new scenes there (and keep the order, the dropdown index follows it).
 
-- `CornellBoxScene` (`cornell-box`) -- default; classic Cornell box with a glass sphere, noise-textured box, teapot
+- `CornellBoxScene` (`cornell-box`) -- default; Cornell box lit by a warm white box light set into the ceiling (bottom
+  face only, luminance 3) and an ambient light standing in for the interreflection, with a mirror and a rough mirror
+  sphere, a noise-textured box and a glass teapot
 - `TestScene1` (`test-scene-1`) -- multi-object with various materials
 - `TestScene2` (`test-scene-2`) -- plane and emissive sphere
 - `DragonScene` (`dragon`) -- dragon mesh with marble texture
@@ -39,18 +41,21 @@ both use it. Append new scenes there (and keep the order, the dropdown index fol
 - `FormsScene` (`forms`) -- every form type with the checker texture: analytic and mesh sphere, ellipsoid, boxes,
   planes, low-poly mesh
 - `LightingScene` (`lighting`) -- every emitter kind as light pools on a wall, RGB lights with colored shadows,
-  falloff variants, ambient light, an orange sphere light with soft shadows
+  falloff variants, ambient light, an orange sphere light with soft shadows, a cyan light bar (a box light glowing on
+  all faces)
 - `ShadingScene` (`shading`) -- the shader classes and texture transforms (ESO's Paranal night sky as all-sky fisheye,
-  sRGB vs. linear texture, normals as colors, tinted texture, checker times marble)
+  sRGB vs. linear texture, normals as colors, tinted texture, checker times marble), lit by a point key light (hard
+  shadows), a rectangular softbox opposite it (a box light: soft shadows), a sphere light on the floor and a fill light
 - `MaterialsScene` (`materials`) -- chart of metal roughness, every refraction index, plastics and metals, Perlin and
   Simplex noise by octaves
 - `MeshesScene` (`meshes`) -- all meshes of `data/meshes` in a grid; loading takes about 10 s
 - `ShowcaseScene` (`showcase`) -- studio demo: glass dragon, gold bunny, chrome sphere on marble, diamond, lit by a
-  softbox (sphere light)
+  round softbox (a sphere light) and a rectangular fill softbox (a box light emitting from its front face)
 
 The new scenes are composed for the start camera (the dropdown doesn't move the camera) and build on
-`SceneMaterial` (the seven material channels as constants, with factories), `createSceneObject` and `addSphereLight`
-(an emissive sphere with its sphere light).
+`SceneMaterial` (the seven material channels as constants, with factories), `createSceneObject`, `addSphereLight`
+(an emissive sphere with its sphere light) and `addBoxLight` (an emissive box with its box light and its emitting
+faces).
 
 ## Command line
 
@@ -62,11 +67,11 @@ The new scenes are composed for the start camera (the dropdown doesn't move the 
 - `--exposure=<stops>` -- scale the displayed image by 2^stops (also a slider in the Config panel)
 - `--max-trace-depth=<n>` -- replace `MAX_TRACE_DEPTH`, e.g. to trace reflections in a debug build
 - `--glossy-samples=<n>`, `--sphere-light-samples=<n>` -- replace `GLOSSY_SAMPLES` and `SPHERE_LIGHT_SAMPLES`, the most
-  reflection rays per glossy hit and shadow rays per sphere light (distribution ray tracing; also sliders in the Config
-  panel). 0 for both is Whitted ray tracing: mirror reflections and hard shadows
+  reflection rays per glossy hit and shadow rays per area light, sphere or box (distribution ray tracing; also sliders
+  in the Config panel). 0 for both is Whitted ray tracing: mirror reflections and hard shadows
 - `--glossy-clamp=<x>` -- replace `GLOSSY_CLAMP`, the most radiance one glossy reflection ray adds (against fireflies;
   0 for no limit; a Config slider)
-- `--regularize-paths` -- after a glossy reflection, mirrors and glass don't show sphere lights' emissive spheres either
+- `--regularize-paths` -- after a glossy reflection, mirrors and glass don't show area lights' emissive objects either
   (less glitter, but that light goes missing; a Config checkbox)
 - `--super-sampling=<n>` -- replace `SUPER_SAMPLING_FACTOR`, (n+1)x(n+1) samples per pixel (a full render takes at
   least `FULL_RENDER_SUPER_SAMPLING`), e.g. `--full-render --super-sampling=7` for a reference image

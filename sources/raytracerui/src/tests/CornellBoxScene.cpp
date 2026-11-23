@@ -1,6 +1,7 @@
 #include "tests/CornellBoxScene.h"
 #include "../stdafx.h"
 
+#include "tests/SceneObjects.h"
 #include "tests/TestResources.h"
 
 #include <raytracing/common/noise/PerlinNoiseGenerator.h>
@@ -261,19 +262,19 @@ namespace raytracerui
         TestResources::setup(resources);
 
         scene.setBackgroundShader(std::make_unique<RGBBackgroundShader>(RGBS::black()));
-        scene.setAmbientLight(RGBS::black());
+        // Warm white, about 4000 K in linear sRGB at luminance 1
+        const auto warmWhite = Float4(1.406f, 0.927f, 0.532f, 0.0f);
 
-        // Warm tungsten ceiling light (~3000K). Was RGB(0.1, 0.09, 0.08).
-        auto ceilingLight = std::make_unique<LightInfo>(LightInfo::blackbody(3000.f, 0.1f));
-        ceilingLight->position = Float4(0.0f, 0.98f, 0.0f, 1.0f);
-        ceilingLight->attenuationFactors = Float4(0.0f, 0.13f, 1.0f, 1.0f);
-        scene.getLights().push_back(std::move(ceilingLight));
+        // A box light set into the ceiling, emitting from its bottom face, of luminance 3: the light the camera sees is
+        // nearly white, the floor below gets an irradiance of about 0.15
+        addBoxLight(
+            scene, "ceiling light", Float4(0.0f, 0.994f, 0.0f, 1.0f), Float3(0.25f, 0.005f, 0.2f),
+            Float3(0.0f, 0.0f, 0.0f), warmWhite * Float4(3.0f), LightInfo::faceBit(1, false)
+        );
 
-        // Faint D65 daylight fill from the camera. Was RGB(0.01, 0.01, 0.01).
-        auto cameraLight = std::make_unique<LightInfo>(LightInfo::d65(0.01f));
-        cameraLight->position = Float4(0.0f, 0.0f, 3.2f, 1.0f);
-        cameraLight->attenuationFactors = Float4(0.0f, 0.1f, 1.0f, 1.0f);
-        scene.getLights().push_back(std::move(cameraLight));
+        // The interreflection of the reference isn't traced: an ambient light in the light's colour stands in for it.
+        // It lifts the shadows and the ceiling evenly, without colour bleeding.
+        scene.setAmbientLight(RGBS(warmWhite * Float4(0.03f)));
 
         scene.getSceneObjects().push_back(ceiling());
         scene.getSceneObjects().push_back(floor());

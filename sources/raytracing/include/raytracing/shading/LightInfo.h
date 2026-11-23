@@ -29,11 +29,35 @@ namespace raytracer
         // sphere.
         Float radius;
 
+        // Zero for a point or sphere light. Otherwise a box light: half the size of a box around the position along
+        // its axes, the columns of orientation. Its emitting faces (emittingFaces) emit the light's spectrum as their
+        // radiance (per area and solid angle, not an intensity), and attenuationFactors don't apply: the irradiance is
+        // the faces' form factor, their shadows are soft (up to sphereLightSamples shadow rays). A zero component
+        // gives a rectangle, emitting from its two sides. Show it by an emissive box of the same placement, marked by
+        // ObjectShader::setLightEmitter, as with sphere lights.
+        Float4 halfExtents;
+        MFloat4x4 orientation;
+
+        // The faces of a box light that emit, faceBit(axis, positive) for each: the face at +halfExtents[axis] (or
+        // at -halfExtents[axis]) along the axis-th column of orientation.
+        UInt_32 emittingFaces;
+
         EmitterKind kind;
         Float temperatureKelvin; // used when kind == Blackbody
         Float intensity; // raw multiplier on the SPD (pre-normalized by factories)
 
+        static constexpr UInt_32 AllFaces = 0x3fu;
+
+        // The bit of a box light's face in emittingFaces: axis 0, 1, 2 of the box, the positive or negative side
+        static constexpr UInt_32 faceBit(const ASizeT axis, const bool positive) noexcept
+        {
+            return 1u << (2u * static_cast<UInt_32>(axis) + (positive ? 1u : 0u));
+        }
+
         LightInfo();
+
+        // A box light (halfExtents), not a point or sphere light
+        bool isBox() const noexcept;
 
         // `brightness` is calibrated against the same Y convention as spectrumToXYZ:
         // brightness=X produces a spectrum whose Y component is X, equivalent in

@@ -13,6 +13,7 @@ set(SOURCES
         src/raytracing/geometry/partitioning/Balancer_test.cpp
         src/raytracing/geometry/partitioning/Traverser_test.cpp
         src/raytracing/scene/Camera_test.cpp
+        src/raytracing/shading/BoxLightFaces_test.cpp
         src/raytracing/shading/BRDF_test.cpp
         src/raytracing/shading/BeerLambert_test.cpp
         src/raytracing/shading/ConcatenatingShader_test.cpp

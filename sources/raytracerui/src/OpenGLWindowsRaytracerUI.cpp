@@ -407,7 +407,7 @@ namespace raytracerui
                 }
 
                 auto sphereLightSamples = static_cast<int>(parameters.sphereLightSamples);
-                if (ImGui::SliderInt("Sphere Light Rays", &sphereLightSamples, 0, 64))
+                if (ImGui::SliderInt("Area Light Rays", &sphereLightSamples, 0, 64))
                 {
                     parameters.sphereLightSamples = static_cast<ASizeT>(sphereLightSamples);
                     changed = true;

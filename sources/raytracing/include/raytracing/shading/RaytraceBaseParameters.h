@@ -19,10 +19,10 @@ namespace raytracer {
     SceneShader *sceneShader;
     Int cullingOrientation;
 
-    // Distribution ray tracing: the most reflection rays of a glossy surface per hit, and the most shadow rays to a
-    // sphere light per intersection. Fewer are traced the less they add to the pixel. 0 is Whitted ray tracing: one
-    // mirror ray (rough surfaces keep their highlights), one shadow ray to the sphere light's nearest point (hard
-    // shadows).
+    // Distribution ray tracing: the most reflection rays of a glossy surface per hit, and the most shadow rays to an
+    // area light (a sphere or box light) per intersection. Fewer are traced the less they add to the pixel. 0 is
+    // Whitted ray tracing: one mirror ray (rough surfaces keep their highlights), one shadow ray to the area light's
+    // nearest point (hard shadows).
     ASizeT glossySamples;
     ASizeT sphereLightSamples;
 
@@ -36,7 +36,7 @@ namespace raytracer {
     Float glossyClamp;
 
     // After a glossy reflection, the mirror reflections and refractions further along the path don't show the
-    // emissive spheres of sphere lights either (Raytrace::glossy carries on). It removes the glitter of glossy -> glass
+    // emissive objects of area lights either (Raytrace::glossy carries on). It removes the glitter of glossy -> glass
     // or mirror -> light paths, but biases: the light along them goes missing.
     bool regularizePaths;
 

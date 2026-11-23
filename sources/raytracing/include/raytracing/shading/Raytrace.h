@@ -22,7 +22,7 @@ namespace raytracer
 
         ASizeT traceDepth;
 
-        // The ray's share of the pixel: the sample budgets at its hit (glossy rays, sphere light rays) shrink with it
+        // The ray's share of the pixel: the sample budgets at its hit (glossy rays, area light rays) shrink with it
         Float visibilityIndex;
 
         // The share of the pixel that rides on the ray's estimate: the visibility index, but not divided among the rays
@@ -42,7 +42,7 @@ namespace raytracer
         UInt_32 strataSeed;
         UInt_32 stratum;
 
-        // A glossy reflection ray: the emissive spheres of sphere lights don't show in it
+        // A glossy reflection ray: the emissive objects of area lights don't show in it
         // (ObjectShader::isLightEmitter)
         bool glossy;
 

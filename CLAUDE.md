@@ -86,7 +86,8 @@ and the facet block test (FacetLanes, FacetNormalsBlock, FacetBlockRay, FacetBlo
 
 Core engine. Rendering pipeline: hero-wavelength spectral sampling (Wilkie 2014), GGX microfacet highlights and glossy
 reflections by VNDF importance sampling (Heitz 2018), spectral Schlick-Fresnel reflectance, Beer-Lambert absorption,
-point and sphere lights (soft shadows), shadows through transmissive objects. View transform:
+point, sphere and box lights (soft shadows; box lights by their exact form factor), shadows through transmissive
+objects. View transform:
 spectrum -> XYZ -> sRGB-linear -> AgX (display-encoded, no extra sRGB encoding).
 
 - **Scene**: Scene, SceneObject, Camera, Resources (OFF mesh loading, HDR/PPM textures)
@@ -95,7 +96,7 @@ spectrum -> XYZ -> sRGB-linear -> AgX (display-encoded, no extra sRGB encoding).
   traversers (Naive with an explicit stack, Wide over the tree's eight-wide view for meshes and the scene,
   Voxelization debug view) over a flat-array tree (`KDTreeRoot`)
 - **Shading**: SceneShader (per-light Lambert diffuse + GGX specular + attenuation, shadows with a cache, through
-  transmissive objects and soft for sphere lights), ObjectShader (7 material channels: diffusion, reflectance,
+  transmissive objects and soft for sphere and box lights), ObjectShader (7 material channels: diffusion, reflectance,
   specular, roughness, transmittance, refractionEta, emittance), concrete shaders (Const, HDRImage, Environment with
   five projections, IntersectionNormal, MultiplyByConst, Concatenating, NoiseGeneratorMap)
 - **Color**: sRGB/Rec.2020 primaries, Bradford chromatic adaptation, AgX and ACES filmic view transforms
@@ -158,28 +159,28 @@ Normal logs right after start:
 [0.000] - INFO Epsilon : Machine epsilon for double is 2.22045e-16
 [0.000] - INFO Main : Working directory: D:\edu.schwabe.raytracer\data
 [0.000] - INFO Main : Scene: Cornell Box
-[0.003] - INFO Mesh : Loaded 36961 bytes from file meshes/teapot.off
-[0.018] - INFO KDTree : Built KD-tree for 1452 nodes in 35963120 cycles
-[0.018] - INFO Mesh : loaded meshes/teapot.off: 726 vertices, 1452 faces
-[0.018] - INFO Scene : Building culling tree for scene with 9 finite scene objects
-[0.018] - INFO KDTree : Built KD-tree for 9 nodes in 4067 cycles
-[0.018] - INFO Scene : Tree depth=1 nodes=1
-[0.018] - INFO Scene : done
-[0.041] - INFO UI : Resizing output to 512x512
+[0.002] - INFO Mesh : Loaded 36961 bytes from file meshes/teapot.off
+[0.017] - INFO KDTree : Built KD-tree for 1452 nodes in 34705353 cycles
+[0.017] - INFO Mesh : loaded meshes/teapot.off: 726 vertices, 1452 faces
+[0.017] - INFO Scene : Building culling tree for scene with 10 finite scene objects
+[0.017] - INFO KDTree : Built KD-tree for 10 nodes in 2252 cycles
+[0.017] - INFO Scene : Tree depth=1 nodes=1
+[0.017] - INFO Scene : done
+[0.040] - INFO UI : Resizing output to 512x512
 [0.043] - INFO Raytracer : Raytrace 1 (512x512):
-[0.132] - INFO Raytracer : Duration: 0.088319s
-[0.201] - INFO UI : primaryRays 262144/0
-[0.201] - INFO UI : secondaryRays 255329/93971
-[0.201] - INFO UI : shadowRays 736213/730760
-[0.202] - INFO UI : objectShadowRays 511964/454061
-[0.202] - INFO UI : kdTree nodesVisited=1474260 rootOverlapMisses=1213211
-[0.203] - INFO UI : Saving ray-traced image ...
-[0.215] - INFO UI : ray-traced.png saved: 1
+[0.197] - INFO Raytracer : Duration: 0.154557s
+[0.256] - INFO UI : primaryRays 262144/0
+[0.256] - INFO UI : secondaryRays 255329/93971
+[0.256] - INFO UI : shadowRays 3026473/3013033
+[0.256] - INFO UI : objectShadowRays 3289210/2866562
+[0.256] - INFO UI : kdTree nodesVisited=4276637 rootOverlapMisses=3412190
+[0.258] - INFO UI : Saving ray-traced image ...
+[0.269] - INFO UI : ray-traced.png saved: 1
 ```
 
-The ray counters are deterministic for a build (glossy reflections and sphere lights sample by integer hashes of the
+The ray counters are deterministic for a build (glossy reflections and area lights sample by integer hashes of the
 pixel and sub-sample); timings vary. The rough mirror sphere's glossy reflections make up most of the secondary
-rays.
+rays, the ceiling's box light (up to 16 shadow rays per hit) most of the shadow rays.
 
 Baseline numbers incorporate: CMake Unity compilation, LTCG, FMA3 intrinsics, BruteForceSAH default balancer,
 sweep-based SAH partitioning, RGBS color type, precompiled headers.

@@ -23,8 +23,14 @@ namespace raytracer
     LightInfo::LightInfo()
         : position(OneW<Float4>()), emittance(),
           attenuationFactors(One<Float>(), Zero<Float>(), Zero<Float>(), One<Float>()), radius(Zero<Float>()),
+          halfExtents(Zero<Float4>()), orientation(Identity<MFloat4x4>()), emittingFaces(AllFaces),
           kind(EmitterKind::RGB), temperatureKelvin(Zero<Float>()), intensity(One<Float>())
     {
+    }
+
+    bool LightInfo::isBox() const noexcept
+    {
+        return anyTrue3(halfExtents > Zero<Float4>());
     }
 
     LightInfo LightInfo::blackbody(const Float temperatureKelvin, const Float brightness) noexcept

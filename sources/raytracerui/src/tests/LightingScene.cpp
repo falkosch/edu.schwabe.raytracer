@@ -9,6 +9,9 @@ namespace raytracerui
 {
     namespace
     {
+        // Scales every light of the scene: the ambient light, the lights and their emitters
+        constexpr auto LIGHT_SCALE = 0.85f;
+
         void addLight(Scene& scene, LightInfo light, const Float4& position, const Float4& attenuationFactors)
         {
             light.position = position;
@@ -20,13 +23,15 @@ namespace raytracerui
     void LightingScene::setup(Scene& scene, Resources& /*resources*/)
     {
         scene.setBackgroundShader(std::make_unique<RGBBackgroundShader>(RGBS::black()));
-        scene.setAmbientLight(RGBS(0.005f, 0.005f, 0.005f));
+        scene.setAmbientLight(RGBS(0.005f * LIGHT_SCALE, 0.005f * LIGHT_SCALE, 0.005f * LIGHT_SCALE));
 
         // Light pools on the back wall, warm to cold, each close to the wall with quadratic falloff
         const Float4 poolFalloff{0.f, 0.f, 1.f, 1.f};
+        constexpr auto poolBrightness = 0.012f * LIGHT_SCALE;
         const std::array pools{
-            LightInfo::blackbody(1900.f, 0.012f), LightInfo::illuminantA(0.012f), LightInfo::blackbody(4000.f, 0.012f),
-            LightInfo::d65(0.012f), LightInfo::blackbody(10000.f, 0.012f)
+            LightInfo::blackbody(1900.f, poolBrightness), LightInfo::illuminantA(poolBrightness),
+            LightInfo::blackbody(4000.f, poolBrightness), LightInfo::d65(poolBrightness),
+            LightInfo::blackbody(10000.f, poolBrightness)
         };
         auto x = -1.2f;
         for (const auto& pool : pools)
@@ -39,13 +44,13 @@ namespace raytracerui
         // falloff keeps them off the light pools above.
         const Float4 rgbFalloff{0.f, 0.5f, 1.f, 1.f};
         LightInfo red{};
-        red.emittance = RGBS(0.3f, 0.f, 0.f);
+        red.emittance = RGBS(0.3f * LIGHT_SCALE, 0.f, 0.f);
         addLight(scene, red, Float4(-0.8f, -0.45f, 0.2f, 1.f), rgbFalloff);
         LightInfo green{};
-        green.emittance = RGBS(0.f, 0.3f, 0.f);
+        green.emittance = RGBS(0.f, 0.3f * LIGHT_SCALE, 0.f);
         addLight(scene, green, Float4(0.f, -0.1f, 0.4f, 1.f), rgbFalloff);
         LightInfo blue{};
-        blue.emittance = RGBS(0.f, 0.f, 0.3f);
+        blue.emittance = RGBS(0.f, 0.f, 0.3f * LIGHT_SCALE);
         addLight(scene, blue, Float4(0.8f, -0.45f, 0.2f, 1.f), rgbFalloff);
 
         auto& objects = scene.getSceneObjects();
@@ -63,9 +68,18 @@ namespace raytracerui
             {Float3(0.3f, 0.3f, 0.3f), Float3(0.f, 0.f, 0.f), Float3(0.f, -0.7f, -0.6f)}
         ));
 
+        // A cyan light bar leaning in the back on the left (a box light glowing on all faces): a pool on the wall and
+        // cyan on the sphere. Its box casts thin shadows of the colored lights on the wall right behind it; further to
+        // the front it would shade the scene from them.
+        addBoxLight(
+            scene, "cyan light bar", Float4(-1.f, -0.68f, -0.9f, 1.f), Float3(0.025f, 0.3f, 0.025f),
+            Float3(0.f, 0.f, -15.f), Float4(0.45f, 3.3f, 7.5f, 0.f) * Float4(LIGHT_SCALE)
+        );
+
         // An orange sphere light on the floor: its emissive sphere, and soft shadows
         addSphereLight(
-            scene, "orange sphere light", Float4(0.95f, -0.88f, 0.2f, 1.f), 0.12f, Float4(3.f, 1.f, 0.12f, 0.f)
+            scene, "orange sphere light", Float4(0.95f, -0.88f, 0.2f, 1.f), 0.12f,
+            Float4(3.f, 1.f, 0.12f, 0.f) * Float4(LIGHT_SCALE)
         );
     }
 }

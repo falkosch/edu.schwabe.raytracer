@@ -41,7 +41,8 @@ constexpr Float SAMPLING_FACTOR = 1.0f;
 // n => (n+1)x(n+1) samples/image-pixel
 constexpr ASizeT SUPER_SAMPLING_FACTOR = 0;
 
-// distribution ray tracing: the most reflection rays per glossy hit and shadow rays per sphere light, 0 for Whitted
+// distribution ray tracing: the most reflection rays per glossy hit and shadow rays per area light (sphere or box
+// light), 0 for Whitted
 constexpr ASizeT GLOSSY_SAMPLES = 16;
 constexpr ASizeT SPHERE_LIGHT_SAMPLES = 16;
 

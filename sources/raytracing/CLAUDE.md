@@ -17,17 +17,17 @@ Core rendering engine. Static library depending on `primitives` and `vectorizati
 7. `Raytracer::applyBRDF()` composites: spectral BRDF, Fresnel reflectance, Beer-Lambert absorption
 8. Reflection/transmission rays are traced recursively up to `maxTraceDepth`; the `SpectralContext` propagates. A
    surface rougher than `brdf::MirrorRoughness` reflects up to `glossySamples` VNDF-sampled rays
-   (`traceGlossyReflection`, fewer the less the reflection adds to the pixel); `Raytrace::seed` (pixel and
-   sub-sample, `shading/sampling.h`) makes the sampling deterministic. `RaytraceBaseParameters::glossySamples` and
-   `sphereLightSamples` cap the rays of this distribution ray tracing (default 16); 0 is Whitted ray tracing (mirror
-   reflections, hard shadows). The seeds and sequence shifts hash in SIMD lanes (`deriveSeeds`, 8 at a time;
-   `sequenceOffset2D`, once per hit). The sub-samples of a pixel share one sample sequence (`Raytrace::strataSeed`,
-   `stratum`, `stratifiedIndex`); `seedOffset` picks another sample pattern. Against fireflies, `glossyClamp` limits
-   the radiance of one glossy ray (`spectral::limitPeak`), and `regularizePaths` keeps `Raytrace::glossy` along
-   mirror and refraction chains (both biased, off by default in the library). The sample budgets shrink with
-   `Raytrace::visibilityIndex` (divided among a glossy reflection's rays), the cutoffs of dim rays and lights read
-   `Raytrace::importance` (not divided: each glossy ray estimates the whole reflection), so that more glossy rays don't
-   darken the image
+   (`traceGlossyReflection`, fewer the less the reflection adds to the pixel); `Raytrace::seed` (pixel and sub-sample,
+   `shading/sampling.h`) makes the sampling deterministic. `RaytraceBaseParameters::glossySamples` and
+   `sphereLightSamples` cap the rays of this distribution ray tracing (default 16; the latter for sphere and box
+   lights); 0 is Whitted ray tracing (mirror reflections, hard shadows). The seeds and sequence shifts hash in SIMD
+   lanes (`deriveSeeds`, 8 at a time; `sequenceOffset2D`, once per hit). The sub-samples of a pixel share one sample
+   sequence (`Raytrace::strataSeed`, `stratum`, `stratifiedIndex`); `seedOffset` picks another sample pattern. Against
+   fireflies, `glossyClamp` limits the radiance of one glossy ray (`spectral::limitPeak`), and `regularizePaths` keeps
+   `Raytrace::glossy` along mirror and refraction chains (both biased, off by default in the library). The sample
+   budgets shrink with `Raytrace::visibilityIndex` (divided among a glossy reflection's rays), the cutoffs of dim rays
+   and lights read `Raytrace::importance` (not divided: each glossy ray estimates the whole reflection), so that more
+   glossy rays don't darken the image
 9. Output: `spectrumToXYZ` (with the context's XYZ context) `→ xyzToDisplayRGB` per pixel → HDRImage
    (sRGB-linear) + depth map + timing map
 
@@ -82,11 +82,20 @@ Traversers (template on intersection type):
 ### Shading (`shading/`)
 
 - `SceneShader` -- scene-level: background shader, ambient light, light collection, shadow computation. Shadow rays
-  pass transmissive objects (Fresnel transmission and absorption along the straight chord, no caustics); a sphere light
-  (`LightInfo::radius`) gets up to `sphereLightSamples` shadow rays to its visible cap. Its emissive sphere
-  (`setLightEmitter`) shows in mirrors, while rough surfaces get the light's widened highlight and their glossy rays
-  skip the sphere. Only these `LightInfo`s light the scene: the emittance of any other object (boxes, meshes,
-  emissive textures) makes it glow where it is seen, but it casts no light
+  pass transmissive objects (Fresnel transmission and absorption along the straight chord, no caustics). Area lights
+  get up to `sphereLightSamples` shadow rays:
+    - a sphere light (`LightInfo::radius`) to its visible cap, lighting as a point light at its center (exact while
+      the sphere is above the horizon, too dark where the horizon cuts it); rough surfaces get its highlight with the
+      lobe widened by its size (Karis 2013)
+    - a box light (`LightInfo::halfExtents`, `orientation`, `emittingFaces`; a zero extent gives a rectangle) to the
+      area of its emitting faces that the hit sees, clipped at its horizon (`BoxLightFaces`). Their radiance lights
+      by the exact form factor (Lambert's polygon formula) times the lit fraction of the rays, each weighed by its
+      irradiance (ratio estimator, Heitz et al. 2018); rough surfaces get the highlight from the same rays (light
+      sampling), or from a representative point per face without samples (Karis 2013)
+
+  The light's emissive object (`setLightEmitter`) shows in mirrors, while the glossy rays of rough surfaces skip it.
+  Only these `LightInfo`s light the scene: the emittance of any other object (meshes, emissive textures, boxes without
+  a box light) makes it glow where it is seen, but it casts no light
 - `ObjectShader` -- per-object: 7 `MaterialShader` slots (diffusion, reflectance, specular, roughness,
   transmittance, refractionEta, emittance) + texture transform
 - `SpectralContext` -- per hero wavelength: wavelengths, Smits basis, XYZ context, ambient and per-light spectra;

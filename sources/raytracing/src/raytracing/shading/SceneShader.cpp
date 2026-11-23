@@ -2,6 +2,7 @@
 #include "../../stdafx.h"
 
 #include "raytracing/common/StatisticsCookie.h"
+#include "raytracing/shading/BoxLightFaces.h"
 #include "raytracing/shading/ObjectShader.h"
 #include "raytracing/shading/brdf/ggx.h"
 #include "raytracing/shading/sampling.h"
@@ -284,6 +285,16 @@ namespace raytracer
         {
             const LightInfo& light = **it;
             const auto lightIndex = static_cast<ASizeT>(it - lights.cbegin());
+            // the light's center and its attenuation don't describe a box light up close
+            if (light.isBox())
+            {
+                sampleBoxLight(
+                    incidentRay, adaptedVisibilityCutoff, roughness, F0, intersection, lightIndex, light,
+                    sphereLightSamples, shadowCache, statistics, lighting
+                );
+                continue;
+            }
+
             const Float4 lightDirection = light.position - intersection.vertex;
             const Float4 lightDistance = lengthv(lightDirection);
             const Float4 normalizedLightDirection = lightDirection / lightDistance;
@@ -351,6 +362,149 @@ namespace raytracer
         }
 
         return lighting;
+    }
+
+    void SceneShader::sampleBoxLight(
+        const Raytrace& incidentRay, const Float4& adaptedVisibilityCutoff, const Float roughness,
+        const spectral::SpectralVector& F0, const SceneIntersection& intersection, const ASizeT lightIndex,
+        const LightInfo& light, const ASizeT maxSamples, PerLightShadowCache::ShadowCacheType& shadowCache,
+        StatisticsCookie& statistics, LightShading& lighting
+    ) const
+    {
+        constexpr UInt_32 SeedOffset = 0x1000u;
+
+        const auto& spectralContext = *incidentRay.spectralContext;
+        const auto N = intersection.smoothedNormal;
+        const BoxLightFaces faces(light, intersection.vertex, N);
+        const auto& radiance = spectralContext.lightEmittance[lightIndex];
+        // the irradiance without shadows bounds what the light adds
+        const auto radianceMax = spectral::spectralMax(radiance.data);
+        if (faces.faceCount == Zero<ASizeT>()
+            || faces.projectedSolidAngle * radianceMax < x(adaptedVisibilityCutoff))
+        {
+            return;
+        }
+
+        // the highlight of light from the direction L: the GGX BRDF of the lobe width alpha with its Fresnel; a mirror
+        // reflects the light's emissive box instead
+        const auto glossy = spectral::spectralMax(F0) > Zero<Float>() && roughness > brdf::MirrorRoughness;
+        const auto V = -incidentRay.rayCast.ray.direction;
+        const auto NoV = max(dot3(N, V), Zero<Float>());
+        const auto brdfFrom = [&](const Float4& L, const Float alpha)
+        {
+            const auto H = normalize3(V + L);
+            const auto NoH = max(dot3(N, H), Zero<Float>());
+            const auto VoH = Float8(max(dot3v(V, H), Zero<Float4>()));
+            const auto DG = brdf::evaluateGGX_DG(NoV, max(dot3(N, L), Zero<Float>()), NoH, alpha);
+            return brdf::schlickFresnelSpectral(F0, VoH) * spectral::SpectralVector(DG);
+        };
+
+#ifndef DISABLE_SHADOWING
+        auto shadowRay = RayCast(
+            Ray(intersection.vertex), incidentRay.rayCast.cullingMask,
+            Size2(reinterpret_cast<ASizeT>(intersection.object), reinterpret_cast<ASizeT>(intersection.node)),
+            Zero<Float>()
+        );
+#endif
+        // ending just before the face, the ray can't hit the light's own emissive box
+        const auto traceTo = [&](const Float4& toPoint, const Float distance)
+        {
+#ifdef DISABLE_SHADOWING
+            return One<spectral::SpectralVector>();
+#else
+            shadowRay.ray.setDirection(toPoint / distance);
+            shadowRay.maxDistance = distance - distance * 1e-3f;
+            return computeLitAreaFraction(
+                shadowRay, intersection, lightIndex, spectralContext, shadowCache, statistics
+            );
+#endif
+        };
+
+        if (maxSamples == Zero<ASizeT>())
+        {
+            ASizeT nearestFace;
+            const auto toNearest = faces.nearestPoint(nearestFace);
+            const auto litFraction = traceTo(toNearest, length3(toNearest));
+            lighting.diffuse += radiance * (litFraction * spectral::SpectralVector(faces.projectedSolidAngle));
+            if (!glossy)
+            {
+                return;
+            }
+
+            // without samples, each face's highlight from its representative point, with the face as a sphere of the
+            // same solid angle (seen from its polygon's mean corner) widening the lobe as a sphere light does and the
+            // normalization keeping the energy (Karis 2013)
+            for (auto face = Zero<ASizeT>(); face < faces.faceCount; ++face)
+            {
+                const auto& f = faces.faces[face];
+                const auto L = normalize3(faces.representativePoint(face, intersection.reflectedDirection));
+                auto toCenter = Zero<Float4>();
+                for (auto i = Zero<ASizeT>(); i < f.vertexCount; ++i)
+                {
+                    toCenter += f.vertices[i];
+                }
+                toCenter = toCenter / static_cast<Float>(f.vertexCount);
+                const auto centerDistanceSquared = dot3(toCenter, toCenter);
+                const auto solidAngle = f.area * vectorization::abs(dot3(f.normal, toCenter))
+                    / (centerDistanceSquared * vectorization::sqrt(centerDistanceSquared));
+                const auto alpha = min(
+                    One<Float>(), roughness + Half<Float>() * vectorization::sqrt(solidAngle / Pi<Float>())
+                );
+                const auto normalization = spectral::SpectralVector(sqr(roughness / alpha) * f.projectedSolidAngle);
+                lighting.specular += radiance * (litFraction * normalization * brdfFrom(L, alpha));
+            }
+            return;
+        }
+
+        const auto samplesLimit = static_cast<Float>(maxSamples);
+        const auto samples = static_cast<ASizeT>(
+            clamp(vectorization::ceil(samplesLimit * incidentRay.visibilityIndex), One<Float>(), samplesLimit)
+        );
+        const auto seed = deriveSeed(incidentRay.strataSeed, SeedOffset + static_cast<UInt_32>(lightIndex));
+        const auto sequenceOffset = sequenceOffset2D(seed);
+
+        // the rays weighed by the irradiance from their points: the lit share of the irradiance. The highlight is
+        // their mean BRDF times that irradiance (light sampling, unbiased, exact shadows).
+        auto lit = Zero<spectral::SpectralVector>();
+        auto weights = Zero<Float>();
+        auto highlight = Zero<spectral::SpectralVector>();
+        for (auto sample = Zero<ASizeT>(); sample < samples; ++sample)
+        {
+            const auto xi = sequencePoint2D(sequenceOffset, stratifiedIndex(incidentRay.stratum, samples, sample));
+            ASizeT face;
+            const auto toPoint = faces.samplePoint(xi, face);
+            const auto distanceSquared = dot3(toPoint, toPoint);
+            const auto distance = vectorization::sqrt(distanceSquared);
+            const auto direction = toPoint / distance;
+            const auto weight = dot3(N, direction) * -dot3(faces.faces[face].normal, direction) / distanceSquared;
+            if (!(weight > Zero<Float>()))
+            {
+                continue;
+            }
+            const auto litWeight = traceTo(toPoint, distance) * spectral::SpectralVector(weight);
+            lit += litWeight;
+            weights += weight;
+            if (glossy)
+            {
+                highlight += litWeight * brdfFrom(direction, roughness);
+            }
+        }
+        if (!(weights > Zero<Float>()))
+        {
+            return;
+        }
+
+        const auto litFraction = lit * spectral::SpectralVector(One<Float>() / weights);
+        if (spectral::spectralMax(litFraction) * faces.projectedSolidAngle * radianceMax < x(adaptedVisibilityCutoff))
+        {
+            return;
+        }
+        lighting.diffuse += radiance * (litFraction * spectral::SpectralVector(faces.projectedSolidAngle));
+        if (glossy)
+        {
+            const auto perSample = spectral::SpectralVector(faces.area / static_cast<Float>(samples));
+            lighting.specular += radiance * (highlight * perSample);
+        }
     }
 
     Float4 SceneShader::adaptedVisibilityCutoff(const Float visibilityCutoff, const Float importance)

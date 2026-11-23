@@ -399,7 +399,7 @@ namespace raytracer
         assert(brdf.intersection.object);
         const auto& objectShader = *dynamic_cast<const ObjectShader*const>(brdf.intersection.object);
 
-        // a glossy reflection gets a sphere light by its highlight: the light's emissive sphere would add it twice
+        // a glossy reflection gets an area light by its highlight: the light's emissive object would add it twice
         if (raytrace.glossy && objectShader.isLightEmitter())
         {
             return {brdf.viewDistance, spectral::Spectrum::zero()};
@@ -496,7 +496,7 @@ namespace raytracer
             reflectionSeed(incidentRaytrace.seed, Zero<ASizeT>())
         );
         reflectedRaytrace.importance = reflectionImportance;
-        // a rough surface gets sphere lights by its highlight, also without glossy samples; a regularized path stays
+        // a rough surface gets area lights by its highlight, also without glossy samples; a regularized path stays
         // glossy after a glossy reflection
         reflectedRaytrace.glossy = rough || (cache.configuration.regularizePaths && incidentRaytrace.glossy);
         const auto reflectedHit = trace(reflectedRaytrace, cache);

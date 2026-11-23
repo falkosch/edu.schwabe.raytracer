@@ -42,8 +42,8 @@ namespace raytracer
         const MaterialShader* getEmittanceShader() const;
         void setEmittanceShader(std::unique_ptr<const MaterialShader> value);
 
-        // The emissive sphere of a sphere light (LightInfo::radius): glossy reflections get the light by its highlight
-        // and don't see the object
+        // The emissive object of an area light (a sphere light's sphere, LightInfo::radius, or a box light's box,
+        // LightInfo::halfExtents): glossy reflections get the light by its highlight and don't see the object
         bool isLightEmitter() const;
         void setLightEmitter(bool value);
 
