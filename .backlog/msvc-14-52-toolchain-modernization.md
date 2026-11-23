@@ -110,8 +110,9 @@ MSVC is the focus. For clang-cl, keep it compiling and spot-check performance, w
 - The render differs from MSVC in about 0.12 % of the pixels (floor/right-wall seam, silhouettes).
 - `BlackbodyTest::hotterObjectPeaksAtShorterWavelength` failed only when every input was a compile-time constant,
   and passed as soon as any value was observed or the temperatures came in at runtime. The root cause in clang's
-  folding was not analyzed. `LightInfo::blackbody(3000.f, …)` in the Cornell box also passes a constant
-  temperature, so app code could in theory be affected the same way; the clang-cl render looks correct.
+  folding was not analyzed. `LightInfo::blackbody(3000.f, …)` in the Cornell box also passed a constant
+  temperature (until its box light replaced it), so app code could in theory be affected the same way; the clang-cl
+  render looked correct.
 
 ## Out of scope
 

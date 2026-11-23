@@ -1,7 +1,7 @@
 # Noise of the distribution ray tracing ("glitter") (done parts)
 
 Carved out of `.backlog/rendering-distribution-noise.md`. Multiple importance sampling, adaptive sampling, rough
-transmission, denoising and the Cornell hotspot stay open there.
+transmission and denoising stay open there.
 
 ## 1. Measure the noise
 
@@ -151,6 +151,18 @@ vectorization library's operators, which carry their AVX2, AVX and SSE 4.2 versi
 - Rejected: CRC32 (`_mm_crc32_u32`) is linear over GF(2), so neighbouring pixels would get correlated sample patterns;
   SHA-NI isn't part of the SSE 4.2, AVX and AVX2 levels and is slower for a 32-bit mix.
 
+## 5. The Cornell hotspot (candidate)
+
+- **The Cornell hotspot**: a minimum distance in the light attenuation (or giving the light a radius) bounds the
+  irradiance next to a point light; that removes the hotspot itself rather than its noise.
+
+### Resolution
+
+The Cornell box's point light 0.02 below the ceiling became a box light set into the ceiling
+(`DONE/rendering-cornell-box-area-light.md`): the hotspot and the rough mirror sphere's glitter it caused are gone,
+without a minimum distance in the attenuation.
+
 ## Commits
 
 - `1fd428a` feat(raytracing): reduce the noise of the distribution ray tracing
+- `c07d001` feat(raytracing): add box lights and light the Cornell box with one

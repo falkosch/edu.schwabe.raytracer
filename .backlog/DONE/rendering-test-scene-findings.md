@@ -197,7 +197,7 @@ Lighting scene's orange emitter and the Showcase's softbox are sphere lights.
 Other emissive geometry is documented, not supported: only `LightInfo`s light the scene (point and sphere lights).
 The emittance of any other object (boxes, planes, meshes, emissive textures) makes it glow where it is seen
 (directly, in mirrors, through glass), but it casts no light (`sources/raytracing/CLAUDE.md`, Shading). Box lights,
-for the Cornell box's ceiling light, are planned in `rendering-cornell-box-area-light.md`. Emissive meshes and
+for the Cornell box's ceiling light, are done in `DONE/rendering-cornell-box-area-light.md`. Emissive meshes and
 textures as light sources would need light sampling over arbitrary shapes and stay out of scope, like the light
 geometry of `illumination-non-thermal-emitters.md`.
 

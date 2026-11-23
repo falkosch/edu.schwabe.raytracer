@@ -9,9 +9,12 @@ glitters:
 
 - Cornell box: the rough mirror sphere (roughness 0.45, about 14 rays per hit) reflects the ceiling's hotspot. The
   light hangs 0.02 below the white ceiling with the falloff 1/(0.13 d + d^2), so the ceiling right above it gets about
-  330 times the irradiance of the rest. With the light moved down to y = 0.7 the glitter disappears.
+  330 times the irradiance of the rest. With the light moved down to y = 0.7 the glitter disappears. The box light
+  that replaced the point light (`DONE/rendering-cornell-box-area-light.md`) removed the hotspot and this glitter.
 - Showcase: the gold bunny, the glass dragon and the floor. With `--glossy-samples=0` the floor and the bunny are
-  smooth and the dragon keeps its sparkles; `--sphere-light-samples=0` changes little.
+  smooth and the dragon keeps its sparkles; `--sphere-light-samples=0` changes little. Since 2026-11-23 a rectangular
+  fill softbox (a box light, `DONE/rendering-cornell-box-area-light.md`) adds light from the upper right: these findings
+  are from before.
 
 The sparkle of the glass dragon is a real optical effect (sharp refraction of a small, bright light) and nice to keep.
 The goal is less noise for the same number of rays, or the same noise for fewer rays, not a dull image.
@@ -35,7 +38,8 @@ with the numbers per candidate.
 ## Current noise
 
 With the defaults (joint stratification, clamp 4, the cutoff fix), full render / preview noise, 8-bit display values,
-4 seeds (method in `DONE/rendering-distribution-noise.md`): Cornell rough mirror 2.61 / 6.19, Showcase bunny
+4 seeds (method in `DONE/rendering-distribution-noise.md`): Cornell rough mirror 2.61 / 6.19 (with the point light:
+re-measure with the box light), Showcase (before its rectangular fill softbox: re-measure) bunny
 1.57 / 3.89, dragon 5.51 / 7.92, floor 2.79 / 5.44, Materials metals 3.23 / 10.59. The fast preview has one sample
 per pixel, so only the clamp lowers its noise.
 
@@ -46,15 +50,16 @@ per pixel, so only the clamp lowers its noise.
 - **Multiple importance sampling** (Veach 1997) for sphere lights: combine light sampling (points on the visible cap,
   as the soft shadows already pick them) and BRDF sampling (glossy rays that hit the emissive sphere) by the power
   heuristic. Replaces the current split (rough surfaces: highlight only, emitter hidden from glossy rays) by an
-  unbiased combination; the standard answer to glossy surfaces under area lights.
+  unbiased combination; the standard answer to glossy surfaces under area lights. Box lights take their highlight
+  from light sampling already (their shadow rays' points); it gets noisy for narrow lobes under large lights
+  (relative standard deviation 0.34 for 16 random rays at roughness 0.05 under a 2 x 2 light 6.7 away), which the
+  BRDF samples would cover.
 - **Adaptive sampling**: estimate each pixel's variance from its sub-samples and trace more sub-samples where it's
   high (also the "adaptive sampling at high-contrast edges" left open by 5.7 of the findings item).
 - **Rough transmission** (GGX BTDF, Walter et al. 2007) for dielectrics with roughness: blurs the dragon's sparkles
   physically, but needs more rays itself.
 - **Denoising** of full renders: an edge-aware filter guided by depth, normals and albedo (a-trous wavelet filter), or
   Intel Open Image Denoise as a dependency.
-- **The Cornell hotspot**: a minimum distance in the light attenuation (or giving the light a radius) bounds the
-  irradiance next to a point light; that removes the hotspot itself rather than its noise.
 
 ### 2. Measuring the candidates
 

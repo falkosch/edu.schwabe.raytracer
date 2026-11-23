@@ -73,7 +73,8 @@ spectrum Y = X regardless of color.
 
 - Light source geometry (area lights). All emitters here are point sources via
   `LightInfo::position`. Sphere lights (`LightInfo::radius`, see
-  `DONE/rendering-test-scene-findings.md`) work with every emitter kind.
+  `DONE/rendering-test-scene-findings.md`) and box lights (`LightInfo::halfExtents`, see
+  `DONE/rendering-cornell-box-area-light.md`) work with every emitter kind.
 - Time-varying SPDs (flicker, lightning, candle).
 - Wavelength-dependent angular emission patterns.
 

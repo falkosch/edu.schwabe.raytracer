@@ -17,49 +17,22 @@ original.
 This item also carries the box part of "emissive objects don't light the scene"
 (`DONE/rendering-test-scene-findings.md`, 5.3): so far only point and sphere lights light the scene.
 
-## Scope
+Box lights, the Cornell box's new lighting and the regression are done: `DONE/rendering-cornell-box-area-light.md`.
+The open points below came up while doing them.
 
-### 1. Box lights
+## Open points
 
-- `LightInfo` gets a box shape next to the point and the sphere: half extents around the position (axis-aligned is
-  enough for the ceiling; an orientation for other uses). "Volumetric" here means a light with a body that emits from
-  its surface, not a participating medium.
-- Shadow rays to points spread over the faces visible from the intersection, area-uniform and stratified
-  (`sequencePoint2D`); `sphereLightSamples` becomes a cap for all area lights. With 0 one ray to the nearest point
-  (hard shadows, Whitted).
-- Irradiance per sample instead of from the light's center: E = (A / N) * sum of L cos(theta_x) cos(theta_l) / d^2
-  over the visible samples, with the emitter's own cosine. A light of 0.5 x 0.4 at one or two units from the
-  surfaces is too large for the center approximation the sphere lights use (check how far that is off for sphere
-  lights close by too). `attenuationFactors` then stays for point lights only.
-- Highlights of rough surfaces: a representative point (Karis 2013: the point of the rectangle closest to the
-  reflected ray), or Linearly Transformed Cosines (Heitz et al. 2016) for an analytic GGX highlight of a rectangle,
-  shadowed by the ratio estimator (Heitz et al. 2018). Mirrors see the emissive box, as with sphere lights.
-- `addBoxLight` in `raytracerui` next to `addSphereLight`: a thin emissive box marked by `setLightEmitter` plus its
-  light.
-- Tests: the irradiance under a square light against its analytic form factor, soft shadow fractions, 0 samples gives
-  hard shadows.
-
-### 2. The Cornell box's lighting
-
-- Replace the point light by a box light set into the ceiling, e.g. half extents (0.25, 0.005, 0.2) just below y = 1,
-  emitting from its bottom face. Tune radiance and colour against the reference: warm white (the original's measured
-  light, or a blackbody of 3000 to 4000 K), at exposure 0 with AgX; prefer changing the light over the exposure.
-- The reference's lit ceiling, light shadows and colour bleeding come from interreflection, which this ray tracer
-  doesn't trace (Whitted plus glossy reflections and area lights). Options, cheapest first:
-    - ambient light: lifts the shadows evenly, the ceiling stays flat;
-    - fill lights by hand: dim lights near the walls in their colours as a fake colour bleeding, one below the
-      ceiling light for the ceiling;
-    - diffuse interreflection: cosine-weighted diffuse rays for one bounce (a `diffuseSamples` cap, 0 for off) with
-      the sampling of `shading/sampling.h`. The step towards path tracing; costly and noisy, see
-      `rendering-distribution-noise.md`.
-- Decide on the camera fill light: it lights the front faces flatly.
-
-### 3. Regression
-
-- The Cornell box is the regression baseline (root `CLAUDE.md`, "Regression Tests"): new image and counters, update
-  the block. The box light's shadow rays raise the render time.
-- Without the point light 2 cm below the ceiling, the ceiling hotspot and the glitter it causes in the rough mirror
-  sphere go away (`rendering-distribution-noise.md`, Motivation).
+- Sphere lights close by (the check of section 1 in the done file): lighting from the center (intensity radiance * pi
+  r^2, quadratic falloff) is exact while the sphere lies above the horizon
+  (`SceneShaderTest::sphereLightIrradianceIsExactAboveTheHorizon`) and too dark where the horizon cuts it. Radius 0.5 at
+  a horizontal distance of 1, center height above the horizon: 0.3 gives 0.95 of the exact irradiance, 0.1 gives 0.59, 0
+  gives 0 (exact 0.091), -0.2 gives 0 (exact 0.028); radius 0.5 at (0.6, 0.2) gives 0.79. Sphere lights still use
+  `attenuationFactors`; a horizon-clipped irradiance would let them drop it, as section 1 asked.
+- Light mode (key 3) moves `getLights().back()` only: in the Cornell box that is now the box light, and its emitter
+  box stays behind (the same for the Lighting scene's orange sphere light).
+- The emitter box glows on all six faces in mirrors, also where only its bottom face emits light (the ceiling light's
+  1 cm sides).
+- Re-measure the Cornell rough mirror's noise (`rendering-distribution-noise.md`, current noise).
 
 ## Key files
 
