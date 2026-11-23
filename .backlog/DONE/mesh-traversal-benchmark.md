@@ -158,8 +158,8 @@ for dragon2 any/incoherent (3.4%) use 10 runs each.
   (`CLAUDE.md` now lists 0.0389s).
 - `DONE/flat-array-kdtree-nodes.md`, `DONE/simd-batch-triangle-test.md`, `DONE/kdtree-leaf-packed-facets.md` —
   measured with this.
-- `raytracing-testability.md` (#2) — on a mesh the KD-tree path is only reachable through `loadFromOffFile`; this
-  harness hits the same restriction.
+- `DONE/raytracing-testability.md` (#2) — on a mesh the KD-tree path was only reachable through `loadFromOffFile`;
+  this harness hits the same restriction. The mesh builders take a traverser and a balancer now.
 
 ## Commits
 

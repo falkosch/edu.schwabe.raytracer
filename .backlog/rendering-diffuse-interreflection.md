@@ -27,7 +27,7 @@ light as fake colour bleeding (their hard shadows draw coloured shapes on the ba
   no diffuse rays of their own. Mirror and glossy rays after a diffuse bounce follow the trace depth.
 - A diffuse ray that hits the emissive object of an area light adds nothing: light sampling counts that light, as
   glossy rays skip it (`Raytrace::glossy`, `ObjectShader::isLightEmitter`).
-- Units: `Raytracer::applyBRDF` multiplies the diffuse albedo by the irradiance, without 1/pi (`addSphereLight`'s
+- Units: `brdf::applyBRDF` multiplies the diffuse albedo by the irradiance, without 1/pi (`addSphereLight`'s
   intensity radiance * pi r^2, the box lights' form factors). With cosine-weighted rays the irradiance is pi times the
   mean radiance they bring back; check it against the box lights' exact form factor (a diffuse ray estimate of a box
   light's emitter must match `BoxLightFaces::projectedSolidAngle` times its radiance).

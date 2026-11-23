@@ -46,8 +46,8 @@ arises — file a separate item then.
 
 ### Implementation outline
 
-1. Add `sources/raytracing/include/raytracing/common/SpectralPFMWriter.h` mirroring
-   `PNGWriter.h`'s shape — `saveSpectralPFM(const HDRImage& spectralImage, const path&)`.
+1. Add `sources/raytracing/include/raytracing/common/save_spectral_pfm.h` mirroring
+   `save_png.h`'s shape — `saveSpectralPFM(const HDRImage& spectralImage, const path&)`.
 2. Extend the render loop to capture the per-pixel `Spectrum` (8-channel) into a
    parallel buffer, alongside the existing 3-channel sRGB-linear `HDRImage`.
 3. Surface a UI toggle / hotkey (or CLI flag in `main.cpp`) to save the spectral PFM
@@ -68,7 +68,7 @@ PFM path.
 
 ## Out of scope
 
-- OpenEXR support (file a follow-up if needed).
+- OpenEXR support (file a follow-up if needed; RGB OpenEXR: `raytracing-hdr-export-formats.md`).
 - Stokes-vector (polarized) output — that's level 3, file under
   `illumination-polarized-spectral.md` follow-ups.
 - A spectral viewer / falsecolor visualization tool. Standard image viewers handle the
@@ -76,8 +76,8 @@ PFM path.
 
 ## Key files
 
-- `sources/raytracing/include/raytracing/common/SpectralPFMWriter.h` (new)
-- `sources/raytracing/src/raytracing/common/SpectralPFMWriter.cpp` (new)
+- `sources/raytracing/include/raytracing/common/save_spectral_pfm.h` (new)
+- `sources/raytracing/src/raytracing/common/save_spectral_pfm.cpp` (new)
 - `sources/raytracing/include/raytracing/RaytraceConfiguration.h` — optional spectral
   output buffer pointer alongside the existing image/depthMap/timingMap
 - `sources/raytracing/src/raytracing/Raytracer.cpp` — capture the per-pixel Spectrum

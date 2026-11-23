@@ -35,7 +35,7 @@ Replace `Spectrum` → `PolarizedSpectrum` in all illumination-carrying types (t
 set upgraded from RGBS → Spectrum at level 2):
 
 - `SurfaceShading`, `LightShading`, `BRDFParameters`, `IlluminatedIntersection`,
-  `Raytracer::applyBRDF`, Shader outputs — all become `PolarizedSpectrum`.
+  `brdf::applyBRDF`, Shader outputs — all become `PolarizedSpectrum`.
 - `BackgroundShader` typedef (`Shader<SceneShader, Float4, Float4>`) and `MaterialShader`
   typedef (`Shader<ObjectShader, FacetIntersection, Float4>`) — output type changes from
   `Float4`/`Spectrum` to `PolarizedSpectrum`. `EnvironmentShader` and `HDRImageShader`

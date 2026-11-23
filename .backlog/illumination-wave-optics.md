@@ -31,7 +31,7 @@ standalone value as research-tier infrastructure.
 
 The illumination type system uses a **hybrid approach**: the shader chain types
 (`SurfaceShading`, `LightShading`, `BRDFParameters`, `IlluminatedIntersection`,
-`Raytracer::applyBRDF`, Shader outputs) remain `PolarizedSpectrum` (level 3). Wave-optics
+`brdf::applyBRDF`, Shader outputs) remain `PolarizedSpectrum` (level 3). Wave-optics
 computation happens **locally at thin-film/interference surfaces** using `WaveSpectrum`
 and `JonesMatrix`, then converts back to `PolarizedSpectrum` via `extractIncoherent()`.
 
