@@ -40,6 +40,15 @@ namespace raytracer {
     // or mirror -> light paths, but biases: the light along them goes missing.
     bool regularizePaths;
 
+    // Adaptive sampling: a pixel whose sub-samples spread so much that the standard error of their mean exceeds
+    // adaptiveThreshold takes another round of sub-samples, on the grid shifted within its cells and at hero wavelengths
+    // shifted within their strata, up to adaptiveRounds more rounds. The spread is that of the sub-samples' luminance in
+    // display values (y / (1 + y), encoded with the exponent 1 / 2.2), so 1/255 is about one step of an 8-bit image.
+    // 0 rounds is off; a pixel needs 2 x 2 sub-samples at least, and Whitted ray tracing (no glossy and area light
+    // samples) doesn't sample adaptively.
+    ASizeT adaptiveRounds;
+    Float adaptiveThreshold;
+
     RaytraceBaseParameters();
   };
 }

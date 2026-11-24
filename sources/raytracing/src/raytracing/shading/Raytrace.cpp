@@ -6,7 +6,7 @@ namespace raytracer
     Raytrace::Raytrace()
         : rayCast(), originIntersection(), traceDepth(), visibilityIndex(), importance(), spectralContext(), seed(),
           strataSeed(),
-          stratum(), glossy()
+          stratum(), glossy(), weighsEmitters()
     {
     }
 
@@ -17,7 +17,7 @@ namespace raytracer
         : rayCast(rayCast), originIntersection(originIntersection), traceDepth(traceDepth),
           visibilityIndex(visibilityIndex), importance(visibilityIndex), spectralContext(spectralContext), seed(seed),
           strataSeed(seed), stratum(),
-          glossy()
+          glossy(), weighsEmitters()
     {
     }
 }

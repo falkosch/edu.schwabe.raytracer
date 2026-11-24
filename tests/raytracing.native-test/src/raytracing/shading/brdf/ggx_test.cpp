@@ -117,6 +117,95 @@ namespace raytracer::test
             Assert::IsTrue(sum <= 1.0f + 0.05f, L"energy conservation", LINE_INFO());
         }
 
+        TEST_METHOD(pdfGGXIsTheDensityOfSampleGGX)
+        {
+            // the share of sampled directions above the surface is the density's integral over the hemisphere
+            const Float4 N{0.0f, 1.0f, 0.0f, 0.0f};
+            const auto V = normalize3(Float4{0.0f, 0.5f, 0.866f, 0.0f});
+            const auto alpha = 0.5f;
+            std::mt19937 rng(11);
+            std::uniform_real_distribution<Float> uniform(0.0f, 1.0f);
+            constexpr int Samples = 1 << 16;
+            auto above = 0;
+            for (auto i = 0; i < Samples; ++i)
+            {
+                const auto L = sampleGGX(N, V, Float4{uniform(rng), uniform(rng), 0.0f, 0.0f}, alpha);
+                above += dot3(N, L) > 0.0f ? 1 : 0;
+            }
+
+            constexpr int Steps = 600;
+            auto integral = 0.0;
+            for (auto i = 0; i < Steps; ++i)
+            {
+                const auto theta = 0.5 * PI * (i + 0.5) / Steps;
+                for (auto j = 0; j < 2 * Steps; ++j)
+                {
+                    const auto phi = PI * (j + 0.5) / Steps;
+                    const auto L = Float4{
+                        static_cast<Float>(std::sin(theta) * std::cos(phi)), static_cast<Float>(std::cos(theta)),
+                        static_cast<Float>(std::sin(theta) * std::sin(phi)), 0.0f
+                    };
+                    const auto H = normalize3(V + L);
+                    integral += static_cast<double>(pdfGGX(dot3(N, V), dot3(N, H), alpha)) * std::sin(theta);
+                }
+            }
+            integral *= (0.5 * PI / Steps) * (PI / Steps);
+            Assert::AreEqual(static_cast<double>(above) / Samples, integral, 0.01, L"density of the samples",
+                             LINE_INFO());
+            Assert::IsTrue(integral < 1.0, L"some directions go below the surface", LINE_INFO());
+        }
+
+        TEST_METHOD(sampleGGXReflectsAboutTheSampledNormal)
+        {
+            const Float4 N{0.0f, 1.0f, 0.0f, 0.0f};
+            const auto V = normalize3(Float4{0.3f, 0.8f, 0.2f, 0.0f});
+            for (const auto x : {0.1f, 0.5f, 0.9f})
+            {
+                const auto xi = Float4{x, 1.0f - x, 0.0f, 0.0f};
+                const auto H = sampleGGXNormal(N, V, xi, 0.4f);
+                Assert::AreEqual(1.0f, length3(H), 1e-5f, L"a unit normal", LINE_INFO());
+                Assert::IsTrue(dot3(H, V) > 0.0f, L"visible from V", LINE_INFO());
+                const auto L = sampleGGX(N, V, xi, 0.4f);
+                const auto mirrored = reflect(-V, H);
+                Assert::AreEqual(0.0f, length3(L - mirrored), 1e-5f, L"the mirrored direction", LINE_INFO());
+            }
+        }
+
+        TEST_METHOD(roughRefractionSpreadsAroundTheMirrorRefraction)
+        {
+            // glass entered at 45 degrees: through the sampled microfacet normals the refracted directions gather around
+            // the smooth surface's, the closer the smoother
+            const Float4 N{0.0f, 1.0f, 0.0f, 0.0f};
+            const auto incident = normalize3(Float4{1.0f, -1.0f, 0.0f, 0.0f});
+            const auto eta = Float4{1.0f / 1.5f};
+            const auto smooth = refractEta(incident, N, dotv(N, incident), eta);
+            const auto meanCosine = [&](const Float alpha)
+            {
+                std::mt19937 rng(5);
+                std::uniform_real_distribution<Float> uniform(0.0f, 1.0f);
+                auto sum = 0.0f;
+                for (auto i = 0; i < 256; ++i)
+                {
+                    const auto H = sampleGGXNormal(N, -incident, Float4{uniform(rng), uniform(rng), 0.0f, 0.0f}, alpha);
+                    const auto refracted = refractEta(incident, H, dotv(H, incident), eta);
+                    Assert::AreEqual(1.0f, length3(refracted), 1e-4f, L"no total reflection entering glass",
+                                     LINE_INFO());
+                    sum += dot3(refracted, smooth);
+                }
+                return sum / 256.0f;
+            };
+            const auto smoothSpread = meanCosine(0.05f);
+            const auto roughSpread = meanCosine(0.5f);
+            Assert::IsTrue(smoothSpread > 0.99f, L"close to the mirror refraction", LINE_INFO());
+            Assert::IsTrue(roughSpread < smoothSpread - 0.02f, L"spread by the roughness", LINE_INFO());
+        }
+
+        TEST_METHOD(smithG1IsOneAtNormalIncidence)
+        {
+            Assert::AreEqual(1.0f, smithG1(1.0f, 0.5f), 1e-6f, L"no masking straight on", LINE_INFO());
+            Assert::IsTrue(smithG1(0.1f, 0.5f) < smithG1(0.5f, 0.5f), L"more masking at grazing angles", LINE_INFO());
+        }
+
         TEST_METHOD(sampleGGXProducesValidDirections)
         {
             const auto N = Float4{0.0f, 1.0f, 0.0f, 0.0f};

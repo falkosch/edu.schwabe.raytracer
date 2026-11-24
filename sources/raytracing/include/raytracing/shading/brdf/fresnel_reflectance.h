@@ -12,4 +12,8 @@ namespace raytracer::brdf
     // (etaI / etaT, etaT / etaI, etaI, etaT), with I the medium of the incident ray and T the other one. Entering a
     // less dense medium (etaT < etaI) takes the cosine of the transmitted direction from Snell's law.
     Float4 fresnelReflectance(bool totalInternalReflection, const Float4& negNdotI, const Float4& eta);
+
+    // The same for the incident direction at a surface (or microfacet) of the normal on the incident side, which
+    // decides on the total internal reflection itself: 1 where refraction is impossible
+    Float4 fresnelReflectance(const Float4& incident, const Float4& normal, const Float4& eta);
 }

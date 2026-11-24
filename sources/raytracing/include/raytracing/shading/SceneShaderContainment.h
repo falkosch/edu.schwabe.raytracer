@@ -19,6 +19,8 @@ namespace raytracer
         Float visibilityCutoff;
         // the most shadow rays to an area light (RaytraceBaseParameters::sphereLightSamples)
         ASizeT sphereLightSamples;
+        // the glossy reflection rays of the intersection, against which area lights weigh their highlights (0: none)
+        ASizeT glossyRays;
         PerLightShadowCache::ShadowCacheType* shadowCache;
         StatisticsCookie* statistics;
 

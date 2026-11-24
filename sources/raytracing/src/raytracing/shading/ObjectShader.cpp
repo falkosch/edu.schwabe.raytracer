@@ -87,12 +87,17 @@ namespace raytracer
 
     bool ObjectShader::isLightEmitter() const
     {
-        return lightEmitter;
+        return emittedLight != nullptr;
     }
 
-    void ObjectShader::setLightEmitter(const bool value)
+    const LightInfo* ObjectShader::getEmittedLight() const
     {
-        lightEmitter = value;
+        return emittedLight;
+    }
+
+    void ObjectShader::setLightEmitter(const LightInfo* const light)
+    {
+        emittedLight = light;
     }
 
     void ObjectShader::resetTextureMatrix()

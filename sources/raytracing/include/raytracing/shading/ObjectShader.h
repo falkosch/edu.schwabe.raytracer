@@ -43,9 +43,11 @@ namespace raytracer
         void setEmittanceShader(std::unique_ptr<const MaterialShader> value);
 
         // The emissive object of an area light (a sphere light's sphere, LightInfo::radius, or a box light's box,
-        // LightInfo::halfExtents): glossy reflections get the light by its highlight and don't see the object
+        // LightInfo::halfExtents), or nullptr: glossy reflections get the light by its highlight and see the object
+        // only weighed against the light's shadow rays (multiple importance sampling)
         bool isLightEmitter() const;
-        void setLightEmitter(bool value);
+        const LightInfo* getEmittedLight() const;
+        void setLightEmitter(const LightInfo* light);
 
         void resetTextureMatrix();
 
@@ -77,7 +79,7 @@ namespace raytracer
         std::unique_ptr<const MaterialShader> refractionEtaShader;
         std::unique_ptr<const MaterialShader> emittanceShader;
 
-        bool lightEmitter{};
+        const LightInfo* emittedLight{};
 
         void updateTextureMatrix();
     };

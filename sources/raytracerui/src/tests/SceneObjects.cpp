@@ -43,18 +43,18 @@ namespace raytracerui
         Scene& scene, std::string id, const Float4& center, const Float radius, const Float4& radiance
     )
     {
-        auto emitter = createSceneObject(
-            std::move(id), std::make_unique<Sphere>(), SceneMaterial::emissive(radiance),
-            {Float3(radius, radius, radius), Float3(0.f, 0.f, 0.f), Float3(x(center), y(center), z(center))}
-        );
-        emitter->setLightEmitter(true);
-        scene.getSceneObjects().push_back(std::move(emitter));
-
         auto light = std::make_unique<LightInfo>();
         light->position = oneW(center);
         light->emittance = RGBS(zeroW(radiance) * Float4(Pi<Float>() * radius * radius));
         light->attenuationFactors = Float4(0.f, 0.f, 1.f, 0.f);
         light->radius = radius;
+
+        auto emitter = createSceneObject(
+            std::move(id), std::make_unique<Sphere>(), SceneMaterial::emissive(radiance),
+            {Float3(radius, radius, radius), Float3(0.f, 0.f, 0.f), Float3(x(center), y(center), z(center))}
+        );
+        emitter->setLightEmitter(light.get());
+        scene.getSceneObjects().push_back(std::move(emitter));
         scene.getLights().push_back(std::move(light));
     }
 
@@ -63,13 +63,6 @@ namespace raytracerui
         const Float4& radiance, const UInt_32 emittingFaces
     )
     {
-        auto emitter = createSceneObject(
-            std::move(id), std::make_unique<Box>(), SceneMaterial::emissive(radiance),
-            {halfExtents, rotation, Float3(x(center), y(center), z(center))}
-        );
-        emitter->setLightEmitter(true);
-        scene.getSceneObjects().push_back(std::move(emitter));
-
         auto light = std::make_unique<LightInfo>();
         light->position = oneW(center);
         light->emittance = RGBS(zeroW(radiance));
@@ -80,6 +73,13 @@ namespace raytracerui
             x(rotation), OneX<Float4>()
         );
         light->emittingFaces = emittingFaces;
+
+        auto emitter = createSceneObject(
+            std::move(id), std::make_unique<Box>(), SceneMaterial::emissive(radiance),
+            {halfExtents, rotation, Float3(x(center), y(center), z(center))}
+        );
+        emitter->setLightEmitter(light.get());
+        scene.getSceneObjects().push_back(std::move(emitter));
         scene.getLights().push_back(std::move(light));
     }
 }

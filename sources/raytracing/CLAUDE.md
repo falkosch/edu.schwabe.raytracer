@@ -27,7 +27,23 @@ Core rendering engine. Static library depending on `primitives` and `vectorizati
    `Raytrace::glossy` along mirror and refraction chains (both biased, off by default in the library). The sample
    budgets shrink with `Raytrace::visibilityIndex` (divided among a glossy reflection's rays), the cutoffs of dim rays
    and lights read `Raytrace::importance` (not divided: each glossy ray estimates the whole reflection), so that more
-   glossy rays don't darken the image
+   glossy rays don't darken the image. With shadow rays, the highlights of area lights on rough surfaces combine
+   both strategies by multiple importance sampling (power heuristic, `power_heuristic.h`): the shadow rays' part is
+   weighed in `SceneShader::sampleLighting` (it gets the hit's number of glossy rays), a glossy ray that hits an
+   emitter (`Raytrace::weighsEmitters`) returns its light (`IlluminatedIntersection::emitterLight`,
+   `ObjectShader::getEmittedLight`) and adds its weighed part to the highlight, unclamped. Both estimate the same
+   light: `SceneShader::lightPointDensity` gives the glossy side the shadow rays' density, 0 where they don't sample
+   the highlight (horizon, cutoff, seen from inside), and the light's radiance as they take it; a point off the
+   light (an emitter moved away from it) is no light, and F0 = 0 has no highlight on either side. A rough dielectric
+   whose refracted lobe is wider than a mirror's (|1 - eta| / 2 times the reflected lobe's width) reflects and
+   refracts through VNDF-sampled microfacet normals, each with its own Fresnel reflectance (`traceGlossyReflection`,
+   `traceRoughTransmission`, Walter et al. 2007; `brdf::fresnelReflectance(incident, normal, eta)`): a microfacet that
+   reflects totally refracts nothing and reflects all, a masked direction counts as black. The refraction takes fewer
+   rays than a reflection of that roughness; a narrower refracted lobe refracts as a mirror, both lobes with the smooth
+   surface's Fresnel, as at the smooth surface's total reflection. Adaptive sampling (`adaptiveRounds`, `adaptiveThreshold`, off in the library and for Whitted ray
+   tracing): a pixel of at least 2 x 2 sub-samples whose display luminance spreads (`SubSampleSpread`, the standard
+   error of the mean) takes further rounds of sub-samples on the grid shifted by Roberts' R2 sequence, at hero
+   wavelengths of their own (one set of `SpectralContext`s per round), continuing the pixel's sample sequence
 9. Output: `spectrumToXYZ` (with the context's XYZ context) `→ xyzToDisplayRGB` per pixel → HDRImage
    (sRGB-linear) + depth map + timing map
 
@@ -87,16 +103,19 @@ Traversers (template on intersection type):
 - `SceneShader` -- scene-level: background shader, ambient light, light collection, shadow computation. Shadow rays
   pass transmissive objects (Fresnel transmission and absorption along the straight chord, no caustics). Area lights
   get up to `sphereLightSamples` shadow rays:
-    - a sphere light (`LightInfo::radius`) to its visible cap, lighting as a point light at its center (exact while
-      the sphere is above the horizon, too dark where the horizon cuts it); rough surfaces get its highlight with the
-      lobe widened by its size (Karis 2013)
+    - a sphere light (`LightInfo::radius`) to its visible cap (`SphereLightCap`: points of the disk the cap projects
+      to, lifted onto it, and their density per solid angle), lighting as a point light at its center (exact while
+      the sphere is above the horizon, too dark where the horizon cuts it); rough surfaces get its highlight from the
+      same rays with the sphere's radiance (the intensity over its cross section), or without samples from its center
+      with the lobe widened by its size (Karis 2013)
     - a box light (`LightInfo::halfExtents`, `orientation`, `emittingFaces`; a zero extent gives a rectangle) to the
       area of its emitting faces that the hit sees, clipped at its horizon (`BoxLightFaces`). Their radiance lights
       by the exact form factor (Lambert's polygon formula) times the lit fraction of the rays, each weighed by its
       irradiance (ratio estimator, Heitz et al. 2018); rough surfaces get the highlight from the same rays (light
       sampling), or from a representative point per face without samples (Karis 2013)
 
-  The light's emissive object (`setLightEmitter`) shows in mirrors, while the glossy rays of rough surfaces skip it.
+  The light's emissive object (`setLightEmitter`, which takes the light) shows in mirrors; the glossy rays of rough
+  surfaces see it weighed against the shadow rays (multiple importance sampling), and skip it without shadow rays.
   Only these `LightInfo`s light the scene: the emittance of any other object (meshes, emissive textures, boxes without
   a box light) makes it glow where it is seen, but it casts no light
 - `ObjectShader` -- per-object: 7 `MaterialShader` slots (diffusion, reflectance, specular, roughness,
@@ -128,9 +147,11 @@ Traversers (template on intersection type):
 - `evaluateGGX_DG()` -- BRDF without Fresnel (D * G / 4NoVNoL), from precomputed NoV, NoL, NoH
 - `schlickFresnelSpectral()` -- per-wavelength Schlick approximation on Spectrum
 - `fresnelReflectance()` (`fresnel_reflectance.h`) -- Schlick reflectance at a dielectric interface, from the eta
-  layout of `RefractionIndices::refractionEta`; 1 for a total internal reflection
+  layout of `RefractionIndices::refractionEta`; 1 for a total internal reflection. The overload of an incident
+  direction and a (microfacet) normal decides on the total reflection itself
 - `applyBRDF()` (`apply_brdf.h`) -- the radiance of a hit from its `BRDFParameters`
-- `sampleGGX()` -- VNDF importance sampling (Heitz 2018), for the glossy reflections
+- `sampleGGX()` -- VNDF importance sampling (Heitz 2018), for the glossy reflections; `sampleGGXNormal()` its
+  microfacet normal, for rough refraction; `pdfGGX()` the density of its directions, `smithG1()` Smith's masking
 - The roughness channel is the GGX alpha itself (highlights and glossy reflections), not its square root
 
 ### Color (`shading/color/`)

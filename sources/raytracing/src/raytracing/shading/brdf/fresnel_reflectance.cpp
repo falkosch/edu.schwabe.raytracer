@@ -51,4 +51,11 @@ namespace raytracer::brdf
         }
         return schlickFresnel(enteringLessDense, negNdotI, eta);
     }
+
+    Float4 fresnelReflectance(const Float4& incident, const Float4& normal, const Float4& eta)
+    {
+        const auto NdotI = dotv(normal, incident);
+        const auto refracted = refractEta(incident, normal, NdotI, xxxx(eta));
+        return fresnelReflectance(allTrue3(!refracted), -NdotI, eta);
+    }
 }

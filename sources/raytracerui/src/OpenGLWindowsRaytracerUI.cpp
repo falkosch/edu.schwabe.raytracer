@@ -433,6 +433,22 @@ namespace raytracerui
                     changed = true;
                 }
 
+                // adaptive sampling: further rounds of sub-samples where they spread, 0 for off (needs 2x2
+                // sub-samples); the threshold in 8-bit display steps
+                auto adaptiveRounds = static_cast<int>(parameters.adaptiveRounds);
+                if (ImGui::SliderInt("Adaptive Rounds", &adaptiveRounds, 0, 8))
+                {
+                    parameters.adaptiveRounds = static_cast<ASizeT>(adaptiveRounds);
+                    changed = true;
+                }
+
+                auto adaptiveThreshold = static_cast<float>(parameters.adaptiveThreshold * 255.0f);
+                if (ImGui::SliderFloat("Adaptive Threshold", &adaptiveThreshold, 0.25f, 16.0f, "%.2f / 255"))
+                {
+                    parameters.adaptiveThreshold = static_cast<Float>(adaptiveThreshold) / 255.0f;
+                    changed = true;
+                }
+
                 auto rayPacketSize = static_cast<int>(parameters.rayPacketSize);
                 if (ImGui::SliderInt("Ray Packet Size", &rayPacketSize, 0, 31))
                 {

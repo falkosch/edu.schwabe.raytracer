@@ -10,6 +10,7 @@ set(SOURCES
         src/raytracing/Raytracer.cpp
         src/raytracing/RaytracerCache.cpp
         src/raytracing/RaytracerPackets.cpp
+        src/raytracing/SubSampleSpread.cpp
         src/raytracing/common/Bitmap.cpp
         src/raytracing/common/HDRImage.cpp
         src/raytracing/common/RGBS.cpp
@@ -67,6 +68,7 @@ set(SOURCES
         src/raytracing/shading/SceneShader.cpp
         src/raytracing/shading/SceneShaderContainment.cpp
         src/raytracing/shading/SpectralContext.cpp
+        src/raytracing/shading/SphereLightCap.cpp
         src/raytracing/shading/SurfaceShading.cpp
         src/raytracing/shading/TextureTransformInfo.cpp
         src/raytracing/shading/beer_lambert_transmittance.cpp
@@ -75,6 +77,7 @@ set(SOURCES
         src/raytracing/shading/brdf/ggx.cpp
         src/raytracing/shading/color/primaries.cpp
         src/raytracing/shading/color/view_transform.cpp
+        src/raytracing/shading/power_heuristic.cpp
         src/raytracing/shading/sampling.cpp
         src/raytracing/shading/shaders/EnvironmentShader.cpp
         src/raytracing/shading/shaders/environment_coordinates.cpp
@@ -103,6 +106,7 @@ set(HEADERS
         include/raytracing/Raytracer.h
         include/raytracing/RaytracerCache.h
         include/raytracing/RaytracerPackets.h
+        include/raytracing/SubSampleSpread.h
         include/raytracing/common/Bitmap.h
         include/raytracing/common/HDRImage.h
         include/raytracing/common/Image.h
@@ -176,6 +180,7 @@ set(HEADERS
         include/raytracing/shading/SceneShaderContainment.h
         include/raytracing/shading/SpectralContext.h
         include/raytracing/shading/Shader.h
+        include/raytracing/shading/SphereLightCap.h
         include/raytracing/shading/SurfaceShading.h
         include/raytracing/shading/TextureTransformInfo.h
         include/raytracing/shading/beer_lambert_transmittance.h
@@ -197,6 +202,7 @@ set(HEADERS
         include/raytracing/shading/spectral/wavelengths.h
         include/raytracing/shading/shaders/ConcatenatingShader.h
         include/raytracing/shading/shaders/ConstShader.h
+        include/raytracing/shading/power_heuristic.h
         include/raytracing/shading/sampling.h
         include/raytracing/shading/shaders/EnvironmentProjection.h
         include/raytracing/shading/shaders/EnvironmentShader.h

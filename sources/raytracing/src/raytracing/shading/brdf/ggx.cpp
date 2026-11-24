@@ -76,40 +76,57 @@ namespace raytracer::brdf
 
     Float4 sampleGGX(const Float4& N, const Float4& V, const Float4& xi, const Float alpha) noexcept
     {
-        const auto upCandidate =
-            abs(y(N)) < 0.999f ? OneY<Float4>() : OneX<Float4>();
+        return reflect(V * -One<Float>(), sampleGGXNormal(N, V, xi, alpha));
+    }
+
+    Float4 sampleGGXNormal(const Float4& N, const Float4& V, const Float4& xi, const Float alpha) noexcept
+    {
+        // the tangent frame around N as the rows of a matrix: frame * v takes v into it (dot products with the rows),
+        // v * frame back out (the rows weighed by the components)
+        const auto upCandidate = select(abs(yyyy(N)) < Float4(0.999f), OneY<Float4>(), OneX<Float4>());
         const auto T = normalize3(cross3(upCandidate, N));
-        const auto B = cross3(N, T);
+        const auto frame = MFloat4x4(T, cross3(N, T), N, Zero<Float4>());
 
-        const auto Vt = Float4{dot3(V, T), dot3(V, B), dot3(V, N), Zero<Float>()};
+        // the view direction in the frame, stretched by alpha in the tangent plane: (alpha, alpha, 1, 0)
+        const auto alphaStretch = xy_zw(Float4(alpha), OneZ<Float4>());
+        const auto Vh = normalize3((frame * V) * alphaStretch);
 
-        const auto alphaStretch = Float4{alpha, alpha, One<Float>(), Zero<Float>()};
-        const auto Vh = normalize3(Vt * alphaStretch);
+        // the frame around Vh: T1 = (-y, x, 0, 0) / length in the tangent plane, or x where Vh is the normal
+        const auto VhSquared = sqr(Vh);
+        const auto lengthSquared = xxxx(VhSquared) + yyyy(VhSquared);
+        const auto perpendicular = yxwz(Vh) * (OneY<Float4>() - OneX<Float4>());
+        const auto T1 = select(lengthSquared > Epsilon<Float4>(), perpendicular / sqrt(lengthSquared), OneX<Float4>());
+        const auto hemisphereFrame = MFloat4x4(T1, cross3(Vh, T1), Vh, Zero<Float4>());
 
-        const auto lensq = sqr(x(Vh)) + sqr(y(Vh));
-        const auto T1 =
-            lensq > Epsilon<Float>()
-                ? Float4{-y(Vh), x(Vh), Zero<Float>(), Zero<Float>()} * reciprocal(sqrt(lensq))
-                : Float4{One<Float>(), Zero<Float>(), Zero<Float>(), Zero<Float>()};
-        const auto T2 = cross3(Vh, T1);
-
-        const auto r = sqrt(x(xi));
-        const auto phi = Two<Float>() * Pi<Float>() * y(xi);
+        // a point of the unit disk (r cos phi, r sin phi), its y warped towards the hemisphere's projection
         Float4 sinPhi, cosPhi;
-        sincos(Float4{phi}, sinPhi, cosPhi);
-        const auto t1 = r * x(cosPhi);
-        auto t2 = r * x(sinPhi);
-        const auto s = Half<Float>() * (One<Float>() + z(Vh));
-        t2 = (One<Float>() - s) * sqrt(max(Zero<Float>(), One<Float>() - sqr(t1))) + s * t2;
+        sincos(yyyy(xi) * (Two<Float4>() * Pi<Float4>()), sinPhi, cosPhi);
+        const auto disk = sqrt(xxxx(xi)) * blend<false, true, false, false>(cosPhi, sinPhi);
+        const auto s = multiplyAdd(zzzz(Vh), Half<Float4>(), Half<Float4>());
+        const auto lower = sqrt(max(Zero<Float4>(), xxxx(negativeMultiplyAdd(disk, disk, One<Float4>()))));
+        const auto warped = blend<false, true, false, false>(
+            disk, multiplyAdd(s, disk, negativeMultiplyAdd(s, lower, lower)));
 
-        const auto Nh = T1 * t1 + T2 * t2 + Vh * sqrt(max(Zero<Float>(), One<Float>() - sqr(t1) - sqr(t2)));
+        // lifted onto the hemisphere: (t1, t2, sqrt(1 - t1^2 - t2^2), 0) in the frame around Vh
+        const auto warpedSquared = sqr(warped);
+        const auto lift = sqrt(max(Zero<Float4>(), One<Float4>() - (xxxx(warpedSquared) + yyyy(warpedSquared))));
+        const auto Nh = blend<false, false, true, true>(warped, zeroW(lift)) * hemisphereFrame;
 
+        // unstretched, clamped to the upper half, back out of the tangent frame (orthonormal: the length stays 1)
         const auto unstretched = Nh * alphaStretch;
-        const auto Ht = normalize3(Float4{
-            x(unstretched), y(unstretched), max(Zero<Float>(), z(unstretched)), Zero<Float>()
-        });
-        const auto H = T * x(Ht) + B * y(Ht) + N * z(Ht);
+        const auto Ht = normalize3(blend<false, false, true, false>(unstretched, max(unstretched, Zero<Float4>())));
+        return Ht * frame;
+    }
 
-        return reflect(V * -One<Float>(), normalize3(H));
+    Float smithG1(const Float cosine, const Float alpha) noexcept
+    {
+        const auto a2 = sqr(alpha);
+        const auto root = sqrt(multiplyAdd(One<Float>() - a2, sqr(cosine), a2));
+        return Two<Float>() * cosine / (cosine + root);
+    }
+
+    Float pdfGGX(const Float NoV, const Float NoH, const Float alpha) noexcept
+    {
+        return smithG1(NoV, alpha) * ggxD(NoH, alpha) / (Two<Float>() * Two<Float>() * NoV);
     }
 }

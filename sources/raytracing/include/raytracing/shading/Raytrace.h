@@ -46,6 +46,10 @@ namespace raytracer
         // (ObjectShader::isLightEmitter)
         bool glossy;
 
+        // A glossy ray whose reflection weighs the area lights it finds against their shadow rays (multiple importance
+        // sampling): an emitter it hits returns its light (IlluminatedIntersection::emitterLight)
+        bool weighsEmitters;
+
         Raytrace();
 
         explicit Raytrace(

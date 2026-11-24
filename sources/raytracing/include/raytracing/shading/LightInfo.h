@@ -24,9 +24,10 @@ namespace raytracer
 
         // 0 for a point light. Otherwise a spherical area light of this radius around the position: shadow rays to
         // points spread over its cap visible from the intersection give soft shadows. Show it by an emissive sphere of
-        // the same center and radius, marked by ObjectShader::setLightEmitter: mirrors reflect that sphere, rough
-        // surfaces get the light's highlight (widened by the light's size), and their glossy reflections skip the
-        // sphere.
+        // the same center and radius, marked by ObjectShader::setLightEmitter with this light: mirrors reflect that
+        // sphere, rough surfaces get the light's highlight from the shadow rays and from the glossy reflection rays
+        // that find the sphere, weighed against each other (multiple importance sampling; without shadow rays, from
+        // the center with the lobe widened by the light's size, and the glossy rays skip the sphere).
         Float radius;
 
         // Zero for a point or sphere light. Otherwise a box light: half the size of a box around the position along

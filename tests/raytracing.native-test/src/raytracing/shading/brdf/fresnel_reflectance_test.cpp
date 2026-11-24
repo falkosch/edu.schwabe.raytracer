@@ -1,6 +1,8 @@
 #include "raytracing_tests.h"
 
 #include <raytracing/shading/brdf/fresnel_reflectance.h>
+#include <raytracing/shading/brdf/ggx.h>
+#include <raytracing/shading/sampling.h>
 
 namespace raytracer::test {
   // brdf::fresnelReflectance without total internal reflection (Schlick's approximation) for a ray from a medium of
@@ -20,8 +22,88 @@ namespace raytracer::test {
     return schlickFresnelFrom(negNdotI, etaA, etaB);
   }
 
+  // The two lobes of a rough dielectric interface (Walter et al. 2007) for a ray along the incident direction onto the
+  // normal (on the incident side), as Raytracer::traceGlossyReflection and traceRoughTransmission estimate them from
+  // VNDF-sampled microfacet normals: each microfacet reflects its Fresnel reflectance and refracts the rest, weighed
+  // by Smith's masking of the outgoing direction; directions on the wrong side and total reflections refract nothing
+  struct Lobes {
+    double reflected;
+    double refracted;
+  };
+
+  static Lobes roughDielectricLobes(const Float4 &incident, const Float4 &normal, const Float4 &eta, const Float alpha) {
+    constexpr ASizeT Samples = 1 << 14;
+    const auto V = -incident;
+    auto lobes = Lobes{0.0, 0.0};
+    for (ASizeT i = 0; i < Samples; ++i) {
+      const auto m = brdf::sampleGGXNormal(normal, V, sequencePoint2D(3u, i), alpha);
+      const auto F = static_cast<double>(x(brdf::fresnelReflectance(incident, m, eta)));
+      const auto reflected = reflect(incident, m);
+      const auto NoR = dot3(normal, reflected);
+      if (NoR > 0.0f) {
+        lobes.reflected += F * brdf::smithG1(NoR, alpha);
+      }
+      const auto refracted = refractEta(incident, m, dotv(m, incident), xxxx(eta));
+      const auto NoT = -dot3(normal, refracted);
+      if (!allTrue3(!refracted) && NoT > 0.0f) {
+        lobes.refracted += (1.0 - F) * brdf::smithG1(NoT, alpha);
+      }
+    }
+    lobes.reflected /= Samples;
+    lobes.refracted /= Samples;
+    return lobes;
+  }
+
   TEST_CLASS(FresnelReflectanceTest) {
   public:
+    TEST_METHOD(atANormalItIsTheReflectanceOfTheCosine) {
+      // entering glass and leaving it at 30 degrees
+      const Float4 normal{0.0f, 1.0f, 0.0f, 0.0f};
+      const auto incident = normalize3(Float4{0.5f, -0.866f, 0.0f, 0.0f});
+      const auto entering = RefractionIndices::refractionEta(1.0f, 1.5f);
+      const auto leaving = RefractionIndices::refractionEta(1.5f, 1.0f);
+      Assert::AreEqual(x(brdf::fresnelReflectance(false, Float4(0.866f), entering)),
+                       x(brdf::fresnelReflectance(incident, normal, entering)), 1e-4f, L"entering", LINE_INFO());
+      Assert::AreEqual(x(brdf::fresnelReflectance(false, Float4(0.866f), leaving)),
+                       x(brdf::fresnelReflectance(incident, normal, leaving)), 1e-4f, L"leaving", LINE_INFO());
+    }
+
+    TEST_METHOD(atANormalItReflectsTotallyBeyondTheCriticalAngle) {
+      // leaving glass at 60 degrees, beyond the critical angle of 41.8 degrees
+      const Float4 normal{0.0f, 1.0f, 0.0f, 0.0f};
+      const auto incident = normalize3(Float4{0.866f, -0.5f, 0.0f, 0.0f});
+      const auto leaving = RefractionIndices::refractionEta(1.5f, 1.0f);
+      Assert::AreEqual(1.0f, x(brdf::fresnelReflectance(incident, normal, leaving)), L"total", LINE_INFO());
+    }
+
+    TEST_METHOD(roughDielectricLobesKeepTheEnergy) {
+      // the lobes add up to about 1 (the single-scattering microfacet model loses a few percent to masking), and a
+      // smooth surface's split: the reflected lobe near its Fresnel reflectance
+      const Float4 normal{0.0f, 1.0f, 0.0f, 0.0f};
+      const auto incident = normalize3(Float4{0.707f, -0.707f, 0.0f, 0.0f});
+      const auto entering = RefractionIndices::refractionEta(1.0f, 1.5f);
+      for (const auto alpha : {0.05f, 0.3f}) {
+        const auto lobes = roughDielectricLobes(incident, normal, entering, alpha);
+        Assert::IsTrue(lobes.reflected + lobes.refracted <= 1.0 + 1e-3, L"no light gained", LINE_INFO());
+        Assert::IsTrue(lobes.reflected + lobes.refracted > (alpha < 0.1f ? 0.98 : 0.9), L"little lost", LINE_INFO());
+      }
+      const auto smooth = roughDielectricLobes(incident, normal, entering, 0.05f);
+      Assert::AreEqual(static_cast<double>(x(brdf::fresnelReflectance(incident, normal, entering))), smooth.reflected,
+                       0.005, L"near the smooth surface's reflectance", LINE_INFO());
+    }
+
+    TEST_METHOD(totallyReflectingMicrofacetsReflectTheirLight) {
+      // leaving glass at 40 degrees, just below the critical angle: the microfacets tilted beyond it reflect totally,
+      // so the rough surface reflects more than the smooth one, and no light is lost to the total reflections
+      const Float4 normal{0.0f, 1.0f, 0.0f, 0.0f};
+      const auto incident = normalize3(Float4{0.643f, -0.766f, 0.0f, 0.0f});
+      const auto leaving = RefractionIndices::refractionEta(1.5f, 1.0f);
+      const auto lobes = roughDielectricLobes(incident, normal, leaving, 0.2f);
+      Assert::IsTrue(lobes.reflected > x(brdf::fresnelReflectance(incident, normal, leaving)) + 0.05,
+                     L"more reflection", LINE_INFO());
+      Assert::IsTrue(lobes.reflected + lobes.refracted > 0.85, L"the total reflections stay", LINE_INFO());
+    }
+
     TEST_METHOD(schlickAtNormalIncidenceEqualsR0AirToGlass) {
       const Float etaAir = 1.0f;
       const Float etaGlass = 1.5f;

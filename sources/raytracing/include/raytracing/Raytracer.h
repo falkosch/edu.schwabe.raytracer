@@ -56,19 +56,29 @@ namespace raytracer
 
         static IlluminatedIntersection trace(const Raytrace& raytrace, RaytracerCache& cache);
 
+        // microfacetEta: the refraction indices of a rough dielectric interface (incident side first), whose lobes
+        // weigh each microfacet by its own Fresnel reflectance; nullptr for the smooth surface's
         static void traceGlossyReflection(
             const Raytrace& incidentRaytrace, Float maxDistance, Float reflectionVisibilityIndex,
-            Float reflectionImportance, Float roughness, RaytracerCache& cache, BRDFParameters& brdf
+            Float reflectionImportance, Float roughness, const Float4* microfacetEta, RaytracerCache& cache,
+            BRDFParameters& brdf
         );
 
-        static void
-        traceReflection(const Raytrace& incidentRaytrace, Float maxDistance, RaytracerCache& cache,
-                        BRDFParameters& brdf);
+        static void traceReflection(
+            const Raytrace& incidentRaytrace, Float maxDistance, const Float4* microfacetEta, RaytracerCache& cache,
+            BRDFParameters& brdf
+        );
 
         static void traceTransmission(
             const Raytrace& incidentRaytrace, Float maxDistance, bool leavingMaterial,
-            const Float4& transmittedDirection,
-            RaytracerCache& cache, BRDFParameters& brdf
+            const Float4& transmittedDirection, const Float4* microfacetEta, RaytracerCache& cache,
+            BRDFParameters& brdf
+        );
+
+        static void traceRoughTransmission(
+            const Raytrace& incidentRaytrace, Float maxDistance, bool leavingMaterial, const Float4& interfaceEta,
+            Float transmissionVisibilityIndex, Float transmissionImportance, RaytracerCache& cache,
+            BRDFParameters& brdf
         );
     };
 }

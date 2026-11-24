@@ -49,6 +49,11 @@ constexpr ASizeT SPHERE_LIGHT_SAMPLES = 16;
 // against fireflies: the most radiance of one glossy reflection ray (0 for no limit)
 constexpr Float GLOSSY_CLAMP = 4.0f;
 
+// adaptive sampling: the most further rounds of sub-samples a pixel takes while their spread (the standard error of
+// their mean in display values) is above the threshold; 0 rounds is off. It needs 2 x 2 sub-samples (full renders).
+constexpr ASizeT ADAPTIVE_ROUNDS = 3;
+constexpr Float ADAPTIVE_THRESHOLD = 4.0f / 255.0f;
+
 // the least super-sampling factor of a full render (Enter)
 #ifdef NDEBUG
 constexpr ASizeT FULL_RENDER_SUPER_SAMPLING_FACTOR = 2;
@@ -69,7 +74,8 @@ constexpr ASizeT RAY_PACKET_SIZE = 15;
 // the displayed image by 2^stops, --max-trace-depth=<n>, --glossy-samples=<n>, --sphere-light-samples=<n> and
 // --super-sampling=<n> replace MAX_TRACE_DEPTH, GLOSSY_SAMPLES, SPHERE_LIGHT_SAMPLES and SUPER_SAMPLING_FACTOR,
 // --full-render renders the first image like Enter does (at least FULL_RENDER_SUPER_SAMPLING_FACTOR), --seed=<n> picks
-// another sample pattern of the distribution ray tracing (0 is the default), --exit-after-render closes the window once
+// another sample pattern of the distribution ray tracing (0 is the default), --adaptive-rounds=<n> and
+// --adaptive-threshold=<x> replace ADAPTIVE_ROUNDS and ADAPTIVE_THRESHOLD, --exit-after-render closes the window once
 // the first image is saved as ray-traced.png.
 constexpr std::string_view SCENE_OPTION = "--scene=";
 constexpr std::string_view EXPOSURE_OPTION = "--exposure=";
@@ -81,6 +87,8 @@ constexpr std::string_view SUPER_SAMPLING_OPTION = "--super-sampling=";
 constexpr std::string_view GLOSSY_CLAMP_OPTION = "--glossy-clamp=";
 constexpr std::string_view REGULARIZE_PATHS_OPTION = "--regularize-paths";
 constexpr std::string_view VISIBILITY_CUTOFF_OPTION = "--visibility-cutoff=";
+constexpr std::string_view ADAPTIVE_ROUNDS_OPTION = "--adaptive-rounds=";
+constexpr std::string_view ADAPTIVE_THRESHOLD_OPTION = "--adaptive-threshold=";
 constexpr std::string_view FULL_RENDER_OPTION = "--full-render";
 constexpr std::string_view EXIT_AFTER_RENDER_OPTION = "--exit-after-render";
 
@@ -142,6 +150,8 @@ namespace raytracerui
         parameters.seedOffset = tracing.seedOffset;
         parameters.glossyClamp = tracing.glossyClamp;
         parameters.regularizePaths = tracing.regularizePaths;
+        parameters.adaptiveRounds = tracing.adaptiveRounds;
+        parameters.adaptiveThreshold = tracing.adaptiveThreshold;
         parameters.sceneShader = &scene;
         parameters.cullingOrientation = CULLING_ORIENTATION;
         parameters.perspectiveZPlanes = PERSPECTIVE_Z_PLANES;
@@ -204,6 +214,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR commandLine, int)
     tracing.glossySamples = GLOSSY_SAMPLES;
     tracing.sphereLightSamples = SPHERE_LIGHT_SAMPLES;
     tracing.glossyClamp = GLOSSY_CLAMP;
+    tracing.adaptiveRounds = ADAPTIVE_ROUNDS;
+    tracing.adaptiveThreshold = ADAPTIVE_THRESHOLD;
     auto superSampling = SUPER_SAMPLING_FACTOR;
     auto fullRender = false;
     auto exitAfterRender = false;
@@ -256,6 +268,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR commandLine, int)
         else if (argument == REGULARIZE_PATHS_OPTION)
         {
             tracing.regularizePaths = true;
+        }
+        else if (argument.starts_with(ADAPTIVE_ROUNDS_OPTION))
+        {
+            tracing.adaptiveRounds = parseCount(argument, ADAPTIVE_ROUNDS_OPTION);
+        }
+        else if (argument.starts_with(ADAPTIVE_THRESHOLD_OPTION))
+        {
+            const auto threshold = argument.substr(ADAPTIVE_THRESHOLD_OPTION.size());
+            tracing.adaptiveThreshold = std::strtof(threshold.c_str(), nullptr);
         }
         else if (argument.starts_with(SUPER_SAMPLING_OPTION))
         {

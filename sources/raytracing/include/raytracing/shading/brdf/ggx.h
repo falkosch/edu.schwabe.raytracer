@@ -40,4 +40,15 @@ namespace raytracer::brdf
     // VNDF importance sampling (Heitz 2018): given surface normal N, view direction V,
     // roughness alpha, and two uniform random numbers xi (in xy), returns a sampled light direction.
     Float4 sampleGGX(const Float4& N, const Float4& V, const Float4& xi, Float alpha) noexcept;
+
+    // The microfacet normal of sampleGGX: a normal of the GGX distribution of visible normals seen from V (Heitz 2018),
+    // for rough refraction (Walter et al. 2007) as well as reflection
+    Float4 sampleGGXNormal(const Float4& N, const Float4& V, const Float4& xi, Float alpha) noexcept;
+
+    // Smith's masking function G1 of the GGX distribution for one direction, from its cosine to the normal (positive)
+    Float smithG1(Float cosine, Float alpha) noexcept;
+
+    // The density per solid angle of the directions sampleGGX returns: G1(V) * D(H) / (4 * NoV) for the half vector H
+    // of V and the direction. NoV must be positive; directions below the surface have a density too.
+    Float pdfGGX(Float NoV, Float NoH, Float alpha) noexcept;
 }

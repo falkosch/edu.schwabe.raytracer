@@ -25,6 +25,8 @@ namespace raytracer {
       this->seedOffset = parameters.seedOffset;
       this->glossyClamp = parameters.glossyClamp;
       this->regularizePaths = parameters.regularizePaths;
+      this->adaptiveRounds = parameters.adaptiveRounds;
+      this->adaptiveThreshold = parameters.adaptiveThreshold;
 
       this->resolution = parameters.resolution;
       this->perspectiveZPlanes = parameters.perspectiveZPlanes;

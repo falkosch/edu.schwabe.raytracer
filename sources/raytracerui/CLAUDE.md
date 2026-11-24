@@ -24,6 +24,8 @@ MessageLoopBasedUI (abstract, Windows message loop)
 | `GLOSSY_SAMPLES`             | 16            | 16    |
 | `SPHERE_LIGHT_SAMPLES`       | 16            | 16    |
 | `GLOSSY_CLAMP`               | 4             | 4     |
+| `ADAPTIVE_ROUNDS`            | 3             | 3     |
+| `ADAPTIVE_THRESHOLD`         | 4/255         | 4/255 |
 | `CULLING_ORIENTATION`        | -1 (backface) | -1    |
 
 ## Scenes (`include/tests/`, `src/tests/`)
@@ -79,6 +81,10 @@ faces).
   measure the noise
 - `--visibility-cutoff=<x>` -- replace `VISIBILITY_CUTOFF` (1/512), the least share of the pixel for which rays and
   lights are still traced; smaller values measure what the cutoff loses
+- `--adaptive-rounds=<n>`, `--adaptive-threshold=<x>` -- replace `ADAPTIVE_ROUNDS` and `ADAPTIVE_THRESHOLD`: a pixel
+  of at least 2 x 2 sub-samples (a full render) takes up to n further rounds of sub-samples while the standard error
+  of their mean exceeds x in display values (1/255 is about one 8-bit step); 0 rounds is off (also sliders in the
+  Config panel, the threshold in 8-bit steps). Whitted ray tracing doesn't sample adaptively
 
 ## Controls
 

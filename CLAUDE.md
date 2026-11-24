@@ -85,9 +85,10 @@ and the facet block test (FacetLanes, FacetNormalsBlock, FacetBlockRay, FacetBlo
 ### raytracing (`sources/raytracing/`)
 
 Core engine. Rendering pipeline: hero-wavelength spectral sampling (Wilkie 2014), GGX microfacet highlights and glossy
-reflections by VNDF importance sampling (Heitz 2018), spectral Schlick-Fresnel reflectance, Beer-Lambert absorption,
-point, sphere and box lights (soft shadows; box lights by their exact form factor), shadows through transmissive
-objects. View transform:
+reflections by VNDF importance sampling (Heitz 2018), rough refraction (Walter et al. 2007), spectral Schlick-Fresnel
+reflectance, Beer-Lambert absorption, point, sphere and box lights (soft shadows; box lights by their exact form
+factor; their highlights on rough surfaces by multiple importance sampling of shadow and glossy rays), shadows through
+transmissive objects, adaptive sampling of noisy pixels. View transform:
 spectrum -> XYZ -> sRGB-linear -> AgX (display-encoded, no extra sRGB encoding).
 
 - **Scene**: Scene, SceneObject, Camera, Resources (OFF mesh loading, HDR/PPM textures)
@@ -196,9 +197,9 @@ cd data
 
 - The app renders the scene once at the fast-preview size (512x512 in release), saves `data/ray-traced.png`, logs
   the ray counters and exits. Read the PNG to judge it; compare `data/raytracer.log` with a baseline.
-- `--full-render` renders that image like Enter does (3x3 samples per pixel in release): use it to judge aliasing,
-  glossy reflections and soft shadows. `--exposure=<stops>` brightens or darkens the image,
-  `--max-trace-depth=<n>` traces secondary rays also in debug builds (`MAX_TRACE_DEPTH` is 0 there).
+- `--full-render` renders that image like Enter does (3x3 samples per pixel in release, up to 3 further rounds where
+  they spread): use it to judge aliasing, glossy reflections and soft shadows. `--exposure=<stops>` brightens or
+  darkens the image, `--max-trace-depth=<n>` traces secondary rays also in debug builds (`MAX_TRACE_DEPTH` is 0 there).
   `--glossy-samples=0 --sphere-light-samples=0` turns the distribution ray tracing off (Whitted: mirror reflections,
   hard shadows), which also makes renders much faster.
 - Noise: render the same image with `--seed=0` and `--seed=1` (other sample patterns) and compare them; a full render
