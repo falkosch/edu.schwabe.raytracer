@@ -6,6 +6,7 @@
 #include "raytracing/shading/ObjectShader.h"
 #include "raytracing/shading/SphereLightCap.h"
 #include "raytracing/shading/beer_lambert_transmittance.h"
+#include "raytracing/shading/brdf/fresnel_reflectance.h"
 #include "raytracing/shading/brdf/ggx.h"
 #include "raytracing/shading/power_heuristic.h"
 #include "raytracing/shading/sampling.h"
@@ -24,13 +25,14 @@ namespace raytracer
             return shader && anyTrue3(shader->sampleTransmittance(intersection) > Zero<Float4>()) ? shader : nullptr;
         }
 
-        // The Fresnel transmission (Schlick) through an interface between the refraction indices z and w of eta
+        // The Fresnel transmission (the exact equations) through an interface of the object's indices, eta as the
+        // object gives it (z outside, w inside). The straight shadow ray's cosine is the light's angle on the outer
+        // side: where it enters the object (the shadow ray's exit), and by reciprocity where it leaves (the refracted
+        // light inside meets that surface at the transmitted angle, as the straight chord of a sphere has it)
         spectral::SpectralVector fresnelTransmission(const Float4& eta, const Float cosine)
         {
-            const auto sqrtR0 = (z(eta) - w(eta)) / (z(eta) + w(eta));
-            const auto R0 = spectral::SpectralVector(sqrtR0 * sqrtR0);
-            const auto cosTheta = spectral::SpectralVector(min(vectorization::abs(cosine), One<Float>()));
-            return One<spectral::SpectralVector>() - brdf::schlickFresnelSpectral(R0, cosTheta);
+            const auto cosTheta = Float4(min(vectorization::abs(cosine), One<Float>()));
+            return One<spectral::SpectralVector>() - spectral::SpectralVector(brdf::fresnelReflectance(cosTheta, eta));
         }
 
         // The density of the glossy reflection rays (Raytracer::traceGlossyReflection, GGX VNDF sampling of the

@@ -27,7 +27,9 @@ namespace raytracer::brdf
         const spectral::SpectralVector& weight, const spectral::SpectralVector& f0
     ) noexcept
     {
-        return {weight, f0, One<Float4>(), false};
+        // an F0 of 0 is no specular lobe: Schlick's (1 - cos)^5 would still reflect at grazing angles
+        const auto reflecting = spectral::spectralMax(f0) > Zero<Float>();
+        return {reflecting ? weight : Zero<spectral::SpectralVector>(), f0, One<Float4>(), false};
     }
 
     SpecularFresnel SpecularFresnel::dielectricInterface(

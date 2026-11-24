@@ -196,13 +196,15 @@ Traversers (template on intersection type):
 - `evaluateGGX()` -- full microfacet BRDF (D * G * F / 4NoVNoL)
 - `evaluateGGX_DG()` -- BRDF without Fresnel (D * G / 4NoVNoL), from precomputed NoV, NoL, NoH
 - `schlickFresnelSpectral()` -- per-wavelength Schlick approximation on Spectrum
-- `fresnelReflectance()` (`fresnel_reflectance.h`) -- Schlick reflectance at a dielectric interface, from the eta
-  layout of `RefractionIndices::refractionEta`; 1 for a total internal reflection. The overloads of an incident
-  direction and a (microfacet) normal, or of the cosine alone, decide on the total reflection themselves
+- `fresnelReflectance()` (`fresnel_reflectance.h`) -- the reflectance at a dielectric interface by the exact Fresnel
+  equations for unpolarized light (the mean of Rs and Rp; 0 for equal indices), from the eta layout of
+  `RefractionIndices::refractionEta`; 1 for a total internal reflection. The overloads of an incident direction and a
+  (microfacet) normal, or of the cosine alone, decide on the total reflection themselves
 - `SpecularFresnel` -- the Fresnel reflectance of a hit's specular lobe, one law for its highlights, mirror and glossy
-  reflections and the emitters its glossy rays find: Schlick's of the specular channel (opaque surfaces) or the
-  indices' (transmissive surfaces, dielectric interfaces), times the reflectance channel as the lobe's weight
-  (clamped to [0, 1], as OpenPBR's `specular_weight`); a dielectric interface transmits what the lobe leaves
+  reflections and the emitters its glossy rays find: Schlick's of the specular channel (opaque surfaces, conductors; an
+  F0 of 0 is no lobe) or the indices' (transmissive surfaces, dielectric interfaces), times the reflectance channel as
+  the lobe's weight (clamped to [0, 1], as OpenPBR's `specular_weight`); a dielectric interface transmits what the lobe
+  leaves
 - `applyBRDF()` (`apply_brdf.h`) -- the radiance of a hit from its `BRDFParameters`; the diffuse part is Lambert's
   BRDF, the diffusion / pi times the direct irradiance (a white surface under light from all directions reflects
   that light's radiance); the reflected and transmitted light come weighed by the specular lobe's Fresnel

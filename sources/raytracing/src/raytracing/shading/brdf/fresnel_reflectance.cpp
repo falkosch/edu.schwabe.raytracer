@@ -1,43 +1,37 @@
 #include "raytracing/shading/brdf/fresnel_reflectance.h"
 
-#include <cassert>
-
 namespace raytracer::brdf
 {
     using vectorization::max;
+    using vectorization::min;
     using vectorization::sqrt;
 
     namespace
     {
-        // Schlick's approximation; entering a less dense medium must not be a total internal reflection
-        Float4 schlickFresnel(const bool enteringLessDense, const Float4& negNdotI, const Float4& eta)
+        // ((a - b) / (a + b))^2, 0 where both are 0 (equal indices at a grazing angle, the limit of the interface that
+        // reflects nothing)
+        Float4 squaredRatio(const Float4& a, const Float4& b)
         {
-            // calculate cosPhiT from Snell's law (TIR is already excluded)
-            Float4 cosPhi;
-            if (enteringLessDense)
-            {
-                const auto etaItoT = xxxx(eta);
-                const auto etaItoTMulNdotI = etaItoT * negNdotI;
-                const auto cosSqrPhiT =
-                    One<Float4>() - multiplySub(etaItoT, etaItoT, etaItoTMulNdotI * etaItoTMulNdotI);
-                assert(!isNegative(cosSqrPhiT));
-                cosPhi = sqrt(cosSqrPhiT);
-            }
-            else
-            {
-                cosPhi = max(Zero<Float4>(), negNdotI);
-            }
+            const auto sum = a + b;
+            return select(sum > Zero<Float4>(), sqr((a - b) / sum), Zero<Float4>());
+        }
 
-            // Schlick approximation for polarized light refraction/reflection model:
-            // R0 = ((eta_i - eta_t) / (eta_i + eta_t))²
-            const auto refractions = addSubtract(zzzz(eta), wwww(eta));
-            const auto sqrtR0 = xxxx(refractions) / yyyy(refractions);
-            const auto R0 = sqrtR0 * sqrtR0;
-            const auto oneSubCosPhi = One<Float4>() - cosPhi;
-            const auto sqrOneSubCosPhi = oneSubCosPhi * oneSubCosPhi;
-            const auto reflectance =
-                multiplyAdd(One<Float4>() - R0, oneSubCosPhi * sqrOneSubCosPhi * sqrOneSubCosPhi, R0);
-            return reflectance;
+        // The exact Fresnel equations for unpolarized light, the mean of the s- and p-polarized reflectances
+        //   Rs = ((n1 cos_i - n2 cos_t) / (n1 cos_i + n2 cos_t))^2
+        //   Rp = ((n1 cos_t - n2 cos_i) / (n1 cos_t + n2 cos_i))^2
+        // divided by n1 (eta's x is n1 / n2, y is n2 / n1), cos_t from Snell's law; 1 beyond the critical angle, where
+        // cos_t^2 is negative
+        Float4 exactFresnel(const Float4& cosI, const Float4& eta)
+        {
+            const auto etaItoT = xxxx(eta);
+            const auto etaTtoI = yyyy(eta);
+            const auto etaItoTMulCosI = etaItoT * cosI;
+            const auto cosSqrT = One<Float4>() - multiplySub(etaItoT, etaItoT, etaItoTMulCosI * etaItoTMulCosI);
+            const auto cosT = sqrt(max(cosSqrT, Zero<Float4>()));
+            const auto rs = squaredRatio(cosI, etaTtoI * cosT);
+            const auto rp = squaredRatio(cosT, etaTtoI * cosI);
+            const auto reflectance = Half<Float4>() * (rs + rp);
+            return select(cosSqrT < Zero<Float4>(), One<Float4>(), reflectance);
         }
     }
 
@@ -49,7 +43,7 @@ namespace raytracer::brdf
         {
             return One<Float4>();
         }
-        return schlickFresnel(enteringLessDense, negNdotI, eta);
+        return exactFresnel(min(max(negNdotI, Zero<Float4>()), One<Float4>()), eta);
     }
 
     Float4 fresnelReflectance(const Float4& incident, const Float4& normal, const Float4& eta)
@@ -61,10 +55,6 @@ namespace raytracer::brdf
 
     Float4 fresnelReflectance(const Float4& negNdotI, const Float4& eta)
     {
-        // the squared cosine of the transmitted direction as schlickFresnel takes it: negative beyond the critical angle
-        const auto etaItoT = xxxx(eta);
-        const auto etaItoTMulNdotI = etaItoT * negNdotI;
-        const auto cosSqrPhiT = One<Float4>() - multiplySub(etaItoT, etaItoT, etaItoTMulNdotI * etaItoTMulNdotI);
-        return fresnelReflectance(!!isNegative(cosSqrPhiT), negNdotI, eta);
+        return exactFresnel(min(max(negNdotI, Zero<Float4>()), One<Float4>()), eta);
     }
 }

@@ -21,8 +21,10 @@ namespace raytracer::brdf
         // A lobe that reflects nothing
         SpecularFresnel() noexcept;
 
-        // An opaque surface: the weight times Schlick's approximation of f0
-        static SpecularFresnel opaque(const spectral::SpectralVector& weight, const spectral::SpectralVector& f0) noexcept;
+        // An opaque surface: the weight times Schlick's approximation of f0; nothing for an f0 of 0
+        static SpecularFresnel opaque(
+            const spectral::SpectralVector& weight, const spectral::SpectralVector& f0
+        ) noexcept;
 
         // A dielectric interface: the weight times the Fresnel reflectance of the indices, eta laid out as
         // RefractionIndices::refractionEta(etaI, etaT) gives it, with I the medium on the viewer's side

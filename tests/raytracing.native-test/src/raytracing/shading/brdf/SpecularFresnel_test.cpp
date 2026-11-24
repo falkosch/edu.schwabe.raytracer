@@ -61,6 +61,13 @@ namespace raytracer::test {
       Assert::AreEqual(0.04f, x1(lobe.reflectance(Float4(1.0001f))), 1e-6f, L"above 1", LINE_INFO());
     }
 
+    TEST_METHOD(opaqueLobeOfF0ZeroReflectsNothingEvenAtGrazingAngles) {
+      // Schlick's (1 - cos)^5 doesn't vanish for F0 = 0
+      const auto lobe = brdf::SpecularFresnel::opaque(constant(1.0f), constant(0.0f));
+      Assert::AreEqual(0.0f, x1(lobe.reflectance(Float4(0.01f))), L"grazing", LINE_INFO());
+      Assert::AreEqual(0.0f, x1(lobe.reflectance(Float4(0.5f))), L"oblique", LINE_INFO());
+    }
+
     TEST_METHOD(lobeReflectsWithAWeightAndAReflectance) {
       const auto glass = RefractionIndices::refractionEta(RefractionIndices::Vacuum, RefractionIndices::Glass);
       const auto vacuum = RefractionIndices::refractionEta(RefractionIndices::Vacuum, RefractionIndices::Vacuum);

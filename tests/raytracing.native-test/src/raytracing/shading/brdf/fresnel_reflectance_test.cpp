@@ -4,22 +4,38 @@
 #include <raytracing/shading/brdf/ggx.h>
 #include <raytracing/shading/sampling.h>
 
+#include <cmath>
+#include <utility>
+
 namespace raytracer::test {
-  // brdf::fresnelReflectance without total internal reflection (Schlick's approximation) for a ray from a medium of
-  // index etaI towards one of index etaT
-  static Float schlickFresnelFrom(const Float negNdotI, const Float etaI, const Float etaT) {
+  // brdf::fresnelReflectance without total internal reflection (the exact Fresnel equations) for a ray from a medium
+  // of index etaI towards one of index etaT
+  static Float fresnelFrom(const Float negNdotI, const Float etaI, const Float etaT) {
     const auto eta = RefractionIndices::refractionEta(etaI, etaT);
     return x(brdf::fresnelReflectance(false, Float4(negNdotI), eta));
   }
 
-  static Float schlickFresnelDenseToLessDense(const Float negNdotI, const Float etaA, const Float etaB) {
+  static Float fresnelDenseToLessDense(const Float negNdotI, const Float etaA, const Float etaB) {
     Assert::IsTrue(etaB < etaA, L"towards the less dense medium", LINE_INFO());
-    return schlickFresnelFrom(negNdotI, etaA, etaB);
+    return fresnelFrom(negNdotI, etaA, etaB);
   }
 
-  static Float schlickFresnelLessDenseToDense(const Float negNdotI, const Float etaA, const Float etaB) {
+  static Float fresnelLessDenseToDense(const Float negNdotI, const Float etaA, const Float etaB) {
     Assert::IsTrue(etaB >= etaA, L"towards the denser medium", LINE_INFO());
-    return schlickFresnelFrom(negNdotI, etaA, etaB);
+    return fresnelFrom(negNdotI, etaA, etaB);
+  }
+
+  // The unpolarized Fresnel reflectance from the equations, in double precision: the mean of Rs and Rp for a ray from
+  // the index n1 towards n2 at the cosine, 1 beyond the critical angle
+  static double fresnelEquations(const double cosI, const double n1, const double n2) {
+    const auto sinSqrT = (n1 / n2) * (n1 / n2) * (1.0 - cosI * cosI);
+    if (sinSqrT > 1.0) {
+      return 1.0;
+    }
+    const auto cosT = std::sqrt(1.0 - sinSqrT);
+    const auto rs = (n1 * cosI - n2 * cosT) / (n1 * cosI + n2 * cosT);
+    const auto rp = (n1 * cosT - n2 * cosI) / (n1 * cosT + n2 * cosI);
+    return 0.5 * (rs * rs + rp * rp);
   }
 
   // The two lobes of a rough dielectric interface (Walter et al. 2007) for a ray along the incident direction onto the
@@ -104,71 +120,113 @@ namespace raytracer::test {
       Assert::IsTrue(lobes.reflected + lobes.refracted > 0.85, L"the total reflections stay", LINE_INFO());
     }
 
-    TEST_METHOD(schlickAtNormalIncidenceEqualsR0AirToGlass) {
+    TEST_METHOD(atNormalIncidenceItIsR0AirToGlass) {
       const Float etaAir = 1.0f;
       const Float etaGlass = 1.5f;
-      const Float r = schlickFresnelLessDenseToDense(1.0f, etaAir, etaGlass);
+      const Float r = fresnelLessDenseToDense(1.0f, etaAir, etaGlass);
       const Float expectedR0 = ((etaAir - etaGlass) / (etaAir + etaGlass));
       const Float expectedR0Sq = expectedR0 * expectedR0;
 
       Assert::AreEqual(expectedR0Sq, r, 1e-6f, L"normal incidence should equal R0", LINE_INFO());
     }
 
-    TEST_METHOD(schlickAtGrazingAngleApproachesOne) {
+    TEST_METHOD(atAGrazingAngleItReflectsAll) {
       // negNdotI -> 0 means grazing
-      const Float r = schlickFresnelLessDenseToDense(0.0f, 1.0f, 1.5f);
+      const Float r = fresnelLessDenseToDense(0.0f, 1.0f, 1.5f);
 
       Assert::AreEqual(1.0f, r, 1e-5f, L"grazing angle should approach 1.0", LINE_INFO());
     }
 
-    TEST_METHOD(schlickIsMonotonicAsAngleIncreases) {
+    TEST_METHOD(itGrowsWithTheAngle) {
       // As negNdotI decreases (angle from normal grows), reflectance must grow
-      const Float r0 = schlickFresnelLessDenseToDense(1.0f, 1.0f, 1.5f);
-      const Float r1 = schlickFresnelLessDenseToDense(0.7f, 1.0f, 1.5f);
-      const Float r2 = schlickFresnelLessDenseToDense(0.3f, 1.0f, 1.5f);
-      const Float r3 = schlickFresnelLessDenseToDense(0.05f, 1.0f, 1.5f);
+      const Float r0 = fresnelLessDenseToDense(1.0f, 1.0f, 1.5f);
+      const Float r1 = fresnelLessDenseToDense(0.7f, 1.0f, 1.5f);
+      const Float r2 = fresnelLessDenseToDense(0.3f, 1.0f, 1.5f);
+      const Float r3 = fresnelLessDenseToDense(0.05f, 1.0f, 1.5f);
 
       Assert::IsTrue(r0 <= r1, L"r should grow as angle increases (0 -> 0.7)", LINE_INFO());
       Assert::IsTrue(r1 <= r2, L"r should grow as angle increases (0.7 -> 0.3)", LINE_INFO());
       Assert::IsTrue(r2 <= r3, L"r should grow as angle increases (0.3 -> 0.05)", LINE_INFO());
     }
 
-    TEST_METHOD(schlickReflectanceInUnitRange) {
+    TEST_METHOD(reflectanceInUnitRange) {
       for (Float negNdotI = 0.0f; negNdotI <= 1.0f; negNdotI += 0.1f) {
-        const Float r = schlickFresnelLessDenseToDense(negNdotI, 1.0f, 1.5f);
+        const Float r = fresnelLessDenseToDense(negNdotI, 1.0f, 1.5f);
         Assert::IsTrue(r >= 0.0f && r <= 1.0f, L"reflectance must be in [0,1]", LINE_INFO());
       }
     }
 
-    TEST_METHOD(schlickWaterAirR0) {
+    TEST_METHOD(waterAirR0) {
       // Water R0 ~ ((1.333 - 1) / (1.333 + 1))^2 ~ 0.02037
-      const Float r = schlickFresnelLessDenseToDense(1.0f, 1.0f, 1.333f);
+      const Float r = fresnelLessDenseToDense(1.0f, 1.0f, 1.333f);
       Assert::AreEqual(0.02037f, r, 0.0001f, L"water-air R0", LINE_INFO());
     }
 
-    TEST_METHOD(schlickGlassAirR0) {
+    TEST_METHOD(glassAirR0) {
       // Glass R0 ~ ((1.0 - 1.5) / (1.0 + 1.5))^2 = 0.04
-      const Float r = schlickFresnelLessDenseToDense(1.0f, 1.0f, 1.5f);
+      const Float r = fresnelLessDenseToDense(1.0f, 1.0f, 1.5f);
       Assert::AreEqual(0.04f, r, 1e-6f, L"glass-air R0", LINE_INFO());
     }
 
-    TEST_METHOD(schlickEnteringLessDenseUsesSnellsLaw) {
+    TEST_METHOD(enteringLessDenseAtNormalIncidenceIsR0) {
       // Going from glass (1.5) -> air (1.0): less dense path. Use the dense->less helper.
       // At normal incidence Snell yields cosPhi = sqrt(1 - eta^2 * (1 - negNdotI^2)).
       // For negNdotI = 1.0 (normal incidence): cosPhi = sqrt(1 - eta^2 + eta^2) = 1.
-      const Float r = schlickFresnelDenseToLessDense(1.0f, 1.5f, 1.0f);
+      const Float r = fresnelDenseToLessDense(1.0f, 1.5f, 1.0f);
       const Float expectedR0Sq = 0.04f;
       Assert::AreEqual(expectedR0Sq, r, 1e-6f, L"glass->air at normal incidence", LINE_INFO());
     }
 
-    TEST_METHOD(schlickEnteringLessDenseTakesTheTransmittedCosine) {
-      // Glass -> air at cos 0.9: Snell gives cos 0.75664 for the transmitted ray, so the reflectance is
-      // 0.04 + 0.96 * (1 - 0.75664)^5 = 0.040819, not the 0.0400096 of the incident cosine
-      const Float r = schlickFresnelDenseToLessDense(0.9f, 1.5f, 1.0f);
-      Assert::AreEqual(0.0408195f, r, 1e-6f, L"glass->air at cos 0.9", LINE_INFO());
+    TEST_METHOD(enteringLessDenseReflectsAsTheOppositeWayAtTheTransmittedAngle) {
+      // Glass -> air at cos 0.9: Snell gives cos 0.75664 for the transmitted ray; the Fresnel equations are reciprocal
+      const Float r = fresnelDenseToLessDense(0.9f, 1.5f, 1.0f);
+      Assert::AreEqual(fresnelLessDenseToDense(0.756637f, 1.0f, 1.5f), r, 1e-6f, L"reciprocal", LINE_INFO());
+      Assert::AreEqual(static_cast<Float>(fresnelEquations(0.9, 1.5, 1.0)), r, 1e-6f, L"glass->air at cos 0.9",
+                       LINE_INFO());
     }
 
-    TEST_METHOD(schlickFillsAllLanes) {
+    TEST_METHOD(itIsTheMeanOfTheSAndPPolarizedReflectances) {
+      for (const auto [n1, n2] : {std::pair{1.0f, 1.5f}, std::pair{1.5f, 1.0f}, std::pair{1.0f, 2.42f},
+                                  std::pair{1.0f, 0.345f}}) {
+        for (const auto cosine : {1.0f, 0.95f, 0.8f, 0.6f, 0.4f, 0.2f, 0.05f}) {
+          const auto expected = static_cast<Float>(fresnelEquations(cosine, n1, n2));
+          const auto r = x(brdf::fresnelReflectance(Float4(cosine), RefractionIndices::refractionEta(n1, n2)));
+          Assert::AreEqual(expected, r, 1e-5f, L"Fresnel equations", LINE_INFO());
+        }
+      }
+    }
+
+    TEST_METHOD(equalIndicesReflectNothingAtAnyAngle) {
+      // Schlick's approximation would rise to 1 at grazing angles even for R0 = 0
+      for (const auto index : {1.0f, 1.5f}) {
+        const auto eta = RefractionIndices::refractionEta(index, index);
+        for (const auto cosine : {1.0f, 0.5f, 0.1f, 0.01f, 0.0f}) {
+          Assert::AreEqual(0.0f, x(brdf::fresnelReflectance(Float4(cosine), eta)), 1e-6f, L"no interface",
+                           LINE_INFO());
+        }
+      }
+    }
+
+    TEST_METHOD(itIsTheSquaredIndexRatioAtNormalIncidence) {
+      for (const auto [n1, n2] : {std::pair{1.0f, 1.333f}, std::pair{1.0f, 2.42f}, std::pair{2.42f, 1.0f}}) {
+        const auto expected = sqr((n1 - n2) / (n1 + n2));
+        const auto r = x(brdf::fresnelReflectance(One<Float4>(), RefractionIndices::refractionEta(n1, n2)));
+        Assert::AreEqual(expected, r, 1e-6f, L"((n1 - n2) / (n1 + n2))^2", LINE_INFO());
+      }
+    }
+
+    TEST_METHOD(itReflectsAllBeyondTheCriticalAngle) {
+      // glass -> air: the critical angle's cosine is sqrt(1 - 1 / 1.5^2) = 0.745; just inside it the reflectance
+      // rises steeply towards 1
+      const auto leaving = RefractionIndices::refractionEta(1.5f, 1.0f);
+      for (const auto cosine : {0.74f, 0.5f, 0.1f, 0.0f}) {
+        Assert::AreEqual(1.0f, x(brdf::fresnelReflectance(Float4(cosine), leaving)), L"total", LINE_INFO());
+      }
+      Assert::IsTrue(x(brdf::fresnelReflectance(Float4(0.75f), leaving)) < 1.0f, L"inside", LINE_INFO());
+      Assert::IsTrue(x(brdf::fresnelReflectance(Float4(0.75f), leaving)) > 0.5f, L"steep", LINE_INFO());
+    }
+
+    TEST_METHOD(fillsAllLanes) {
       const auto r = brdf::fresnelReflectance(false, Float4(0.5f), RefractionIndices::refractionEta(1.0f, 1.5f));
       Assert::AreEqual(x(r), y(r), L"lane y", LINE_INFO());
       Assert::AreEqual(x(r), z(r), L"lane z", LINE_INFO());
@@ -185,7 +243,7 @@ namespace raytracer::test {
       // A ray into a denser medium is never totally reflected, so the flag doesn't apply
       const auto eta = RefractionIndices::refractionEta(1.0f, 1.5f);
       const auto r = brdf::fresnelReflectance(true, Float4(0.3f), eta);
-      Assert::AreEqual(schlickFresnelFrom(0.3f, 1.0f, 1.5f), x(r), L"Schlick", LINE_INFO());
+      Assert::AreEqual(fresnelFrom(0.3f, 1.0f, 1.5f), x(r), L"Fresnel", LINE_INFO());
     }
   };
 

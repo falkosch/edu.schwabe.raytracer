@@ -167,8 +167,9 @@ namespace raytracer
         ) const;
 
         // Follows a shadow ray through transmissive objects up to the light: each object lets the Fresnel transmission
-        // of its entry and exit pass (Schlick) and absorbs along the straight chord between them (Beer-Lambert). The
-        // ray isn't refracted, so there are no caustics. An opaque object blocks the light.
+        // of its entry and exit pass (the exact equations, at the ray's angle on the outer side) and absorbs along the
+        // straight chord between them (Beer-Lambert). The ray isn't refracted, so there are no caustics. An opaque
+        // object blocks the light.
         spectral::SpectralVector transmitShadowRay(
             const RayCast& shadowRay, const SceneIntersection& intersection, ASizeT lightIndex,
             const SpectralContext& spectralContext, PerLightShadowCache::ShadowCacheType& shadowCache

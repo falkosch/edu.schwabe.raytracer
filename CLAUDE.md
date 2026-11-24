@@ -171,15 +171,15 @@ Normal logs right after start:
 [0.017] - INFO Scene : done
 [0.023] - INFO UI : Resizing output to 512x512
 [0.025] - INFO Raytracer : Raytrace 1 (512x512):
-[0.321] - INFO Raytracer : Irradiance cache: 9551 records
-[0.746] - INFO Raytracer : Duration: 0.721377s
-[0.746] - INFO UI : primaryRays 262144/0
-[0.746] - INFO UI : secondaryRays 4830986/871123
-[0.746] - INFO UI : shadowRays 5756133/5554935
-[0.746] - INFO UI : objectShadowRays 6521677/5730101
-[0.746] - INFO UI : kdTree nodesVisited=19465784 rootOverlapMisses=9489907
-[0.748] - INFO UI : Saving ray-traced image ...
-[0.768] - INFO UI : ray-traced.png saved: 1
+[0.314] - INFO Raytracer : Irradiance cache: 9551 records
+[0.728] - INFO Raytracer : Duration: 0.703311s
+[0.728] - INFO UI : primaryRays 262144/0
+[0.728] - INFO UI : secondaryRays 4869311/872094
+[0.728] - INFO UI : shadowRays 5766174/5562703
+[0.728] - INFO UI : objectShadowRays 6531715/5740142
+[0.728] - INFO UI : kdTree nodesVisited=19842020 rootOverlapMisses=9491187
+[0.730] - INFO UI : Saving ray-traced image ...
+[0.750] - INFO UI : ray-traced.png saved: 1
 ```
 
 The ray counters and the number of irradiance records are deterministic for a build (glossy reflections, diffuse rays
