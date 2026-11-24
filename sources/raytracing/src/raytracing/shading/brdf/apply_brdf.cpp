@@ -11,10 +11,9 @@ namespace raytracer::brdf
             * ReciprocalPi<spectral::SpectralVector>();
         const auto directLighting = ambient + diffuse + brdf.lighting.specular;
 
-        const auto reflection = brdf.surface.reflectance * brdf.lighting.reflected;
+        // the reflected and transmitted light carry their Fresnel weights already
         const auto transmitted = brdf.lighting.transmitted * brdf.fractionTransmitted;
 
-        return brdf.surface.emittance + directLighting
-            + spectral::spectralMix(transmitted, reflection, brdf.reflectanceCoefficient);
+        return brdf.surface.emittance + directLighting + brdf.lighting.reflected + transmitted;
     }
 }

@@ -34,6 +34,7 @@ set(SOURCES
         src/raytracing/shading/brdf/fresnel_reflectance_test.cpp
         src/raytracing/shading/brdf/ggx_test.cpp
         src/raytracing/shading/brdf/sample_lambert_test.cpp
+        src/raytracing/shading/brdf/SpecularFresnel_test.cpp
         src/raytracing/shading/shaders/environment_coordinates_test.cpp
         src/raytracing/shading/shaders/NoiseGeneratorMap_test.cpp
         src/raytracing/shading/color/primaries_test.cpp

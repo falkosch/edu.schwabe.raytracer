@@ -7,9 +7,12 @@ namespace raytracerui {
   using namespace raytracer;
 
   // The seven material channels of a scene object as constants. brdf::applyBRDF combines them per hit:
-  //   emittance + diffusion * (ambient radiance + diffuse irradiance / pi) + GGX highlights (F0 = specular, roughness)
-  //   + mix(transmitted, reflectance * mirrored ray, Fresnel)
-  // - roughness widens the highlights only; the mirrored ray stays sharp.
+  //   emittance + diffusion * (ambient radiance + diffuse irradiance / pi)
+  //   + specular lobe (GGX of the roughness: highlights, mirror or glossy reflection) + transmitted * (1 - its Fresnel)
+  // - the specular lobe's Fresnel reflectance (brdf::SpecularFresnel) is Schlick's of the specular channel (F0) on an
+  //   opaque surface, the indices' (refractionEta) on a transmissive one, times the reflectance channel as the lobe's
+  //   weight (at most 1; 1 is physical, 0 turns the lobe off).
+  // - roughness widens the highlights and the reflections alike (glossy above brdf::MirrorRoughness).
   // - transmittance is the absorption length per channel (exp(-depth / transmittance)); zero is opaque.
   // - emittance colors the object itself but doesn't light other objects.
   struct SceneMaterial {
@@ -27,7 +30,7 @@ namespace raytracerui {
     // Diffuse color under a clear coat: highlights and grazing reflections with the given F0
     static SceneMaterial plastic(const Float4 &color, Float specular, Float roughness);
 
-    // Mirror with the given reflectance (F0) as color, no diffusion
+    // Conductor with the given reflectance at normal incidence (F0) as color, no diffusion
     static SceneMaterial metal(const Float4 &color, Float roughness);
 
     // Refracting medium entered from vacuum; transmittance is its absorption length per channel

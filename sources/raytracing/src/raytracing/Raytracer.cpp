@@ -13,7 +13,7 @@
 #include "raytracing/shading/SpectralContext.h"
 #include "raytracing/shading/beer_lambert_transmittance.h"
 #include "raytracing/shading/brdf/apply_brdf.h"
-#include "raytracing/shading/brdf/fresnel_reflectance.h"
+#include "raytracing/shading/brdf/SpecularFresnel.h"
 #include "raytracing/shading/brdf/ggx.h"
 #include "raytracing/shading/brdf/sample_lambert.h"
 #include "raytracing/shading/power_heuristic.h"
@@ -113,11 +113,11 @@ namespace raytracer
             return roughness * Half<Float>() * vectorization::abs(One<Float>() - etaRatio);
         }
 
-        // The weight of the reflection (its Fresnel reflectance times the material's reflectance), on which the
-        // reflected rays' visibility index and importance and the cutoff of the reflection depend
+        // The weight of the reflection (the specular lobe's reflectance towards the viewer, its weight included), on
+        // which the reflected rays' visibility index and importance and the cutoff of the reflection depend
         Float reflectionWeightOf(const BRDFParameters& brdf)
         {
-            return spectral::spectralMax(brdf.reflectanceCoefficient) * spectral::spectralMax(brdf.surface.reflectance);
+            return spectral::spectralMax(brdf.reflectanceCoefficient);
         }
 
         // The number of glossy reflection rays traceReflection will trace at the hit, 0 for none: the light's
@@ -142,16 +142,17 @@ namespace raytracer
 
         // The highlight of an area light that a glossy ray (direction L) found at its emitter, against the light's
         // shadow rays (multiple importance sampling): the light's radiance as the shadow rays take it times the BRDF
-        // per density of the VNDF samples, F * G2 / G1(V), weighed by the power heuristic. A surface without highlights
-        // (F0 = 0, the refraction index of the vacuum) reflects no light, as sampleLighting has it.
+        // per density of the VNDF samples, F * G2 / G1(V), weighed by the power heuristic. F is the specular lobe's
+        // Fresnel reflectance, as for the shadow rays' part: a lobe that doesn't reflect (F0 = 0, equal indices)
+        // reflects no light, as sampleLighting has it.
         spectral::SpectralVector weighedEmitterHighlight(
             const SceneShader& sceneShader, const LightInfo& light, const Raytrace& incidentRaytrace,
             const Float4& adaptedVisibilityCutoff, const SceneIntersection& intersection, const Float4& toPoint,
             const Float4& N, const Float4& V, const Float4& L, const Float roughness,
-            const spectral::SpectralVector& F0, const ASizeT glossyRays, const ASizeT lightSamples
+            const brdf::SpecularFresnel& fresnel, const ASizeT glossyRays, const ASizeT lightSamples
         )
         {
-            if (!(spectral::spectralMax(F0) > Zero<Float>()))
+            if (!fresnel.reflects())
             {
                 return Zero<spectral::SpectralVector>();
             }
@@ -170,7 +171,7 @@ namespace raytracer
                 static_cast<Float>(glossyRays), glossyPdf, static_cast<Float>(lightSamples), density.pdf
             );
             const auto G2 = brdf::ggxG_smith(NoV, NoL, roughness);
-            const auto F = brdf::schlickFresnelSpectral(F0, Float8(max(dot3v(V, H), Zero<Float4>())));
+            const auto F = fresnel.reflectance(dot3v(V, H));
             return density.radiance.data * F * spectral::SpectralVector(G2 / brdf::smithG1(NoV, roughness) * weight);
         }
     }
@@ -818,34 +819,24 @@ namespace raytracer
             || (notCulled(raytrace.rayCast) && isNegative(-brdf.intersection.smoothedNdotI));
 
         const auto totalInternalReflection = allTrue3(!transmittedDirection);
-        const auto scalarReflectance = brdf::fresnelReflectance(
-            totalInternalReflection,
-            select(leavingMaterial, brdf.intersection.smoothedNdotI, -brdf.intersection.smoothedNdotI),
-            select(leavingMaterial, yxwz(brdf.surface.refractionEta), brdf.surface.refractionEta)
-        );
-        const auto iorReflectance = Float8(scalarReflectance);
-        if (spectral::spectralMax(brdf.surface.transmittance) <= Zero<Float>())
-        {
-            const auto cosTheta = Float8(abs(brdf.intersection.smoothedNdotI));
-            brdf.reflectanceCoefficient = max(
-                iorReflectance,
-                brdf::schlickFresnelSpectral(brdf.surface.specular.data, cosTheta)
-            );
-        }
-        else
-        {
-            brdf.reflectanceCoefficient = iorReflectance;
-        }
+        // One Fresnel reflectance for the whole specular lobe, its highlights and reflections alike: Schlick's of the
+        // specular channel on an opaque surface, the indices' at a dielectric interface (the side the ray comes from
+        // first), times the reflectance channel as the lobe's weight
+        const auto interfaceEta =
+            select(leavingMaterial, yxwz(brdf.surface.refractionEta), brdf.surface.refractionEta);
+        const auto transmissive = spectral::spectralMax(brdf.surface.transmittance) > Zero<Float>();
+        brdf.fresnel = transmissive
+                           ? brdf::SpecularFresnel::dielectricInterface(brdf.surface.reflectance.data, interfaceEta)
+                           : brdf::SpecularFresnel::opaque(brdf.surface.reflectance.data, brdf.surface.specular.data);
+        brdf.reflectanceCoefficient = brdf.fresnel.reflectance(abs(brdf.intersection.smoothedNdotI));
         const auto maxDistance = raytrace.rayCast.maxDistance - brdf.viewDistance;
 
         // A rough dielectric whose refracted lobe is wider than a mirror's reflects and refracts through sampled
         // microfacet normals, each with its own Fresnel reflectance (Walter et al. 2007). A narrower refracted lobe
         // refracts as a mirror (as reflections do up to MirrorRoughness), both lobes with the smooth surface's Fresnel.
-        const auto interfaceEta =
-            select(leavingMaterial, yxwz(brdf.surface.refractionEta), brdf.surface.refractionEta);
         const auto roughInterface = !totalInternalReflection
             && cache.configuration.glossySamples > Zero<ASizeT>()
-            && spectral::spectralMax(brdf.surface.transmittance) > Zero<Float>()
+            && transmissive
             && refractedLobeRoughness(x(brdf.surface.roughness), x(interfaceEta)) > brdf::MirrorRoughness;
         const auto* const microfacetEta = roughInterface ? &interfaceEta : nullptr;
 
@@ -859,7 +850,7 @@ namespace raytracer
         const auto pointLightSamples =
             raytrace.diffuseBounce ? cache.configuration.manyLightSamples : Zero<ASizeT>();
         brdf.lighting = cache.configuration.sceneShader->sampleLighting(
-            raytrace, adapted_visibility_cutoff, x(brdf.surface.roughness), brdf.surface.specular.data,
+            raytrace, adapted_visibility_cutoff, x(brdf.surface.roughness), brdf.fresnel,
             brdf.intersection, cache.configuration.sphereLightSamples, glossyRays, pointLightSamples,
             cache.shadowCache, cache.statistics
         );
@@ -881,13 +872,12 @@ namespace raytracer
             features.depth += brdf.viewDistance;
             if (!(spectral::spectralMax(brdf.surface.diffusion) > Zero<Float>()))
             {
-                const auto transmissive =
-                    spectral::spectralMax(brdf.surface.transmittance) > Zero<Float>() && !totalInternalReflection;
-                if (transmissive && !microfacetEta)
+                const auto transmits = transmissive && !totalInternalReflection;
+                if (transmits && !microfacetEta)
                 {
                     transmittedFeatures = raytrace.features;
                 }
-                else if (!transmissive && !(x(brdf.surface.roughness) > brdf::MirrorRoughness))
+                else if (!transmits && !(x(brdf.surface.roughness) > brdf::MirrorRoughness))
                 {
                     reflectedFeatures = raytrace.features;
                 }
@@ -962,7 +952,7 @@ namespace raytracer
         reflectedRaytrace.features = features;
         const auto reflectedHit = trace(reflectedRaytrace, cache);
 
-        brdf.lighting.reflected = reflectedHit.color;
+        brdf.lighting.reflected = reflectedHit.color * brdf.reflectanceCoefficient;
 
         cache.statistics.secondaryRays += One<ASizeT>();
         cache.statistics.missedSecondaryRays +=
@@ -970,11 +960,13 @@ namespace raytracer
     }
 
     // Averages reflection rays in directions of microfacet normals drawn from the GGX distribution of visible normals
-    // (Heitz 2018), each weighted by Smith's masking of its direction. Directions below the surface count as black.
-    // With shadow rays to area lights, a ray that finds a light's emitter adds the light to the highlight instead,
-    // weighed against the light's shadow rays (multiple importance sampling, SceneShader::sampleLighting). At a rough
-    // dielectric interface (microfacetEta), each ray takes its microfacet's own Fresnel reflectance instead of the
-    // smooth surface's, which applyBRDF multiplies with: 1 for a microfacet that reflects totally (Walter et al. 2007).
+    // (Heitz 2018), each weighted by Smith's masking of its direction and its microfacet's Fresnel reflectance (the
+    // specular lobe's, as the highlights take it). Directions below the surface count as black. With shadow rays to
+    // area lights, a ray that finds a light's emitter adds the light to the highlight instead, weighed against the
+    // light's shadow rays (multiple importance sampling, SceneShader::sampleLighting). At a dielectric interface, the
+    // microfacets' Fresnel reflectance (1 for a microfacet that reflects totally, Walter et al. 2007) holds only where
+    // the refraction samples microfacets too (microfacetEta); with a mirror refraction, both lobes take the smooth
+    // surface's, so that they keep the energy.
     void Raytracer::traceGlossyReflection(
         const Raytrace& incidentRaytrace, const Float maxDistance, const Float reflectionVisibilityIndex,
         const Float reflectionImportance, const Float roughness, const Float4* const microfacetEta,
@@ -997,6 +989,7 @@ namespace raytracer
             SceneShader::areaLightSamples(cache.configuration.sphereLightSamples, incidentRaytrace.visibilityIndex);
         const auto lightCutoff =
             SceneShader::adaptedVisibilityCutoff(cache.configuration.visibilityCutoff, incidentRaytrace.importance);
+        const auto perMicrofacet = !brdf.fresnel.isDielectric() || microfacetEta;
 
         // the shift of the sample sequence once per hit, and the reflected rays' seeds (reflectionSeed) 8 at a time,
         // all hashed in SIMD lanes
@@ -1048,20 +1041,16 @@ namespace raytracer
                 // the light's own estimate, weighed, needs no clamp
                 highlight += weighedEmitterHighlight(
                     *cache.configuration.sceneShader, *reflectedHit.emitterLight, incidentRaytrace, lightCutoff,
-                    intersection, direction * x(reflectedHit.depth), N, V, direction, roughness,
-                    brdf.surface.specular.data, samples, lightSamples
+                    intersection, direction * x(reflectedHit.depth), N, V, direction, roughness, brdf.fresnel,
+                    samples, lightSamples
                 );
                 continue;
             }
             // the clamp against fireflies scales the whole spectrum, so that the colour stays
-            auto weight = brdf::smithG1(NoL, roughness);
-            if (microfacetEta)
-            {
-                const auto& incident = incidentRaytrace.rayCast.ray.direction;
-                weight *= x(brdf::fresnelReflectance(incident, microfacetNormal, *microfacetEta))
-                    / spectral::spectralMax(brdf.reflectanceCoefficient);
-            }
-            reflected += spectral::limitPeak(reflectedHit.color, cache.configuration.glossyClamp) * weight;
+            const auto fresnel =
+                perMicrofacet ? brdf.fresnel.reflectance(dot3v(V, microfacetNormal)) : brdf.reflectanceCoefficient;
+            reflected += spectral::limitPeak(reflectedHit.color, cache.configuration.glossyClamp)
+                * (fresnel * spectral::SpectralVector(brdf::smithG1(NoL, roughness)));
         }
         const auto perSample = One<Float>() / static_cast<Float>(samples);
         brdf.lighting.reflected = reflected * perSample;
@@ -1238,8 +1227,10 @@ namespace raytracer
         RaytracerCache& cache, BRDFParameters& brdf
     )
     {
-        // would still be visible, but tracing is not wanted any more, set transmitted to the background
-        if (incidentRaytrace.traceDepth >= cache.configuration.maxTraceDepth || maxDistance <= Zero<Float>())
+        // would still be visible, but tracing is not wanted any more, set transmitted to the background; a total
+        // internal reflection transmits nothing (a lobe of a weight below 1 doesn't reflect all there either)
+        if (incidentRaytrace.traceDepth >= cache.configuration.maxTraceDepth || maxDistance <= Zero<Float>()
+            || allTrue3(!transmittedDirection))
         {
             brdf.lighting.transmitted = spectral::Spectrum::zero();
             return;
@@ -1260,10 +1251,10 @@ namespace raytracer
         }
         brdf.fractionTransmitted = fractionTransmitted;
 
-        // check whether it would even make a difference in the image,
-        // or whether it is a total internal reflection (transmissionDirection = 0)
-        const auto transmissionWeight = spectral::spectralMax(fractionTransmitted)
-            * (One<Float>() - spectral::spectralMax(brdf.reflectanceCoefficient));
+        // check whether it would even make a difference in the image: what the specular lobe leaves
+        const auto smoothTransmission = One<spectral::SpectralVector>() - brdf.reflectanceCoefficient;
+        const auto transmissionWeight =
+            spectral::spectralMax(fractionTransmitted) * spectral::spectralMax(smoothTransmission);
         const auto transmissionVisibilityIndex = incidentRaytrace.visibilityIndex * transmissionWeight;
         const auto transmissionImportance = incidentRaytrace.importance * transmissionWeight;
         if (transmissionImportance < cache.configuration.visibilityCutoff)
@@ -1299,7 +1290,7 @@ namespace raytracer
         refractedRaytrace.features = features;
 
         const auto refractedHit = trace(refractedRaytrace, cache);
-        brdf.lighting.transmitted = refractedHit.color;
+        brdf.lighting.transmitted = refractedHit.color * smoothTransmission;
         // now that we have the transmission distance through the material, recompute the fractionTransmitted coefficient
         if (!leavingMaterial)
         {
@@ -1314,10 +1305,10 @@ namespace raytracer
 
     // Averages refracted rays through microfacet normals drawn from the GGX distribution of visible normals (Walter et
     // al. 2007, sampled as Heitz 2018), each weighted by Smith's masking of its direction (G2 / G1(V), about G1 of
-    // the refracted direction, as for the glossy reflection), its microfacet's Fresnel transmission per the smooth
-    // surface's (which applyBRDF multiplies with) and its absorption. A microfacet that reflects totally transmits
-    // nothing (its light is in the reflection), and a direction that doesn't cross the surface is masked: both count as
-    // black. The refracted lobe is narrower than the reflected one and takes fewer rays (refractedLobeRoughness).
+    // the refracted direction, as for the glossy reflection), what its microfacet's Fresnel reflectance (the specular
+    // lobe's, its weight included) leaves and its absorption. A microfacet that reflects totally transmits nothing
+    // (its light is in the reflection), and a direction that doesn't cross the surface is masked: both count as black.
+    // The refracted lobe is narrower than the reflected one and takes fewer rays (refractedLobeRoughness).
     void Raytracer::traceRoughTransmission(
         const Raytrace& incidentRaytrace, const Float maxDistance, const bool leavingMaterial,
         const Float4& interfaceEta, const Float transmissionVisibilityIndex, const Float transmissionImportance,
@@ -1334,8 +1325,6 @@ namespace raytracer
         const auto eta = xxxx(interfaceEta);
         const auto NoV = dot3(N, V);
         const auto roughness = x(brdf.surface.roughness);
-        const auto perSmoothTransmission =
-            One<Float>() / (One<Float>() - spectral::spectralMax(brdf.reflectanceCoefficient));
 
         // the refracted lobe takes as many rays as a reflected lobe of its width
         const auto samples = glossyReflectionSamples(
@@ -1358,8 +1347,8 @@ namespace raytracer
             {
                 continue;
             }
-            const auto weight = brdf::smithG1(NoT, roughness) * perSmoothTransmission
-                * (One<Float>() - x(brdf::fresnelReflectance(direction, microfacetNormal, interfaceEta)));
+            const auto weight = spectral::SpectralVector(brdf::smithG1(NoT, roughness))
+                * (One<spectral::SpectralVector>() - brdf.fresnel.reflectance(dot3v(V, microfacetNormal)));
 
             const auto refractedRayCast = RayCast(
                 Ray(intersection.vertex, refracted), culling,
@@ -1381,9 +1370,7 @@ namespace raytracer
                                         ? One<spectral::SpectralVector>()
                                         : beerLambertTransmittance(
                                             Float8(refractedHit.depth), brdf.surface.transmittance.data);
-            transmitted += spectral::Spectrum{
-                refractedHit.color.data * absorption * spectral::SpectralVector(weight)
-            };
+            transmitted += spectral::Spectrum{refractedHit.color.data * absorption * weight};
 
             cache.statistics.secondaryRays += One<ASizeT>();
             cache.statistics.missedSecondaryRays +=

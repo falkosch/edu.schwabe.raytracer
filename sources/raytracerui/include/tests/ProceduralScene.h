@@ -71,8 +71,9 @@ namespace raytracerui
                         sceneObject->setEmittanceShader(
                             std::make_unique<Resources::ConstMaterialShader>(Float4(0.f, 0.f, 0.f, 0.f)));
                         sceneObject->setDiffusionShader(std::make_unique<HDRImageShader>(*resources.getPPM("marble")));
+                        // a specular lobe of F0 0.2 and weight 1
                         sceneObject->setReflectanceShader(
-                            std::make_unique<Resources::ConstMaterialShader>(Float4(.2f, .2f, .2f, 0.f)));
+                            std::make_unique<Resources::ConstMaterialShader>(Float4(1.f, 1.f, 1.f, 0.f)));
                         sceneObject->setSpecularShader(
                             std::make_unique<Resources::ConstMaterialShader>(Float4(.2f, .2f, .2f, 0.f)));
                         sceneObject->setRoughnessShader(

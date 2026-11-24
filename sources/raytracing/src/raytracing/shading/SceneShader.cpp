@@ -121,7 +121,7 @@ namespace raytracer
         return sampleLighting(
             containment.incidentRay,
             adaptedVisibilityCutoff(containment.visibilityCutoff, containment.incidentRay.importance),
-            containment.roughness, containment.F0,
+            containment.roughness, containment.fresnel,
             intersection, containment.sphereLightSamples, containment.glossyRays, containment.pointLightSamples,
             *containment.shadowCache, *containment.statistics
         );
@@ -188,7 +188,7 @@ namespace raytracer
 
     void SceneShader::sampleSphereLight(
         const Raytrace& incidentRay, const Float4& adaptedVisibilityCutoff, const Float roughness,
-        const spectral::SpectralVector& F0, const SceneIntersection& intersection, const ASizeT lightIndex,
+        const brdf::SpecularFresnel& fresnel, const SceneIntersection& intersection, const ASizeT lightIndex,
         const LightInfo& light, const ASizeT maxSamples, const ASizeT glossyRays,
         PerLightShadowCache::ShadowCacheType& shadowCache, StatisticsCookie& statistics, LightShading& lighting
     ) const
@@ -216,7 +216,7 @@ namespace raytracer
         }
 
         // the highlight of a rough surface; a mirror reflects the light's emissive sphere instead
-        const auto glossy = spectral::spectralMax(F0) > Zero<Float>() && roughness > brdf::MirrorRoughness;
+        const auto glossy = fresnel.reflects() && roughness > brdf::MirrorRoughness;
         const auto V = -incidentRay.rayCast.ray.direction;
         const auto N = intersection.smoothedNormal;
         const auto NoV = max(dot3(N, V), Zero<Float>());
@@ -273,9 +273,8 @@ namespace raytracer
                                     : One<Float>();
             const auto H = normalize3(V + L);
             const auto NoH = max(dot3(N, H), Zero<Float>());
-            const auto VoH = Float8(max(dot3v(V, H), Zero<Float4>()));
             const auto DG = brdf::evaluateGGX_DG(NoV, NoL, NoH, roughness);
-            highlight += sampleFraction * brdf::schlickFresnelSpectral(F0, VoH)
+            highlight += sampleFraction * fresnel.reflectance(dot3v(V, H))
                 * spectral::SpectralVector(DG * NoL * weight / lightPdf);
         }
         const auto& emittance = spectralContext.lightEmittance[lightIndex];
@@ -363,7 +362,7 @@ namespace raytracer
 
     LightShading SceneShader::sampleLighting(
         const Raytrace& incidentRay, const Float4& adaptedVisibilityCutoff,
-        const Float roughness, const spectral::SpectralVector& F0,
+        const Float roughness, const brdf::SpecularFresnel& fresnel,
         const SceneIntersection& intersection, const ASizeT sphereLightSamples, const ASizeT glossyRays,
         const ASizeT pointLightSamples, PerLightShadowCache::ShadowCacheType& shadowCache, StatisticsCookie& statistics
     ) const
@@ -433,7 +432,7 @@ namespace raytracer
             if (light.isBox())
             {
                 sampleBoxLight(
-                    incidentRay, adaptedVisibilityCutoff, roughness, F0, intersection, lightIndex, light,
+                    incidentRay, adaptedVisibilityCutoff, roughness, fresnel, intersection, lightIndex, light,
                     sphereLightSamples, glossyRays, shadowCache, statistics, lighting
                 );
                 continue;
@@ -442,7 +441,7 @@ namespace raytracer
             if (sampledArea(light))
             {
                 sampleSphereLight(
-                    incidentRay, adaptedVisibilityCutoff, roughness, F0, intersection, lightIndex, light,
+                    incidentRay, adaptedVisibilityCutoff, roughness, fresnel, intersection, lightIndex, light,
                     sphereLightSamples, glossyRays, shadowCache, statistics, lighting
                 );
                 continue;
@@ -472,7 +471,7 @@ namespace raytracer
                 weight = static_cast<Float>(picks) * pickStride / lightWeight;
             }
             addPointLight(
-                incidentRay, adaptedVisibilityCutoff, roughness, F0, intersection, lightIndex, light, incidence,
+                incidentRay, adaptedVisibilityCutoff, roughness, fresnel, intersection, lightIndex, light, incidence,
                 weight, shadowRay, shadowCache, statistics, lighting
             );
         }
@@ -506,7 +505,7 @@ namespace raytracer
 
     void SceneShader::addPointLight(
         const Raytrace& incidentRay, const Float4& adaptedVisibilityCutoff, const Float roughness,
-        const spectral::SpectralVector& F0, const SceneIntersection& intersection, const ASizeT lightIndex,
+        const brdf::SpecularFresnel& fresnel, const SceneIntersection& intersection, const ASizeT lightIndex,
         const LightInfo& light, const PointLightIncidence& incidence, const Float weight, RayCast& shadowRay,
         PerLightShadowCache::ShadowCacheType& shadowCache, StatisticsCookie& statistics, LightShading& lighting
     ) const
@@ -538,7 +537,7 @@ namespace raytracer
         lighting.diffuse += lightContribution;
         // a mirror reflects a sphere light's emissive sphere instead
         const auto isSphereLight = light.radius > Zero<Float>();
-        if (spectral::spectralMax(F0) > Zero<Float>() && (!isSphereLight || roughness > brdf::MirrorRoughness))
+        if (fresnel.reflects() && (!isSphereLight || roughness > brdf::MirrorRoughness))
         {
             const auto V = -incidentRay.rayCast.ray.direction;
             const auto N = intersection.smoothedNormal;
@@ -546,7 +545,6 @@ namespace raytracer
             const auto H = normalize3(V + incidence.direction);
             const auto NoL = max(x(incidence.diffuseIntensity), Zero<Float>());
             const auto NoH = max(dot3(N, H), Zero<Float>());
-            const auto VoH = Float8(max(dot3v(V, H), Zero<Float4>()));
             // a sphere light widens the lobe by its size, the normalization keeps the energy (Karis 2013)
             const auto alpha = isSphereLight
                                    ? min(One<Float>(),
@@ -554,14 +552,14 @@ namespace raytracer
                                    : roughness;
             const auto normalization = isSphereLight ? sqr(roughness / alpha) : One<Float>();
             const auto DG = brdf::evaluateGGX_DG(NoV, NoL, NoH, alpha) * normalization;
-            const auto F = brdf::schlickFresnelSpectral(F0, VoH);
+            const auto F = fresnel.reflectance(dot3v(V, H));
             lighting.specular += lightContribution * (F * DG);
         }
     }
 
     void SceneShader::sampleBoxLight(
         const Raytrace& incidentRay, const Float4& adaptedVisibilityCutoff, const Float roughness,
-        const spectral::SpectralVector& F0, const SceneIntersection& intersection, const ASizeT lightIndex,
+        const brdf::SpecularFresnel& fresnel, const SceneIntersection& intersection, const ASizeT lightIndex,
         const LightInfo& light, const ASizeT maxSamples, const ASizeT glossyRays,
         PerLightShadowCache::ShadowCacheType& shadowCache, StatisticsCookie& statistics, LightShading& lighting
     ) const
@@ -582,16 +580,15 @@ namespace raytracer
 
         // the highlight of light from the direction L: the GGX BRDF of the lobe width alpha with its Fresnel; a mirror
         // reflects the light's emissive box instead
-        const auto glossy = spectral::spectralMax(F0) > Zero<Float>() && roughness > brdf::MirrorRoughness;
+        const auto glossy = fresnel.reflects() && roughness > brdf::MirrorRoughness;
         const auto V = -incidentRay.rayCast.ray.direction;
         const auto NoV = max(dot3(N, V), Zero<Float>());
         const auto brdfFrom = [&](const Float4& L, const Float alpha)
         {
             const auto H = normalize3(V + L);
             const auto NoH = max(dot3(N, H), Zero<Float>());
-            const auto VoH = Float8(max(dot3v(V, H), Zero<Float4>()));
             const auto DG = brdf::evaluateGGX_DG(NoV, max(dot3(N, L), Zero<Float>()), NoH, alpha);
-            return brdf::schlickFresnelSpectral(F0, VoH) * spectral::SpectralVector(DG);
+            return fresnel.reflectance(dot3v(V, H)) * spectral::SpectralVector(DG);
         };
 
 #ifndef DISABLE_SHADOWING

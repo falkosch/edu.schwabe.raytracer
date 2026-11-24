@@ -11,14 +11,13 @@ namespace raytracer::test
 {
     using namespace spectral;
 
-    // brdf::applyBRDF on a hit with the given surface, lighting and coefficients
+    // brdf::applyBRDF on a hit with the given surface, lighting and Beer-Lambert fraction
     static Spectrum applyBRDFFormula(const SurfaceShading& surface, const LightShading& lighting,
-                                     const Spectrum& reflectanceCoefficient, const Spectrum& fractionTransmitted)
+                                     const Spectrum& fractionTransmitted)
     {
         BRDFParameters parameters;
         parameters.surface = surface;
         parameters.lighting = lighting;
-        parameters.reflectanceCoefficient = reflectanceCoefficient.data;
         parameters.fractionTransmitted = fractionTransmitted.data;
         return brdf::applyBRDF(parameters);
     }
@@ -32,7 +31,7 @@ namespace raytracer::test
             SurfaceShading surface;
             surface.emittance = Spectrum::constant(0.7f);
             LightShading lighting;
-            const auto result = applyBRDFFormula(surface, lighting, Spectrum::zero(), Spectrum::zero());
+            const auto result = applyBRDFFormula(surface, lighting, Spectrum::zero());
 
             Assert::AreEqual(0.7f, x1(result.data), 1e-6f, L"emittance lane 0", LINE_INFO());
             Assert::AreEqual(0.7f, x4(result.data), 1e-6f, L"emittance lane 3", LINE_INFO());
@@ -43,7 +42,7 @@ namespace raytracer::test
             SurfaceShading surface;
             surface.diffusion = Spectrum::constant(0.5f);
             LightShading lighting{Spectrum::constant(0.4f)};
-            const auto result = applyBRDFFormula(surface, lighting, Spectrum::zero(), Spectrum::zero());
+            const auto result = applyBRDFFormula(surface, lighting, Spectrum::zero());
 
             Assert::AreEqual(0.2f, x1(result.data), 1e-6f, L"0.5 * 0.4 = 0.2", LINE_INFO());
         }
@@ -58,36 +57,35 @@ namespace raytracer::test
             };
             const auto light = LightShading{Spectrum::constant(1.0f)};
 
-            const auto halfResult = applyBRDFFormula(halfSurface, light, Spectrum::zero(), Spectrum::zero());
-            const auto fullResult = applyBRDFFormula(fullSurface, light, Spectrum::zero(), Spectrum::zero());
+            const auto halfResult = applyBRDFFormula(halfSurface, light, Spectrum::zero());
+            const auto fullResult = applyBRDFFormula(fullSurface, light, Spectrum::zero());
 
             Assert::AreEqual(x1(fullResult.data) * 0.5f, x1(halfResult.data), 1e-6f,
                              L"half diffusion = half output", LINE_INFO());
         }
 
-        TEST_METHOD(reflectionCoefficientOnePicksReflection)
+        TEST_METHOD(reflectedAndTransmittedLightAdd)
         {
+            // both carry their Fresnel weights already (the specular lobe's reflectance and what it leaves)
             SurfaceShading surface;
-            surface.reflectance = Spectrum::constant(1.0f);
             LightShading lighting;
             lighting.reflected = Spectrum::constant(0.5f);
-            lighting.transmitted = Spectrum::constant(0.9f);
-            const auto result = applyBRDFFormula(surface, lighting,
-                                                 Spectrum::constant(1.0f), Spectrum::constant(1.0f));
+            lighting.transmitted = Spectrum::constant(0.3f);
+            const auto result = applyBRDFFormula(surface, lighting, Spectrum::constant(1.0f));
 
-            Assert::AreEqual(0.5f, x1(result.data), 1e-5f, L"reflection = reflectance * reflected", LINE_INFO());
+            Assert::AreEqual(0.8f, x1(result.data), 1e-6f, L"0.5 + 0.3", LINE_INFO());
         }
 
-        TEST_METHOD(reflectionCoefficientZeroPicksTransmission)
+        TEST_METHOD(reflectanceDoesNotScaleTheReflectedLightAgain)
         {
+            // the reflectance channel weighs the specular lobe (brdf::SpecularFresnel), which weighed the reflection
             SurfaceShading surface;
+            surface.reflectance = Spectrum::constant(0.5f);
             LightShading lighting;
-            lighting.reflected = Spectrum::constant(0.5f);
-            lighting.transmitted = Spectrum::constant(0.9f);
-            const auto result = applyBRDFFormula(surface, lighting,
-                                                 Spectrum::zero(), Spectrum::constant(1.0f));
+            lighting.reflected = Spectrum::constant(0.4f);
+            const auto result = applyBRDFFormula(surface, lighting, Spectrum::zero());
 
-            Assert::AreEqual(0.9f, x1(result.data), 1e-5f, L"transmission at coef=0", LINE_INFO());
+            Assert::AreEqual(0.4f, x1(result.data), 1e-6f, L"reflected as it is", LINE_INFO());
         }
 
         TEST_METHOD(diffuseLightIsScaledByDiffusionOverPi)
@@ -97,7 +95,7 @@ namespace raytracer::test
             surface.diffusion = Spectrum::constant(0.5f);
             LightShading lighting;
             lighting.diffuse = Spectrum::constant(0.6f);
-            const auto result = applyBRDFFormula(surface, lighting, Spectrum::zero(), Spectrum::zero());
+            const auto result = applyBRDFFormula(surface, lighting, Spectrum::zero());
 
             Assert::AreEqual(0.3f / Pi<Float>(), x1(result.data), 1e-6f, L"0.5 * 0.6 / pi", LINE_INFO());
         }
@@ -112,8 +110,8 @@ namespace raytracer::test
             direct.diffuse = Spectrum::constant(0.7f * Pi<Float>());
             const auto ambient = LightShading{Spectrum::constant(0.7f)};
 
-            const auto fromDirect = applyBRDFFormula(surface, direct, Spectrum::zero(), Spectrum::zero());
-            const auto fromAmbient = applyBRDFFormula(surface, ambient, Spectrum::zero(), Spectrum::zero());
+            const auto fromDirect = applyBRDFFormula(surface, direct, Spectrum::zero());
+            const auto fromAmbient = applyBRDFFormula(surface, ambient, Spectrum::zero());
             Assert::AreEqual(0.7f, x1(fromDirect.data), 1e-6f, L"direct light", LINE_INFO());
             Assert::AreEqual(0.7f, x1(fromAmbient.data), 1e-6f, L"ambient light", LINE_INFO());
         }
@@ -125,7 +123,7 @@ namespace raytracer::test
             surface.reflectance = Spectrum::constant(0.5f);
             LightShading lighting;
             lighting.specular = Spectrum::constant(0.25f);
-            const auto result = applyBRDFFormula(surface, lighting, Spectrum::zero(), Spectrum::zero());
+            const auto result = applyBRDFFormula(surface, lighting, Spectrum::zero());
 
             Assert::AreEqual(0.25f, x1(result.data), 1e-6f, L"highlights carry their Fresnel already", LINE_INFO());
         }
@@ -135,32 +133,16 @@ namespace raytracer::test
             SurfaceShading surface;
             LightShading lighting;
             lighting.transmitted = Spectrum::constant(0.8f);
-            const auto result = applyBRDFFormula(surface, lighting, Spectrum::zero(), Spectrum::constant(0.25f));
+            const auto result = applyBRDFFormula(surface, lighting, Spectrum::constant(0.25f));
 
             Assert::AreEqual(0.2f, x1(result.data), 1e-6f, L"0.8 * 0.25 = 0.2", LINE_INFO());
-        }
-
-        TEST_METHOD(reflectanceCoefficientMixesPerWavelength)
-        {
-            SurfaceShading surface;
-            surface.reflectance = Spectrum::constant(1.0f);
-            LightShading lighting;
-            lighting.reflected = Spectrum::constant(1.0f);
-            lighting.transmitted = Spectrum::constant(0.0f);
-            const auto coefficient = Spectrum{Float8{0.0f, 0.25f, 0.5f, 0.75f, 1.0f, 0.1f, 0.2f, 0.3f}};
-            const auto result = applyBRDFFormula(surface, lighting, coefficient, Spectrum::constant(1.0f));
-
-            Assert::AreEqual(0.0f, x1(result.data), 1e-6f, L"lane 0", LINE_INFO());
-            Assert::AreEqual(0.5f, x3(result.data), 1e-6f, L"lane 2", LINE_INFO());
-            Assert::AreEqual(1.0f, x5(result.data), 1e-6f, L"lane 4", LINE_INFO());
-            Assert::AreEqual(0.3f, x8(result.data), 1e-6f, L"lane 7", LINE_INFO());
         }
 
         TEST_METHOD(allZeroProducesZero)
         {
             SurfaceShading surface;
             LightShading lighting;
-            const auto result = applyBRDFFormula(surface, lighting, Spectrum::zero(), Spectrum::zero());
+            const auto result = applyBRDFFormula(surface, lighting, Spectrum::zero());
 
             Assert::AreEqual(0.0f, x1(result.data), L"zero lane 0", LINE_INFO());
             Assert::AreEqual(0.0f, x4(result.data), L"zero lane 3", LINE_INFO());

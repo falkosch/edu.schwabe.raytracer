@@ -181,7 +181,7 @@ namespace raytracerui
         sceneObject->setDiffusionShader(
             std::make_unique<Resources::ConstMaterialShader>(Float4(0.05f, 0.05f, 0.05f, 0.0f)));
         sceneObject->setReflectanceShader(
-            std::make_unique<Resources::ConstMaterialShader>(Float4(0.9f, 0.9f, 0.9f, 0.0f)));
+            std::make_unique<Resources::ConstMaterialShader>(Float4(1.0f, 1.0f, 1.0f, 0.0f)));
         sceneObject->setSpecularShader(
             std::make_unique<Resources::ConstMaterialShader>(Float4(0.9f, 0.9f, 0.9f, 0.0f)));
         sceneObject->setRoughnessShader(
@@ -241,10 +241,11 @@ namespace raytracerui
             std::make_unique<Resources::ConstMaterialShader>(Float4(0.0f, 0.0f, 0.0f, 0.0f)));
         sceneObject->setDiffusionShader(
             std::make_unique<Resources::ConstMaterialShader>(Float4(0.02f, 0.02f, 0.02f, 0.0f)));
+        // glass: the specular lobe's Fresnel reflectance from the indices, of weight 1
         sceneObject->setReflectanceShader(
-            std::make_unique<Resources::ConstMaterialShader>(Float4(0.1f, 0.1f, 0.1f, 0.0f)));
+            std::make_unique<Resources::ConstMaterialShader>(Float4(1.0f, 1.0f, 1.0f, 0.0f)));
         sceneObject->setSpecularShader(
-            std::make_unique<Resources::ConstMaterialShader>(Float4(0.5f, 0.5f, 0.5f, 0.0f)));
+            std::make_unique<Resources::ConstMaterialShader>(Float4(0.04f, 0.04f, 0.04f, 0.0f)));
         sceneObject->setRoughnessShader(
             std::make_unique<Resources::ConstMaterialShader>(Float4(0.05f, 0.05f, 0.05f, 0.0f)));
         sceneObject->setTransmittanceShader(

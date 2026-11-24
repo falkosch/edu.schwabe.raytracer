@@ -9,6 +9,7 @@
 #include "SceneShaderContainment.h"
 #include "Shader.h"
 #include "SpectralContext.h"
+#include "brdf/SpecularFresnel.h"
 
 #include <vector>
 
@@ -57,7 +58,7 @@ namespace raytracer
         // light weighed by its picks per their expected number (unbiased; 0 takes every light).
         LightShading sampleLighting(
             const Raytrace& incidentRay, const Float4& adaptedVisibilityCutoff,
-            Float roughness, const spectral::SpectralVector& F0,
+            Float roughness, const brdf::SpecularFresnel& fresnel,
             const SceneIntersection& intersection, ASizeT sphereLightSamples, ASizeT glossyRays,
             ASizeT pointLightSamples, PerLightShadowCache::ShadowCacheType& shadowCache, StatisticsCookie& statistics
         ) const;
@@ -117,7 +118,7 @@ namespace raytracer
         // with the lobe widened by its size, Karis 2013; a mirror reflects its emissive sphere instead)
         void addPointLight(
             const Raytrace& incidentRay, const Float4& adaptedVisibilityCutoff, Float roughness,
-            const spectral::SpectralVector& F0, const SceneIntersection& intersection, ASizeT lightIndex,
+            const brdf::SpecularFresnel& fresnel, const SceneIntersection& intersection, ASizeT lightIndex,
             const LightInfo& light, const PointLightIncidence& incidence, Float weight, RayCast& shadowRay,
             PerLightShadowCache::ShadowCacheType& shadowCache, StatisticsCookie& statistics, LightShading& lighting
         ) const;
@@ -144,7 +145,7 @@ namespace raytracer
         // over the sphere's cross section), weighed against the glossyRays by the power heuristic.
         void sampleSphereLight(
             const Raytrace& incidentRay, const Float4& adaptedVisibilityCutoff, Float roughness,
-            const spectral::SpectralVector& F0, const SceneIntersection& intersection, ASizeT lightIndex,
+            const brdf::SpecularFresnel& fresnel, const SceneIntersection& intersection, ASizeT lightIndex,
             const LightInfo& light, ASizeT maxSamples, ASizeT glossyRays,
             PerLightShadowCache::ShadowCacheType& shadowCache, StatisticsCookie& statistics, LightShading& lighting
         ) const;
@@ -160,7 +161,7 @@ namespace raytracer
         // 1.8 times the integrated BRDF for large faces.
         void sampleBoxLight(
             const Raytrace& incidentRay, const Float4& adaptedVisibilityCutoff, Float roughness,
-            const spectral::SpectralVector& F0, const SceneIntersection& intersection, ASizeT lightIndex,
+            const brdf::SpecularFresnel& fresnel, const SceneIntersection& intersection, ASizeT lightIndex,
             const LightInfo& light, ASizeT maxSamples, ASizeT glossyRays,
             PerLightShadowCache::ShadowCacheType& shadowCache, StatisticsCookie& statistics, LightShading& lighting
         ) const;

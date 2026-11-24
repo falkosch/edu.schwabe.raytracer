@@ -19,11 +19,12 @@ Core rendering engine. Static library depending on `primitives` and `vectorizati
 4. KD-tree traversal finds nearest geometry intersection
 5. `ObjectShader::shade()` evaluates 7 material channels, upsamples RGB to `Spectrum` via the context's Smits basis
 6. `SceneShader::sampleLighting()` computes per-light contributions in spectral domain (the diffuse irradiance,
-   GGX microfacet specular with spectral Schlick-Fresnel, distance attenuation, shadow rays with caching). At the hits
+   GGX highlights with the specular lobe's Fresnel, distance attenuation, shadow rays with caching). At the hits
    of diffuse rays (`Raytrace::diffuseBounce`), `manyLightSamples` (0 in the library) bounds the shadow rays to point
    lights: with more of them, systematic sampling picks that many by their unshadowed diffuse light, each picked light
    weighed by its picks per their expected number (unbiased; exact for the diffuse light without shadows)
-7. `brdf::applyBRDF()` composites: Lambert's diffusion / pi, spectral BRDF, Fresnel reflectance, Beer-Lambert
+7. `brdf::applyBRDF()` composites: Lambert's diffusion / pi, the highlights, the reflected and transmitted light
+   (weighed by the specular lobe's Fresnel reflectance, `brdf::SpecularFresnel`, and what it leaves), Beer-Lambert
    absorption
 8. Reflection/transmission rays are traced recursively up to `maxTraceDepth`; the `SpectralContext` propagates. A
    surface rougher than `brdf::MirrorRoughness` reflects up to `glossySamples` VNDF-sampled rays
@@ -44,10 +45,13 @@ Core rendering engine. Static library depending on `primitives` and `vectorizati
    `ObjectShader::getEmittedLight`) and adds its weighed part to the highlight, unclamped. Both estimate the same
    light: `SceneShader::lightPointDensity` gives the glossy side the shadow rays' density, 0 where they don't sample
    the highlight (horizon, cutoff, seen from inside), and the light's radiance as they take it; a point off the
-   light (an emitter moved away from it) is no light, and F0 = 0 has no highlight on either side. A rough dielectric
-   whose refracted lobe is wider than a mirror's (|1 - eta| / 2 times the reflected lobe's width) reflects and
-   refracts through VNDF-sampled microfacet normals, each with its own Fresnel reflectance (`traceGlossyReflection`,
-   `traceRoughTransmission`, Walter et al. 2007; `brdf::fresnelReflectance(incident, normal, eta)`): a microfacet that
+   light (an emitter moved away from it) is no light, and a lobe that doesn't reflect (F0 = 0, equal indices) has no
+   highlight on either side. Highlights, mirror and glossy reflections take one Fresnel reflectance
+   (`brdf::SpecularFresnel`, built per hit in `Raytracer::trace`): Schlick's of the specular channel on an opaque
+   surface, the indices' at a transmissive one, times the reflectance channel as the lobe's weight (at most 1); each
+   glossy ray takes its microfacet's. A rough dielectric whose refracted lobe is wider than a mirror's (|1 - eta| / 2
+   times the reflected lobe's width) reflects and refracts through VNDF-sampled microfacet normals, each with its own
+   Fresnel reflectance (`traceGlossyReflection`, `traceRoughTransmission`, Walter et al. 2007): a microfacet that
    reflects totally refracts nothing and reflects all, a masked direction counts as black. The refraction takes fewer
    rays than a reflection of that roughness; a narrower refracted lobe refracts as a mirror, both lobes with the smooth
    surface's Fresnel, as at the smooth surface's total reflection. Diffuse interreflection (`diffuseSamples`, 0 in the
@@ -193,11 +197,15 @@ Traversers (template on intersection type):
 - `evaluateGGX_DG()` -- BRDF without Fresnel (D * G / 4NoVNoL), from precomputed NoV, NoL, NoH
 - `schlickFresnelSpectral()` -- per-wavelength Schlick approximation on Spectrum
 - `fresnelReflectance()` (`fresnel_reflectance.h`) -- Schlick reflectance at a dielectric interface, from the eta
-  layout of `RefractionIndices::refractionEta`; 1 for a total internal reflection. The overload of an incident
-  direction and a (microfacet) normal decides on the total reflection itself
+  layout of `RefractionIndices::refractionEta`; 1 for a total internal reflection. The overloads of an incident
+  direction and a (microfacet) normal, or of the cosine alone, decide on the total reflection themselves
+- `SpecularFresnel` -- the Fresnel reflectance of a hit's specular lobe, one law for its highlights, mirror and glossy
+  reflections and the emitters its glossy rays find: Schlick's of the specular channel (opaque surfaces) or the
+  indices' (transmissive surfaces, dielectric interfaces), times the reflectance channel as the lobe's weight
+  (clamped to [0, 1], as OpenPBR's `specular_weight`); a dielectric interface transmits what the lobe leaves
 - `applyBRDF()` (`apply_brdf.h`) -- the radiance of a hit from its `BRDFParameters`; the diffuse part is Lambert's
   BRDF, the diffusion / pi times the direct irradiance (a white surface under light from all directions reflects
-  that light's radiance)
+  that light's radiance); the reflected and transmitted light come weighed by the specular lobe's Fresnel
 - `sampleLambert()` (`sample_lambert.h`) -- cosine-weighted directions (Malley's method, Shirley and Chiu's concentric
   mapping), for the diffuse rays
 - `sampleGGX()` -- VNDF importance sampling (Heitz 2018), for the glossy reflections; `sampleGGXNormal()` its

@@ -4,6 +4,7 @@
 
 #include "PerLightShadowCache.h"
 #include "Raytrace.h"
+#include "brdf/SpecularFresnel.h"
 #include "spectral/wavelengths.h"
 
 namespace raytracer
@@ -13,8 +14,8 @@ namespace raytracer
     struct SceneShaderContainment
     {
         Raytrace incidentRay;
-        // Fresnel reflectance at normal incidence, per wavelength [0,1]
-        spectral::SpectralVector F0;
+        // The Fresnel reflectance of the intersection's specular lobe, for the highlights
+        brdf::SpecularFresnel fresnel;
         Float roughness;
         Float visibilityCutoff;
         // the most shadow rays to an area light (RaytraceBaseParameters::sphereLightSamples)

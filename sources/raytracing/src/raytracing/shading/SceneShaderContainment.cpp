@@ -6,7 +6,7 @@ namespace raytracer
     SceneShaderContainment::SceneShaderContainment(
         PerLightShadowCache::ShadowCacheType& shadowCacheIn, StatisticsCookie& statisticsIn
     )
-        : incidentRay(), F0(), roughness(), visibilityCutoff(), sphereLightSamples(16), glossyRays(),
+        : incidentRay(), fresnel(), roughness(), visibilityCutoff(), sphereLightSamples(16), glossyRays(),
           pointLightSamples(),
           shadowCache(&shadowCacheIn), statistics(&statisticsIn)
     {

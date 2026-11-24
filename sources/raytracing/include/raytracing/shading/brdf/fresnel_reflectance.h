@@ -16,4 +16,8 @@ namespace raytracer::brdf
     // The same for the incident direction at a surface (or microfacet) of the normal on the incident side, which
     // decides on the total internal reflection itself: 1 where refraction is impossible
     Float4 fresnelReflectance(const Float4& incident, const Float4& normal, const Float4& eta);
+
+    // The same from the cosine negNdotI alone (in all lanes, from 0 to 1), which decides on the total internal
+    // reflection by Snell's law
+    Float4 fresnelReflectance(const Float4& negNdotI, const Float4& eta);
 }

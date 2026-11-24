@@ -11,6 +11,7 @@
 #include <raytracing/shading/SceneShaderContainment.h>
 #include <raytracing/shading/SphereLightCap.h>
 #include <raytracing/shading/brdf/apply_brdf.h>
+#include <raytracing/shading/brdf/SpecularFresnel.h>
 #include <raytracing/shading/brdf/ggx.h>
 #include <raytracing/shading/power_heuristic.h>
 #include <raytracing/shading/sampling.h>
@@ -21,6 +22,11 @@
 
 namespace raytracer::test {
   TEST_CLASS(SceneShaderTest) {
+    // The specular lobe of an opaque surface of the F0 and weight 1
+    static brdf::SpecularFresnel opaqueLobe(const Float F0) {
+      return brdf::SpecularFresnel::opaque(One<spectral::SpectralVector>(), spectral::SpectralVector(F0));
+    }
+
     // A point on the floor (y = -1) lit by a white light above it (y = 2, a point light or a sphere light of the
     // radius), with a sphere in between at the origin. Returns the diffuse lighting of the point, averaged over the
     // wavelengths.
@@ -66,7 +72,7 @@ namespace raytracer::test {
       StatisticsCookie statistics{};
 
       const auto lighting = scene.sampleLighting(
-          incident, Float4(1e-6f), 0.5f, Zero<spectral::SpectralVector>(), floor, sphereLightSamples, 0, 0,
+          incident, Float4(1e-6f), 0.5f, brdf::SpecularFresnel(), floor, sphereLightSamples, 0, 0,
           shadowCache, statistics
       );
       return horizontalSum(lighting.diffuse.data) / 8.0f;
@@ -102,7 +108,6 @@ namespace raytracer::test {
           nullptr, 1, visibilityIndex, &context
       };
       containment.incidentRay.importance = importance;
-      containment.F0 = Zero<spectral::SpectralVector>();
       containment.roughness = 0.5f;
       containment.visibilityCutoff = 1.0f / 512.0f;
 
@@ -187,7 +192,7 @@ namespace raytracer::test {
       StatisticsCookie statistics{};
 
       const auto lighting = scene.sampleLighting(
-          incident, Float4(1e-6f), roughness, spectral::SpectralVector(F0), floor, samples, glossyRays, 0,
+          incident, Float4(1e-6f), roughness, opaqueLobe(F0), floor, samples, glossyRays, 0,
           shadowCache, statistics
       );
       const auto white = horizontalSum(context.fromRGB(Float4(1.0f, 1.0f, 1.0f, 0.0f)).data);
@@ -695,7 +700,7 @@ namespace raytracer::test {
             nullptr, 1, 1.0f, &context, seed
         };
         const auto lighting = scene.sampleLighting(
-            incident, Float4(1e-6f), 0.5f, spectral::SpectralVector(0.04f), floor, 16, 0, pointLightSamples,
+            incident, Float4(1e-6f), 0.5f, opaqueLobe(0.04f), floor, 16, 0, pointLightSamples,
             shadowCache, statistics
         );
         diffuse += horizontalSum(lighting.diffuse.data) / 8.0f;

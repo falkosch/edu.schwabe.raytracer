@@ -96,12 +96,34 @@ namespace raytracer::test {
       scene.setAmbientLight(ambient);
     }
 
+    // A rough opaque panel in the wall's place, with the specular channel (F0) and the reflectance channel (the specular
+    // lobe's weight), no diffusion: it reflects by its specular lobe only
+    static std::unique_ptr<SceneObject> glossyWall(const Float reflectance, const Float specular, const Float roughness) {
+      auto object = wall();
+      object->setDiffusionShader(std::make_unique<Resources::ConstMaterialShader>(Zero<Float4>()));
+      object->setReflectanceShader(
+          std::make_unique<Resources::ConstMaterialShader>(Float4(reflectance, reflectance, reflectance, 0.0f)));
+      object->setSpecularShader(
+          std::make_unique<Resources::ConstMaterialShader>(Float4(specular, specular, specular, 0.0f)));
+      object->setRoughnessShader(
+          std::make_unique<Resources::ConstMaterialShader>(Float4(roughness, roughness, roughness, 0.0f)));
+      return object;
+    }
+
     // Renders the wall's center: one pixel of a 1 degree view from (0, 0, 3.2) towards -z, (n + 1) x (n + 1)
     // sub-samples for the super-sampling n, with up to the diffuse rays per hit, or from irradiance records. Returns
     // the pixel, sRGB-linear.
     static Float4 renderWallCenter(
         Scene &scene, const ASizeT diffuseSamples, const bool irradianceCaching = false, const ASizeT superSampling = 3
     ) {
+      RaytraceParameters parameters{};
+      parameters.diffuseSamples = diffuseSamples;
+      parameters.irradianceCaching = irradianceCaching;
+      return renderWallCenter(scene, parameters, superSampling);
+    }
+
+    // Renders the wall's center as above, with the sampling of the parameters
+    static Float4 renderWallCenter(Scene &scene, RaytraceParameters parameters, const ASizeT superSampling) {
       scene.buildSceneGraph();
       constexpr Float FieldOfView = 1.0f;
       const auto zPlanes = Float2(0.01f, 2.0f);
@@ -110,11 +132,8 @@ namespace raytracer::test {
       camera.translate(Float3(0.0f, 0.0f, -3.2f));
 
       ImageObserver observer{};
-      RaytraceParameters parameters{};
       parameters.visibilityCutoff = 1.0f / 512.0f;
       parameters.maxTraceDepth = 4;
-      parameters.diffuseSamples = diffuseSamples;
-      parameters.irradianceCaching = irradianceCaching;
       parameters.sceneShader = &scene;
       parameters.cullingOrientation = -1;
       parameters.resolution = Size2(1, 1);
@@ -201,6 +220,48 @@ namespace raytracer::test {
       Assert::AreEqual(1.0f, rgbSum(byDiffuseRays) / rgbSum(byLight), 0.02f, L"the same irradiance", LINE_INFO());
       Assert::AreEqual(0.0f, rgbSum(renderWallCenter(glowing, 0)), 1e-6f, L"no light without diffuse rays",
                        LINE_INFO());
+    }
+
+    TEST_METHOD(lightsHighlightIsTheGlossyReflectionOfAnEmitterOfItsRadianceAndShape) {
+      // One specular BRDF: the wall's highlight of the square box light (shadow rays alone) and its glossy reflection
+      // of the emissive square of the same radiance (glossy rays alone) agree, for a lobe of the weight 0.5 and F0 0.5
+      // (Schlick's per microfacet in both) and for a dielectric interface (the indices' Fresnel)
+      const auto render = [](std::unique_ptr<SceneObject> wallObject, const bool light) {
+        Scene scene{};
+        setUpEmpty(scene);
+        scene.getSceneObjects().push_back(std::move(wallObject));
+        if (light) {
+          scene.getLights().push_back(squareLight());
+        } else {
+          scene.getSceneObjects().push_back(squareEmitter());
+        }
+        RaytraceParameters parameters{};
+        // the glossy rays are many more: they shrink with the lobe's reflectance (0.04 of glass at normal incidence)
+        parameters.sphereLightSamples = light ? 256 : 0;
+        parameters.glossySamples = light ? 0 : 2048;
+        return rgbSum(renderWallCenter(scene, parameters, 15));
+      };
+
+      const auto highlight = render(glossyWall(0.5f, 0.5f, 0.5f), true);
+      const auto reflection = render(glossyWall(0.5f, 0.5f, 0.5f), false);
+      Assert::IsTrue(highlight > 0.01f, L"a highlight", LINE_INFO());
+      Assert::AreEqual(1.0f, reflection / highlight, 0.03f, L"opaque: the same light", LINE_INFO());
+
+      // dark glass, seen from outside: it absorbs what it refracts (an absorption length of a 20th of the wall's
+      // thickness), so that the pane shows no second reflection of its back, which the shadow rays don't sample
+      const auto glass = [] {
+        auto object = glossyWall(1.0f, 0.0f, 0.5f);
+        object->setTransmittanceShader(
+            std::make_unique<Resources::ConstMaterialShader>(Float4(1e-4f, 1e-4f, 1e-4f, 0.0f)));
+        object->setRefractionEtaShader(std::make_unique<Resources::ConstMaterialShader>(
+            RefractionIndices::refractionEta(RefractionIndices::Vacuum, RefractionIndices::Glass)
+        ));
+        return object;
+      };
+      const auto glassHighlight = render(glass(), true);
+      const auto glassReflection = render(glass(), false);
+      Assert::IsTrue(glassHighlight > 0.001f, L"a highlight of glass", LINE_INFO());
+      Assert::AreEqual(1.0f, glassReflection / glassHighlight, 0.03f, L"glass: the same light", LINE_INFO());
     }
 
     TEST_METHOD(diffuseRaysSkipTheEmissiveObjectsOfAreaLights) {

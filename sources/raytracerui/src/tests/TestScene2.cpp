@@ -25,8 +25,9 @@ namespace raytracerui
         sceneObject->translateTexture(Float2(0.f, 0.f));
         sceneObject->setEmittanceShader(std::make_unique<Resources::ConstMaterialShader>(Float4(0.f, 0.f, 0.f, 0.f)));
         sceneObject->setDiffusionShader(std::make_unique<HDRImageShader>(*resources.getPPM("checker")));
+        // a specular lobe of F0 0.5 and weight 1
         sceneObject->setReflectanceShader(
-            std::make_unique<Resources::ConstMaterialShader>(Float4(0.5f, 0.5f, 0.5f, 0.f)));
+            std::make_unique<Resources::ConstMaterialShader>(Float4(1.f, 1.f, 1.f, 0.f)));
         sceneObject->setSpecularShader(std::make_unique<Resources::ConstMaterialShader>(Float4(0.5f, 0.5f, 0.5f, 0.f)));
         sceneObject->
             setRoughnessShader(std::make_unique<Resources::ConstMaterialShader>(Float4(0.3f, 0.3f, 0.3f, 0.f)));

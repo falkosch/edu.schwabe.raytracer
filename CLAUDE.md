@@ -85,13 +85,13 @@ and the facet block test (FacetLanes, FacetNormalsBlock, FacetBlockRay, FacetBlo
 ### raytracing (`sources/raytracing/`)
 
 Core engine. Rendering pipeline: hero-wavelength spectral sampling (Wilkie 2014), GGX microfacet highlights and glossy
-reflections by VNDF importance sampling (Heitz 2018), rough refraction (Walter et al. 2007), spectral Schlick-Fresnel
-reflectance, Beer-Lambert absorption, point, sphere and box lights (soft shadows; box lights by their exact form
-factor; their highlights on rough surfaces by multiple importance sampling of shadow and glossy rays), shadows through
-transmissive objects, one bounce of diffuse interreflection (cosine-weighted rays in place of the ambient light, or
-interpolated from an irradiance cache), many-light sampling at the hits of diffuse rays, adaptive sampling of noisy
-pixels, an edge-avoiding a-trous denoiser guided by normals, depths and albedos. View transform:
-spectrum -> XYZ -> sRGB-linear -> AgX (display-encoded, no extra sRGB encoding).
+reflections by VNDF importance sampling (Heitz 2018), rough refraction (Walter et al. 2007), one spectral Fresnel
+reflectance for highlights and reflections, Beer-Lambert absorption, point, sphere and box lights (soft shadows; box
+lights by their exact form factor; their highlights on rough surfaces by multiple importance sampling of shadow and
+glossy rays), shadows through transmissive objects, one bounce of diffuse interreflection (cosine-weighted rays in place
+of the ambient light, or interpolated from an irradiance cache), many-light sampling at the hits of diffuse rays,
+adaptive sampling of noisy pixels, an edge-avoiding a-trous denoiser guided by normals, depths and albedos. View
+transform: spectrum -> XYZ -> sRGB-linear -> AgX (display-encoded, no extra sRGB encoding).
 
 - **Scene**: Scene, SceneObject, Camera, Resources (OFF mesh loading, HDR/PPM textures)
 - **Forms**: Sphere, Box, Plane, Mesh (triangle mesh with KD-tree acceleration)
@@ -171,15 +171,15 @@ Normal logs right after start:
 [0.017] - INFO Scene : done
 [0.023] - INFO UI : Resizing output to 512x512
 [0.025] - INFO Raytracer : Raytrace 1 (512x512):
-[0.272] - INFO Raytracer : Irradiance cache: 9551 records
-[0.658] - INFO Raytracer : Duration: 0.633449s
-[0.659] - INFO UI : primaryRays 262144/0
-[0.659] - INFO UI : secondaryRays 4432072/850771
-[0.659] - INFO UI : shadowRays 5545950/5380361
-[0.659] - INFO UI : objectShadowRays 6295260/5519924
-[0.659] - INFO UI : kdTree nodesVisited=15369990 rootOverlapMisses=9368413
-[0.660] - INFO UI : Saving ray-traced image ...
-[0.680] - INFO UI : ray-traced.png saved: 1
+[0.321] - INFO Raytracer : Irradiance cache: 9551 records
+[0.746] - INFO Raytracer : Duration: 0.721377s
+[0.746] - INFO UI : primaryRays 262144/0
+[0.746] - INFO UI : secondaryRays 4830986/871123
+[0.746] - INFO UI : shadowRays 5756133/5554935
+[0.746] - INFO UI : objectShadowRays 6521677/5730101
+[0.746] - INFO UI : kdTree nodesVisited=19465784 rootOverlapMisses=9489907
+[0.748] - INFO UI : Saving ray-traced image ...
+[0.768] - INFO UI : ray-traced.png saved: 1
 ```
 
 The ray counters and the number of irradiance records are deterministic for a build (glossy reflections, diffuse rays

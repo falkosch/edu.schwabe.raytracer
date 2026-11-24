@@ -28,8 +28,8 @@ namespace raytracerui
     SceneMaterial SceneMaterial::metal(const Float4& color, const Float roughness)
     {
         return {
-            Zero<Float4>(), zeroW(color), zeroW(color), zeroW(Float4{roughness}), Zero<Float4>(), VACUUM_TO_VACUUM,
-            Zero<Float4>()
+            Zero<Float4>(), Float4{1.f, 1.f, 1.f, 0.f}, zeroW(color), zeroW(Float4{roughness}), Zero<Float4>(),
+            VACUUM_TO_VACUUM, Zero<Float4>()
         };
     }
 
@@ -37,7 +37,8 @@ namespace raytracerui
         const Float refractionIndex, const Float4& transmittance, const Float roughness
     )
     {
-        // F0 of the boundary from the indices, so that highlights match the refraction
+        // the specular lobe takes its Fresnel reflectance from the indices; F0 for where the medium is opaque (no
+        // transmittance)
         const auto f0 = sqr((refractionIndex - One<Float>()) / (refractionIndex + One<Float>()));
         return {
             Zero<Float4>(), Float4{1.f, 1.f, 1.f, 0.f}, zeroW(Float4{f0}), zeroW(Float4{roughness}),

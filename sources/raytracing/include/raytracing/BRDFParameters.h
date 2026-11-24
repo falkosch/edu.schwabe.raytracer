@@ -4,6 +4,7 @@
 
 #include "shading/LightShading.h"
 #include "shading/SurfaceShading.h"
+#include "shading/brdf/SpecularFresnel.h"
 #include "shading/spectral/wavelengths.h"
 
 namespace raytracer
@@ -24,7 +25,11 @@ namespace raytracer
         // Direction of transmitted ray
         Float4 transmissionDirection;
 
-        // Fresnel reflectance coefficient per wavelength [0,1]
+        // The Fresnel reflectance of the specular lobe (its weight included), for highlights and reflections alike
+        brdf::SpecularFresnel fresnel;
+
+        // The specular lobe's reflectance towards the viewer at the smooth surface per wavelength [0,1]: the mirror
+        // reflection's weight, and 1 minus the transmission's
         spectral::SpectralVector reflectanceCoefficient;
 
         // Beer-Lambert absorption weight per wavelength

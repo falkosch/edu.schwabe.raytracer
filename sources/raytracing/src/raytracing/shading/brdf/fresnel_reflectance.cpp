@@ -58,4 +58,13 @@ namespace raytracer::brdf
         const auto refracted = refractEta(incident, normal, NdotI, xxxx(eta));
         return fresnelReflectance(allTrue3(!refracted), -NdotI, eta);
     }
+
+    Float4 fresnelReflectance(const Float4& negNdotI, const Float4& eta)
+    {
+        // the squared cosine of the transmitted direction as schlickFresnel takes it: negative beyond the critical angle
+        const auto etaItoT = xxxx(eta);
+        const auto etaItoTMulNdotI = etaItoT * negNdotI;
+        const auto cosSqrPhiT = One<Float4>() - multiplySub(etaItoT, etaItoT, etaItoTMulNdotI * etaItoTMulNdotI);
+        return fresnelReflectance(!!isNegative(cosSqrPhiT), negNdotI, eta);
+    }
 }
