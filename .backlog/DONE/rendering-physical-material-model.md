@@ -12,8 +12,8 @@ there.
   times the irradiance, correct), the reflections and the emitters' own radiance. A white wall facing a box light
   that fills its hemisphere (projected solid angle pi) shows pi times the light's radiance: more light than arrives.
 - Fix: divide the diffuse term by pi (`applyBRDF`, also the ambient part once it is defined as a radiance), then
-  re-tune the scenes' lights (see Scenes). `rendering-diffuse-interreflection.md` raised the same units question for
-  its diffuse rays.
+  re-tune the scenes' lights (see Scenes). `DONE/rendering-diffuse-interreflection.md` raised the same units
+  question for its diffuse rays.
 
 ### Resolution
 

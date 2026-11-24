@@ -6,7 +6,7 @@ The UI shows only counts of a scene's content (Metrics panel, "Scene Info": obje
 are tuned by editing the scene files and rebuilding: the light and shading scenes' balance (key, softbox, sphere light,
 fill, ambient, `LIGHT_SCALE`) took many such rounds. The only way to change a light at runtime is Light mode (key 3),
 which moves the last light's position along z and leaves an area light's emitter behind
-(`rendering-cornell-box-area-light.md`, open points).
+(`rendering-physical-material-model.md`, point 8).
 
 Goal: an explorer panel that lists the scene's objects and lights and lets the user change the lights' properties, with
 the image re-rendering as they change.
@@ -22,7 +22,9 @@ the image re-rendering as they change.
   material channels' constant values where the shader is a `ConstMaterialShader`. Read-only to start with.
 - Lights: index, shape (point, sphere, box), kind (RGB, blackbody, D65, illuminant A) and their properties. Lights have
   no names yet: show the emitter's id for area lights, or give `LightInfo` a name.
-- The ambient light and the background as entries of their own.
+- The ambient light and the background as entries of their own. Every scene's ambient light is 0 since 2026-11-24
+  (the user's decision): the stand-in for the interreflection without diffuse rays, and for the further bounces at
+  their hits, is to be set per scene here (`DONE/rendering-diffuse-interreflection.md`).
 
 ### 2. Editing lights
 
@@ -68,4 +70,4 @@ the image re-rendering as they change.
 ## Related backlog items
 
 - `object-picking.md`: selecting objects and lights by clicking into the image
-- `rendering-cornell-box-area-light.md`: Light mode separates area lights from their emitters (open points)
+- `rendering-physical-material-model.md`: Light mode separates area lights from their emitters (point 8)

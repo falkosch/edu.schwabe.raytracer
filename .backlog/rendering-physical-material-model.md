@@ -88,7 +88,7 @@ lobe first, because the energy points build on it.
   times the falloff (`SceneShader::sampleSphereLight`, `computeLitSphereFraction`). That is exact for a sphere fully
   above the horizon. Where the horizon cuts it, the cosine at the center underestimates, and a center below the
   horizon gives no light at all (`isNegative(dotv(L, surfaceNormal))` returns) although part of the sphere is above.
-  Measured (from `rendering-cornell-box-area-light.md`): radius 0.5 at a horizontal distance of 1, center height
+  Measured (from `DONE/rendering-cornell-box-area-light.md`): radius 0.5 at a horizontal distance of 1, center height
   above the horizon: 0.3 gives 0.95 of the exact irradiance, 0.1 gives 0.59, 0 gives 0 (exact 0.091), -0.2 gives 0
   (exact 0.028); radius 0.5 at (0.6, 0.2) gives 0.79. `SceneShaderTest::sphereLightIrradianceIsExactAboveTheHorizon`
   covers the exact part. A horizon-clipped irradiance would also let sphere lights drop `attenuationFactors` (5).
@@ -122,8 +122,24 @@ lobe first, because the energy points build on it.
   `traceGlossyReflection`; the library's default 0 is off). That removes energy, a bias that more samples don't
   remove (darker glossy reflections of bright objects); the noise measurements' references use `--glossy-clamp=0`.
   Rough transmission doesn't clamp.
+- Since `DONE/rendering-diffuse-interreflection.md` it limits each diffuse ray too, where walls next to a light are
+  brighter than 4. Measured 2026-11-24 in the Cornell box (full renders without adaptive sampling, against unclamped
+  references): ceiling -2.8 % clamped against -1.1 % unclamped, rough mirror -2.6 against -0.8 %; the clamp halves
+  their noise (ceiling 4.01 against 9.01).
 - Fix: measure the fireflies without the clamp now that MIS covers the area lights (and after 4); default off, or
   documented as the one biased option.
+
+### 10. Upsampled reflectances above 1
+
+- `SpectralContext::fromRGB` (Smits' basis, `spectral::rgbToSpectrum`) upsamples white (1, 1, 1) to 1.06 at every
+  wavelength (1.060 to 1.063 at the 16 hero wavelengths of a 4 x 4 pixel; `SmitsTest` allows 1 +- 0.1). As a light's
+  emittance that's a scale; as a diffusion, reflectance or specular colour it reflects 106 % of the light. A white
+  surface gains 6 % at every bounce: the Cornell box's walls (diffusion 1) light the room by more than they get, and
+  `RaytracerTest::hitsOfDiffuseRaysKeepTheAmbientLight` allows for it. Found with
+  `DONE/rendering-diffuse-interreflection.md`.
+- Physics: a reflectance lies within [0, 1] at every wavelength.
+- Fix: upsample reflectances so that white is 1 and no wavelength exceeds it (pbrt-v3 scales its Smits reflectance
+  spectra by 0.94 and clamps them), lights as now; check both against the display white.
 
 ### Scenes
 
@@ -138,10 +154,14 @@ Near-physical and documented, not part of this item:
 
 - Whitted-style transport: shadow rays pass straight through transmissive objects (Fresnel and Beer-Lambert, no
   caustics), point lights are delta lights.
-- The ambient light stands in for interreflection (`rendering-diffuse-interreflection.md`).
+- One bounce of diffuse interreflection, the ambient light stands in for the further bounces
+  (`DONE/rendering-diffuse-interreflection.md`).
 - Schlick for conductors until `illumination-metal-ior-data.md`.
-- The near-mirror limits (`MirrorRoughness`), the smooth surface's total reflection for rough glass, the adaptive
-  sampling's stopping rule (`DONE/rendering-distribution-noise.md`).
+- The near-mirror limits (`MirrorRoughness`), the smooth surface's total reflection for rough glass
+  (`DONE/rendering-distribution-noise.md`).
+- Irradiance caching's interpolation and the denoising of previews, `raytracerui`'s defaults: estimators whose error
+  the measurements bound, not a lighting model (`DONE/rendering-distribution-noise.md`, section 8). Many-light
+  sampling is unbiased.
 
 ## Constraints
 
@@ -157,14 +177,15 @@ Near-physical and documented, not part of this item:
     - a point light's irradiance falls as 1 / d^2 (5)
     - the horizon-cut sphere's form factor against numeric integration, center below the horizon included (6)
     - a ray to a non-emitting face of a box emitter sees no emittance (7)
+    - an upsampled RGB reflectance lies within [0, 1] at every wavelength, white at about 1 (10)
 - New code follows `simd-scalar-hot-paths.md`: vector operations, no scalar fallbacks.
 
 ## Related backlog items
 
-- `rendering-cornell-box-area-light.md`: 6 to 8 came from its open points
+- `DONE/rendering-cornell-box-area-light.md`: 6 to 8 came from its open points
 - `illumination-metal-ior-data.md`: conductor Fresnel from n and k; builds on 1 (which channel gives metals F0)
-- `rendering-diffuse-interreflection.md`: diffuse rays instead of the ambient light, in the units of
-  `DONE/rendering-physical-material-model.md`
+- `DONE/rendering-diffuse-interreflection.md`: diffuse rays instead of the ambient light, in the units of
+  `DONE/rendering-physical-material-model.md`; 10 came from it
 - `illumination-dispersion-refraction.md`, `illumination-polarized-spectral-enabler.md`: build on 2
 - `DONE/rendering-distribution-noise.md`, section 6: where these gaps were found
 

@@ -1,7 +1,24 @@
-# Cornell box: a box light in the ceiling and lighting closer to the reference (done parts)
+# Cornell box: a box light in the ceiling and lighting closer to the reference
 
-Carved out of `.backlog/rendering-cornell-box-area-light.md`. Sphere lights near the horizon, Light mode leaving area
-lights' emitters behind, the emitter box's non-emitting faces and the Cornell noise numbers stay open there.
+## Motivation
+
+The classic Cornell box rendering (https://en.wikipedia.org/wiki/Cornell_box) has a rectangular light set into the
+ceiling: soft shadows, a lit ceiling, and the red and green walls bleeding colour onto the white surfaces.
+
+The `cornell-box` scene lights its room ([-1, 1]^3, open towards the camera) with a warm point light (blackbody
+3000 K, brightness 0.1) only 0.02 below the ceiling, with the falloff 1/(0.13 d + d^2), plus a faint D65 fill light at
+the camera. That gives hard shadows, a dark ceiling with a hotspot right above the light (the source of the rough
+mirror sphere's glitter, see `DONE/rendering-distribution-noise.md`) and dark corners.
+
+Goal: a box-shaped light in the ceiling and lighting that reads more like the reference. The objects and materials
+stay as they are (mirror spheres, noise box, glass teapot, fully saturated walls); the scene may differ from the
+original.
+
+This item also carries the box part of "emissive objects don't light the scene"
+(`DONE/rendering-test-scene-findings.md`, 5.3): so far only point and sphere lights light the scene.
+
+Box lights, the Cornell box's new lighting and the regression are done (sections 1 to 3). The open points (last
+section) came up while doing them.
 
 ## 1. Box lights
 
@@ -61,7 +78,7 @@ Sphere lights keep `attenuationFactors`.
       ceiling light for the ceiling;
     - diffuse interreflection: cosine-weighted diffuse rays for one bounce (a `diffuseSamples` cap, 0 for off) with
       the sampling of `shading/sampling.h`. The step towards path tracing; costly and noisy, see
-      `rendering-distribution-noise.md`.
+      `DONE/rendering-distribution-noise.md`.
 - Decide on the camera fill light: it lights the front faces flatly.
 
 ### Resolution
@@ -73,14 +90,15 @@ irradiance of about 0.15. Light and emitter share the RGB radiance, so the mirro
 Interreflection, tried on the box light: no fill (black ceiling and shadows), ambient 0.03 (closest to the reference),
 ambient 0.06 (flat), and dim point lights near the walls in their colours plus one below the ceiling light (their hard
 shadows drew coloured shapes on the back wall and the ceiling). The user chose ambient 0.03 in the light's colour on
-2026-11-22, diffuse interreflection became `rendering-diffuse-interreflection.md`. The camera fill light is gone.
+2026-11-22, diffuse interreflection became `DONE/rendering-diffuse-interreflection.md`. The camera fill light is
+gone.
 
 ## 3. Regression
 
 - The Cornell box is the regression baseline (root `CLAUDE.md`, "Regression Tests"): new image and counters, update
   the block. The box light's shadow rays raise the render time.
 - Without the point light 2 cm below the ceiling, the ceiling hotspot and the glitter it causes in the rough mirror
-  sphere go away (`rendering-distribution-noise.md`, Motivation).
+  sphere go away (`DONE/rendering-distribution-noise.md`, Motivation).
 
 ### Resolution
 
@@ -99,6 +117,33 @@ dimmer than first composed (`LIGHT_SCALE` in each scene file), and Shading's key
 placed between another light and the scene, it shades the scene from that light (the light bar first stood behind the
 Lighting scene's red light).
 
+## Open points
+
+- Sphere lights close by, Light mode leaving the emitter behind and the emitter box glowing on all faces moved to
+  `rendering-physical-material-model.md` (points 6 to 8, with the measurements).
+- Re-measure the Cornell rough mirror's noise (`DONE/rendering-distribution-noise.md`, current noise).
+
+### Resolution
+
+- The three light points stay open in `rendering-physical-material-model.md` (6: sphere lights at the horizon, 7: box
+  light emitters, 8: dragging a light).
+- The Cornell box's noise (`DONE/rendering-distribution-noise.md`, current noise; crops (55, 340, 200, 485) for the
+  rough mirror, (150, 160, 250, 215) for the teapot), full render / preview: 1.51 / 5.91 and 0.70 / 3.19 after MIS,
+  rough transmission and adaptive sampling (2026-11-23). After Lambert's 1/pi (`982437d`, the box light's highlights and
+  its emitter about 3 times brighter against the walls), 2026-11-24: rough mirror 1.41 / 5.63, teapot 0.87 / 3.52;
+  brightness shift against the references -1.0 % and -0.1 %, the references' own noise 1.28 and 0.65. The build before
+  it reproduces the first numbers (1.51 / 5.92, 0.72 / 3.19: the teapot's 0.70 predates the vector `sampleGGXNormal`).
+
+## Key files
+
+- `sources/raytracing/include/raytracing/shading/LightInfo.h`
+- `sources/raytracing/src/raytracing/shading/SceneShader.cpp` (`sampleLighting`, `computeLitSphereFraction`)
+- `sources/raytracing/include/raytracing/shading/RaytraceBaseParameters.h` (sample caps)
+- `sources/raytracerui/src/tests/CornellBoxScene.cpp`, `SceneObjects.cpp` (`addSphereLight`)
+- `CLAUDE.md` (regression block)
+
 ## Commits
 
 - `c07d001` feat(raytracing): add box lights and light the Cornell box with one
+- `e33f58c` docs(backlog): carve out MIS, rough transmission and adaptive sampling, add the SIMD hot paths item
+- `982437d` fix(raytracing): divide the diffuse reflection by pi (Lambert)

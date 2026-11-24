@@ -44,7 +44,7 @@ Found while rewriting `sampleGGXNormal`:
 1. **Glossy samples in lanes**: `Raytracer::traceGlossyReflection` takes its VNDF samples one after another, each
    through `sampleGGXNormal`, the masking (`smithG1`), the microfacet's Fresnel and the direction checks; 8 at a time
    in `Float8` lanes would be the throughput gain (the rays themselves stay one by one).
-   `traceRoughTransmission` the same.
+   `traceRoughTransmission` and `traceDiffuseReflection` (the diffuse rays) the same.
 2. **Shadow rays' highlights in lanes**: `SceneShader::sampleSphereLight` and `sampleBoxLight` evaluate per shadow ray
    the direction, half vector, cosines, `evaluateGGX_DG`, `glossyRayPdf` and `powerHeuristic` as scalars. The points
    (`SphereLightCap::samplePoint`, `BoxLightFaces::samplePoint`) and the BRDF terms could go 8 at a time, the shadow
@@ -65,6 +65,10 @@ Found while rewriting `sampleGGXNormal`:
    `pow` per sub-sample (the library has no vector `pow` yet).
 8. **`RaytracerPackets::setupRayOfSampleInPixel`**: an integer division and modulo per sub-sample for its grid offset,
    which could be computed once per sub-sample index and frame.
+9. **`ATrousDenoiser`'s taps and `IrradianceCache::interpolate`** (`DONE/rendering-distribution-noise.md`, section
+   8): per pixel and pass, 25 taps each with a scalar weight (`dot3`, `max3`, divisions and the normals' power) and an
+   `exp` of a broadcast `Float4`; 4 taps' exponents in one `Float4` would take one `exp` per 4 taps. The cache's
+   error estimates per record likewise, 4 records in lanes. The denoiser takes about 0.1 s of a 512 x 512 preview.
 
 ### 3. Constraints
 
