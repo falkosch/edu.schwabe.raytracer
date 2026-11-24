@@ -1,7 +1,6 @@
 # Noise of the distribution ray tracing ("glitter") (done parts)
 
-Carved out of `.backlog/rendering-distribution-noise.md`. Multiple importance sampling, adaptive sampling, rough
-transmission and denoising stay open there.
+Carved out of `.backlog/rendering-distribution-noise.md`. Denoising stays open there.
 
 ## 1. Measure the noise
 
@@ -162,7 +161,113 @@ The Cornell box's point light 0.02 below the ceiling became a box light set into
 (`DONE/rendering-cornell-box-area-light.md`): the hotspot and the rough mirror sphere's glitter it caused are gone,
 without a minimum distance in the attenuation.
 
+## 6. Candidates (done parts, 2026-11-23)
+
+- **Multiple importance sampling** (Veach 1997) for sphere lights: combine light sampling (points on the visible cap,
+  as the soft shadows already pick them) and BRDF sampling (glossy rays that hit the emissive sphere) by the power
+  heuristic. Replaces the current split (rough surfaces: highlight only, emitter hidden from glossy rays) by an
+  unbiased combination; the standard answer to glossy surfaces under area lights. Box lights take their highlight
+  from light sampling already (their shadow rays' points); it gets noisy for narrow lobes under large lights
+  (relative standard deviation 0.34 for 16 random rays at roughness 0.05 under a 2 x 2 light 6.7 away), which the
+  BRDF samples would cover.
+- **Adaptive sampling**: estimate each pixel's variance from its sub-samples and trace more sub-samples where it's
+  high (also the "adaptive sampling at high-contrast edges" left open by 5.7 of the findings item).
+- **Rough transmission** (GGX BTDF, Walter et al. 2007) for dielectrics with roughness: blurs the dragon's sparkles
+  physically, but needs more rays itself.
+
+### Resolution
+
+All three are on by default; Whitted ray tracing renders byte-identical (every test scene, preview and full render),
+images stay deterministic. The measurements re-measured the defaults first (open file, "Current noise"); the metric's
+noise is the root of the crop's mean per-pixel variance, which the open file now spells out.
+
+- **Multiple importance sampling**, for sphere and box lights, on rough surfaces with shadow rays and glossy rays:
+  `SceneShader::sampleLighting` takes the hit's number of glossy rays (`glossyRaysOf` in `Raytracer.cpp`, the same
+  count `traceGlossyReflection` takes) and weighs each shadow ray's highlight by the power heuristic
+  (`power_heuristic.h`) against the glossy rays' density (`brdf::pdfGGX`). A glossy ray that hits an area light's
+  emitter (`Raytrace::weighsEmitters`, `ObjectShader::setLightEmitter` now takes the light,
+  `IlluminatedIntersection::emitterLight`) adds the light's highlight weighed the other way: F * G2 / G1(V) with the
+  emitter's radiance, unclamped, against the shadow rays' density (`SceneShader::lightPointDensity`; a box face that
+  doesn't emit adds nothing, a sphere below the horizon isn't sampled and gets the whole weight). Both sides estimate
+  the same light: the glossy side takes the light's radiance as the shadow rays do, and density 0 wherever they don't
+  sample its highlight (horizon, cutoff, an intersection seen from inside); a point off the light (an emitter moved
+  away from it) is no light, F0 = 0 has no highlight on either side, and the shadow rays' highlight stays where the
+  cutoff drops the diffuse light. Sphere lights got a
+  sampled path (`sampleSphereLight`, the cap as `SphereLightCap` with its density per solid angle): their highlight
+  is light sampling with the sphere's radiance (its intensity spread over its cross section) instead of Karis's
+  widened lobe, which stays for 0 shadow rays. Tests: `PowerHeuristicTest`, `SphereLightCapTest` (the density
+  integrates to 1 and matches the sampled points), `GGXTest::pdfGGXIsTheDensityOfSampleGGX`, and
+  `SceneShaderTest::sphereLightHighlightIsTheIntegratedBRDF` and `boxLightHighlightWithGlossyRaysIsTheIntegratedBRDF`
+  (the shadow rays' part plus the glossy rays' part integrate the BRDF over the light within 3 %, also for a lobe of
+  0.05 under a 2 x 2 light), `lightPointDensityOfAPointOffTheLightIsNoLight` and
+  `lightPointDensityIsZeroWhereTheShadowRaysDontSampleTheHighlight`.
+- **Rough transmission**: a rough dielectric interface whose refracted lobe is wider than a mirror's reflects and
+  refracts through VNDF-sampled microfacet normals (`brdf::sampleGGXNormal`), each with its own Fresnel reflectance
+  (`brdf::fresnelReflectance(incident, normal, eta)`, Walter et al. 2007): `traceGlossyReflection` weighs a ray by its
+  microfacet's reflectance, `traceRoughTransmission` by its transmission, both per the smooth surface's that
+  `applyBRDF` multiplies with, the refracted rays also by G1 of their direction and their own absorption. A microfacet
+  that reflects totally refracts nothing and reflects all; a direction that doesn't cross the surface is masked and
+  counts as black. The refracted lobe is |1 - eta| / 2 as wide as a reflected lobe of the same roughness and takes as
+  many rays as one of that roughness. A narrower refracted lobe refracts as a mirror with the smooth surface's Fresnel
+  for both lobes (the approximation reflections make up to `MirrorRoughness`), as do the smooth surface's total
+  reflection and glossy samples 0. Tests: `GGXTest::sampleGGXReflectsAboutTheSampledNormal` and
+  `roughRefractionSpreadsAroundTheMirrorRefraction`, `FresnelReflectanceTest::roughDielectricLobesKeepTheEnergy` (the
+  lobes sum to at most 1, a few percent less from the masking) and `totallyReflectingMicrofacetsReflectTheirLight`.
+  Three first versions were wrong: with the reflection's ray count, Test Scene 2 (a water sphere of roughness 0.2)
+  traced 7 times the secondary rays; with the smooth surface's Fresnel, totally reflecting microfacets counted as
+  black, and the Cornell box's glass teapot (roughness 0.05, a refracted lobe of half a degree, one ray per hit) turned
+  speckled: noise 3.19 -> 11.45 in the preview, 0.92 -> 1.78 in the full render (crop (150, 160, 250, 215)); taking
+  the mirror refraction instead of black hid the speckles without being physical.
+- **Adaptive sampling**: `RaytraceBaseParameters::adaptiveRounds` and `adaptiveThreshold` (library default off,
+  `raytracerui` 3 rounds and 4/255, `--adaptive-rounds=<n>`, `--adaptive-threshold=<x>`, Config sliders). After its
+  sub-samples, a pixel of at least 2 x 2 whose display luminance (`SubSampleSpread`: y / (1 + y), exponent 1 / 2.2)
+  has a standard error of the mean above the threshold takes another round of sub-samples, on the grid shifted by
+  Roberts' R2 sequence within the cells and at hero wavelengths shifted within their strata (one set of spectral
+  contexts per round), continuing the pixel's sample sequence; up to the rounds. Whitted ray tracing doesn't sample
+  adaptively, so its full renders stay byte-identical. Fast previews (one sub-sample) don't change. Tests:
+  `SubSampleSpreadTest`.
+
+Full render noise / shift in % against the references of the same build, 4 seeds; render times of the full render
+(Showcase's vary by up to 2x between runs on this machine). Rough transmission doesn't apply to these crops (their
+glass is too smooth). The rows below the default (4/255) were measured with the first rough transmission, which
+refracted the dragon rough too (default 4.43 / -3.7 and 1.96 / -1.6 on the floor then):
+
+| Variant                       | Cornell mirror | Bunny       | Dragon       | Floor       | Metals      |
+|-------------------------------|----------------|-------------|--------------|-------------|-------------|
+| before, Karis highlight       | 1.98 / -0.2    | 1.66 / -5.1 | 6.70 / -4.4  | 3.05 / -1.8 | 3.23 / -0.3 |
+| + MIS                         | 1.98 / -0.2    | 1.92 / -0.2 | 6.52 / -3.0  | 3.16 / -1.3 | 3.23 / -0.3 |
+| + adaptive 3 rounds, 4/255    | 1.51 / -0.4    | 1.51 / -0.3 | 4.23 / -3.4  | 2.03 / -1.6 | 2.24 / -0.3 |
+| + adaptive 3 rounds, 2/255    | 1.30 / -0.4    | 1.24 / -0.4 | 4.30 / -2.9  | 1.63 / -1.7 | 1.82 / -0.2 |
+| + adaptive 3 rounds, 1/255    | 1.00 / -0.2    | 1.12 / -0.3 | 4.19 / -2.6  | 1.55 / -1.8 | 1.66 / -0.2 |
+| uniform 4 x 4 instead         | 1.42 / +0.1    | 1.47 / -0.2 | 5.77 / -3.0  | 2.47 / -1.4 | 2.41 / -0.3 |
+| uniform 5 x 5 instead         | 1.09 / -0.1    | 1.23 / -0.1 | 4.89 / -2.6  | 2.04 / -1.2 | 1.92 / -0.1 |
+
+| Variant                    | Cornell box | Showcase | Materials |
+|----------------------------|-------------|----------|-----------|
+| 3 x 3                      | 1.1 s       | 5.8 s    | 1.1 s     |
+| adaptive 4/255 (default)   | 1.2 s       | 7.6 s    | 1.9 s     |
+| adaptive 2/255             | 1.5 s       | 14.0 s   | 3.2 s     |
+| adaptive 1/255             | 2.2 s       | 16.9 s   | 3.9 s     |
+| uniform 4 x 4              | 2.2 s       | 12.9 s   | 2.4 s     |
+| uniform 5 x 5              | 3.2 s       | 18.3 s   | 3.3 s     |
+
+- MIS mostly removes bias: the old widened-lobe highlight of the Showcase's sphere light came out 5 % too dark on the
+  gold bunny (RMS error against the MIS references 8.35, now 2.13; the dragon 11.5, now 9.6). The bunny's noise rises
+  by 16 %, since the old highlight didn't change with the seed. The Cornell box's small light dominates the weights
+  (about 0.997 for the shadow rays): its image changes below 8 bits. Ray counts don't change.
+- Rough transmission applies to the rough glass of the older test scenes, whose materials took the roughness for the
+  highlights only. Fast preview cost: Materials 0.5 % more secondary rays, Test Scene 1 2.3 times (0.14 -> 0.29 s),
+  Test Scene 2 2.9 times (0.13 -> 0.38 s), the Dragon scene 4 times (0.24 -> 0.89 s; its diamond dragon of roughness
+  1.0 turns frosted). The Cornell box's and the Showcase's glass refracts as before (lobes of half a degree).
+- Adaptive sampling leaves less noise than uniform super-sampling at the same or less time in every crop: 4/255
+  against 4 x 4 in the Showcase (7.9 against 12.9 s) 23 % less on the dragon and 21 % less on the floor, 1/255 against
+  4 x 4 in the Cornell box (2.2 s both) 30 % less, 4/255 against 4 x 4 in the Materials (2.4 s both) 7 % less. The
+  RMS error of the metals stays above uniform sampling's (3.46 at 2/255 against 2.74 at 5 x 5), most likely aliasing
+  that more sample positions resolve better. Its shift is 0.1 to 0.5 % darker than uniform sampling's, most likely
+  the bias of a stopping rule that depends on the samples themselves.
+
 ## Commits
 
 - `1fd428a` feat(raytracing): reduce the noise of the distribution ray tracing
 - `c07d001` feat(raytracing): add box lights and light the Cornell box with one
+- `f2e30b5` feat(raytracing): weigh area light highlights by MIS, refract rough glass, sample adaptively
