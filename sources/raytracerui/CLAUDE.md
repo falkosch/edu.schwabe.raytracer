@@ -34,7 +34,7 @@ MessageLoopBasedUI (abstract, Windows message loop)
 both use it. Append new scenes there (and keep the order, the dropdown index follows it).
 
 - `CornellBoxScene` (`cornell-box`) -- default; Cornell box lit by a warm white box light set into the ceiling (bottom
-  face only, luminance 3) and an ambient light standing in for the interreflection, with a mirror and a rough mirror
+  face only, luminance 3 pi) and an ambient light standing in for the interreflection, with a mirror and a rough mirror
   sphere, a noise-textured box and a glass teapot
 - `TestScene1` (`test-scene-1`) -- multi-object with various materials
 - `TestScene2` (`test-scene-2`) -- plane and emissive sphere
@@ -57,7 +57,8 @@ both use it. Append new scenes there (and keep the order, the dropdown index fol
 The new scenes are composed for the start camera (the dropdown doesn't move the camera) and build on
 `SceneMaterial` (the seven material channels as constants, with factories), `createSceneObject`, `addSphereLight`
 (an emissive sphere with its sphere light) and `addBoxLight` (an emissive box with its box light and its emitting
-faces).
+faces). Their lights' intensities and radiances carry a factor pi: a white surface facing a light reflects its
+irradiance / pi (Lambert), so a light of pi lights it to 1; the ambient light, a radiance, has none.
 
 ## Command line
 

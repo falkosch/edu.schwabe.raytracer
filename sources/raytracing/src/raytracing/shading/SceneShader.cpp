@@ -488,10 +488,10 @@ namespace raytracer
         const auto N = intersection.smoothedNormal;
         const BoxLightFaces faces(light, intersection.vertex, N);
         const auto& radiance = spectralContext.lightEmittance[lightIndex];
-        // the irradiance without shadows bounds what the light adds
+        // the diffuse reflection without shadows (Lambert: the irradiance / pi) bounds what the light adds
         const auto radianceMax = spectral::spectralMax(radiance.data);
         if (faces.faceCount == Zero<ASizeT>()
-            || faces.projectedSolidAngle * radianceMax < x(adaptedVisibilityCutoff))
+            || faces.projectedSolidAngle * ReciprocalPi<Float>() * radianceMax < x(adaptedVisibilityCutoff))
         {
             return;
         }
@@ -621,7 +621,8 @@ namespace raytracer
             lighting.specular += radiance * (highlight * perSample);
         }
         const auto litFraction = lit * spectral::SpectralVector(One<Float>() / weights);
-        if (spectral::spectralMax(litFraction) * faces.projectedSolidAngle * radianceMax < x(adaptedVisibilityCutoff))
+        if (spectral::spectralMax(litFraction) * faces.projectedSolidAngle * ReciprocalPi<Float>() * radianceMax
+            < x(adaptedVisibilityCutoff))
         {
             return;
         }
@@ -710,7 +711,8 @@ namespace raytracer
             // sampleBoxLight's test whether to sample the light
             const auto cosine = -dot3(f.normal, toPoint) / distance;
             if (!sampled || !(cosine > Zero<Float>()) || !(faces.area > Zero<Float>())
-                || faces.projectedSolidAngle * spectral::spectralMax(emittance.data) < x(adaptedVisibilityCutoff))
+                || faces.projectedSolidAngle * ReciprocalPi<Float>() * spectral::spectralMax(emittance.data)
+                       < x(adaptedVisibilityCutoff))
             {
                 return {true, Zero<Float>(), emittance};
             }

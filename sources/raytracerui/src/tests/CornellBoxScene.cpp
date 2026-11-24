@@ -265,11 +265,11 @@ namespace raytracerui
         // Warm white, about 4000 K in linear sRGB at luminance 1
         const auto warmWhite = Float4(1.406f, 0.927f, 0.532f, 0.0f);
 
-        // A box light set into the ceiling, emitting from its bottom face, of luminance 3: the light the camera sees is
-        // nearly white, the floor below gets an irradiance of about 0.15
+        // A box light set into the ceiling, emitting from its bottom face, of luminance 3 pi (about 9.4): the light the
+        // camera sees is nearly white, the floor below gets an irradiance of about 0.47
         addBoxLight(
             scene, "ceiling light", Float4(0.0f, 0.994f, 0.0f, 1.0f), Float3(0.25f, 0.005f, 0.2f),
-            Float3(0.0f, 0.0f, 0.0f), warmWhite * Float4(3.0f), LightInfo::faceBit(1, false)
+            Float3(0.0f, 0.0f, 0.0f), warmWhite * Float4(3.0f * Pi<Float>()), LightInfo::faceBit(1, false)
         );
 
         // The interreflection of the reference isn't traced: an ambient light in the light's colour stands in for it.

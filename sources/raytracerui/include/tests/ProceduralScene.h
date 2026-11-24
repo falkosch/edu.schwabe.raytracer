@@ -17,7 +17,9 @@ namespace raytracerui
             scene.setBackgroundShader(std::make_unique<RGBBackgroundShader>(RGBS::black()));
             scene.setAmbientLight(RGBS::black());
 
-            const auto emittanceScale = reciprocal(Float4(LightsPerAxis * LightsPerAxis * LightsPerAxis + 1.f));
+            // times pi: a white surface facing a light reflects its irradiance / pi (Lambert)
+            const auto emittanceScale =
+                reciprocal(Float4(LightsPerAxis * LightsPerAxis * LightsPerAxis + 1.f)) * Float4(Pi<Float>());
             for (auto z{-LightsPerAxis}; z <= LightsPerAxis; ++z)
             {
                 for (auto y{-LightsPerAxis}; y <= LightsPerAxis; ++y)

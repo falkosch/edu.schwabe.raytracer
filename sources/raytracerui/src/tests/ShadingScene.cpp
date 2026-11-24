@@ -44,11 +44,14 @@ namespace raytracerui
             *resources.getPPM("env_eso_bright_night_at_paranal"), EnvironmentProjection::AllSkyFisheye, 0.43f
         ));
         scene.setAmbientLight(RGBS(0.01f * LIGHT_SCALE, 0.01f * LIGHT_SCALE, 0.01f * LIGHT_SCALE));
+        // The lights times pi: a white surface facing a light reflects its irradiance / pi (Lambert), the ambient
+        // light (a radiance from all directions) its value
+        const auto lightScale = LIGHT_SCALE * Pi<Float>();
 
-        // Key: a point light from the upper left with quadratic falloff (0.26 at the middle of the scene, 5.7 away):
+        // Key: a point light from the upper left with quadratic falloff (0.81 at the middle of the scene, 5.7 away):
         // hard shadows and a small round highlight. Without falloff it lit the floor up to the horizon like an ambient
         // light.
-        auto key = std::make_unique<LightInfo>(LightInfo::blackbody(6000.f, 8.4f * LIGHT_SCALE));
+        auto key = std::make_unique<LightInfo>(LightInfo::blackbody(6000.f, 8.4f * lightScale));
         key->position = Float4(-2.5f, 3.f, 3.f, 1.f);
         key->attenuationFactors = Float4(0.f, 0.f, 1.f, 1.f);
         scene.getLights().push_back(std::move(key));
@@ -56,16 +59,16 @@ namespace raytracerui
         // step: soft shadows, and its rectangle in the mirror sphere and the highlights next to the key's
         addBoxLight(
             scene, "softbox", Float4(1.8f, 2.2f, 2.f, 1.f), Float3(1.2f, 0.02f, 0.8f), Float3(49.2f, 33.7f, 0.f),
-            Float4(1.087f, 0.979f, 0.952f, 0.f) * Float4(0.8f * LIGHT_SCALE), LightInfo::faceBit(1, false)
+            Float4(1.087f, 0.979f, 0.952f, 0.f) * Float4(0.8f * lightScale), LightInfo::faceBit(1, false)
         );
         // A warm white sphere light on the floor in front of the cubes (about 4000 K): its glowing sphere, a warm pool
         // on the floor and soft shadows behind the cubes
         addSphereLight(
             scene, "sphere light", Float4(0.62f, -0.88f, 0.3f, 1.f), 0.12f,
-            Float4(1.406f, 0.927f, 0.532f, 0.f) * Float4(4.f * LIGHT_SCALE)
+            Float4(1.406f, 0.927f, 0.532f, 0.f) * Float4(4.f * lightScale)
         );
-        // Fill from the right with quadratic falloff (0.05 at the middle of the scene, 4.7 away)
-        auto fill = std::make_unique<LightInfo>(LightInfo::d65(1.1f * LIGHT_SCALE));
+        // Fill from the right with quadratic falloff (0.16 at the middle of the scene, 4.7 away)
+        auto fill = std::make_unique<LightInfo>(LightInfo::d65(1.1f * lightScale));
         fill->position = Float4(3.f, 1.f, 2.5f, 1.f);
         fill->attenuationFactors = Float4(0.f, 0.f, 1.f, 1.f);
         scene.getLights().push_back(std::move(fill));

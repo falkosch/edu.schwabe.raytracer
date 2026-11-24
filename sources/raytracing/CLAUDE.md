@@ -12,9 +12,10 @@ Core rendering engine. Static library depending on `primitives` and `vectorizati
    every `Raytrace` points to the context of its sub-sample
 4. KD-tree traversal finds nearest geometry intersection
 5. `ObjectShader::shade()` evaluates 7 material channels, upsamples RGB to `Spectrum` via the context's Smits basis
-6. `SceneShader::sampleLighting()` computes per-light contributions in spectral domain (Lambert diffuse,
+6. `SceneShader::sampleLighting()` computes per-light contributions in spectral domain (the diffuse irradiance,
    GGX microfacet specular with spectral Schlick-Fresnel, distance attenuation, shadow rays with caching)
-7. `brdf::applyBRDF()` composites: spectral BRDF, Fresnel reflectance, Beer-Lambert absorption
+7. `brdf::applyBRDF()` composites: Lambert's diffusion / pi, spectral BRDF, Fresnel reflectance, Beer-Lambert
+   absorption
 8. Reflection/transmission rays are traced recursively up to `maxTraceDepth`; the `SpectralContext` propagates. A
    surface rougher than `brdf::MirrorRoughness` reflects up to `glossySamples` VNDF-sampled rays
    (`traceGlossyReflection`, fewer the less the reflection adds to the pixel); `Raytrace::seed` (pixel and sub-sample,
@@ -100,7 +101,8 @@ Traversers (template on intersection type):
 
 ### Shading (`shading/`)
 
-- `SceneShader` -- scene-level: background shader, ambient light, light collection, shadow computation. Shadow rays
+- `SceneShader` -- scene-level: background shader, ambient light (a radiance from all directions, which a diffuse
+  surface reflects times its diffusion), light collection, shadow computation. Shadow rays
   pass transmissive objects (Fresnel transmission and absorption along the straight chord, no caustics). Area lights
   get up to `sphereLightSamples` shadow rays:
     - a sphere light (`LightInfo::radius`) to its visible cap (`SphereLightCap`: points of the disk the cap projects
@@ -149,7 +151,9 @@ Traversers (template on intersection type):
 - `fresnelReflectance()` (`fresnel_reflectance.h`) -- Schlick reflectance at a dielectric interface, from the eta
   layout of `RefractionIndices::refractionEta`; 1 for a total internal reflection. The overload of an incident
   direction and a (microfacet) normal decides on the total reflection itself
-- `applyBRDF()` (`apply_brdf.h`) -- the radiance of a hit from its `BRDFParameters`
+- `applyBRDF()` (`apply_brdf.h`) -- the radiance of a hit from its `BRDFParameters`; the diffuse part is Lambert's
+  BRDF, the diffusion / pi times the direct irradiance (a white surface under light from all directions reflects
+  that light's radiance)
 - `sampleGGX()` -- VNDF importance sampling (Heitz 2018), for the glossy reflections; `sampleGGXNormal()` its
   microfacet normal, for rough refraction; `pdfGGX()` the density of its directions, `smithG1()` Smith's masking
 - The roughness channel is the GGX alpha itself (highlights and glossy reflections), not its square root

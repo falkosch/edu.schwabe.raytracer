@@ -10,6 +10,7 @@
 #include <raytracing/shading/Raytrace.h>
 #include <raytracing/shading/SceneShaderContainment.h>
 #include <raytracing/shading/SphereLightCap.h>
+#include <raytracing/shading/brdf/apply_brdf.h>
 #include <raytracing/shading/brdf/ggx.h>
 #include <raytracing/shading/power_heuristic.h>
 #include <raytracing/shading/sampling.h>
@@ -389,6 +390,17 @@ namespace raytracer::test {
       // unshadowed, every shadow ray reaches the light: the exact irradiance (BoxLightFaces_test checks it)
       const auto lit = floorLighting(nothing(), squareLight(0.5f, 2.0f));
       Assert::AreEqual(squareLightIrradiance(0.5f, 2.0f), lit.diffuse, 1e-3f * lit.diffuse, L"irradiance", LINE_INFO());
+    }
+
+    TEST_METHOD(whiteSurfaceUnderALightFillingItsHemisphereShowsTheLightsRadiance) {
+      // a light of radiance 1 over the whole hemisphere of the floor point gives the irradiance pi, which a white
+      // Lambert surface (diffusion / pi) reflects as radiance 1: no more light than arrives (white furnace)
+      const auto lit = floorLighting(nothing(), squareLight(1000.0f, 2.0f));
+      BRDFParameters parameters;
+      parameters.surface.diffusion = spectral::Spectrum::constant(1.0f);
+      parameters.lighting.diffuse = spectral::Spectrum::constant(lit.diffuse);
+      Assert::AreEqual(Pi<Float>(), lit.diffuse, 1e-3f, L"irradiance", LINE_INFO());
+      Assert::AreEqual(1.0f, x1(brdf::applyBRDF(parameters).data), 1e-3f, L"reflected radiance", LINE_INFO());
     }
 
     TEST_METHOD(distantBoxLightActsAsAPointLight) {

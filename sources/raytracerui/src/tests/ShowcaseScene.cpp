@@ -39,21 +39,24 @@ namespace raytracerui
     {
         scene.setBackgroundShader(std::make_unique<RGBBackgroundShader>(RGBS::black()));
         scene.setAmbientLight(RGBS(0.01f * LIGHT_SCALE, 0.01f * LIGHT_SCALE, 0.012f * LIGHT_SCALE));
+        // The lights times pi: a white surface facing a light reflects its irradiance / pi (Lambert), the ambient
+        // light (a radiance from all directions) its value
+        const auto lightScale = LIGHT_SCALE * Pi<Float>();
 
         // Warm softbox from the upper left (a sphere light: soft shadows, seen round in the chrome sphere), a cooler
         // rectangular softbox of 1.2 x 0.8 from the upper right as a fill (a box light whose front face, its local -y,
         // turns towards the dragon: seen as a rectangle next to the round one), cool rim from behind on the right,
         // cool glow on the backdrop. Quadratic falloff keeps the far backdrop dark.
         addSphereLight(
-            scene, "softbox", Float4(-2.f, 2.5f, 2.5f, 1.f), 0.6f, Float4(14.f, 11.f, 8.f, 0.f) * Float4(LIGHT_SCALE)
+            scene, "softbox", Float4(-2.f, 2.5f, 2.5f, 1.f), 0.6f, Float4(14.f, 11.f, 8.f, 0.f) * Float4(lightScale)
         );
         addBoxLight(
             scene, "fill softbox", Float4(2.f, 2.3f, 2.3f, 1.f), Float3(0.6f, 0.02f, 0.4f), Float3(50.9f, 35.5f, 0.f),
-            Float4(5.f, 5.5f, 6.5f, 0.f) * Float4(LIGHT_SCALE), LightInfo::faceBit(1, false)
+            Float4(5.f, 5.5f, 6.5f, 0.f) * Float4(lightScale), LightInfo::faceBit(1, false)
         );
         const Float4 quadratic{0.f, 0.f, 1.f, 1.f};
-        addLight(scene, LightInfo::blackbody(9000.f, 3.f * LIGHT_SCALE), Float4(2.5f, 1.5f, -1.2f, 1.f), quadratic);
-        addLight(scene, LightInfo::blackbody(12000.f, 0.3f * LIGHT_SCALE), Float4(0.f, 0.f, -2.1f, 1.f), quadratic);
+        addLight(scene, LightInfo::blackbody(9000.f, 3.f * lightScale), Float4(2.5f, 1.5f, -1.2f, 1.f), quadratic);
+        addLight(scene, LightInfo::blackbody(12000.f, 0.3f * lightScale), Float4(0.f, 0.f, -2.1f, 1.f), quadratic);
 
         auto& objects = scene.getSceneObjects();
 

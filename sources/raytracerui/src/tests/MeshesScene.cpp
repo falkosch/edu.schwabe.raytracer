@@ -21,11 +21,12 @@ namespace raytracerui
         scene.setBackgroundShader(std::make_unique<RGBBackgroundShader>(RGBS::black()));
         scene.setAmbientLight(RGBS(0.02f, 0.02f, 0.02f));
 
-        auto key = std::make_unique<LightInfo>(LightInfo::blackbody(5000.f, 0.4f));
+        // Light values times pi: a white surface facing a light reflects its irradiance / pi (Lambert)
+        auto key = std::make_unique<LightInfo>(LightInfo::blackbody(5000.f, 0.4f * Pi<Float>()));
         key->position = Float4(-2.f, 2.5f, 3.5f, 1.f);
         key->attenuationFactors = Float4(1.f, 0.f, 0.f, 1.f);
         scene.getLights().push_back(std::move(key));
-        auto fill = std::make_unique<LightInfo>(LightInfo::blackbody(8000.f, 0.12f));
+        auto fill = std::make_unique<LightInfo>(LightInfo::blackbody(8000.f, 0.12f * Pi<Float>()));
         fill->position = Float4(2.5f, 0.f, 3.f, 1.f);
         fill->attenuationFactors = Float4(1.f, 0.f, 0.f, 1.f);
         scene.getLights().push_back(std::move(fill));

@@ -90,15 +90,32 @@ namespace raytracer::test
             Assert::AreEqual(0.9f, x1(result.data), 1e-5f, L"transmission at coef=0", LINE_INFO());
         }
 
-        TEST_METHOD(diffuseLightIsScaledByDiffusion)
+        TEST_METHOD(diffuseLightIsScaledByDiffusionOverPi)
         {
+            // Lambert's BRDF diffusion / pi times the irradiance
             SurfaceShading surface;
             surface.diffusion = Spectrum::constant(0.5f);
             LightShading lighting;
             lighting.diffuse = Spectrum::constant(0.6f);
             const auto result = applyBRDFFormula(surface, lighting, Spectrum::zero(), Spectrum::zero());
 
-            Assert::AreEqual(0.3f, x1(result.data), 1e-6f, L"0.5 * 0.6 = 0.3", LINE_INFO());
+            Assert::AreEqual(0.3f / Pi<Float>(), x1(result.data), 1e-6f, L"0.5 * 0.6 / pi", LINE_INFO());
+        }
+
+        TEST_METHOD(whiteSurfaceReflectsTheRadianceAroundIt)
+        {
+            // radiance 0.7 from the whole hemisphere: the irradiance 0.7 pi as direct light, or 0.7 as ambient light;
+            // a white Lambert surface reflects both as radiance 0.7 (white furnace)
+            SurfaceShading surface;
+            surface.diffusion = Spectrum::constant(1.0f);
+            LightShading direct;
+            direct.diffuse = Spectrum::constant(0.7f * Pi<Float>());
+            const auto ambient = LightShading{Spectrum::constant(0.7f)};
+
+            const auto fromDirect = applyBRDFFormula(surface, direct, Spectrum::zero(), Spectrum::zero());
+            const auto fromAmbient = applyBRDFFormula(surface, ambient, Spectrum::zero(), Spectrum::zero());
+            Assert::AreEqual(0.7f, x1(fromDirect.data), 1e-6f, L"direct light", LINE_INFO());
+            Assert::AreEqual(0.7f, x1(fromAmbient.data), 1e-6f, L"ambient light", LINE_INFO());
         }
 
         TEST_METHOD(specularIsAddedUnscaled)

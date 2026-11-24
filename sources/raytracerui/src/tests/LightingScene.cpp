@@ -24,10 +24,13 @@ namespace raytracerui
     {
         scene.setBackgroundShader(std::make_unique<RGBBackgroundShader>(RGBS::black()));
         scene.setAmbientLight(RGBS(0.005f * LIGHT_SCALE, 0.005f * LIGHT_SCALE, 0.005f * LIGHT_SCALE));
+        // The lights times pi: a white surface facing a light reflects its irradiance / pi (Lambert), the ambient
+        // light (a radiance from all directions) its value
+        const auto lightScale = LIGHT_SCALE * Pi<Float>();
 
         // Light pools on the back wall, warm to cold, each close to the wall with quadratic falloff
         const Float4 poolFalloff{0.f, 0.f, 1.f, 1.f};
-        constexpr auto poolBrightness = 0.012f * LIGHT_SCALE;
+        const auto poolBrightness = 0.012f * lightScale;
         const std::array pools{
             LightInfo::blackbody(1900.f, poolBrightness), LightInfo::illuminantA(poolBrightness),
             LightInfo::blackbody(4000.f, poolBrightness), LightInfo::d65(poolBrightness),
@@ -44,13 +47,13 @@ namespace raytracerui
         // falloff keeps them off the light pools above.
         const Float4 rgbFalloff{0.f, 0.5f, 1.f, 1.f};
         LightInfo red{};
-        red.emittance = RGBS(0.3f * LIGHT_SCALE, 0.f, 0.f);
+        red.emittance = RGBS(0.3f * lightScale, 0.f, 0.f);
         addLight(scene, red, Float4(-0.8f, -0.45f, 0.2f, 1.f), rgbFalloff);
         LightInfo green{};
-        green.emittance = RGBS(0.f, 0.3f * LIGHT_SCALE, 0.f);
+        green.emittance = RGBS(0.f, 0.3f * lightScale, 0.f);
         addLight(scene, green, Float4(0.f, -0.1f, 0.4f, 1.f), rgbFalloff);
         LightInfo blue{};
-        blue.emittance = RGBS(0.f, 0.f, 0.3f * LIGHT_SCALE);
+        blue.emittance = RGBS(0.f, 0.f, 0.3f * lightScale);
         addLight(scene, blue, Float4(0.8f, -0.45f, 0.2f, 1.f), rgbFalloff);
 
         auto& objects = scene.getSceneObjects();
@@ -73,13 +76,13 @@ namespace raytracerui
         // the front it would shade the scene from them.
         addBoxLight(
             scene, "cyan light bar", Float4(-1.f, -0.68f, -0.9f, 1.f), Float3(0.025f, 0.3f, 0.025f),
-            Float3(0.f, 0.f, -15.f), Float4(0.45f, 3.3f, 7.5f, 0.f) * Float4(LIGHT_SCALE)
+            Float3(0.f, 0.f, -15.f), Float4(0.45f, 3.3f, 7.5f, 0.f) * Float4(lightScale)
         );
 
         // An orange sphere light on the floor: its emissive sphere, and soft shadows
         addSphereLight(
             scene, "orange sphere light", Float4(0.95f, -0.88f, 0.2f, 1.f), 0.12f,
-            Float4(3.f, 1.f, 0.12f, 0.f) * Float4(LIGHT_SCALE)
+            Float4(3.f, 1.f, 0.12f, 0.f) * Float4(lightScale)
         );
     }
 }

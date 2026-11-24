@@ -7,7 +7,7 @@ namespace raytracerui {
   using namespace raytracer;
 
   // The seven material channels of a scene object as constants. brdf::applyBRDF combines them per hit:
-  //   emittance + diffusion * (ambient + diffuse light) + GGX highlights (F0 = specular, roughness)
+  //   emittance + diffusion * (ambient radiance + diffuse irradiance / pi) + GGX highlights (F0 = specular, roughness)
   //   + mix(transmitted, reflectance * mirrored ray, Fresnel)
   // - roughness widens the highlights only; the mirrored ray stays sharp.
   // - transmittance is the absorption length per channel (exp(-depth / transmittance)); zero is opaque.
