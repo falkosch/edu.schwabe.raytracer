@@ -46,13 +46,30 @@ constexpr ASizeT SUPER_SAMPLING_FACTOR = 0;
 constexpr ASizeT GLOSSY_SAMPLES = 16;
 constexpr ASizeT SPHERE_LIGHT_SAMPLES = 16;
 
-// against fireflies: the most radiance of one glossy reflection ray (0 for no limit)
+// diffuse interreflection (one bounce): the most rays a diffuse hit gathers the light of other surfaces with, in place
+// of the ambient light; 0 for none
+constexpr ASizeT DIFFUSE_SAMPLES = 16;
+
+// many-light sampling: the most point lights whose shadow rays a diffuse ray's hit traces, picked by their light where
+// a scene has more (0 for all)
+constexpr ASizeT MANY_LIGHT_SAMPLES = 16;
+
+// against fireflies: the most radiance of one glossy reflection ray or diffuse ray (0 for no limit)
 constexpr Float GLOSSY_CLAMP = 4.0f;
 
-// adaptive sampling: the most further rounds of sub-samples a pixel takes while their spread (the standard error of
-// their mean in display values) is above the threshold; 0 rounds is off. It needs 2 x 2 sub-samples (full renders).
+// adaptive sampling: the most further rounds of sub-samples a pixel takes where its neighbours' sub-samples spread (the
+// standard error of their mean in display values above the threshold); 0 rounds is off. It needs 2 x 2 sub-samples
+// (full renders).
 constexpr ASizeT ADAPTIVE_ROUNDS = 3;
-constexpr Float ADAPTIVE_THRESHOLD = 4.0f / 255.0f;
+constexpr Float ADAPTIVE_THRESHOLD = 2.0f / 255.0f;
+
+// denoising, guided by the normals, depths and albedos of the pixels' surfaces: of fast previews (one sample per pixel)
+// and of full renders (Enter), which it would cost glossy detail
+constexpr bool DENOISE = true;
+constexpr bool FULL_RENDER_DENOISE = false;
+
+// irradiance caching: diffuse hits interpolate records of the irradiance instead of tracing diffuse rays
+constexpr bool IRRADIANCE_CACHING = true;
 
 // the least super-sampling factor of a full render (Enter)
 #ifdef NDEBUG
@@ -71,17 +88,22 @@ const Float VISIBILITY_CUTOFF = reciprocal(512.0f);
 constexpr ASizeT RAY_PACKET_SIZE = 15;
 
 // Command-line options: --scene=<id> picks the start scene (ids in tests/SceneCatalog.cpp), --exposure=<stops> scales
-// the displayed image by 2^stops, --max-trace-depth=<n>, --glossy-samples=<n>, --sphere-light-samples=<n> and
-// --super-sampling=<n> replace MAX_TRACE_DEPTH, GLOSSY_SAMPLES, SPHERE_LIGHT_SAMPLES and SUPER_SAMPLING_FACTOR,
+// the displayed image by 2^stops, --max-trace-depth=<n>, --glossy-samples=<n>, --sphere-light-samples=<n>,
+// --diffuse-samples=<n>, --many-light-samples=<n> and --super-sampling=<n> replace MAX_TRACE_DEPTH, GLOSSY_SAMPLES,
+// SPHERE_LIGHT_SAMPLES, DIFFUSE_SAMPLES, MANY_LIGHT_SAMPLES and SUPER_SAMPLING_FACTOR,
 // --full-render renders the first image like Enter does (at least FULL_RENDER_SUPER_SAMPLING_FACTOR), --seed=<n> picks
 // another sample pattern of the distribution ray tracing (0 is the default), --adaptive-rounds=<n> and
-// --adaptive-threshold=<x> replace ADAPTIVE_ROUNDS and ADAPTIVE_THRESHOLD, --exit-after-render closes the window once
-// the first image is saved as ray-traced.png.
+// --adaptive-threshold=<x> replace ADAPTIVE_ROUNDS and ADAPTIVE_THRESHOLD, --denoise=<0|1>,
+// --full-render-denoise=<0|1> and --irradiance-caching=<0|1> replace DENOISE, FULL_RENDER_DENOISE and
+// IRRADIANCE_CACHING, --exit-after-render renders without showing the window and exits once the first image is saved
+// as ray-traced.png.
 constexpr std::string_view SCENE_OPTION = "--scene=";
 constexpr std::string_view EXPOSURE_OPTION = "--exposure=";
 constexpr std::string_view MAX_TRACE_DEPTH_OPTION = "--max-trace-depth=";
 constexpr std::string_view GLOSSY_SAMPLES_OPTION = "--glossy-samples=";
 constexpr std::string_view SPHERE_LIGHT_SAMPLES_OPTION = "--sphere-light-samples=";
+constexpr std::string_view DIFFUSE_SAMPLES_OPTION = "--diffuse-samples=";
+constexpr std::string_view MANY_LIGHT_SAMPLES_OPTION = "--many-light-samples=";
 constexpr std::string_view SEED_OPTION = "--seed=";
 constexpr std::string_view SUPER_SAMPLING_OPTION = "--super-sampling=";
 constexpr std::string_view GLOSSY_CLAMP_OPTION = "--glossy-clamp=";
@@ -89,6 +111,9 @@ constexpr std::string_view REGULARIZE_PATHS_OPTION = "--regularize-paths";
 constexpr std::string_view VISIBILITY_CUTOFF_OPTION = "--visibility-cutoff=";
 constexpr std::string_view ADAPTIVE_ROUNDS_OPTION = "--adaptive-rounds=";
 constexpr std::string_view ADAPTIVE_THRESHOLD_OPTION = "--adaptive-threshold=";
+constexpr std::string_view DENOISE_OPTION = "--denoise=";
+constexpr std::string_view FULL_RENDER_DENOISE_OPTION = "--full-render-denoise=";
+constexpr std::string_view IRRADIANCE_CACHING_OPTION = "--irradiance-caching=";
 constexpr std::string_view FULL_RENDER_OPTION = "--full-render";
 constexpr std::string_view EXIT_AFTER_RENDER_OPTION = "--exit-after-render";
 
@@ -125,7 +150,7 @@ namespace raytracerui
 
     LRESULT runRaytracerUI(
         const ASizeT sceneIndex, const Float exposure, const RaytraceBaseParameters& tracing,
-        const ASizeT superSampling, const bool fullRender, const bool exitAfterRender
+        const ASizeT superSampling, const bool fullRender, const bool fullRenderDenoise, const bool exitAfterRender
     )
     {
         Resources resources{};
@@ -147,11 +172,15 @@ namespace raytracerui
         parameters.maxTraceDepth = tracing.maxTraceDepth;
         parameters.glossySamples = tracing.glossySamples;
         parameters.sphereLightSamples = tracing.sphereLightSamples;
+        parameters.diffuseSamples = tracing.diffuseSamples;
+        parameters.manyLightSamples = tracing.manyLightSamples;
         parameters.seedOffset = tracing.seedOffset;
         parameters.glossyClamp = tracing.glossyClamp;
         parameters.regularizePaths = tracing.regularizePaths;
         parameters.adaptiveRounds = tracing.adaptiveRounds;
         parameters.adaptiveThreshold = tracing.adaptiveThreshold;
+        parameters.denoise = tracing.denoise;
+        parameters.irradianceCaching = tracing.irradianceCaching;
         parameters.sceneShader = &scene;
         parameters.cullingOrientation = CULLING_ORIENTATION;
         parameters.perspectiveZPlanes = PERSPECTIVE_Z_PLANES;
@@ -163,11 +192,13 @@ namespace raytracerui
 
         Raytracer raytracer{};
 
+        // a render that exits shows no window
         auto ui = std::make_unique<
-            OpenGLWindowsRaytracerUI>(raytracer, parameters, FAST_PREVIEW_SIZE, scene, resources);
+            OpenGLWindowsRaytracerUI>(raytracer, parameters, FAST_PREVIEW_SIZE, scene, resources, exitAfterRender);
         ui->setSceneIndex(static_cast<int>(sceneIndex));
         ui->setExposure(exposure);
         ui->setFullRenderSuperSamplingFactor(FULL_RENDER_SUPER_SAMPLING_FACTOR);
+        ui->setFullRenderDenoise(fullRenderDenoise);
         if (fullRender)
         {
             ui->setFullFirstRender();
@@ -213,11 +244,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR commandLine, int)
     tracing.maxTraceDepth = MAX_TRACE_DEPTH;
     tracing.glossySamples = GLOSSY_SAMPLES;
     tracing.sphereLightSamples = SPHERE_LIGHT_SAMPLES;
+    tracing.diffuseSamples = DIFFUSE_SAMPLES;
+    tracing.manyLightSamples = MANY_LIGHT_SAMPLES;
     tracing.glossyClamp = GLOSSY_CLAMP;
     tracing.adaptiveRounds = ADAPTIVE_ROUNDS;
     tracing.adaptiveThreshold = ADAPTIVE_THRESHOLD;
+    tracing.denoise = DENOISE;
+    tracing.irradianceCaching = IRRADIANCE_CACHING;
     auto superSampling = SUPER_SAMPLING_FACTOR;
     auto fullRender = false;
+    auto fullRenderDenoise = FULL_RENDER_DENOISE;
     auto exitAfterRender = false;
     std::istringstream arguments{commandLine};
     for (std::string argument; arguments >> argument;)
@@ -251,6 +287,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR commandLine, int)
         {
             tracing.sphereLightSamples = parseCount(argument, SPHERE_LIGHT_SAMPLES_OPTION);
         }
+        else if (argument.starts_with(DIFFUSE_SAMPLES_OPTION))
+        {
+            tracing.diffuseSamples = parseCount(argument, DIFFUSE_SAMPLES_OPTION);
+        }
+        else if (argument.starts_with(MANY_LIGHT_SAMPLES_OPTION))
+        {
+            tracing.manyLightSamples = parseCount(argument, MANY_LIGHT_SAMPLES_OPTION);
+        }
         else if (argument.starts_with(SEED_OPTION))
         {
             tracing.seedOffset = static_cast<UInt_32>(parseCount(argument, SEED_OPTION));
@@ -268,6 +312,18 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR commandLine, int)
         else if (argument == REGULARIZE_PATHS_OPTION)
         {
             tracing.regularizePaths = true;
+        }
+        else if (argument.starts_with(DENOISE_OPTION))
+        {
+            tracing.denoise = parseCount(argument, DENOISE_OPTION) != Zero<ASizeT>();
+        }
+        else if (argument.starts_with(FULL_RENDER_DENOISE_OPTION))
+        {
+            fullRenderDenoise = parseCount(argument, FULL_RENDER_DENOISE_OPTION) != Zero<ASizeT>();
+        }
+        else if (argument.starts_with(IRRADIANCE_CACHING_OPTION))
+        {
+            tracing.irradianceCaching = parseCount(argument, IRRADIANCE_CACHING_OPTION) != Zero<ASizeT>();
         }
         else if (argument.starts_with(ADAPTIVE_ROUNDS_OPTION))
         {
@@ -302,7 +358,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR commandLine, int)
     }
 
     const auto result = static_cast<int>(
-        raytracerui::runRaytracerUI(sceneIndex, exposure, tracing, superSampling, fullRender, exitAfterRender)
+        raytracerui::runRaytracerUI(
+            sceneIndex, exposure, tracing, superSampling, fullRender, fullRenderDenoise, exitAfterRender
+        )
     );
     logging::Logger::instance().stop();
     return result;

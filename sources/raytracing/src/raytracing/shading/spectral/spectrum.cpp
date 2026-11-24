@@ -59,6 +59,20 @@ namespace raytracer::spectral
         return limit > Zero<Float>() && peak > limit ? s * (limit / peak) : s;
     }
 
+    Spectrum shiftWavelengths(const Spectrum& s, const Float steps) noexcept
+    {
+        alignas(YMM_ALIGNMENT) Float lanes[SPECTRAL_SAMPLES];
+        store(s.data, lanes);
+        // the lanes a step further in the shift's direction
+        const auto ascending = steps >= Zero<Float>();
+        const auto neighbours = ascending
+                                    ? Float8(lanes[1], lanes[2], lanes[3], lanes[4], lanes[5], lanes[6], lanes[7],
+                                             lanes[7])
+                                    : Float8(lanes[0], lanes[0], lanes[1], lanes[2], lanes[3], lanes[4], lanes[5],
+                                             lanes[6]);
+        return Spectrum{multiplyAdd(neighbours - s.data, Float8(ascending ? steps : -steps), s.data)};
+    }
+
     SpectralVector spectralExp(const SpectralVector& v) noexcept
     {
         return exp(v);

@@ -30,6 +30,9 @@ namespace raytracerui
         // the least super-sampling factor of a full render (Enter), against the aliasing of one sample per pixel
         ASizeT fullRenderSuperSamplingFactor{};
 
+        // whether full renders are denoised too (parameters.denoise is the fast previews')
+        bool fullRenderDenoise{};
+
         // the run of the full render that is the first image (setFullFirstRender), 0 without; earlier runs are ignored
         ASizeT firstImageRunId{};
 
@@ -59,6 +62,8 @@ namespace raytracerui
         void setExposure(Float stops);
 
         void setFullRenderSuperSamplingFactor(ASizeT factor);
+
+        void setFullRenderDenoise(bool denoise);
 
         // makes a full render the first image (saved as ray-traced.png), instead of the first fast preview
         void setFullFirstRender();

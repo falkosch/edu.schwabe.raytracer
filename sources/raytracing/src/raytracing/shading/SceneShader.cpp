@@ -122,8 +122,8 @@ namespace raytracer
             containment.incidentRay,
             adaptedVisibilityCutoff(containment.visibilityCutoff, containment.incidentRay.importance),
             containment.roughness, containment.F0,
-            intersection, containment.sphereLightSamples, containment.glossyRays, *containment.shadowCache,
-            *containment.statistics
+            intersection, containment.sphereLightSamples, containment.glossyRays, containment.pointLightSamples,
+            *containment.shadowCache, *containment.statistics
         );
     }
 
@@ -365,28 +365,70 @@ namespace raytracer
         const Raytrace& incidentRay, const Float4& adaptedVisibilityCutoff,
         const Float roughness, const spectral::SpectralVector& F0,
         const SceneIntersection& intersection, const ASizeT sphereLightSamples, const ASizeT glossyRays,
-        PerLightShadowCache::ShadowCacheType& shadowCache, StatisticsCookie& statistics
+        const ASizeT pointLightSamples, PerLightShadowCache::ShadowCacheType& shadowCache, StatisticsCookie& statistics
     ) const
     {
-#ifndef DISABLE_SHADOWING
+        // the picks among the point lights take the incident ray's seed with this value (the Raytracer derives its
+        // secondary rays' seeds from 0 to 0x8fff)
+        constexpr UInt_32 PointLightPicksSeed = 0xc000u;
+
         auto shadowRay = RayCast(
             Ray(intersection.vertex), incidentRay.rayCast.cullingMask,
             Size2(reinterpret_cast<ASizeT>(intersection.object), reinterpret_cast<ASizeT>(intersection.node)),
             Zero<Float>()
         );
-#endif
 
         const auto& spectralContext = *incidentRay.spectralContext;
-        const auto V = -incidentRay.rayCast.ray.direction;
-        const auto N = intersection.smoothedNormal;
-        const auto NoV = max(dot3(N, V), Zero<Float>());
-        const auto hasSpecular = spectral::spectralMax(F0) > Zero<Float>();
+        // area lights with shadow rays of their own sample their light themselves
+        const auto sampledArea = [sphereLightSamples](const LightInfo& light)
+        {
+            return light.isBox() || (light.radius > Zero<Float>() && sphereLightSamples > Zero<ASizeT>());
+        };
+        // a point light's share of the picks: its unshadowed diffuse light
+        const auto pickWeight = [&spectralContext](const PointLightIncidence& incidence, const ASizeT lightIndex)
+        {
+            return x(incidence.attenuatedDiffuseIntensity)
+                * horizontalSum(spectralContext.lightEmittance[lightIndex].data);
+        };
+
+        // With more point lights than pointLightSamples, that many picks among them: systematic sampling of their
+        // weights (picks at the offset and every stride after it along their running sum, one random offset per
+        // intersection). A picked light gets its picks per their expected number as its weight; one whose weight
+        // exceeds the stride is always picked. A stride of 0 takes every light.
+        auto pickStride = Zero<Float>();
+        if (pointLightSamples > Zero<ASizeT>())
+        {
+            auto pointLights = Zero<ASizeT>();
+            auto weightSum = Zero<Float>();
+            for (auto lightIndex = Zero<ASizeT>(); lightIndex < lights.size(); ++lightIndex)
+            {
+                const LightInfo& light = *lights[lightIndex];
+                if (sampledArea(light))
+                {
+                    continue;
+                }
+                ++pointLights;
+                const auto incidence = pointLightIncidence(light, intersection, adaptedVisibilityCutoff);
+                if (incidence.lit)
+                {
+                    weightSum += pickWeight(incidence, lightIndex);
+                }
+            }
+            if (pointLights > pointLightSamples)
+            {
+                pickStride = weightSum / static_cast<Float>(pointLightSamples);
+            }
+        }
+        const auto pickOffset = pickStride > Zero<Float>()
+                                    ? x(sequenceOffset2D(deriveSeed(incidentRay.seed, PointLightPicksSeed)))
+                                    : Zero<Float>();
+        auto runningWeight = Zero<Float>();
+        auto nextPick = Zero<ASizeT>();
 
         auto lighting = LightShading(spectralContext.ambient);
-        for (auto it = lights.cbegin(); it != lights.cend(); ++it)
+        for (auto lightIndex = Zero<ASizeT>(); lightIndex < lights.size(); ++lightIndex)
         {
-            const LightInfo& light = **it;
-            const auto lightIndex = static_cast<ASizeT>(it - lights.cbegin());
+            const LightInfo& light = *lights[lightIndex];
             // the light's center and its attenuation don't describe a box light up close
             if (light.isBox())
             {
@@ -397,7 +439,7 @@ namespace raytracer
                 continue;
             }
             // a sphere light with shadow rays gets its highlight from them; without, from its center
-            if (light.radius > Zero<Float>() && sphereLightSamples > Zero<ASizeT>())
+            if (sampledArea(light))
             {
                 sampleSphereLight(
                     incidentRay, adaptedVisibilityCutoff, roughness, F0, intersection, lightIndex, light,
@@ -406,73 +448,115 @@ namespace raytracer
                 continue;
             }
 
-            const Float4 lightDirection = light.position - intersection.vertex;
-            const Float4 lightDistance = lengthv(lightDirection);
-            const Float4 normalizedLightDirection = lightDirection / lightDistance;
-
-            if (isNegative(dotv(normalizedLightDirection, intersection.surfaceNormal)))
+            const auto incidence = pointLightIncidence(light, intersection, adaptedVisibilityCutoff);
+            if (!incidence.lit)
             {
                 continue;
             }
-
-            const Float4 diffuseIntensity = lambertDiffuseIntensity(normalizedLightDirection,
-                                                                    intersection.smoothedNormal);
-            if (allTrue(diffuseIntensity < adaptedVisibilityCutoff))
+            auto weight = One<Float>();
+            if (pickStride > Zero<Float>())
             {
-                continue;
+                const auto lightWeight = pickWeight(incidence, lightIndex);
+                runningWeight += lightWeight;
+                auto picks = Zero<ASizeT>();
+                while (nextPick < pointLightSamples
+                    && (static_cast<Float>(nextPick) + pickOffset) * pickStride < runningWeight)
+                {
+                    ++picks;
+                    ++nextPick;
+                }
+                if (picks == Zero<ASizeT>())
+                {
+                    continue;
+                }
+                weight = static_cast<Float>(picks) * pickStride / lightWeight;
             }
-
-            const Float4 attenuatedDiffuseIntensity =
-                attenuateDiffuseIntensity(light.attenuationFactors, lightDistance, diffuseIntensity);
-            if (allTrue(attenuatedDiffuseIntensity < adaptedVisibilityCutoff))
-            {
-                continue;
-            }
-
-#ifdef DISABLE_SHADOWING
-            const auto litAreaFraction = One<spectral::SpectralVector>();
-#else
-            shadowRay.ray.setDirection(normalizedLightDirection);
-            shadowRay.maxDistance = x(lightDistance);
-            const auto litAreaFraction = light.radius > Zero<Float>()
-                                             ? computeLitSphereFraction(
-                                                 shadowRay, intersection, lightIndex, light, spectralContext,
-                                                 shadowCache, statistics
-                                             )
-                                             : computeLitAreaFraction(
-                                                 shadowRay, intersection, lightIndex, spectralContext, shadowCache,
-                                                 statistics
-                                             );
-            if (spectral::spectralMax(litAreaFraction) < x(adaptedVisibilityCutoff))
-            {
-                continue;
-            }
-#endif
-
-            const auto intensity = litAreaFraction * Float8(attenuatedDiffuseIntensity);
-            const auto lightContribution = spectralContext.lightEmittance[lightIndex] * intensity;
-
-            lighting.diffuse += lightContribution;
-            // a mirror reflects a sphere light's emissive sphere instead
-            const auto isSphereLight = light.radius > Zero<Float>();
-            if (hasSpecular && (!isSphereLight || roughness > brdf::MirrorRoughness))
-            {
-                const auto H = normalize3(V + normalizedLightDirection);
-                const auto NoL = max(x(diffuseIntensity), Zero<Float>());
-                const auto NoH = max(dot3(N, H), Zero<Float>());
-                const auto VoH = Float8(max(dot3v(V, H), Zero<Float4>()));
-                // a sphere light widens the lobe by its size, the normalization keeps the energy (Karis 2013)
-                const auto alpha = isSphereLight
-                                       ? min(One<Float>(), roughness + light.radius / (Two<Float>() * x(lightDistance)))
-                                       : roughness;
-                const auto normalization = isSphereLight ? sqr(roughness / alpha) : One<Float>();
-                const auto DG = brdf::evaluateGGX_DG(NoV, NoL, NoH, alpha) * normalization;
-                const auto F = brdf::schlickFresnelSpectral(F0, VoH);
-                lighting.specular += lightContribution * (F * DG);
-            }
+            addPointLight(
+                incidentRay, adaptedVisibilityCutoff, roughness, F0, intersection, lightIndex, light, incidence,
+                weight, shadowRay, shadowCache, statistics, lighting
+            );
         }
 
         return lighting;
+    }
+
+    SceneShader::PointLightIncidence SceneShader::pointLightIncidence(
+        const LightInfo& light, const SceneIntersection& intersection, const Float4& adaptedVisibilityCutoff
+    )
+    {
+        auto incidence = PointLightIncidence();
+        const Float4 lightDirection = light.position - intersection.vertex;
+        incidence.distance = lengthv(lightDirection);
+        incidence.direction = lightDirection / incidence.distance;
+        incidence.lit = false;
+        if (isNegative(dotv(incidence.direction, intersection.surfaceNormal)))
+        {
+            return incidence;
+        }
+        incidence.diffuseIntensity = lambertDiffuseIntensity(incidence.direction, intersection.smoothedNormal);
+        if (allTrue(incidence.diffuseIntensity < adaptedVisibilityCutoff))
+        {
+            return incidence;
+        }
+        incidence.attenuatedDiffuseIntensity =
+            attenuateDiffuseIntensity(light.attenuationFactors, incidence.distance, incidence.diffuseIntensity);
+        incidence.lit = !allTrue(incidence.attenuatedDiffuseIntensity < adaptedVisibilityCutoff);
+        return incidence;
+    }
+
+    void SceneShader::addPointLight(
+        const Raytrace& incidentRay, const Float4& adaptedVisibilityCutoff, const Float roughness,
+        const spectral::SpectralVector& F0, const SceneIntersection& intersection, const ASizeT lightIndex,
+        const LightInfo& light, const PointLightIncidence& incidence, const Float weight, RayCast& shadowRay,
+        PerLightShadowCache::ShadowCacheType& shadowCache, StatisticsCookie& statistics, LightShading& lighting
+    ) const
+    {
+        const auto& spectralContext = *incidentRay.spectralContext;
+#ifdef DISABLE_SHADOWING
+        const auto litAreaFraction = One<spectral::SpectralVector>();
+#else
+        shadowRay.ray.setDirection(incidence.direction);
+        shadowRay.maxDistance = x(incidence.distance);
+        const auto litAreaFraction = light.radius > Zero<Float>()
+                                         ? computeLitSphereFraction(
+                                             shadowRay, intersection, lightIndex, light, spectralContext,
+                                             shadowCache, statistics
+                                         )
+                                         : computeLitAreaFraction(
+                                             shadowRay, intersection, lightIndex, spectralContext, shadowCache,
+                                             statistics
+                                         );
+        if (spectral::spectralMax(litAreaFraction) < x(adaptedVisibilityCutoff))
+        {
+            return;
+        }
+#endif
+
+        const auto intensity = litAreaFraction * Float8(incidence.attenuatedDiffuseIntensity * Float4(weight));
+        const auto lightContribution = spectralContext.lightEmittance[lightIndex] * intensity;
+
+        lighting.diffuse += lightContribution;
+        // a mirror reflects a sphere light's emissive sphere instead
+        const auto isSphereLight = light.radius > Zero<Float>();
+        if (spectral::spectralMax(F0) > Zero<Float>() && (!isSphereLight || roughness > brdf::MirrorRoughness))
+        {
+            const auto V = -incidentRay.rayCast.ray.direction;
+            const auto N = intersection.smoothedNormal;
+            const auto NoV = max(dot3(N, V), Zero<Float>());
+            const auto H = normalize3(V + incidence.direction);
+            const auto NoL = max(x(incidence.diffuseIntensity), Zero<Float>());
+            const auto NoH = max(dot3(N, H), Zero<Float>());
+            const auto VoH = Float8(max(dot3v(V, H), Zero<Float4>()));
+            // a sphere light widens the lobe by its size, the normalization keeps the energy (Karis 2013)
+            const auto alpha = isSphereLight
+                                   ? min(One<Float>(),
+                                         roughness + light.radius / (Two<Float>() * x(incidence.distance)))
+                                   : roughness;
+            const auto normalization = isSphereLight ? sqr(roughness / alpha) : One<Float>();
+            const auto DG = brdf::evaluateGGX_DG(NoV, NoL, NoH, alpha) * normalization;
+            const auto F = brdf::schlickFresnelSpectral(F0, VoH);
+            lighting.specular += lightContribution * (F * DG);
+        }
     }
 
     void SceneShader::sampleBoxLight(

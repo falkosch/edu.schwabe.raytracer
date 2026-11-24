@@ -31,13 +31,14 @@ namespace raytracerui
     };
 
     WindowsRaytracerUI::WindowsRaytracerUI(
-        Raytracer& raytracerIn, const RaytraceParameters& parametersIn, const Size2& fastPreviewSizeIn
+        Raytracer& raytracerIn, const RaytraceParameters& parametersIn, const Size2& fastPreviewSizeIn,
+        const bool hidden
     )
         : RaytracerUI(raytracerIn, parametersIn, fastPreviewSizeIn), previousMousePosition(),
           activeDrag(DragTypes::None),
           hWnd()
     {
-        InitWindow();
+        InitWindow(hidden);
     }
 
     WindowsRaytracerUI::~WindowsRaytracerUI()
@@ -60,7 +61,7 @@ namespace raytracerui
         RegisterClassEx(&windowClass);
     }
 
-    void WindowsRaytracerUI::InitWindow()
+    void WindowsRaytracerUI::InitWindow(const bool hidden)
     {
         const auto windowSize = Size2(16, 39) + fastPreviewSize;
         InitWindowClass();
@@ -69,6 +70,11 @@ namespace raytracerui
             CW_USEDEFAULT, static_cast<int>(x(windowSize)), static_cast<int>(y(windowSize)), nullptr, nullptr,
             windowClass.hInstance, this);
         createUIs.insert({this->hWnd, this});
+        if (hidden)
+        {
+            delegateReshape();
+            return;
+        }
         ShowWindow(this->hWnd, SW_SHOWDEFAULT);
     }
 

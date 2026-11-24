@@ -1,8 +1,13 @@
 project(raytracing LANGUAGES CXX VERSION 1.0.0)
 
 set(SOURCES
+        src/raytracing/AdaptiveRounds.cpp
+        src/raytracing/ATrousDenoiser.cpp
         src/raytracing/BRDFParameters.cpp
         src/raytracing/IlluminatedIntersection.cpp
+        src/raytracing/IrradianceCache.cpp
+        src/raytracing/IrradianceRecord.cpp
+        src/raytracing/PixelFeatures.cpp
         src/raytracing/RaytraceConfiguration.cpp
         src/raytracing/RaytraceObserver.cpp
         src/raytracing/RaytraceOutput.cpp
@@ -75,6 +80,7 @@ set(SOURCES
         src/raytracing/shading/brdf/apply_brdf.cpp
         src/raytracing/shading/brdf/fresnel_reflectance.cpp
         src/raytracing/shading/brdf/ggx.cpp
+        src/raytracing/shading/brdf/sample_lambert.cpp
         src/raytracing/shading/color/primaries.cpp
         src/raytracing/shading/color/view_transform.cpp
         src/raytracing/shading/power_heuristic.cpp
@@ -97,8 +103,13 @@ set(SOURCES
 
 set(HEADERS
         include/raytracing.h
+        include/raytracing/AdaptiveRounds.h
+        include/raytracing/ATrousDenoiser.h
         include/raytracing/BRDFParameters.h
         include/raytracing/IlluminatedIntersection.h
+        include/raytracing/IrradianceCache.h
+        include/raytracing/IrradianceRecord.h
+        include/raytracing/PixelFeatures.h
         include/raytracing/RaytraceConfiguration.h
         include/raytracing/RaytraceObserver.h
         include/raytracing/RaytraceOutput.h
@@ -187,6 +198,7 @@ set(HEADERS
         include/raytracing/shading/brdf/apply_brdf.h
         include/raytracing/shading/brdf/fresnel_reflectance.h
         include/raytracing/shading/brdf/ggx.h
+        include/raytracing/shading/brdf/sample_lambert.h
         include/raytracing/shading/color/primaries.h
         include/raytracing/shading/color/view_transform.h
         include/raytracing/shading/spectral/blackbody.h

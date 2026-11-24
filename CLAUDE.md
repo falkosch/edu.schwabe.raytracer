@@ -88,7 +88,9 @@ Core engine. Rendering pipeline: hero-wavelength spectral sampling (Wilkie 2014)
 reflections by VNDF importance sampling (Heitz 2018), rough refraction (Walter et al. 2007), spectral Schlick-Fresnel
 reflectance, Beer-Lambert absorption, point, sphere and box lights (soft shadows; box lights by their exact form
 factor; their highlights on rough surfaces by multiple importance sampling of shadow and glossy rays), shadows through
-transmissive objects, adaptive sampling of noisy pixels. View transform:
+transmissive objects, one bounce of diffuse interreflection (cosine-weighted rays in place of the ambient light, or
+interpolated from an irradiance cache), many-light sampling at the hits of diffuse rays, adaptive sampling of noisy
+pixels, an edge-avoiding a-trous denoiser guided by normals, depths and albedos. View transform:
 spectrum -> XYZ -> sRGB-linear -> AgX (display-encoded, no extra sRGB encoding).
 
 - **Scene**: Scene, SceneObject, Camera, Resources (OFF mesh loading, HDR/PPM textures)
@@ -107,8 +109,8 @@ spectrum -> XYZ -> sRGB-linear -> AgX (display-encoded, no extra sRGB encoding).
 
 Win32+OpenGL+ImGui application. Predefined scenes (dropdown, or `--scene=<id>`): CornellBox (default), TestScene1/2,
 Dragon, Procedural, and the test scenes Forms, Lighting, Shading, Materials & Noise, Meshes and the Showcase.
-`--exit-after-render` closes the window once the first image is saved as `ray-traced.png`; `--full-render`,
-`--exposure=<stops>` and `--max-trace-depth=<n>` are listed in `sources/raytracerui/CLAUDE.md`.
+`--exit-after-render` renders without showing a window and exits once the image is saved as `ray-traced.png`;
+`--full-render`, `--exposure=<stops>` and `--max-trace-depth=<n>` are listed in `sources/raytracerui/CLAUDE.md`.
 Runtime-configurable: KD-tree balancer, trace depth, super-sampling, ray packet size, FOV, interaction mode
 (Camera/Object/Light), display mode (image/timing/depth). ImGui panels toggled via F1-F4.
 
@@ -161,27 +163,31 @@ Normal logs right after start:
 [0.000] - INFO Main : Working directory: D:\edu.schwabe.raytracer\data
 [0.000] - INFO Main : Scene: Cornell Box
 [0.002] - INFO Mesh : Loaded 36961 bytes from file meshes/teapot.off
-[0.017] - INFO KDTree : Built KD-tree for 1452 nodes in 34705353 cycles
+[0.017] - INFO KDTree : Built KD-tree for 1452 nodes in 35635679 cycles
 [0.017] - INFO Mesh : loaded meshes/teapot.off: 726 vertices, 1452 faces
 [0.017] - INFO Scene : Building culling tree for scene with 10 finite scene objects
-[0.017] - INFO KDTree : Built KD-tree for 10 nodes in 2252 cycles
+[0.017] - INFO KDTree : Built KD-tree for 10 nodes in 1919 cycles
 [0.017] - INFO Scene : Tree depth=1 nodes=1
 [0.017] - INFO Scene : done
-[0.040] - INFO UI : Resizing output to 512x512
-[0.043] - INFO Raytracer : Raytrace 1 (512x512):
-[0.197] - INFO Raytracer : Duration: 0.154557s
-[0.256] - INFO UI : primaryRays 262144/0
-[0.256] - INFO UI : secondaryRays 255329/93971
-[0.256] - INFO UI : shadowRays 3026473/3013033
-[0.256] - INFO UI : objectShadowRays 3289210/2866562
-[0.256] - INFO UI : kdTree nodesVisited=4276637 rootOverlapMisses=3412190
-[0.258] - INFO UI : Saving ray-traced image ...
-[0.269] - INFO UI : ray-traced.png saved: 1
+[0.023] - INFO UI : Resizing output to 512x512
+[0.025] - INFO Raytracer : Raytrace 1 (512x512):
+[0.272] - INFO Raytracer : Irradiance cache: 9551 records
+[0.658] - INFO Raytracer : Duration: 0.633449s
+[0.659] - INFO UI : primaryRays 262144/0
+[0.659] - INFO UI : secondaryRays 4432072/850771
+[0.659] - INFO UI : shadowRays 5545950/5380361
+[0.659] - INFO UI : objectShadowRays 6295260/5519924
+[0.659] - INFO UI : kdTree nodesVisited=15369990 rootOverlapMisses=9368413
+[0.660] - INFO UI : Saving ray-traced image ...
+[0.680] - INFO UI : ray-traced.png saved: 1
 ```
 
-The ray counters are deterministic for a build (glossy reflections and area lights sample by integer hashes of the
-pixel and sub-sample); timings vary. The rough mirror sphere's glossy reflections make up most of the secondary
-rays, the ceiling's box light (up to 16 shadow rays per hit) most of the shadow rays.
+The ray counters and the number of irradiance records are deterministic for a build (glossy reflections, diffuse rays
+and area lights sample by integer hashes of the pixel and sub-sample; the records come level by level); timings vary.
+The diffuse rays (256 per irradiance record, up to 16 per hit where the records don't cover it fully, one bounce) make
+up most of the secondary rays, the ceiling's box light (up to 16 shadow rays per hit, fewer at the hits of diffuse
+rays) most of the shadow rays. The duration includes the records (until the `Irradiance cache` line) and the preview's
+denoising.
 
 Baseline numbers incorporate: CMake Unity compilation, LTCG, FMA3 intrinsics, BruteForceSAH default balancer,
 sweep-based SAH partitioning, RGBS color type, precompiled headers.
@@ -195,16 +201,20 @@ cd data
 ../build-release/sources/raytracerui/raytracerui.exe --scene=<id> --exit-after-render
 ```
 
-- The app renders the scene once at the fast-preview size (512x512 in release), saves `data/ray-traced.png`, logs
-  the ray counters and exits. Read the PNG to judge it; compare `data/raytracer.log` with a baseline.
+- The app renders the scene once at the fast-preview size (512x512 in release) without showing its window, saves
+  `data/ray-traced.png`, logs the ray counters and exits. Read the PNG to judge it; compare `data/raytracer.log` with
+  a baseline.
 - `--full-render` renders that image like Enter does (3x3 samples per pixel in release, up to 3 further rounds where
-  they spread): use it to judge aliasing, glossy reflections and soft shadows. `--exposure=<stops>` brightens or
-  darkens the image, `--max-trace-depth=<n>` traces secondary rays also in debug builds (`MAX_TRACE_DEPTH` is 0 there).
-  `--glossy-samples=0 --sphere-light-samples=0` turns the distribution ray tracing off (Whitted: mirror reflections,
-  hard shadows), which also makes renders much faster.
-- Noise: render the same image with `--seed=0` and `--seed=1` (other sample patterns) and compare them; a full render
-  with `--super-sampling=7` serves as a reference. `.backlog/DONE/rendering-distribution-noise.md` has the method
-  and the measurements.
+  they spread, not denoised; the fast preview is): use it to judge aliasing, glossy reflections and soft shadows.
+  `--exposure=<stops>` brightens or darkens the image, `--max-trace-depth=<n>` traces secondary rays also in debug
+  builds (`MAX_TRACE_DEPTH` is 0 there).
+  `--glossy-samples=0 --sphere-light-samples=0 --diffuse-samples=0` turns the distribution ray tracing off (Whitted:
+  mirror reflections, hard shadows, no interreflection: the scenes' ambient light, its stand-in, is 0), which also
+  makes renders much faster.
+- Noise: render the same image with `--seed=0` and `--seed=1` (other sample patterns) and compare them, previews with
+  `--denoise=0` to see their noise; a full render with `--super-sampling=7 --glossy-clamp=0 --adaptive-rounds=0
+  --irradiance-caching=0` serves as a reference. `.backlog/DONE/rendering-distribution-noise.md` has the method and
+  the measurements.
 - Scene ids are listed in `sources/raytracerui/src/tests/SceneCatalog.cpp` (`cornell-box`, `forms`, `lighting`,
   `shading`, `materials`, `meshes`, `showcase`, ...). The test scenes cover forms, lights, shaders, materials and
   meshes, so pick the one the change touches; `cornell-box` is the regression baseline.

@@ -1,6 +1,10 @@
 #include "raytracing/Raytracer.h"
 #include "../stdafx.h"
 
+#include "raytracing/ATrousDenoiser.h"
+#include "raytracing/AdaptiveRounds.h"
+#include "raytracing/IrradianceCache.h"
+#include "raytracing/PixelFeatures.h"
 #include "raytracing/RaytracerPackets.h"
 #include "raytracing/SubSampleSpread.h"
 
@@ -11,6 +15,7 @@
 #include "raytracing/shading/brdf/apply_brdf.h"
 #include "raytracing/shading/brdf/fresnel_reflectance.h"
 #include "raytracing/shading/brdf/ggx.h"
+#include "raytracing/shading/brdf/sample_lambert.h"
 #include "raytracing/shading/power_heuristic.h"
 #include "raytracing/shading/sampling.h"
 #include "raytracing/shading/spectral/conversion.h"
@@ -31,13 +36,37 @@ namespace raytracer
     namespace
     {
         // Seeds of the secondary rays: the transmitted one and the sample-th reflected one (traceGlossyReflection
-        // derives the same seeds 8 at a time with deriveSeeds), and the rough transmission's from this value on
+        // derives the same seeds 8 at a time with deriveSeeds), the diffuse rays' and the rough transmission's from
+        // these values on
         constexpr UInt_32 TransmissionSeed = 0u;
+        constexpr UInt_32 DiffuseSeeds = 0x4000u;
         constexpr UInt_32 RoughTransmissionSeeds = 0x8000u;
 
-        // The sample sequence of a rough transmission, derived from the strata seed (the area lights take 0x1000 and
-        // the following values, one per light)
+        // The sample sequences of a rough transmission and of the diffuse rays, derived from the strata seed (the area
+        // lights take 0x1000 and the following values, one per light)
         constexpr UInt_32 TransmissionSequenceSeed = 0x2000u;
+        constexpr UInt_32 DiffuseSequenceSeed = 0x3000u;
+
+        // The hash of an irradiance record's pixel that picks its spectral context
+        constexpr UInt_32 RecordContextSeed = 0x5000u;
+
+        // Irradiance caching: Ward's accuracy a, the coverage from which the records alone give a hit's irradiance (a
+        // single record within 2/3 of its validity radius; less blends them with the hit's own rays), the grids of the
+        // records' levels (in pixels, coarse to fine), the span of a record's validity radius a R (in pixels at its
+        // distance: from MinRecordPixels to twice its level's grid, the cap) and its rays per diffuseSamples
+        constexpr Float IrradianceAccuracy = 0.1f;
+        constexpr Float FullCoverage = 0.5f;
+        constexpr int CoarsestRecordGrid = 32;
+        constexpr int FinestRecordGrid = 4;
+        constexpr Float MinRecordPixels = 1.5f;
+        constexpr ASizeT RecordRaysPerDiffuseSample = 16;
+        constexpr ASizeT MinRecordRays = 256;
+
+        // A record's rays are limited to this many times their mean radiance (twice: the mean of the limited rays
+        // again): a rare bright path one of them catches (a light's highlight or caustic through a mirror or glass,
+        // unclamped with glossyClamp 0) would otherwise spread over the record's area as a blotch. Paths that at
+        // least 1 in 16 of the rays take stay whole.
+        constexpr Float RecordOutlierFactor = 16.0f;
 
         UInt_32 reflectionSeed(const UInt_32 seed, const ASizeT sample)
         {
@@ -63,6 +92,16 @@ namespace raytracer
             const auto maxSamples = static_cast<Float>(glossySamples);
             return static_cast<ASizeT>(
                 clamp(vectorization::ceil(maxSamples * reflectionVisibilityIndex * lobeWidth), One<Float>(), maxSamples)
+            );
+        }
+
+        // The number of diffuse rays of a hit: up to diffuseSamples, fewer the less its diffuse reflection adds to the
+        // pixel
+        ASizeT diffuseReflectionSamples(const ASizeT diffuseSamples, const Float diffuseVisibilityIndex)
+        {
+            const auto maxSamples = static_cast<Float>(diffuseSamples);
+            return static_cast<ASizeT>(
+                clamp(vectorization::ceil(maxSamples * diffuseVisibilityIndex), One<Float>(), maxSamples)
             );
         }
 
@@ -286,29 +325,53 @@ namespace raytracer
 
     using SpectralContexts = std::vector<SpectralContext, AlignedAllocator<SpectralContext>>;
 
-    // Every ray of a path keeps the hero wavelength of its primary ray, which depends only on the pixel sub-sample.
-    // So a frame needs one SpectralContext per sub-sample, shared by all pixels, and per round of adaptive sampling:
-    // round 0 at the centers of the sub-samples' strata of the visible range, the further rounds shifted within them
-    // (by the golden ratio's fraction from round to round).
+    // The hero wavelengths a sub-sample takes, one per pixel in turn: with fewer sub-samples than a context has
+    // wavelengths (spectral::SPECTRAL_SAMPLES), so many that a pixel's neighbourhood takes them all, where the image is
+    // denoised (the denoiser averages them; elsewhere their dither would show on saturated colours); otherwise one
+    ASizeT contextsPerSubSample(const Size2::ValueType subSamplesCount, const bool denoised)
+    {
+        assert(subSamplesCount >= spectral::SPECTRAL_SAMPLES || spectral::SPECTRAL_SAMPLES % subSamplesCount == 0);
+        return denoised && subSamplesCount < spectral::SPECTRAL_SAMPLES ? spectral::SPECTRAL_SAMPLES / subSamplesCount
+                                                                        : One<ASizeT>();
+    }
+
+    // The pixel's one of a sub-sample's contexts, by Roberts' R2 sequence over the pixels (a dither: every 5 x 5
+    // pixels, the denoiser's first pass, take all 8, every 3 x 3 at least 6). A lattice such as (x + 3 y) mod 8 takes
+    // all 8 in every 3 x 3 pixels, but shows as diagonal stripes before denoising.
+    ASizeT pixelContext(const Size2& pixel, const ASizeT contexts)
+    {
+        constexpr Float R2X = 0.7548776662f;
+        constexpr Float R2Y = 0.5698402910f;
+        const auto position = fract(R2X * static_cast<Float>(x(pixel)) + R2Y * static_cast<Float>(y(pixel)));
+        return min(static_cast<ASizeT>(position * static_cast<Float>(contexts)), contexts - One<ASizeT>());
+    }
+
+    // Every ray of a path keeps the hero wavelength of its primary ray, which depends on the pixel sub-sample and,
+    // with perSubSample contexts per sub-sample, on the pixel (pixelContext). So a frame needs one SpectralContext per
+    // sub-sample and pixel context, shared by all pixels, and per round of adaptive sampling: round 0 at the centers
+    // of the strata, the further rounds shifted within them (by the golden ratio's fraction from round to round). The
+    // strata divide one wavelength step (DELTA_LAMBDA): a context's 8 wavelengths lie a step apart, so that strata of
+    // the whole visible range would give 1, 2, 4 or 8 sub-samples the same 8 wavelengths, and strata of the
+    // sub-samples alone would give every pixel the same 8 or 32 (a fixed quadrature that shifts saturated colours).
+    // Context round * subSamplesCount * perSubSample + s * perSubSample + c is the sub-sample s's context c.
     SpectralContexts createSpectralContexts(
-        const SceneShader& sceneShader, const Size2::ValueType subSamplesCount, const ASizeT rounds
+        const SceneShader& sceneShader, const Size2::ValueType subSamplesCount, const ASizeT perSubSample,
+        const ASizeT rounds
     )
     {
         constexpr Float GoldenRatioFraction = 0.6180339887f;
+        const auto strata = subSamplesCount * perSubSample;
         auto contexts = SpectralContexts();
-        contexts.reserve(subSamplesCount * (rounds + One<ASizeT>()));
+        contexts.reserve(strata * (rounds + One<ASizeT>()));
         for (auto round = Zero<ASizeT>(); round <= rounds; ++round)
         {
             const auto shift = round == Zero<ASizeT>()
                                    ? Half<Float>()
                                    : fract(Half<Float>() + GoldenRatioFraction * static_cast<Float>(round));
-            for (auto s = Zero<Size2::ValueType>(); s < subSamplesCount; ++s)
+            for (auto stratum = Zero<ASizeT>(); stratum < strata; ++stratum)
             {
-                const auto heroLambda = spectral::wrapToVisible(
-                    spectral::LAMBDA_MIN
-                    + (static_cast<Float>(s) + shift)
-                    / static_cast<Float>(subSamplesCount) * spectral::LAMBDA_RANGE
-                );
+                const auto heroLambda = spectral::LAMBDA_MIN
+                    + (static_cast<Float>(stratum) + shift) / static_cast<Float>(strata) * spectral::DELTA_LAMBDA;
                 contexts.push_back(sceneShader.createSpectralContext(heroLambda));
             }
         }
@@ -317,7 +380,7 @@ namespace raytracer
 
     PackedRaytrace::ListType constructPackedRaytracesList(
         const int packetIndex, const RaytracerPackets& packets, const RaytraceConfiguration& configuration,
-        const SpectralContexts& spectralContexts
+        const SpectralContexts& spectralContexts, const ASizeT perSubSample
     )
     {
         const auto nearPlanePixel = packets.packetStartOf(packetIndex);
@@ -339,6 +402,7 @@ namespace raytracer
             const auto farTL = packets.pixelFarTopLeft(cpXYf);
             const auto imageIndex = RaytracerPackets::imageIndexOfPixel(cpXY, configuration.image->getResolution());
             const auto outputPixel = &configuration.image->getData()[imageIndex];
+            const auto context = pixelContext(cpXY, perSubSample);
 
             // generate super sampling rays
             for (auto s = Zero<Size2::ValueType>(); s < subSamplesCount; ++s)
@@ -350,7 +414,7 @@ namespace raytracer
                     configuration.maxDistance
                 );
                 auto newRaytrace = Raytrace(
-                    newRayCast, nullptr, Zero<ASizeT>(), One<Float>(), &spectralContexts[s],
+                    newRayCast, nullptr, Zero<ASizeT>(), One<Float>(), &spectralContexts[s * perSubSample + context],
                     primarySeed(imageIndex, s, configuration.seedOffset)
                 );
                 // the sub-samples of a pixel continue one sample sequence, the one of its first sub-sample
@@ -372,19 +436,144 @@ namespace raytracer
     {
         const auto packets = RaytracerPackets(running);
         const auto subSamplesCount = packets.pixelSubSamplesCount();
+        const auto& sceneResolution = running.image->getResolution();
         // adaptive sampling judges a pixel by the spread of its sub-samples, which needs a few of them, against the
         // noise of the distribution ray tracing: Whitted ray tracing doesn't sample adaptively
         constexpr Size2::ValueType AdaptiveSubSamples = 4;
-        const auto distributed =
-            running.glossySamples > Zero<ASizeT>() || running.sphereLightSamples > Zero<ASizeT>();
+        const auto distributed = running.glossySamples > Zero<ASizeT>()
+            || running.sphereLightSamples > Zero<ASizeT>() || running.diffuseSamples > Zero<ASizeT>();
         const auto adaptiveRounds =
             subSamplesCount >= AdaptiveSubSamples && distributed ? running.adaptiveRounds : Zero<ASizeT>();
-        const auto spectralContexts = createSpectralContexts(*running.sceneShader, subSamplesCount, adaptiveRounds);
+        // Whitted ray tracing doesn't sample: nothing to denoise
+        const auto denoising = running.denoise && distributed;
+        const auto perSubSample = contextsPerSubSample(subSamplesCount, denoising);
+        const auto spectralContexts =
+            createSpectralContexts(*running.sceneShader, subSamplesCount, perSubSample, adaptiveRounds);
 
-        // Adaptive sampling: further rounds of a pixel's sub-samples while the spread of all its sub-samples so far is
-        // above the threshold, each round on the grid shifted within the sub-samples' cells (Roberts' R2 sequence) and
-        // at its own hero wavelengths. Its sub-samples continue the pixel's sample sequence (Raytrace::stratum).
-        const auto refinePixel = [&](Float4* const outputPixel, SubSampleSpread spread, RaytracerCache& cache)
+        // Irradiance caching: the records of each sub-sample of the first round (a set of its contexts), on grids from
+        // coarse to fine, at the pixels where the coarser grids' records don't cover the hit yet. A level's rays see
+        // only the records of the coarser levels, so that the records don't depend on the threads' order. A record
+        // takes one of its sub-sample's contexts by a hash of its pixel (the pixels' turns would give a grid's pixels
+        // the same few), so that its neighbours have the irradiance at other wavelengths.
+        auto irradianceCache = std::unique_ptr<IrradianceCache>();
+        if (running.irradianceCaching && running.diffuseSamples > Zero<ASizeT>())
+        {
+            irradianceCache = std::make_unique<IrradianceCache>(
+                spectralContexts.data(), subSamplesCount * perSubSample, perSubSample, IrradianceAccuracy
+            );
+            const auto width = static_cast<int>(x(sceneResolution));
+            const auto height = static_cast<int>(y(sceneResolution));
+            const auto cullingMask = cullingOrientationToMask(running.cullingOrientation);
+            // the angle between neighbouring pixels' rays at the image's center, for the radii in pixels
+            const auto centerXYf = convert<Float4>(Size2(x(sceneResolution) / 2, y(sceneResolution) / 2));
+            const auto rightXYf = centerXYf + Float4(One<Float>(), Zero<Float>(), Zero<Float>(), Zero<Float>());
+            const auto rightRay = packets.setupRayOfSampleInPixel(
+                0, packets.pixelNearTopLeft(rightXYf), packets.pixelFarTopLeft(rightXYf)
+            );
+            const auto centerRay = packets.setupRayOfSampleInPixel(
+                0, packets.pixelNearTopLeft(centerXYf), packets.pixelFarTopLeft(centerXYf)
+            );
+            const auto pixelAngle = length3(rightRay.direction - centerRay.direction);
+            const auto sets = static_cast<ASizeT>(subSamplesCount);
+            for (auto grid = CoarsestRecordGrid; grid >= FinestRecordGrid; grid /= 2)
+            {
+                auto pixels = std::vector<Size2>();
+                for (auto py = 0; py < height; py += grid)
+                {
+                    for (auto px = 0; px < width; px += grid)
+                    {
+                        if (grid == CoarsestRecordGrid || px % (2 * grid) != 0 || py % (2 * grid) != 0)
+                        {
+                            pixels.emplace_back(static_cast<ASizeT>(px), static_cast<ASizeT>(py));
+                        }
+                    }
+                }
+                auto slots =
+                    std::vector<IrradianceRecord, AlignedAllocator<IrradianceRecord>>(pixels.size() * sets);
+                auto origins = std::vector<Float4, AlignedAllocator<Float4>>(slots.size());
+#pragma omp parallel
+                {
+                    auto cache = RaytracerCache(running);
+                    cache.irradianceCache = irradianceCache.get();
+                    StatisticsCookie::current = &cache.statistics;
+#pragma omp for schedule(static, 16)
+                    for (int i = 0; i < static_cast<int>(slots.size()); ++i)
+                    {
+                        const auto slot = static_cast<ASizeT>(i);
+                        const auto s = slot % sets;
+                        const auto& pixel = pixels[slot / sets];
+                        const auto imageIndex = RaytracerPackets::imageIndexOfPixel(pixel, sceneResolution);
+                        const auto context = s * perSubSample
+                            + deriveSeed(static_cast<UInt_32>(imageIndex), RecordContextSeed) % perSubSample;
+                        const auto pixelXYf = convert<Float4>(pixel);
+                        const auto ray = packets.setupRayOfSampleInPixel(
+                            static_cast<Size2::ValueType>(s), packets.pixelNearTopLeft(pixelXYf),
+                            packets.pixelFarTopLeft(pixelXYf)
+                        );
+                        auto raytrace = Raytrace(
+                            RayCast(ray, cullingMask, Zero<Size2>(), running.maxDistance), nullptr, Zero<ASizeT>(),
+                            One<Float>(), &spectralContexts[context], primarySeed(imageIndex, s, running.seedOffset)
+                        );
+                        raytrace.strataSeed = primarySeed(imageIndex, Zero<ASizeT>(), running.seedOffset);
+                        raytrace.stratum = static_cast<UInt_32>(s);
+                        cache.recording = &slots[slot];
+                        trace(raytrace, cache);
+                        cache.recording = nullptr;
+                        origins[slot] = ray.origin;
+                    }
+#pragma omp critical
+                    {
+                        running.statistics.merge(cache.statistics);
+                    }
+                    StatisticsCookie::current = nullptr;
+                }
+
+                // the validity radii from MinRecordPixels to twice the grid, in pixels at the record's distance: the
+                // radius from MinRecordPixels on, the grid's cap apart (it bounds the record's validity, but not its
+                // neighbours': they would shrink to the cap plus their distance, after the finer levels' candidates
+                // took them as covering)
+                auto levelRecords = std::vector<std::vector<IrradianceRecord>>(sets);
+                for (auto slot = Zero<ASizeT>(); slot < slots.size(); ++slot)
+                {
+                    auto record = slots[slot];
+                    if (!(record.radius > Zero<Float>()))
+                    {
+                        continue;
+                    }
+                    const auto pixelSize = length3(record.position - origins[slot]) * pixelAngle / IrradianceAccuracy;
+                    record.radius = max(record.radius, MinRecordPixels * pixelSize);
+                    record.maxRadius = static_cast<Float>(2 * grid) * pixelSize;
+                    levelRecords[slot % sets].push_back(record);
+                }
+                irradianceCache->addLevel(levelRecords);
+            }
+            Log.info([records = irradianceCache->size()]
+            {
+                return "Irradiance cache: " + std::to_string(records) + " records";
+            });
+        }
+
+        // Adaptive sampling: every pixel takes its first round of sub-samples, then the further rounds its neighbours'
+        // spread asks for (AdaptiveRounds), each round on the grid shifted within the sub-samples' cells (Roberts' R2
+        // sequence) and at its own hero wavelengths. Its sub-samples continue the pixel's sample sequence
+        // (Raytrace::stratum).
+        auto adaptive =
+            AdaptiveRounds(adaptiveRounds > Zero<ASizeT>() ? running.image->getResolution() : Zero<Size2>());
+
+        // the denoiser's guides per pixel, summed over the hits of its first round's sub-samples: normal (x, y, z) and
+        // depth (w), albedo (x, y, z) and the number of hits (w); and with several sub-samples, the moments of their
+        // compressed luminance for the variance of the pixel's mean (count, sum, sum of squares), every round's
+        const auto guidesResolution = denoising ? running.image->getResolution() : Zero<Size2>();
+        auto guides = HDRImage(guidesResolution);
+        auto albedos = HDRImage(guidesResolution);
+        const auto subSampleMoments = denoising && subSamplesCount > One<Size2::ValueType>();
+        auto moments = HDRImage(subSampleMoments ? guidesResolution : Zero<Size2>());
+        const auto addMoments = [&moments](const ASizeT imageIndex, const Float4& rgb)
+        {
+            const auto l = ATrousDenoiser::compressedLuminance(rgb);
+            moments[imageIndex] += Float4(One<Float>(), l, l * l, Zero<Float>());
+        };
+        const auto refinePixel = [&](Float4* const outputPixel, const ASizeT rounds, RaytracerCache& cache)
         {
             const auto& configuration = cache.configuration;
             const auto imageIndex = static_cast<ASizeT>(outputPixel - configuration.image->getData());
@@ -394,27 +583,27 @@ namespace raytracer
             const auto farTL = packets.pixelFarTopLeft(pixelXYf);
             const auto cullingMask = cullingOrientationToMask(configuration.cullingOrientation);
             const auto strataSeed = primarySeed(imageIndex, Zero<ASizeT>(), configuration.seedOffset);
+            const auto context = pixelContext(Size2(imageIndex % width, imageIndex / width), perSubSample);
 
-            auto rounds = Zero<ASizeT>();
             auto sum = Zero<Float4>();
-            while (rounds < adaptiveRounds && spread.error() > configuration.adaptiveThreshold)
+            for (auto round = One<ASizeT>(); round <= rounds; ++round)
             {
-                ++rounds;
                 const auto shift =
-                    sequencePoint2D(Zero<Float4>(), rounds) - Float4(Half<Float>(), Half<Float>(), Zero<Float>(),
-                                                                     Zero<Float>());
+                    sequencePoint2D(Zero<Float4>(), round) - Float4(Half<Float>(), Half<Float>(), Zero<Float>(),
+                                                                    Zero<Float>());
                 const auto shiftedNearTL =
                     nearTL + packets.ssNearRightDir * x(shift) + packets.ssNearBottomDir * y(shift);
                 const auto shiftedFarTL = farTL + packets.ssFarRightDir * x(shift) + packets.ssFarBottomDir * y(shift);
                 for (auto s = Zero<Size2::ValueType>(); s < subSamplesCount; ++s)
                 {
-                    const auto subSample = rounds * subSamplesCount + s;
+                    const auto subSample = round * subSamplesCount + s;
                     const auto rayCast = RayCast(
                         packets.setupRayOfSampleInPixel(s, shiftedNearTL, shiftedFarTL), cullingMask, Zero<Size2>(),
                         configuration.maxDistance
                     );
                     auto raytrace = Raytrace(
-                        rayCast, nullptr, Zero<ASizeT>(), One<Float>(), &spectralContexts[subSample],
+                        rayCast, nullptr, Zero<ASizeT>(), One<Float>(),
+                        &spectralContexts[subSample * perSubSample + context],
                         primarySeed(imageIndex, subSample, configuration.seedOffset)
                     );
                     raytrace.strataSeed = strataSeed;
@@ -426,30 +615,31 @@ namespace raytracer
                     const auto xyz = spectral::spectrumToXYZ(hit.color, raytrace.spectralContext->xyz);
                     const auto displayRGB = spectral::xyzToDisplayRGB(xyz);
                     sum += displayRGB.value;
-                    spread.add(displayRGB.value);
+                    if (subSampleMoments)
+                    {
+                        addMoments(imageIndex, displayRGB.value);
+                    }
                 }
             }
-            if (rounds > Zero<ASizeT>())
-            {
-                // the pixel holds the mean of the first round
-                const auto mean =
-                    (Float4(outputPixel) + sum * packets.ssAvg) / Float4(static_cast<Float>(rounds + One<ASizeT>()));
-                store(mean, outputPixel);
-            }
+            // the pixel holds the mean of the first round
+            const auto mean =
+                (Float4(outputPixel) + sum * packets.ssAvg) / Float4(static_cast<Float>(rounds + One<ASizeT>()));
+            store(mean, outputPixel);
         };
 
 #pragma omp parallel
         {
             // per worker states
             auto cache = RaytracerCache(running);
+            cache.irradianceCache = irradianceCache.get();
             StatisticsCookie::current = &cache.statistics;
 
-            // iterate over packets
-#pragma omp for schedule(static, 1) nowait
+            // iterate over packets; with adaptive sampling, every pixel's first round before any further one
+#pragma omp for schedule(static, 1)
             for (int p = Zero<int>(); p < packets.getPacketCount(); ++p)
             {
                 const auto packedRaytraces = constructPackedRaytracesList(
-                    p, packets, cache.configuration, spectralContexts
+                    p, packets, cache.configuration, spectralContexts, perSubSample
                 );
                 cache.statistics.primaryRays += packedRaytraces.size();
 
@@ -461,7 +651,13 @@ namespace raytracer
                     // Timing for each pixel: Read start-time
                     const auto start = perPixelTiming();
 
-                    const auto hit = trace(packedRaytrace.raytrace, cache);
+                    auto features = PixelFeatures();
+                    auto raytrace = packedRaytrace.raytrace;
+                    if (denoising)
+                    {
+                        raytrace.features = &features;
+                    }
+                    const auto hit = trace(raytrace, cache);
                     cache.statistics.missedPrimaryRays +=
                         static_cast<ASizeT>(outOfReach(packedRaytrace.raytrace.rayCast, x(hit.depth)));
 
@@ -481,19 +677,63 @@ namespace raytracer
                     // Store timings
                     store(perPixelTiming(start), cache.configuration.timingMap->getData() + imagePtrIndex);
 
+                    if (subSampleMoments)
+                    {
+                        addMoments(static_cast<ASizeT>(imagePtrIndex), displayRGB.value);
+                    }
+                    if (denoising && features.depth > Zero<Float>())
+                    {
+                        guides[static_cast<ASizeT>(imagePtrIndex)] += blend<false, false, false, true>(
+                            features.normal, Float4(features.depth)
+                        );
+                        albedos[static_cast<ASizeT>(imagePtrIndex)] += blend<false, false, false, true>(
+                            features.albedo, One<Float4>()
+                        );
+                    }
+
                     if (adaptiveRounds > Zero<ASizeT>())
                     {
                         spread.add(displayRGB.value);
                         if ((i + One<ASizeT>()) % subSamplesCount == Zero<ASizeT>())
                         {
-                            refinePixel(packedRaytrace.outputPixel, spread, cache);
-                            // the timing of the last sub-sample with the further rounds
-                            store(perPixelTiming(start), cache.configuration.timingMap->getData() + imagePtrIndex);
+                            adaptive.setFirstRoundError(static_cast<ASizeT>(imagePtrIndex), spread.error());
                             spread = SubSampleSpread();
                         }
                     }
                 }
             } // p
+
+            // the further rounds, where the pixels' neighbours spread
+            if (adaptiveRounds > Zero<ASizeT>())
+            {
+                const auto& configuration = cache.configuration;
+#pragma omp for schedule(dynamic, 1) nowait
+                for (int p = Zero<int>(); p < packets.getPacketCount(); ++p)
+                {
+                    const auto packetStart = packets.packetStartOf(p);
+                    const auto packetLength = packets.clampPacketLength(configuration.resolution, packetStart);
+                    const auto pixelsCount = RaytracerPackets::packetPixelsCount(packetLength);
+                    for (auto cp = Zero<Size2::ValueType>(); cp < pixelsCount; ++cp)
+                    {
+                        const auto pixel = RaytracerPackets::coordsOfPixel(cp, packetStart, packetLength);
+                        const auto rounds = adaptive.roundsOf(pixel, adaptiveRounds, configuration.adaptiveThreshold);
+                        if (rounds == Zero<ASizeT>())
+                        {
+                            continue;
+                        }
+                        const auto imageIndex =
+                            RaytracerPackets::imageIndexOfPixel(pixel, configuration.image->getResolution());
+                        const auto start = perPixelTiming();
+                        refinePixel(&configuration.image->getData()[imageIndex], rounds, cache);
+
+                        // the timing of the pixel's last sub-sample and of its further rounds (log(ticks + 1) each)
+                        const auto timing = configuration.timingMap->getData() + imageIndex;
+                        const auto ticks =
+                            vectorization::exp(Float4(timing)) + vectorization::exp(perPixelTiming(start));
+                        store(vectorization::log(ticks - One<Float4>()), timing);
+                    }
+                }
+            }
 
 #pragma omp critical
             {
@@ -501,6 +741,26 @@ namespace raytracer
                 running.statistics.merge(cache.statistics);
             }
             StatisticsCookie::current = nullptr;
+        }
+
+        if (denoising)
+        {
+            // the guides' means over the hits; pixels without any keep depth 0
+            const auto count = static_cast<int>(x(guidesResolution) * y(guidesResolution));
+#pragma omp parallel for
+            for (int i = 0; i < count; ++i)
+            {
+                const auto index = static_cast<ASizeT>(i);
+                const auto hits = wwww(albedos[index]);
+                if (!(x(hits) > Zero<Float>()))
+                {
+                    continue;
+                }
+                const auto depth = w(guides[index]) / x(hits);
+                guides[index] = blend<false, false, false, true>(normalize3(zeroW(guides[index])), Float4(depth));
+                albedos[index] = zeroW(albedos[index] / hits);
+            }
+            ATrousDenoiser(guides, albedos).denoise(*running.image, subSampleMoments ? &moments : nullptr);
         }
 
         running.state = (running.runId == runId.load());
@@ -595,23 +855,63 @@ namespace raytracer
                                     : Zero<ASizeT>();
         const auto adapted_visibility_cutoff = SceneShader::adaptedVisibilityCutoff(
             cache.configuration.visibilityCutoff, raytrace.importance);
+        // many lights are sampled where a diffuse ray's hit adds to the irradiance of the hit it came from
+        const auto pointLightSamples =
+            raytrace.diffuseBounce ? cache.configuration.manyLightSamples : Zero<ASizeT>();
         brdf.lighting = cache.configuration.sceneShader->sampleLighting(
             raytrace, adapted_visibility_cutoff, x(brdf.surface.roughness), brdf.surface.specular.data,
-            brdf.intersection, cache.configuration.sphereLightSamples, glossyRays, cache.shadowCache,
-            cache.statistics
+            brdf.intersection, cache.configuration.sphereLightSamples, glossyRays, pointLightSamples,
+            cache.shadowCache, cache.statistics
         );
 
         cache.statistics.shadingTicks += __rdtsc() - shadingStart;
 
-        traceReflection(raytrace, maxDistance, microfacetEta, cache, brdf);
-        traceTransmission(raytrace, maxDistance, leavingMaterial, transmittedDirection, microfacetEta, cache, brdf);
+        // the denoiser's guides: this hit's, unless a smooth mirror or glass passes them on to the hit whose image it
+        // shows (glass: the refracted one)
+        auto* reflectedFeatures = static_cast<PixelFeatures*>(nullptr);
+        auto* transmittedFeatures = static_cast<PixelFeatures*>(nullptr);
+        if (raytrace.features)
+        {
+            auto& features = *raytrace.features;
+            const auto facesViewer = brdf.intersection.smoothedNdotI < Zero<Float4>();
+            features.normal =
+                zeroW(select(facesViewer, brdf.intersection.smoothedNormal, -brdf.intersection.smoothedNormal));
+            // the diffusion's RGB, the same at every hero wavelength (the pixels' wavelengths vary in previews)
+            features.albedo = zeroW(objectShader.sampleDiffusion(brdf.intersection));
+            features.depth += brdf.viewDistance;
+            if (!(spectral::spectralMax(brdf.surface.diffusion) > Zero<Float>()))
+            {
+                const auto transmissive =
+                    spectral::spectralMax(brdf.surface.transmittance) > Zero<Float>() && !totalInternalReflection;
+                if (transmissive && !microfacetEta)
+                {
+                    transmittedFeatures = raytrace.features;
+                }
+                else if (!transmissive && !(x(brdf.surface.roughness) > brdf::MirrorRoughness))
+                {
+                    reflectedFeatures = raytrace.features;
+                }
+            }
+        }
+
+        traceDiffuseReflection(raytrace, maxDistance, cache, brdf);
+        // the primary ray of an irradiance record needs nothing else
+        if (cache.recording && raytrace.traceDepth == Zero<ASizeT>())
+        {
+            return {brdf.viewDistance, spectral::Spectrum::zero()};
+        }
+        traceReflection(raytrace, maxDistance, microfacetEta, reflectedFeatures, cache, brdf);
+        traceTransmission(
+            raytrace, maxDistance, leavingMaterial, transmittedDirection, microfacetEta, transmittedFeatures, cache,
+            brdf
+        );
 
         return {brdf.viewDistance, brdf::applyBRDF(brdf)};
     }
 
     void Raytracer::traceReflection(
         const Raytrace& incidentRaytrace, const Float maxDistance, const Float4* const microfacetEta,
-        RaytracerCache& cache, BRDFParameters& brdf
+        PixelFeatures* const features, RaytracerCache& cache, BRDFParameters& brdf
     )
     {
         // would still be visible but tracing is not wanted any more
@@ -658,6 +958,8 @@ namespace raytracer
         // a rough surface gets area lights by its highlight, also without glossy samples; a regularized path stays
         // glossy after a glossy reflection
         reflectedRaytrace.glossy = rough || (cache.configuration.regularizePaths && incidentRaytrace.glossy);
+        reflectedRaytrace.diffuseBounce = incidentRaytrace.diffuseBounce;
+        reflectedRaytrace.features = features;
         const auto reflectedHit = trace(reflectedRaytrace, cache);
 
         brdf.lighting.reflected = reflectedHit.color;
@@ -733,6 +1035,7 @@ namespace raytracer
             // each ray estimates the whole reflection: the cutoffs see the reflection's importance, not its share
             reflectedRaytrace.importance = reflectionImportance;
             reflectedRaytrace.glossy = true;
+            reflectedRaytrace.diffuseBounce = incidentRaytrace.diffuseBounce;
             reflectedRaytrace.weighsEmitters = weighsEmitters;
             const auto reflectedHit = trace(reflectedRaytrace, cache);
 
@@ -768,10 +1071,171 @@ namespace raytracer
         }
     }
 
+    // Gathers the light of other surfaces at a diffuse hit (one bounce of interreflection): up to diffuseSamples rays
+    // in directions of Lambert's distribution around the shading normal (cos(theta) / pi, brdf::sampleLambert), fewer
+    // the less the diffuse reflection adds to the pixel. Pi times their mean radiance is the irradiance they bring,
+    // which adds to the lights' (applyBRDF reflects diffusion / pi of it). A direction below the surface counts as
+    // black, an area light's emissive object too (its light is the shadow rays'); a ray that leaves the scene brings
+    // the background. The rays replace the ambient light, the stand-in for the light they gather; their hits trace no
+    // diffuse rays and keep it, as the stand-in for the further bounces (Ward's ambient value).
+    void Raytracer::traceDiffuseReflection(
+        const Raytrace& incidentRaytrace, const Float maxDistance, RaytracerCache& cache, BRDFParameters& brdf
+    )
+    {
+        const auto& configuration = cache.configuration;
+        const auto diffuseWeight = spectral::spectralMax(brdf.surface.diffusion);
+        const auto diffuseImportance = incidentRaytrace.importance * diffuseWeight;
+        if (configuration.diffuseSamples == Zero<ASizeT>() || incidentRaytrace.diffuseBounce
+            || incidentRaytrace.traceDepth >= configuration.maxTraceDepth || maxDistance <= Zero<Float>()
+            || !(diffuseWeight > Zero<Float>()) || diffuseImportance < configuration.visibilityCutoff)
+        {
+            return;
+        }
+
+        const auto& intersection = brdf.intersection;
+        // the normals on the side the ray comes from (smoothedNdotI is the same in every lane)
+        const auto facesViewer = intersection.smoothedNdotI < Zero<Float4>();
+        const auto N = select(facesViewer, intersection.smoothedNormal, -intersection.smoothedNormal);
+        const auto geometricNormal = select(facesViewer, intersection.surfaceNormal, -intersection.surfaceNormal);
+
+        // irradiance caching: the records valid here instead of the rays, where they cover the hit fully; where they
+        // cover it partly, blended with the rays by their coverage, so that no seam shows between the two. The
+        // primary ray of a record records one where the records don't cover the hit fully yet.
+        const auto recording = cache.recording && incidentRaytrace.traceDepth == Zero<ASizeT>();
+        auto interpolated = spectral::Spectrum::zero();
+        auto coverage = Zero<Float>();
+        auto context = Zero<ASizeT>();
+        if (const auto* const irradianceCache = cache.irradianceCache)
+        {
+            context = irradianceCache->contextIndex(incidentRaytrace.spectralContext);
+            if (context < irradianceCache->getContextCount())
+            {
+                coverage = min(
+                    One<Float>(),
+                    irradianceCache->interpolate(context, intersection.vertex, N, interpolated) / FullCoverage
+                );
+            }
+            if (!(coverage < One<Float>()))
+            {
+                if (!recording)
+                {
+                    brdf.lighting.diffuse += interpolated;
+                    brdf.lighting.ambient = spectral::Spectrum::zero();
+                }
+                return;
+            }
+        }
+
+        const auto diffuseVisibilityIndex = incidentRaytrace.visibilityIndex * diffuseWeight;
+        const auto samples = recording
+                                 ? max(MinRecordRays, configuration.diffuseSamples * RecordRaysPerDiffuseSample)
+                                 : diffuseReflectionSamples(configuration.diffuseSamples, diffuseVisibilityIndex);
+        const auto sampleVisibilityIndex = diffuseVisibilityIndex / static_cast<Float>(samples);
+        const auto sequenceOffset = sequenceOffset2D(deriveSeed(incidentRaytrace.strataSeed, DiffuseSequenceSeed));
+        alignas(YMM_ALIGNMENT) UInt_32 diffuseSeeds[UInt8_32::SIZE];
+
+        auto gathered = spectral::Spectrum::zero();
+        // the reciprocal distances of the rays' hits, for a record's harmonic mean distance (rays that leave the scene
+        // don't count: through a seam, they would make the record look far from everything)
+        auto reciprocalDistances = Zero<Float>();
+        auto hits = Zero<Float>();
+        // a record's rays, for the limit of its outliers
+        auto recordRays = std::vector<spectral::Spectrum, AlignedAllocator<spectral::Spectrum>>();
+        if (recording)
+        {
+            recordRays.reserve(samples);
+        }
+        for (auto sample = Zero<ASizeT>(); sample < samples; ++sample)
+        {
+            const auto lane = sample % UInt8_32::SIZE;
+            if (lane == Zero<ASizeT>())
+            {
+                store(deriveSeeds(incidentRaytrace.seed, DiffuseSeeds + static_cast<UInt_32>(sample)), diffuseSeeds);
+            }
+            const auto xi =
+                sequencePoint2D(sequenceOffset, stratifiedIndex(incidentRaytrace.stratum, samples, sample));
+            const auto direction = brdf::sampleLambert(N, xi);
+            if (dot3(geometricNormal, direction) <= Zero<Float>())
+            {
+                continue;
+            }
+
+            const auto diffuseRayCast = RayCast(
+                Ray(intersection.vertex, direction), incidentRaytrace.rayCast.cullingMask,
+                Size2(reinterpret_cast<ASizeT>(intersection.object), reinterpret_cast<ASizeT>(intersection.node)),
+                maxDistance
+            );
+            auto diffuseRaytrace = Raytrace(
+                diffuseRayCast, &intersection, incidentRaytrace.traceDepth + One<ASizeT>(), sampleVisibilityIndex,
+                incidentRaytrace.spectralContext, diffuseSeeds[lane]
+            );
+            // each ray estimates the whole irradiance: the cutoffs see the diffuse reflection's importance
+            diffuseRaytrace.importance = diffuseImportance;
+            diffuseRaytrace.glossy = true;
+            diffuseRaytrace.diffuseBounce = true;
+            const auto diffuseHit = trace(diffuseRaytrace, cache);
+
+            cache.statistics.secondaryRays += One<ASizeT>();
+            const auto missed = outOfReach(diffuseRaytrace.rayCast, x(diffuseHit.depth));
+            cache.statistics.missedSecondaryRays += static_cast<ASizeT>(missed);
+            if (!missed)
+            {
+                reciprocalDistances += reciprocal(max(x(diffuseHit.depth), std::numeric_limits<Float>::min()));
+                hits += One<Float>();
+            }
+
+            // the firefly clamp of the glossy rays: a ray that finds a light through a mirror or glass stays bounded
+            const auto ray = spectral::limitPeak(diffuseHit.color, configuration.glossyClamp);
+            gathered += ray;
+            if (recording)
+            {
+                recordRays.push_back(ray);
+            }
+        }
+        const auto traced = gathered * (Pi<Float>() / static_cast<Float>(samples));
+        if (recording)
+        {
+            // rays that all leave the scene: the largest radius the clamp allows
+            auto limit = Zero<Float>();
+            for (auto pass = 0; pass < 2; ++pass)
+            {
+                auto peaks = Zero<Float>();
+                for (const auto& ray : recordRays)
+                {
+                    const auto peak = spectral::spectralMax(ray);
+                    peaks += limit > Zero<Float>() ? min(peak, limit) : peak;
+                }
+                limit = RecordOutlierFactor * peaks / static_cast<Float>(samples);
+            }
+            auto limited = spectral::Spectrum::zero();
+            if (limit > Zero<Float>())
+            {
+                for (const auto& ray : recordRays)
+                {
+                    limited += spectral::limitPeak(ray, limit);
+                }
+            }
+            auto& record = *cache.recording;
+            record.position = intersection.vertex;
+            record.normal = N;
+            record.irradiance = limited * (Pi<Float>() / static_cast<Float>(samples));
+            record.radius = hits > Zero<Float>() ? hits / reciprocalDistances : std::numeric_limits<Float>::max();
+            record.context = context;
+        }
+        const auto irradiance = recording || !(coverage > Zero<Float>())
+                                    ? traced
+                                    : spectral::Spectrum{
+                                        interpolated.data * spectral::SpectralVector(coverage)
+                                        + traced.data * spectral::SpectralVector(One<Float>() - coverage)
+                                    };
+        brdf.lighting.diffuse += irradiance;
+        brdf.lighting.ambient = spectral::Spectrum::zero();
+    }
+
     void Raytracer::traceTransmission(
         const Raytrace& incidentRaytrace, const Float maxDistance, const bool leavingMaterial,
-        const Float4& transmittedDirection, const Float4* const microfacetEta, RaytracerCache& cache,
-        BRDFParameters& brdf
+        const Float4& transmittedDirection, const Float4* const microfacetEta, PixelFeatures* const features,
+        RaytracerCache& cache, BRDFParameters& brdf
     )
     {
         // would still be visible, but tracing is not wanted any more, set transmitted to the background
@@ -831,6 +1295,8 @@ namespace raytracer
         );
         refractedRaytrace.importance = transmissionImportance;
         refractedRaytrace.glossy = cache.configuration.regularizePaths && incidentRaytrace.glossy;
+        refractedRaytrace.diffuseBounce = incidentRaytrace.diffuseBounce;
+        refractedRaytrace.features = features;
 
         const auto refractedHit = trace(refractedRaytrace, cache);
         brdf.lighting.transmitted = refractedHit.color;
@@ -908,6 +1374,7 @@ namespace raytracer
             // each ray estimates the whole transmission
             refractedRaytrace.importance = transmissionImportance;
             refractedRaytrace.glossy = cache.configuration.regularizePaths && incidentRaytrace.glossy;
+            refractedRaytrace.diffuseBounce = incidentRaytrace.diffuseBounce;
             const auto refractedHit = trace(refractedRaytrace, cache);
 
             const auto absorption = leavingMaterial

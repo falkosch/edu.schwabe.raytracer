@@ -66,9 +66,10 @@ namespace raytracerui
         void renderUI();
 
     public:
+        // A hidden window shows nothing (--exit-after-render)
         OpenGLWindowsRaytracerUI(
             Raytracer& raytracer, const RaytraceParameters& parameters, const Size2& fastPreviewSize,
-            Scene& scene, Resources& resources
+            Scene& scene, Resources& resources, bool hidden
         );
 
         ~OpenGLWindowsRaytracerUI() override;

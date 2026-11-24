@@ -44,7 +44,8 @@ namespace raytracerui
 
         void updateMovement();
 
-        void InitWindow();
+        // Creates the window and shows it, or with hidden starts the first render as its WM_SIZE would
+        void InitWindow(bool hidden);
 
         static void InitWindowClass();
 
@@ -72,11 +73,14 @@ namespace raytracerui
         virtual LRESULT forwardInputMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
     public:
-        WindowsRaytracerUI(Raytracer& raytracer, const RaytraceParameters& parameters, const Size2& fastPreviewSize);
+        // A hidden window shows nothing (--exit-after-render: a render for a script)
+        WindowsRaytracerUI(
+            Raytracer& raytracer, const RaytraceParameters& parameters, const Size2& fastPreviewSize, bool hidden
+        );
 
         ~WindowsRaytracerUI() override;
 
-        // Closes the window once the first image is rendered and saved (--exit-after-render).
+        // Closes the (hidden) window once the first image is rendered and saved (--exit-after-render).
         void setExitAfterFirstImage(bool value);
 
         WPARAM run() override;

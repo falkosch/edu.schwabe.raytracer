@@ -9,6 +9,7 @@ namespace raytracer
     using namespace vectorization;
     using namespace primitives;
 
+    struct PixelFeatures;
     struct SpectralContext;
 
     /**
@@ -42,13 +43,21 @@ namespace raytracer
         UInt_32 strataSeed;
         UInt_32 stratum;
 
-        // A glossy reflection ray: the emissive objects of area lights don't show in it
+        // A glossy reflection or diffuse ray: the emissive objects of area lights don't show in it
         // (ObjectShader::isLightEmitter)
         bool glossy;
+
+        // The path bounced off a diffuse surface already (a diffuse ray, or a ray further along its path): its hits
+        // trace no diffuse rays of their own (one bounce of interreflection) and keep the ambient light
+        bool diffuseBounce;
 
         // A glossy ray whose reflection weighs the area lights it finds against their shadow rays (multiple importance
         // sampling): an emitter it hits returns its light (IlluminatedIntersection::emitterLight)
         bool weighsEmitters;
+
+        // Where a primary ray's path leaves the denoiser's guides (RaytraceBaseParameters::denoise): its hit, or the
+        // hit a smooth mirror or glass reflects or refracts; nullptr for other rays
+        PixelFeatures* features;
 
         Raytrace();
 

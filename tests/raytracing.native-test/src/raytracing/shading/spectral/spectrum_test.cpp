@@ -115,6 +115,21 @@ namespace raytracer::test
             Assert::AreEqual(1.5f, x8(limitPeak(dim, 1.5f).data), L"at the limit", LINE_INFO());
         }
 
+        TEST_METHOD(shiftWavelengthsInterpolatesBetweenNeighbouringLanes)
+        {
+            const Spectrum ramp{Float8(0.0f, 1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 8.0f)};
+
+            const auto up = shiftWavelengths(ramp, 0.25f);
+            Assert::AreEqual(0.25f, x1(up.data), 1e-6f, L"up: lane 0", LINE_INFO());
+            Assert::AreEqual(6.5f, x7(up.data), 1e-6f, L"up: lane 6", LINE_INFO());
+            Assert::AreEqual(8.0f, x8(up.data), 1e-6f, L"up: the last lane holds", LINE_INFO());
+            const auto down = shiftWavelengths(ramp, -0.5f);
+            Assert::AreEqual(0.0f, x1(down.data), 1e-6f, L"down: the first lane holds", LINE_INFO());
+            Assert::AreEqual(1.5f, x3(down.data), 1e-6f, L"down: lane 2", LINE_INFO());
+            Assert::AreEqual(7.0f, x8(down.data), 1e-6f, L"down: lane 7", LINE_INFO());
+            Assert::AreEqual(3.0f, x4(shiftWavelengths(ramp, 0.0f).data), L"no shift", LINE_INFO());
+        }
+
         TEST_METHOD(monochromaticHitsHeroBin)
         {
             const auto s = monochromatic(500.0f, 500.0f, 1.0f);

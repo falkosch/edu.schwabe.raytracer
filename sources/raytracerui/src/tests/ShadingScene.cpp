@@ -14,7 +14,7 @@ namespace raytracerui
 {
     namespace
     {
-        // Scales every light of the scene: the ambient light, the lights and their emitters
+        // Scales every light of the scene: the lights and their emitters
         constexpr auto LIGHT_SCALE = 0.85f;
 
         using MaterialShader = ObjectShader::MaterialShader;
@@ -43,9 +43,8 @@ namespace raytracerui
         scene.setBackgroundShader(std::make_unique<EnvironmentShader>(
             *resources.getPPM("env_eso_bright_night_at_paranal"), EnvironmentProjection::AllSkyFisheye, 0.43f
         ));
-        scene.setAmbientLight(RGBS(0.01f * LIGHT_SCALE, 0.01f * LIGHT_SCALE, 0.01f * LIGHT_SCALE));
-        // The lights times pi: a white surface facing a light reflects its irradiance / pi (Lambert), the ambient
-        // light (a radiance from all directions) its value
+        scene.setAmbientLight(RGBS::black());
+        // The lights times pi: a white surface facing a light reflects its irradiance / pi (Lambert)
         const auto lightScale = LIGHT_SCALE * Pi<Float>();
 
         // Key: a point light from the upper left with quadratic falloff (0.81 at the middle of the scene, 5.7 away):

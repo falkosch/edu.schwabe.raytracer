@@ -66,6 +66,10 @@ namespace raytracer
         Float4 sampleTransmittance(const FacetIntersection& intersection) const;
         Float4 sampleRefractionEta(const FacetIntersection& intersection) const;
 
+        // The diffusion's RGB at the intersection, before shade() takes it to a context's wavelengths: the denoiser's
+        // albedo guide, the same for every hero wavelength
+        Float4 sampleDiffusion(const FacetIntersection& intersection) const;
+
     protected:
         MFloat4x4 textureMatrix;
 

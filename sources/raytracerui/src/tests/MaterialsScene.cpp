@@ -65,7 +65,7 @@ namespace raytracerui
     void MaterialsScene::setup(Scene& scene, Resources& resources)
     {
         scene.setBackgroundShader(std::make_unique<RGBBackgroundShader>(RGBS(0.02f, 0.02f, 0.025f)));
-        scene.setAmbientLight(RGBS(0.02f, 0.02f, 0.02f));
+        scene.setAmbientLight(RGBS::black());
 
         // Light values times pi: a white surface facing a light reflects its irradiance / pi (Lambert)
         auto key = std::make_unique<LightInfo>(LightInfo::blackbody(5500.f, 0.55f * Pi<Float>()));

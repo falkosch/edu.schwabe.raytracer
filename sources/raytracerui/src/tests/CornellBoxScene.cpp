@@ -272,9 +272,9 @@ namespace raytracerui
             Float3(0.0f, 0.0f, 0.0f), warmWhite * Float4(3.0f * Pi<Float>()), LightInfo::faceBit(1, false)
         );
 
-        // The interreflection of the reference isn't traced: an ambient light in the light's colour stands in for it.
-        // It lifts the shadows and the ceiling evenly, without colour bleeding.
-        scene.setAmbientLight(RGBS(warmWhite * Float4(0.03f)));
+        // No ambient light, as in every scene until the object explorer sets it per scene: without diffuse rays, the
+        // ceiling and the shadows stay black
+        scene.setAmbientLight(RGBS::black());
 
         scene.getSceneObjects().push_back(ceiling());
         scene.getSceneObjects().push_back(floor());

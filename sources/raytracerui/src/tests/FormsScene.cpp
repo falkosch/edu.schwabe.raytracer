@@ -20,7 +20,7 @@ namespace raytracerui
     void FormsScene::setup(Scene& scene, Resources& resources)
     {
         scene.setBackgroundShader(std::make_unique<RGBBackgroundShader>(RGBS(0.02f, 0.025f, 0.035f)));
-        scene.setAmbientLight(RGBS(0.03f, 0.03f, 0.03f));
+        scene.setAmbientLight(RGBS::black());
 
         // Light values times pi: a white surface facing a light reflects its irradiance / pi (Lambert)
         // Neutral key light from the upper left, without falloff

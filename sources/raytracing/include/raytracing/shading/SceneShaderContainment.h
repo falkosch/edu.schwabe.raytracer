@@ -21,6 +21,8 @@ namespace raytracer
         ASizeT sphereLightSamples;
         // the glossy reflection rays of the intersection, against which area lights weigh their highlights (0: none)
         ASizeT glossyRays;
+        // the most point lights whose shadow rays the intersection traces (0: all)
+        ASizeT pointLightSamples;
         PerLightShadowCache::ShadowCacheType* shadowCache;
         StatisticsCookie* statistics;
 

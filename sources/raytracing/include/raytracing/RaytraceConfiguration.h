@@ -22,11 +22,15 @@ namespace raytracer {
       this->cullingOrientation = parameters.cullingOrientation;
       this->glossySamples = parameters.glossySamples;
       this->sphereLightSamples = parameters.sphereLightSamples;
+      this->diffuseSamples = parameters.diffuseSamples;
+      this->manyLightSamples = parameters.manyLightSamples;
       this->seedOffset = parameters.seedOffset;
       this->glossyClamp = parameters.glossyClamp;
       this->regularizePaths = parameters.regularizePaths;
       this->adaptiveRounds = parameters.adaptiveRounds;
       this->adaptiveThreshold = parameters.adaptiveThreshold;
+      this->denoise = parameters.denoise;
+      this->irradianceCaching = parameters.irradianceCaching;
 
       this->resolution = parameters.resolution;
       this->perspectiveZPlanes = parameters.perspectiveZPlanes;

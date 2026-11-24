@@ -64,15 +64,22 @@ namespace raytracer
             BRDFParameters& brdf
         );
 
+        // One bounce of diffuse interreflection: adds the irradiance that up to diffuseSamples cosine-weighted rays
+        // gather to the hit's diffuse lighting, in place of the ambient light
+        static void traceDiffuseReflection(
+            const Raytrace& incidentRaytrace, Float maxDistance, RaytracerCache& cache, BRDFParameters& brdf
+        );
+
+        // features: the denoiser's guides, which the mirror reflection or refraction passes on (nullptr for none)
         static void traceReflection(
-            const Raytrace& incidentRaytrace, Float maxDistance, const Float4* microfacetEta, RaytracerCache& cache,
-            BRDFParameters& brdf
+            const Raytrace& incidentRaytrace, Float maxDistance, const Float4* microfacetEta, PixelFeatures* features,
+            RaytracerCache& cache, BRDFParameters& brdf
         );
 
         static void traceTransmission(
             const Raytrace& incidentRaytrace, Float maxDistance, bool leavingMaterial,
-            const Float4& transmittedDirection, const Float4* microfacetEta, RaytracerCache& cache,
-            BRDFParameters& brdf
+            const Float4& transmittedDirection, const Float4* microfacetEta, PixelFeatures* features,
+            RaytracerCache& cache, BRDFParameters& brdf
         );
 
         static void traceRoughTransmission(

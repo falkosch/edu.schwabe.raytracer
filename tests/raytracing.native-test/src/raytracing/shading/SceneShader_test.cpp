@@ -66,8 +66,8 @@ namespace raytracer::test {
       StatisticsCookie statistics{};
 
       const auto lighting = scene.sampleLighting(
-          incident, Float4(1e-6f), 0.5f, Zero<spectral::SpectralVector>(), floor, sphereLightSamples, 0, shadowCache,
-          statistics
+          incident, Float4(1e-6f), 0.5f, Zero<spectral::SpectralVector>(), floor, sphereLightSamples, 0, 0,
+          shadowCache, statistics
       );
       return horizontalSum(lighting.diffuse.data) / 8.0f;
     }
@@ -187,8 +187,8 @@ namespace raytracer::test {
       StatisticsCookie statistics{};
 
       const auto lighting = scene.sampleLighting(
-          incident, Float4(1e-6f), roughness, spectral::SpectralVector(F0), floor, samples, glossyRays, shadowCache,
-          statistics
+          incident, Float4(1e-6f), roughness, spectral::SpectralVector(F0), floor, samples, glossyRays, 0,
+          shadowCache, statistics
       );
       const auto white = horizontalSum(context.fromRGB(Float4(1.0f, 1.0f, 1.0f, 0.0f)).data);
       return {horizontalSum(lighting.diffuse.data) / white, horizontalSum(lighting.specular.data) / white};
@@ -660,6 +660,70 @@ namespace raytracer::test {
       }
       irradiance *= maxAngle / Steps * 2.0 * Pi<double>() / Steps;
       Assert::AreEqual(irradiance, static_cast<double>(lit), 1e-3 * irradiance, L"exact irradiance", LINE_INFO());
+    }
+
+    // The lighting of floorPoint under a grid of 5 x 5 point lights of different colours and heights above it, with up
+    // to pointLightSamples picks among them (0: every light), for each of the seeds of the incident ray. Returns the
+    // diffuse and the specular lighting averaged over the seeds and the wavelengths.
+    static std::pair<Float, Float> manyLightsLighting(const ASizeT pointLightSamples, const UInt_32 seeds) {
+      Scene scene{};
+      auto aside = std::make_unique<SceneObject>("sphere aside");
+      aside->setForm(std::make_unique<Sphere>());
+      aside->translate(Float3(9.0f, 0.0f, 0.0f));
+      scene.getSceneObjects().push_back(std::move(aside));
+      scene.buildSceneGraph();
+      for (auto i = 0; i < 25; ++i) {
+        auto light = std::make_unique<LightInfo>();
+        const auto column = static_cast<Float>(i % 5 - 2);
+        const auto row = static_cast<Float>(i / 5 - 2);
+        light->position = Float4(column, 1.0f + 0.1f * static_cast<Float>(i), row, 1.0f);
+        light->emittance = RGBS(0.2f + 0.04f * static_cast<Float>(i), 0.5f, 1.2f - 0.04f * static_cast<Float>(i));
+        light->attenuationFactors = Float4(1.0f, 0.0f, 1.0f, 0.0f);
+        scene.getLights().push_back(std::move(light));
+      }
+
+      const auto context = scene.createSpectralContext(spectral::LAMBDA_MIN + 0.5f * spectral::LAMBDA_RANGE);
+      const auto floor = floorPoint();
+      PerLightShadowCache::ShadowCacheType shadowCache(25);
+      StatisticsCookie statistics{};
+      auto diffuse = 0.0f;
+      auto specular = 0.0f;
+      for (auto seed = 0u; seed < seeds; ++seed) {
+        const Raytrace incident{
+            RayCast{Ray{Float4(0.0f, 0.0f, -2.0f, 1.0f), normalize3(Float4(0.0f, -1.0f, 2.0f, 0.0f))},
+                    Zero<Float4::VectorBoolType>(), Size2(0, 0), 100.0f},
+            nullptr, 1, 1.0f, &context, seed
+        };
+        const auto lighting = scene.sampleLighting(
+            incident, Float4(1e-6f), 0.5f, spectral::SpectralVector(0.04f), floor, 16, 0, pointLightSamples,
+            shadowCache, statistics
+        );
+        diffuse += horizontalSum(lighting.diffuse.data) / 8.0f;
+        specular += horizontalSum(lighting.specular.data) / 8.0f;
+      }
+      return {diffuse / static_cast<Float>(seeds), specular / static_cast<Float>(seeds)};
+    }
+
+  public:
+    TEST_METHOD(pointLightPicksAverageToEveryLightsLighting) {
+      // 4 picks among 25 lights: unbiased, the diffuse light and the highlights
+      const auto [diffuse, specular] = manyLightsLighting(0, 1);
+      const auto [pickedDiffuse, pickedSpecular] = manyLightsLighting(4, 4096);
+      Assert::IsTrue(specular > 0.0f, L"highlights", LINE_INFO());
+      Assert::AreEqual(diffuse, pickedDiffuse, 0.01f * diffuse, L"diffuse", LINE_INFO());
+      Assert::AreEqual(specular, pickedSpecular, 0.02f * specular, L"specular", LINE_INFO());
+      // a single seed picks: its highlights differ (its diffuse light doesn't: the picks follow the unshadowed diffuse
+      // light, whose estimate is exact without shadows)
+      const auto [oneDiffuse, oneSpecular] = manyLightsLighting(4, 1);
+      Assert::IsTrue(std::abs(oneSpecular - specular) > 1e-2f * specular, L"sampled", LINE_INFO());
+      Assert::AreEqual(diffuse, oneDiffuse, 1e-4f * diffuse, L"diffuse of one seed", LINE_INFO());
+    }
+
+    TEST_METHOD(pointLightPicksTakeEveryLightWhereThereAreNoMore) {
+      const auto [diffuse, specular] = manyLightsLighting(0, 1);
+      const auto [pickedDiffuse, pickedSpecular] = manyLightsLighting(25, 1);
+      Assert::AreEqual(diffuse, pickedDiffuse, L"diffuse", LINE_INFO());
+      Assert::AreEqual(specular, pickedSpecular, L"specular", LINE_INFO());
     }
   };
 }

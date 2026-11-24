@@ -53,9 +53,9 @@ namespace raytracerui
 
     OpenGLWindowsRaytracerUI::OpenGLWindowsRaytracerUI(
         Raytracer& raytracer, const RaytraceParameters& parameters, const Size2& fastPreviewSize, Scene& scene,
-        Resources& resources)
-        : WindowsRaytracerUI(raytracer, parameters, fastPreviewSize), hDC(), hGLRC(), outputSurface(), scene(&scene),
-          resources(&resources)
+        Resources& resources, const bool hidden)
+        : WindowsRaytracerUI(raytracer, parameters, fastPreviewSize, hidden), hDC(), hGLRC(), outputSurface(),
+          scene(&scene), resources(&resources)
     {
         // set the pixel format for the device context
         hDC = GetDC(hWnd);
@@ -413,7 +413,23 @@ namespace raytracerui
                     changed = true;
                 }
 
-                // against fireflies: the most radiance of one glossy reflection ray, 0 for no limit
+                // diffuse interreflection (one bounce) in place of the ambient light, 0 for none
+                auto diffuseSamples = static_cast<int>(parameters.diffuseSamples);
+                if (ImGui::SliderInt("Diffuse Rays", &diffuseSamples, 0, 64))
+                {
+                    parameters.diffuseSamples = static_cast<ASizeT>(diffuseSamples);
+                    changed = true;
+                }
+
+                // many-light sampling: the most point lights a diffuse ray's hit traces shadow rays to, 0 for all
+                auto manyLightSamples = static_cast<int>(parameters.manyLightSamples);
+                if (ImGui::SliderInt("Many-Light Picks", &manyLightSamples, 0, 64))
+                {
+                    parameters.manyLightSamples = static_cast<ASizeT>(manyLightSamples);
+                    changed = true;
+                }
+
+                // against fireflies: the most radiance of one glossy reflection ray or diffuse ray, 0 for no limit
                 auto glossyClamp = static_cast<float>(parameters.glossyClamp);
                 if (ImGui::SliderFloat("Glossy Clamp", &glossyClamp, 0.0f, 16.0f, "%.1f"))
                 {
@@ -433,8 +449,8 @@ namespace raytracerui
                     changed = true;
                 }
 
-                // adaptive sampling: further rounds of sub-samples where they spread, 0 for off (needs 2x2
-                // sub-samples); the threshold in 8-bit display steps
+                // adaptive sampling: further rounds of sub-samples where the neighbours' sub-samples spread, 0 for
+                // off (needs 2x2 sub-samples); the threshold in 8-bit display steps
                 auto adaptiveRounds = static_cast<int>(parameters.adaptiveRounds);
                 if (ImGui::SliderInt("Adaptive Rounds", &adaptiveRounds, 0, 8))
                 {
@@ -446,6 +462,20 @@ namespace raytracerui
                 if (ImGui::SliderFloat("Adaptive Threshold", &adaptiveThreshold, 0.25f, 16.0f, "%.2f / 255"))
                 {
                     parameters.adaptiveThreshold = static_cast<Float>(adaptiveThreshold) / 255.0f;
+                    changed = true;
+                }
+
+                // denoising guided by the normals, depths and albedos of the pixels' surfaces, of fast previews and of
+                // full renders (Enter)
+                if (ImGui::Checkbox("Denoise Previews", &parameters.denoise))
+                {
+                    changed = true;
+                }
+                ImGui::Checkbox("Denoise Full Renders", &fullRenderDenoise);
+
+                // irradiance caching: diffuse hits interpolate records of the irradiance instead of diffuse rays
+                if (ImGui::Checkbox("Irradiance Caching", &parameters.irradianceCaching))
+                {
                     changed = true;
                 }
 

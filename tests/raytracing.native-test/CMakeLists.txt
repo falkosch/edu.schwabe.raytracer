@@ -13,6 +13,10 @@ set(SOURCES
         src/raytracing/geometry/partitioning/Balancer_test.cpp
         src/raytracing/geometry/partitioning/Traverser_test.cpp
         src/raytracing/scene/Camera_test.cpp
+        src/raytracing/AdaptiveRounds_test.cpp
+        src/raytracing/ATrousDenoiser_test.cpp
+        src/raytracing/IrradianceCache_test.cpp
+        src/raytracing/Raytracer_test.cpp
         src/raytracing/SubSampleSpread_test.cpp
         src/raytracing/shading/BoxLightFaces_test.cpp
         src/raytracing/shading/beer_lambert_transmittance_test.cpp
@@ -29,6 +33,7 @@ set(SOURCES
         src/raytracing/shading/brdf/apply_brdf_test.cpp
         src/raytracing/shading/brdf/fresnel_reflectance_test.cpp
         src/raytracing/shading/brdf/ggx_test.cpp
+        src/raytracing/shading/brdf/sample_lambert_test.cpp
         src/raytracing/shading/shaders/environment_coordinates_test.cpp
         src/raytracing/shading/shaders/NoiseGeneratorMap_test.cpp
         src/raytracing/shading/color/primaries_test.cpp

@@ -5,8 +5,8 @@ namespace raytracer
 {
     RaytraceBaseParameters::RaytraceBaseParameters()
         : visibilityCutoff(), maxDistance(), maxTraceDepth(), sceneShader(), cullingOrientation(), glossySamples(16),
-          sphereLightSamples(16), seedOffset(), glossyClamp(),
-          regularizePaths(), adaptiveRounds(), adaptiveThreshold()
+          sphereLightSamples(16), diffuseSamples(), manyLightSamples(), seedOffset(), glossyClamp(),
+          regularizePaths(), adaptiveRounds(), adaptiveThreshold(), denoise(), irradianceCaching()
     {
     }
 }

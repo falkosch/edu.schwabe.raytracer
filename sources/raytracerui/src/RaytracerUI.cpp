@@ -54,6 +54,7 @@ namespace raytracerui
         }
         auto fullRender = parameters;
         fullRender.superSamplingFactor = max(parameters.superSamplingFactor, fullRenderSuperSamplingFactor);
+        fullRender.denoise = fullRenderDenoise;
         lastFullRenderRunId = raytracer->trigger(fullRender);
     }
 
@@ -65,6 +66,11 @@ namespace raytracerui
     void RaytracerUI::setFullRenderSuperSamplingFactor(const ASizeT factor)
     {
         fullRenderSuperSamplingFactor = factor;
+    }
+
+    void RaytracerUI::setFullRenderDenoise(const bool denoise)
+    {
+        fullRenderDenoise = denoise;
     }
 
     void RaytracerUI::setFullFirstRender()

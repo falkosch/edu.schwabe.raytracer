@@ -7,13 +7,22 @@ Core rendering engine. Static library depending on `primitives` and `vectorizati
 1. `Raytracer::trigger()` starts a render on the worker thread
 2. `RaytracerPackets` tiles the image into configurable ray packets with optional super-sampling
 3. Primary rays are generated from `Camera` frustum parameters; each sub-sample gets a stratified
-   `heroLambda` for hero-wavelength spectral sampling (Wilkie 2014). Per frame, the raytracer builds one
-   `SpectralContext` per sub-sample (wavelengths, Smits basis, CMF/XYZ context, ambient and light spectra), and
-   every `Raytrace` points to the context of its sub-sample
+   `heroLambda` for hero-wavelength spectral sampling (Wilkie 2014), the strata dividing one wavelength step
+   (`DELTA_LAMBDA`: a context's 8 wavelengths lie a step apart, so strata of the whole range would repeat the same 8
+   wavelengths for 1, 2, 4 or 8 sub-samples). With fewer sub-samples than 8 in a denoised image, each sub-sample's
+   stratum splits into 8 / n, and the pixels take them in turn (`pixelContext`: Roberts' R2 sequence over the pixels,
+   every 5 x 5 pixels take all), since the same 8 wavelengths in every pixel are a fixed quadrature that shifts
+   saturated colours (the Cornell box's red wall was +6 % in previews). Undenoised images (Whitted ray tracing,
+   `denoise` off) keep that quadrature: their pixels' dither would show on saturated colours. Per frame, the
+   raytracer builds one `SpectralContext` per sub-sample and pixel context (wavelengths, Smits basis, CMF/XYZ context,
+   ambient and light spectra), and every `Raytrace` points to the context of its sub-sample and pixel
 4. KD-tree traversal finds nearest geometry intersection
 5. `ObjectShader::shade()` evaluates 7 material channels, upsamples RGB to `Spectrum` via the context's Smits basis
 6. `SceneShader::sampleLighting()` computes per-light contributions in spectral domain (the diffuse irradiance,
-   GGX microfacet specular with spectral Schlick-Fresnel, distance attenuation, shadow rays with caching)
+   GGX microfacet specular with spectral Schlick-Fresnel, distance attenuation, shadow rays with caching). At the hits
+   of diffuse rays (`Raytrace::diffuseBounce`), `manyLightSamples` (0 in the library) bounds the shadow rays to point
+   lights: with more of them, systematic sampling picks that many by their unshadowed diffuse light, each picked light
+   weighed by its picks per their expected number (unbiased; exact for the diffuse light without shadows)
 7. `brdf::applyBRDF()` composites: Lambert's diffusion / pi, spectral BRDF, Fresnel reflectance, Beer-Lambert
    absorption
 8. Reflection/transmission rays are traced recursively up to `maxTraceDepth`; the `SpectralContext` propagates. A
@@ -41,12 +50,44 @@ Core rendering engine. Static library depending on `primitives` and `vectorizati
    `traceRoughTransmission`, Walter et al. 2007; `brdf::fresnelReflectance(incident, normal, eta)`): a microfacet that
    reflects totally refracts nothing and reflects all, a masked direction counts as black. The refraction takes fewer
    rays than a reflection of that roughness; a narrower refracted lobe refracts as a mirror, both lobes with the smooth
-   surface's Fresnel, as at the smooth surface's total reflection. Adaptive sampling (`adaptiveRounds`, `adaptiveThreshold`, off in the library and for Whitted ray
-   tracing): a pixel of at least 2 x 2 sub-samples whose display luminance spreads (`SubSampleSpread`, the standard
-   error of the mean) takes further rounds of sub-samples on the grid shifted by Roberts' R2 sequence, at hero
-   wavelengths of their own (one set of `SpectralContext`s per round), continuing the pixel's sample sequence
+   surface's Fresnel, as at the smooth surface's total reflection. Diffuse interreflection (`diffuseSamples`, 0 in the
+   library): a diffuse hit gathers the light of other surfaces with up to that many rays of Lambert's distribution
+   (`traceDiffuseReflection`, `brdf::sampleLambert`, fewer the less the diffuse reflection adds to the pixel, on a
+   sequence of its own); pi times their mean radiance adds to the lights' irradiance, in place of the ambient light. One
+   bounce: their hits (`Raytrace::diffuseBounce`, also along mirror and glossy rays after them) trace none and keep the
+   ambient light, as the stand-in for the further bounces (Ward's ambient value). Diffuse rays are `Raytrace::glossy`
+   (an area light's emitter adds nothing, its light is the shadow rays'), `glossyClamp` limits each. Irradiance
+   caching (`irradianceCaching`, off in the library; Ward et al. 1988): before the pixels, `Raytracer::trace` records
+   the irradiance of 16 times `diffuseSamples` rays, at least 256, each limited to 16 times their mean against rare
+   bright paths (`IrradianceRecord`, with the harmonic mean distance of the rays that hit as the radius, at least
+   1.5 pixels, valid by at most twice the grid: `maxRadius`) at the primary hits of each first-round
+   sub-sample, on grids of 32 down to 4 pixels where the coarser grids' records don't cover the hit fully
+   (`RaytracerCache::recording`); a level's rays see only the coarser levels' records, so the records don't depend on
+   the threads. Each level clamps the radii by the neighbours' (R_i <= R_j + |x_i - x_j|, Krivanek et al. 2006), so
+   that a record in a seam, whose rays pass through the other surface, can't spread; the clamp takes the radii
+   without their caps (a fine grid's cap would shrink the coarser records it was placed between, and open holes that
+   no level fills). Each sub-sample has records of its own, each record at one of the sub-sample's contexts (by a
+   hash of its pixel). Diffuse hits of the same sub-sample interpolate the records valid there, those of its other
+   contexts at their own wavelengths (`IrradianceCache`, `spectral::shiftWavelengths`: linear between the record's
+   wavelengths, 50 nm apart; accuracy 0.1, the normals' term at half Ward's weight, so valid up to 16 degrees from a
+   record's normal; weights 1 / eps - 1 / a, one grid per level): where their coverage (the weight sum times a)
+   reaches 0.5 instead of tracing diffuse rays, below it blended with the rays by the coverage, so that no seam shows
+   between the two.
+   Adaptive sampling (`adaptiveRounds`, `adaptiveThreshold`, off in the library and for Whitted ray
+   tracing), in two passes: every pixel of at least 2 x 2 sub-samples takes its first round and keeps the spread of
+   its display luminance (`SubSampleSpread`, the standard error of the mean); then each takes the further rounds that
+   its neighbours' spread asks for (`AdaptiveRounds`: the root mean square of their errors, never its own, which would
+   bias it dark where rare bright rays dominate), on the grid shifted by Roberts' R2 sequence, at hero wavelengths of
+   their own (one set of `SpectralContext`s per round), continuing the pixel's sample sequence
 9. Output: `spectrumToXYZ` (with the context's XYZ context) `→ xyzToDisplayRGB` per pixel → HDRImage
    (sRGB-linear) + depth map + timing map
+10. Denoising (`denoise`, off in the library and for Whitted ray tracing): the primary rays leave their guides
+    (`PixelFeatures` via `Raytrace::features`: the normal, albedo and path length of the first hit that isn't a
+    smooth mirror or glass; the albedo is the diffusion's RGB, `ObjectShader::sampleDiffusion`, the same at every hero
+    wavelength), summed per pixel; `ATrousDenoiser` filters the image with them (edge-avoiding a-trous
+    wavelets, Dammertz et al. 2010, with SVGF's edge-stopping weights, Schied et al. 2017). The luminance weight
+    compares against the variance of each pixel's mean from its sub-samples, or with one sub-sample against the
+    variance around it among pixels of the same surface
 
 ## Subsystems
 
@@ -102,7 +143,8 @@ Traversers (template on intersection type):
 ### Shading (`shading/`)
 
 - `SceneShader` -- scene-level: background shader, ambient light (a radiance from all directions, which a diffuse
-  surface reflects times its diffusion), light collection, shadow computation. Shadow rays
+  surface reflects times its diffusion; a hit that traces diffuse rays takes what they gather instead), light
+  collection, shadow computation. Shadow rays
   pass transmissive objects (Fresnel transmission and absorption along the straight chord, no caustics). Area lights
   get up to `sphereLightSamples` shadow rays:
     - a sphere light (`LightInfo::radius`) to its visible cap (`SphereLightCap`: points of the disk the cap projects
@@ -118,12 +160,14 @@ Traversers (template on intersection type):
 
   The light's emissive object (`setLightEmitter`, which takes the light) shows in mirrors; the glossy rays of rough
   surfaces see it weighed against the shadow rays (multiple importance sampling), and skip it without shadow rays.
-  Only these `LightInfo`s light the scene: the emittance of any other object (meshes, emissive textures, boxes without
-  a box light) makes it glow where it is seen, but it casts no light
+  Only these `LightInfo`s light the scene by light sampling: the emittance of any other object (meshes, emissive
+  textures, boxes without a box light) makes it glow where it is seen, and it lights other surfaces only through their
+  diffuse rays (`diffuseSamples`) and reflections
 - `ObjectShader` -- per-object: 7 `MaterialShader` slots (diffusion, reflectance, specular, roughness,
   transmittance, refractionEta, emittance) + texture transform
 - `SpectralContext` -- per hero wavelength: wavelengths, Smits basis, XYZ context, ambient and per-light spectra;
-  built once per sub-sample and frame (`SceneShader::createSpectralContext()`)
+  built once per sub-sample (and pixel context, with fewer than 8 sub-samples) and frame
+  (`SceneShader::createSpectralContext()`)
 - `Shader<C, I, O>` -- template base for all shaders (Containment, Intersection -> Output)
 - `beerLambertTransmittance()` (`beer_lambert_transmittance.h`) -- the absorption along a path through a
   transmissive material, for transmitted rays (`traceTransmission`) and shadow rays (`transmitShadowRay`)
@@ -154,6 +198,8 @@ Traversers (template on intersection type):
 - `applyBRDF()` (`apply_brdf.h`) -- the radiance of a hit from its `BRDFParameters`; the diffuse part is Lambert's
   BRDF, the diffusion / pi times the direct irradiance (a white surface under light from all directions reflects
   that light's radiance)
+- `sampleLambert()` (`sample_lambert.h`) -- cosine-weighted directions (Malley's method, Shirley and Chiu's concentric
+  mapping), for the diffuse rays
 - `sampleGGX()` -- VNDF importance sampling (Heitz 2018), for the glossy reflections; `sampleGGXNormal()` its
   microfacet normal, for rough refraction; `pdfGGX()` the density of its directions, `smithG1()` Smith's masking
 - The roughness channel is the GGX alpha itself (highlights and glossy reflections), not its square root

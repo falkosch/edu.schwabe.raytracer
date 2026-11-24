@@ -7,6 +7,7 @@ namespace raytracer
         PerLightShadowCache::ShadowCacheType& shadowCacheIn, StatisticsCookie& statisticsIn
     )
         : incidentRay(), F0(), roughness(), visibilityCutoff(), sphereLightSamples(16), glossyRays(),
+          pointLightSamples(),
           shadowCache(&shadowCacheIn), statistics(&statisticsIn)
     {
     }

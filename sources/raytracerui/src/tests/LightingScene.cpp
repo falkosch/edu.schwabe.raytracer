@@ -9,7 +9,7 @@ namespace raytracerui
 {
     namespace
     {
-        // Scales every light of the scene: the ambient light, the lights and their emitters
+        // Scales every light of the scene: the lights and their emitters
         constexpr auto LIGHT_SCALE = 0.85f;
 
         void addLight(Scene& scene, LightInfo light, const Float4& position, const Float4& attenuationFactors)
@@ -23,9 +23,8 @@ namespace raytracerui
     void LightingScene::setup(Scene& scene, Resources& /*resources*/)
     {
         scene.setBackgroundShader(std::make_unique<RGBBackgroundShader>(RGBS::black()));
-        scene.setAmbientLight(RGBS(0.005f * LIGHT_SCALE, 0.005f * LIGHT_SCALE, 0.005f * LIGHT_SCALE));
-        // The lights times pi: a white surface facing a light reflects its irradiance / pi (Lambert), the ambient
-        // light (a radiance from all directions) its value
+        scene.setAmbientLight(RGBS::black());
+        // The lights times pi: a white surface facing a light reflects its irradiance / pi (Lambert)
         const auto lightScale = LIGHT_SCALE * Pi<Float>();
 
         // Light pools on the back wall, warm to cold, each close to the wall with quadratic falloff

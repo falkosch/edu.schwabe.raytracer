@@ -38,6 +38,11 @@ namespace raytracer::spectral
     // leaves it as it is
     Spectrum limitPeak(const Spectrum& s, Float limit) noexcept;
 
+    // The spectrum at its wavelengths shifted by steps (-1 to 1) wavelength steps (DELTA_LAMBDA): linearly
+    // interpolated between neighbouring lanes, the first and last lane held beyond. For wavelengths that ascend over
+    // the lanes, those of a hero wavelength within a step of LAMBDA_MIN.
+    Spectrum shiftWavelengths(const Spectrum& s, Float steps) noexcept;
+
     SpectralVector spectralExp(const SpectralVector& v) noexcept;
 
     Spectrum spectralMix(const Spectrum& a, const Spectrum& b, const SpectralVector& factor) noexcept;

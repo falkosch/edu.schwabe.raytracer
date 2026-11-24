@@ -6,7 +6,7 @@ namespace raytracerui
     void TestLightScene::setup(Scene& scene, Resources& /* resources */)
     {
         scene.setBackgroundShader(std::make_unique<RGBBackgroundShader>(RGBS::black()));
-        scene.setAmbientLight(RGBS(.01f, .01f, .01f));
+        scene.setAmbientLight(RGBS::black());
 
         // Light values times pi: a white surface facing a light reflects its irradiance / pi (Lambert)
         // Warm tungsten (~3000K). Was RGB(1, .75, .5).

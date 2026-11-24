@@ -52,11 +52,14 @@ namespace raytracer
         // sphere or box light). glossyRays is the number of glossy reflection rays the intersection traces (0 for
         // none): with shadow rays, the highlights of area lights weigh them against those rays by multiple importance
         // sampling, which add the light where they find the emitter (Raytracer::traceGlossyReflection).
+        // pointLightSamples bounds the shadow rays to point lights (and to sphere lights without shadow rays of their
+        // own): with more of them, the intersection picks that many by their unshadowed diffuse light, each picked
+        // light weighed by its picks per their expected number (unbiased; 0 takes every light).
         LightShading sampleLighting(
             const Raytrace& incidentRay, const Float4& adaptedVisibilityCutoff,
             Float roughness, const spectral::SpectralVector& F0,
             const SceneIntersection& intersection, ASizeT sphereLightSamples, ASizeT glossyRays,
-            PerLightShadowCache::ShadowCacheType& shadowCache, StatisticsCookie& statistics
+            ASizeT pointLightSamples, PerLightShadowCache::ShadowCacheType& shadowCache, StatisticsCookie& statistics
         ) const;
 
         // Scale visibilityCutoff by the ray's importance (Raytrace::importance), which allows us to filter out
@@ -88,10 +91,36 @@ namespace raytracer
         ) const;
 
     private:
+        // The unshadowed light of a point light (or of a sphere light from its center) at an intersection: the
+        // direction and distance to the light, Lambert's cosine and the cosine attenuated over the distance. lit is
+        // false where sampleLighting skips the light: behind the surface, or below the cutoff.
+        struct PointLightIncidence
+        {
+            Float4 direction;
+            Float4 distance;
+            Float4 diffuseIntensity;
+            Float4 attenuatedDiffuseIntensity;
+            bool lit;
+        };
+
         std::unique_ptr<const BackgroundShader> backgroundShader;
 
         RGBS ambientLight;
         LightsCollection lights;
+
+        static PointLightIncidence pointLightIncidence(
+            const LightInfo& light, const SceneIntersection& intersection, const Float4& adaptedVisibilityCutoff
+        );
+
+        // Adds the light of a point light (or of a sphere light from its center, a hard shadow) to lighting, times the
+        // weight of its pick (1 where every light is taken): its diffuse light and its highlight (a sphere light's
+        // with the lobe widened by its size, Karis 2013; a mirror reflects its emissive sphere instead)
+        void addPointLight(
+            const Raytrace& incidentRay, const Float4& adaptedVisibilityCutoff, Float roughness,
+            const spectral::SpectralVector& F0, const SceneIntersection& intersection, ASizeT lightIndex,
+            const LightInfo& light, const PointLightIncidence& incidence, Float weight, RayCast& shadowRay,
+            PerLightShadowCache::ShadowCacheType& shadowCache, StatisticsCookie& statistics, LightShading& lighting
+        ) const;
 
         // The fraction of the light that reaches the intersection along the shadow ray, per wavelength
         spectral::SpectralVector computeLitAreaFraction(
