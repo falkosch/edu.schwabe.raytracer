@@ -81,6 +81,7 @@ set(SOURCES
         src/raytracing/shading/brdf/fresnel_reflectance.cpp
         src/raytracing/shading/brdf/ggx.cpp
         src/raytracing/shading/brdf/sample_lambert.cpp
+        src/raytracing/shading/brdf/SpecularAlbedo.cpp
         src/raytracing/shading/brdf/SpecularFresnel.cpp
         src/raytracing/shading/color/primaries.cpp
         src/raytracing/shading/color/view_transform.cpp
@@ -200,6 +201,7 @@ set(HEADERS
         include/raytracing/shading/brdf/fresnel_reflectance.h
         include/raytracing/shading/brdf/ggx.h
         include/raytracing/shading/brdf/sample_lambert.h
+        include/raytracing/shading/brdf/SpecularAlbedo.h
         include/raytracing/shading/brdf/SpecularFresnel.h
         include/raytracing/shading/color/primaries.h
         include/raytracing/shading/color/view_transform.h

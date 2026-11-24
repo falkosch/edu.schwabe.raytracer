@@ -4,6 +4,6 @@
 namespace raytracer {
   BRDFParameters::BRDFParameters()
       : intersection(), surface(), lighting(), transmissionDirection(), fresnel(), reflectanceCoefficient(),
-        fractionTransmitted(), viewDistance() {
+        diffuseCoupling(One<spectral::SpectralVector>()), fractionTransmitted(), viewDistance() {
   }
 }

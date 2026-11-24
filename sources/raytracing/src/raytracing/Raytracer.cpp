@@ -13,6 +13,7 @@
 #include "raytracing/shading/SpectralContext.h"
 #include "raytracing/shading/beer_lambert_transmittance.h"
 #include "raytracing/shading/brdf/apply_brdf.h"
+#include "raytracing/shading/brdf/SpecularAlbedo.h"
 #include "raytracing/shading/brdf/SpecularFresnel.h"
 #include "raytracing/shading/brdf/ggx.h"
 #include "raytracing/shading/brdf/sample_lambert.h"
@@ -138,6 +139,25 @@ namespace raytracer
             return glossyReflectionSamples(
                 configuration.glossySamples, raytrace.visibilityIndex * reflectionWeight, roughness
             );
+        }
+
+        // What the specular lobe leaves of light from all directions alike (1 without a lobe), for the diffuse base
+        // under it: the share of the irradiance the diffuse rays gather (the records keep the irradiance itself, for
+        // any material)
+        spectral::SpectralVector uniformDiffuseShare(const BRDFParameters& brdf)
+        {
+            if (!brdf.fresnel.reflects())
+            {
+                return One<spectral::SpectralVector>();
+            }
+            return One<spectral::SpectralVector>() - brdf.fresnel.averageAlbedo(x(brdf.surface.roughness));
+        }
+
+        // What a transmissive surface's diffusion leaves of the light its specular lobe lets pass: the transmission and
+        // the diffuse reflection share it (1 - the diffusion, at least 0)
+        spectral::SpectralVector undiffusedShare(const BRDFParameters& brdf)
+        {
+            return max(One<spectral::SpectralVector>() - brdf.surface.diffusion.data, Zero<spectral::SpectralVector>());
         }
 
         // The highlight of an area light that a glossy ray (direction L) found at its emitter, against the light's
@@ -435,6 +455,9 @@ namespace raytracer
      */
     void Raytracer::trace()
     {
+        // the specular lobes' albedo tables, computed in parallel on their first use: not inside the parallel regions
+        brdf::SpecularAlbedo::tables();
+
         const auto packets = RaytracerPackets(running);
         const auto subSamplesCount = packets.pixelSubSamplesCount();
         const auto& sceneResolution = running.image->getResolution();
@@ -840,6 +863,18 @@ namespace raytracer
             && refractedLobeRoughness(x(brdf.surface.roughness), x(interfaceEta)) > brdf::MirrorRoughness;
         const auto* const microfacetEta = roughInterface ? &interfaceEta : nullptr;
 
+        // the diffuse base under the specular lobe (Kelemen and Szirmay-Kalos 2001): it gets what the lobe leaves of
+        // the light at the light's direction (sampleLighting, traceDiffuseReflection) and reflects what the lobe leaves
+        // at the view direction, per what it leaves of light from all directions, so that both reflect at most the
+        // light
+        if (brdf.fresnel.reflects() && spectral::spectralMax(brdf.surface.diffusion) > Zero<Float>())
+        {
+            const auto viewShare = One<spectral::SpectralVector>() - brdf.fresnel.directionalAlbedo(
+                x(abs(brdf.intersection.smoothedNdotI)), x(brdf.surface.roughness)
+            );
+            brdf.diffuseCoupling = viewShare / max(uniformDiffuseShare(brdf), Epsilon<spectral::SpectralVector>());
+        }
+
         // the area lights weigh the shadow rays of their highlights against the glossy rays
         const auto glossyRays = cache.configuration.sphereLightSamples > Zero<ASizeT>()
                                     ? glossyRaysOf(raytrace, maxDistance, cache.configuration, brdf)
@@ -1108,7 +1143,7 @@ namespace raytracer
             {
                 if (!recording)
                 {
-                    brdf.lighting.diffuse += interpolated;
+                    brdf.lighting.diffuse += interpolated * uniformDiffuseShare(brdf);
                     brdf.lighting.ambient = spectral::Spectrum::zero();
                 }
                 return;
@@ -1217,7 +1252,7 @@ namespace raytracer
                                         interpolated.data * spectral::SpectralVector(coverage)
                                         + traced.data * spectral::SpectralVector(One<Float>() - coverage)
                                     };
-        brdf.lighting.diffuse += irradiance;
+        brdf.lighting.diffuse += irradiance * uniformDiffuseShare(brdf);
         brdf.lighting.ambient = spectral::Spectrum::zero();
     }
 
@@ -1251,8 +1286,9 @@ namespace raytracer
         }
         brdf.fractionTransmitted = fractionTransmitted;
 
-        // check whether it would even make a difference in the image: what the specular lobe leaves
-        const auto smoothTransmission = One<spectral::SpectralVector>() - brdf.reflectanceCoefficient;
+        // check whether it would even make a difference in the image: what the specular lobe and the diffusion leave
+        const auto smoothTransmission =
+            (One<spectral::SpectralVector>() - brdf.reflectanceCoefficient) * undiffusedShare(brdf);
         const auto transmissionWeight =
             spectral::spectralMax(fractionTransmitted) * spectral::spectralMax(smoothTransmission);
         const auto transmissionVisibilityIndex = incidentRaytrace.visibilityIndex * transmissionWeight;
@@ -1325,6 +1361,7 @@ namespace raytracer
         const auto eta = xxxx(interfaceEta);
         const auto NoV = dot3(N, V);
         const auto roughness = x(brdf.surface.roughness);
+        const auto undiffused = undiffusedShare(brdf);
 
         // the refracted lobe takes as many rays as a reflected lobe of its width
         const auto samples = glossyReflectionSamples(
@@ -1347,7 +1384,7 @@ namespace raytracer
             {
                 continue;
             }
-            const auto weight = spectral::SpectralVector(brdf::smithG1(NoT, roughness))
+            const auto weight = spectral::SpectralVector(brdf::smithG1(NoT, roughness)) * undiffused
                 * (One<spectral::SpectralVector>() - brdf.fresnel.reflectance(dot3v(V, microfacetNormal)));
 
             const auto refractedRayCast = RayCast(

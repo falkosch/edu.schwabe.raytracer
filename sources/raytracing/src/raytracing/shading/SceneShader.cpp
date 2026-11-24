@@ -25,14 +25,40 @@ namespace raytracer
             return shader && anyTrue3(shader->sampleTransmittance(intersection) > Zero<Float4>()) ? shader : nullptr;
         }
 
-        // The Fresnel transmission (the exact equations) through an interface of the object's indices, eta as the
-        // object gives it (z outside, w inside). The straight shadow ray's cosine is the light's angle on the outer
-        // side: where it enters the object (the shadow ray's exit), and by reciprocity where it leaves (the refracted
-        // light inside meets that surface at the transmitted angle, as the straight chord of a sphere has it)
-        spectral::SpectralVector fresnelTransmission(const Float4& eta, const Float cosine)
+        // What an interface of a transmissive object lets pass, as a camera ray's transmission there has it: what its
+        // specular lobe leaves (the exact Fresnel reflectance of the object's indices times the lobe's weight, eta as
+        // the object gives it: z outside, w inside), and of that what its diffusion leaves. The straight shadow ray's
+        // cosine is the light's angle on the outer side: where it enters the object (the shadow ray's exit), and by
+        // reciprocity where it leaves (the refracted light inside meets that surface at the transmitted angle, as the
+        // straight chord of a sphere has it).
+        spectral::SpectralVector interfaceTransmission(
+            const ObjectShader& shader, const SceneIntersection& at, const Float4& eta,
+            const SpectralContext& spectralContext, const Float cosine
+        )
         {
+            const auto lobe = brdf::SpecularFresnel::dielectricInterface(
+                spectralContext.fromRGB(shader.sampleReflectance(at)).data, eta
+            );
+            const auto undiffused = max(
+                One<spectral::SpectralVector>() - spectralContext.fromRGB(shader.sampleDiffusion(at)).data,
+                Zero<spectral::SpectralVector>()
+            );
             const auto cosTheta = Float4(min(vectorization::abs(cosine), One<Float>()));
-            return One<spectral::SpectralVector>() - spectral::SpectralVector(brdf::fresnelReflectance(cosTheta, eta));
+            return (One<spectral::SpectralVector>() - lobe.reflectance(cosTheta)) * undiffused;
+        }
+
+        // What the specular lobe leaves of light from the direction at the cosine to the normal, for the diffuse base
+        // under it (Kelemen and Szirmay-Kalos 2001; Raytracer::trace couples the base to the view direction); 1
+        // without a lobe
+        spectral::SpectralVector diffuseShare(
+            const brdf::SpecularFresnel& fresnel, const Float roughness, const Float cosine
+        )
+        {
+            if (!fresnel.reflects())
+            {
+                return One<spectral::SpectralVector>();
+            }
+            return One<spectral::SpectralVector>() - fresnel.directionalAlbedo(max(cosine, Zero<Float>()), roughness);
         }
 
         // The density of the glossy reflection rays (Raytracer::traceGlossyReflection, GGX VNDF sampling of the
@@ -236,7 +262,9 @@ namespace raytracer
         const auto seed = deriveSeed(incidentRay.strataSeed, SeedOffset + static_cast<UInt_32>(lightIndex));
         const auto sequenceOffset = sequenceOffset2D(seed);
 
+        // the lit fraction, and the lit fraction of what the specular lobe leaves for the diffuse base
         auto fraction = Zero<spectral::SpectralVector>();
+        auto coupledFraction = Zero<spectral::SpectralVector>();
         auto highlight = Zero<spectral::SpectralVector>();
         for (auto sample = Zero<ASizeT>(); sample < samples; ++sample)
         {
@@ -254,10 +282,11 @@ namespace raytracer
             );
 #endif
             fraction += sampleFraction;
-
-            // the BRDF towards the point per density of its direction, weighed against the glossy rays
             const auto L = toSample / distance;
             const auto NoL = dot3(N, L);
+            coupledFraction += sampleFraction * diffuseShare(fresnel, roughness, NoL);
+
+            // the BRDF towards the point per density of its direction, weighed against the glossy rays
             if (!glossy || !(NoL > Zero<Float>()) || !(spectral::spectralMax(sampleFraction) > Zero<Float>()))
             {
                 continue;
@@ -294,7 +323,9 @@ namespace raytracer
         {
             return;
         }
-        const auto intensity = litAreaFraction * Float8(attenuatedDiffuseIntensity);
+        const auto coupledLitFraction =
+            coupledFraction * spectral::SpectralVector(One<Float>() / static_cast<Float>(samples));
+        const auto intensity = coupledLitFraction * Float8(attenuatedDiffuseIntensity);
         lighting.diffuse += emittance * intensity;
     }
 
@@ -330,7 +361,7 @@ namespace raytracer
             }
             const auto eta = shader->sampleRefractionEta(entry);
             const auto absorptionLengths = spectralContext.fromRGB(shader->sampleTransmittance(entry)).data;
-            fraction *= fresnelTransmission(eta, x(entry.smoothedNdotI));
+            fraction *= interfaceTransmission(*shader, entry, eta, spectralContext, x(entry.smoothedNdotI));
 
             // the exit through the same object, seen from inside
             const auto inside = RayCast(
@@ -347,7 +378,9 @@ namespace raytracer
                 // the light is inside the object
                 return fraction;
             }
-            fraction *= fresnelTransmission(eta, dot3(exit.smoothedNormal, direction));
+            fraction *= interfaceTransmission(
+                *shader, exit, shader->sampleRefractionEta(exit), spectralContext, dot3(exit.smoothedNormal, direction)
+            );
 
             // continue behind the object
             ray = RayCast(
@@ -426,7 +459,11 @@ namespace raytracer
         auto runningWeight = Zero<Float>();
         auto nextPick = Zero<ASizeT>();
 
-        auto lighting = LightShading(spectralContext.ambient);
+        // the ambient light, of the diffuse base under a specular lobe what it leaves of light from all directions
+        const auto ambientShare = fresnel.reflects()
+                                      ? One<spectral::SpectralVector>() - fresnel.averageAlbedo(roughness)
+                                      : One<spectral::SpectralVector>();
+        auto lighting = LightShading(spectralContext.ambient * ambientShare);
         for (auto lightIndex = Zero<ASizeT>(); lightIndex < lights.size(); ++lightIndex)
         {
             const LightInfo& light = *lights[lightIndex];
@@ -536,7 +573,7 @@ namespace raytracer
         const auto intensity = litAreaFraction * Float8(incidence.attenuatedDiffuseIntensity * Float4(weight));
         const auto lightContribution = spectralContext.lightEmittance[lightIndex] * intensity;
 
-        lighting.diffuse += lightContribution;
+        lighting.diffuse += lightContribution * diffuseShare(fresnel, roughness, x(incidence.diffuseIntensity));
         // a mirror reflects a sphere light's emissive sphere instead
         const auto isSphereLight = light.radius > Zero<Float>();
         if (fresnel.reflects() && (!isSphereLight || roughness > brdf::MirrorRoughness))
@@ -618,8 +655,11 @@ namespace raytracer
         {
             ASizeT nearestFace;
             const auto toNearest = faces.nearestPoint(nearestFace);
-            const auto litFraction = traceTo(toNearest, length3(toNearest));
-            lighting.diffuse += radiance * (litFraction * spectral::SpectralVector(faces.projectedSolidAngle));
+            const auto nearestDistance = length3(toNearest);
+            const auto litFraction = traceTo(toNearest, nearestDistance);
+            const auto share = diffuseShare(fresnel, roughness, dot3(N, toNearest) / nearestDistance);
+            lighting.diffuse +=
+                radiance * (litFraction * share * spectral::SpectralVector(faces.projectedSolidAngle));
             if (!glossy)
             {
                 return;
@@ -658,6 +698,7 @@ namespace raytracer
         // their mean BRDF times that irradiance (light sampling, unbiased, exact shadows), each weighed against the
         // glossy rays by the density of its direction: the distance squared per cosine at the face and visible area.
         auto lit = Zero<spectral::SpectralVector>();
+        auto coupledLit = Zero<spectral::SpectralVector>();
         auto weights = Zero<Float>();
         auto highlight = Zero<spectral::SpectralVector>();
         for (auto sample = Zero<ASizeT>(); sample < samples; ++sample)
@@ -676,6 +717,7 @@ namespace raytracer
             }
             const auto litWeight = traceTo(toPoint, distance) * spectral::SpectralVector(weight);
             lit += litWeight;
+            coupledLit += litWeight * diffuseShare(fresnel, roughness, dot3(N, direction));
             weights += weight;
             if (glossy && glossyRays > Zero<ASizeT>())
             {
@@ -709,7 +751,8 @@ namespace raytracer
         {
             return;
         }
-        lighting.diffuse += radiance * (litFraction * spectral::SpectralVector(faces.projectedSolidAngle));
+        const auto coupledLitFraction = coupledLit * spectral::SpectralVector(One<Float>() / weights);
+        lighting.diffuse += radiance * (coupledLitFraction * spectral::SpectralVector(faces.projectedSolidAngle));
     }
 
     Float4 SceneShader::adaptedVisibilityCutoff(const Float visibilityCutoff, const Float importance)

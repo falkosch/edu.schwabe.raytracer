@@ -61,10 +61,12 @@ namespace raytracer
 
         SurfaceShading shade(const SceneIntersection& intersection, const SpectralContext& spectralContext) const;
 
-        // The transmittance (RGB absorption lengths, zero for opaque surfaces) and the refraction indices at the
-        // intersection alone, without the other channels of shade(): what a shadow ray needs to pass the object
+        // The transmittance (RGB absorption lengths, zero for opaque surfaces), the refraction indices and the
+        // reflectance (the specular lobe's weight) at the intersection alone, without the other channels of shade():
+        // what a shadow ray needs to pass the object, with the diffusion below
         Float4 sampleTransmittance(const FacetIntersection& intersection) const;
         Float4 sampleRefractionEta(const FacetIntersection& intersection) const;
+        Float4 sampleReflectance(const FacetIntersection& intersection) const;
 
         // The diffusion's RGB at the intersection, before shade() takes it to a context's wavelengths: the denoiser's
         // albedo guide, the same for every hero wavelength

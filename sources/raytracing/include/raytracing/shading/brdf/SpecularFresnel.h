@@ -35,6 +35,13 @@ namespace raytracer::brdf
         // [0, 1]: the weight where a dielectric interface reflects totally
         spectral::SpectralVector reflectance(const Float4& cosine) const noexcept;
 
+        // The lobe's directional albedo per wavelength (SpecularAlbedo): what it reflects of light from the direction
+        // at the cosine to the normal (or towards it, by reciprocity), for the roughness (the GGX alpha)
+        spectral::SpectralVector directionalAlbedo(Float cosine, Float roughness) const noexcept;
+
+        // Its cosine-weighted mean over the hemisphere: what it reflects of light from all directions alike
+        spectral::SpectralVector averageAlbedo(Float roughness) const noexcept;
+
         // Whether the lobe reflects: a weight above 0, and an F0 above 0 (opaque) or indices that differ (dielectric)
         bool reflects() const noexcept;
 

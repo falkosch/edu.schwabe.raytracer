@@ -148,9 +148,8 @@ Traversers (template on intersection type):
 
 - `SceneShader` -- scene-level: background shader, ambient light (a radiance from all directions, which a diffuse
   surface reflects times its diffusion; a hit that traces diffuse rays takes what they gather instead), light
-  collection, shadow computation. Shadow rays
-  pass transmissive objects (Fresnel transmission and absorption along the straight chord, no caustics). Area lights
-  get up to `sphereLightSamples` shadow rays:
+  collection, shadow computation. Shadow rays pass transmissive objects (what their specular lobe and diffusion leave,
+  and the absorption along the straight chord, no caustics). Area lights get up to `sphereLightSamples` shadow rays:
     - a sphere light (`LightInfo::radius`) to its visible cap (`SphereLightCap`: points of the disk the cap projects
       to, lifted onto it, and their density per solid angle), lighting as a point light at its center (exact while
       the sphere is above the horizon, too dark where the horizon cuts it); rough surfaces get its highlight from the
@@ -205,9 +204,18 @@ Traversers (template on intersection type):
   F0 of 0 is no lobe) or the indices' (transmissive surfaces, dielectric interfaces), times the reflectance channel as
   the lobe's weight (clamped to [0, 1], as OpenPBR's `specular_weight`); a dielectric interface transmits what the lobe
   leaves
+- `SpecularAlbedo` -- tables of the GGX lobe's directional albedo E(mu, alpha) and its cosine-weighted mean (single
+  scattering): for Schlick's Fresnel (E_1 of F = 1 and E_5 of the (1 - cos)^5 term) and for dielectric interfaces
+  from either side (reflected and transmitted), computed once in parallel by VNDF samples (`Raytracer::trace` builds
+  them before its parallel regions), 32 cosines by 32 roughnesses by 16 index ratios
 - `applyBRDF()` (`apply_brdf.h`) -- the radiance of a hit from its `BRDFParameters`; the diffuse part is Lambert's
   BRDF, the diffusion / pi times the direct irradiance (a white surface under light from all directions reflects
-  that light's radiance); the reflected and transmitted light come weighed by the specular lobe's Fresnel
+  that light's radiance); the reflected and transmitted light come weighed by the specular lobe's Fresnel. Under a
+  specular lobe, the diffuse base is coupled to it (Kelemen and Szirmay-Kalos 2001): it gets what the lobe leaves
+  of each light at the light's direction (`SceneShader::sampleLighting`; the ambient light and the diffuse rays'
+  irradiance what it leaves of light from all directions) and reflects what it leaves at the view direction per what
+  it leaves of light from all directions (`BRDFParameters::diffuseCoupling`): together at most the light. A
+  transmissive surface's diffusion takes its share of what the lobe transmits, the transmission the rest
 - `sampleLambert()` (`sample_lambert.h`) -- cosine-weighted directions (Malley's method, Shirley and Chiu's concentric
   mapping), for the diffuse rays
 - `sampleGGX()` -- VNDF importance sampling (Heitz 2018), for the glossy reflections; `sampleGGXNormal()` its

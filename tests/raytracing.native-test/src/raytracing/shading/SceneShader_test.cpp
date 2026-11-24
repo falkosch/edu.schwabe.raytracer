@@ -40,7 +40,8 @@ namespace raytracer::test {
       sphere->scale(Float3(sphereRadius, sphereRadius, sphereRadius));
       const auto none = Zero<Float4>();
       sphere->setDiffusionShader(std::make_unique<Resources::ConstMaterialShader>(none));
-      sphere->setReflectanceShader(std::make_unique<Resources::ConstMaterialShader>(none));
+      // a specular lobe of weight 1: glass lets 1 - its Fresnel reflectance pass
+      sphere->setReflectanceShader(std::make_unique<Resources::ConstMaterialShader>(Float4(1.0f, 1.0f, 1.0f, 0.0f)));
       sphere->setSpecularShader(std::make_unique<Resources::ConstMaterialShader>(none));
       sphere->setRoughnessShader(std::make_unique<Resources::ConstMaterialShader>(none));
       sphere->setEmittanceShader(std::make_unique<Resources::ConstMaterialShader>(none));
@@ -115,7 +116,7 @@ namespace raytracer::test {
       return horizontalSum(lighting.diffuse.data) / 8.0f;
     }
 
-    // An object of the form with the transmittance and refraction index, nothing else
+    // An object of the form with the transmittance and refraction index (and a specular lobe of weight 1), nothing else
     static std::unique_ptr<SceneObject> occluder(
         std::unique_ptr<const Form> form, const Float3 &scale, const Float3 &translation,
         const Float4 &transmittance = Zero<Float4>(), const Float refractionIndex = RefractionIndices::Glass
@@ -126,7 +127,7 @@ namespace raytracer::test {
       object->translate(translation);
       const auto none = Zero<Float4>();
       object->setDiffusionShader(std::make_unique<Resources::ConstMaterialShader>(none));
-      object->setReflectanceShader(std::make_unique<Resources::ConstMaterialShader>(none));
+      object->setReflectanceShader(std::make_unique<Resources::ConstMaterialShader>(Float4(1.0f, 1.0f, 1.0f, 0.0f)));
       object->setSpecularShader(std::make_unique<Resources::ConstMaterialShader>(none));
       object->setRoughnessShader(std::make_unique<Resources::ConstMaterialShader>(none));
       object->setEmittanceShader(std::make_unique<Resources::ConstMaterialShader>(none));
@@ -362,6 +363,47 @@ namespace raytracer::test {
       const auto lit = diffuseBelowSphere(Float4(1e6f, 1e6f, 1e6f, 0.0f), RefractionIndices::Vacuum);
       Assert::IsTrue(lit > 0.0f, L"a vacuum sphere lets all light through", LINE_INFO());
       Assert::AreEqual(0.96f * 0.96f, clear / lit, 1e-3f, L"Fresnel transmission of entry and exit", LINE_INFO());
+    }
+
+    TEST_METHOD(diffusingGlassLetsWhatItsDiffusionLeavesPass) {
+      // the shadow ray through a clear glass sphere of the diffusion 0.5: each face lets half pass (of the diffusion as
+      // upsampled, white about 1.06)
+      const auto pointLightAbove = [] {
+        auto light = std::make_unique<LightInfo>();
+        light->position = Float4(0.0f, 2.0f, 0.0f, 1.0f);
+        light->emittance = RGBS(1.0f, 1.0f, 1.0f);
+        return light;
+      };
+      const auto glass = [](const Float diffusion) {
+        auto object = occluder(std::make_unique<Sphere>(), Float3(0.5f, 0.5f, 0.5f), Float3(0.0f, 0.0f, 0.0f),
+                               Float4(1e6f, 1e6f, 1e6f, 0.0f));
+        object->setDiffusionShader(
+            std::make_unique<Resources::ConstMaterialShader>(Float4(diffusion, diffusion, diffusion, 0.0f)));
+        return object;
+      };
+      const auto clear = floorLighting(glass(0.0f), pointLightAbove()).diffuse;
+      const auto diffusing = floorLighting(glass(0.5f), pointLightAbove()).diffuse;
+      Scene scene{};
+      const auto context = scene.createSpectralContext(spectral::LAMBDA_MIN + 0.5f * spectral::LAMBDA_RANGE);
+      const auto white = horizontalSum(context.fromRGB(Float4(1.0f, 1.0f, 1.0f, 0.0f)).data) / 8.0f;
+      Assert::IsTrue(clear > 0.0f, L"lit", LINE_INFO());
+      Assert::AreEqual(sqr(1.0f - 0.5f * white), diffusing / clear, 1e-4f, L"half at each face", LINE_INFO());
+    }
+
+    TEST_METHOD(diffuseBaseGetsWhatTheSpecularLobeLeavesAtTheLightsDirection) {
+      // a point light 60 degrees off the floor's normal: a lobe of F0 0.04 above the diffuse base leaves it 1 - E of
+      // the lobe's directional albedo at cos 60 (Kelemen and Szirmay-Kalos 2001)
+      const auto pointLightAside = [] {
+        auto light = std::make_unique<LightInfo>();
+        light->position = Float4(0.0f, -1.0f, 0.0f, 1.0f) + Float4(0.866025f, 0.5f, 0.0f, 0.0f) * Float4(2.0f);
+        light->emittance = RGBS(1.0f, 1.0f, 1.0f);
+        return light;
+      };
+      const auto bare = floorLighting(nothing(), pointLightAside(), 16, 0.3f, 0.0f).diffuse;
+      const auto coated = floorLighting(nothing(), pointLightAside(), 16, 0.3f, 0.04f).diffuse;
+      const auto share = 1.0f - x1(opaqueLobe(0.04f).directionalAlbedo(0.5f, 0.3f));
+      Assert::IsTrue(share < 0.99f, L"the lobe reflects a share", LINE_INFO());
+      Assert::AreEqual(share, coated / bare, 1e-3f, L"what it leaves", LINE_INFO());
     }
 
     TEST_METHOD(sphereLightCastsSoftShadows) {

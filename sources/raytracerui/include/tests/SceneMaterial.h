@@ -7,8 +7,9 @@ namespace raytracerui {
   using namespace raytracer;
 
   // The seven material channels of a scene object as constants. brdf::applyBRDF combines them per hit:
-  //   emittance + diffusion * (ambient radiance + diffuse irradiance / pi)
-  //   + specular lobe (GGX of the roughness: highlights, mirror or glossy reflection) + transmitted * (1 - its Fresnel)
+  //   emittance + diffusion * (ambient radiance + diffuse irradiance / pi) of what the specular lobe leaves
+  //   + specular lobe (GGX of the roughness: highlights, mirror or glossy reflection)
+  //   + transmitted * (1 - its Fresnel) * (1 - diffusion)
   // - the specular lobe's Fresnel reflectance (brdf::SpecularFresnel) is Schlick's of the specular channel (F0) on an
   //   opaque surface, the indices' (refractionEta) on a transmissive one, times the reflectance channel as the lobe's
   //   weight (at most 1; 1 is physical, 0 turns the lobe off).

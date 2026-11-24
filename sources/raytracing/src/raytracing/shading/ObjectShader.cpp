@@ -151,6 +151,11 @@ namespace raytracer
         return refractionEtaShader->sample(*this, intersection);
     }
 
+    Float4 ObjectShader::sampleReflectance(const FacetIntersection& intersection) const
+    {
+        return reflectanceShader->sample(*this, intersection);
+    }
+
     Float4 ObjectShader::sampleDiffusion(const FacetIntersection& intersection) const
     {
         return diffusionShader->sample(*this, intersection);

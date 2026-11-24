@@ -32,6 +32,12 @@ namespace raytracer
         // reflection's weight, and 1 minus the transmission's
         spectral::SpectralVector reflectanceCoefficient;
 
+        // The diffuse base under the specular lobe (Kelemen and Szirmay-Kalos 2001): what the lobe leaves of the light
+        // at the view direction, per what it leaves of light from all directions (1 without a lobe). The diffuse light
+        // carries what the lobe leaves at its directions already (SceneShader::sampleLighting,
+        // Raytracer::traceDiffuseReflection), so that the diffusion reflects at most what the lobe leaves.
+        spectral::SpectralVector diffuseCoupling;
+
         // Beer-Lambert absorption weight per wavelength
         spectral::SpectralVector fractionTransmitted;
 

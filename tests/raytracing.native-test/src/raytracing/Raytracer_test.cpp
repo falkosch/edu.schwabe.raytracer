@@ -96,9 +96,11 @@ namespace raytracer::test {
       scene.setAmbientLight(ambient);
     }
 
-    // A rough opaque panel in the wall's place, with the specular channel (F0) and the reflectance channel (the specular
-    // lobe's weight), no diffusion: it reflects by its specular lobe only
-    static std::unique_ptr<SceneObject> glossyWall(const Float reflectance, const Float specular, const Float roughness) {
+    // A rough opaque panel in the wall's place, with the specular channel (F0) and the reflectance channel (the
+    // specular lobe's weight), no diffusion: it reflects by its specular lobe only
+    static std::unique_ptr<SceneObject> glossyWall(
+        const Float reflectance, const Float specular, const Float roughness
+    ) {
       auto object = wall();
       object->setDiffusionShader(std::make_unique<Resources::ConstMaterialShader>(Zero<Float4>()));
       object->setReflectanceShader(
@@ -262,6 +264,81 @@ namespace raytracer::test {
       const auto glassReflection = render(glass(), false);
       Assert::IsTrue(glassHighlight > 0.001f, L"a highlight of glass", LINE_INFO());
       Assert::AreEqual(1.0f, glassReflection / glassHighlight, 0.03f, L"glass: the same light", LINE_INFO());
+    }
+
+    TEST_METHOD(coatedWhiteSurfaceReflectsAtMostTheLightAroundIt) {
+      // White furnace: a diffuse base (0.94, about 1 upsampled) under a specular lobe of F0 0.04 in a uniform sky of
+      // white (the background and the ambient light): it reflects at most the sky's radiance at every angle, also
+      // where the lobe reflects most (towards grazing angles), and about all of it; a mirror lobe (Whitted) as well
+      const auto render = [](const Float tilt, const Float roughness, const bool withWall) {
+        Scene scene{};
+        setUpEmpty(scene, RGBS(1.0f, 1.0f, 1.0f), RGBS(1.0f, 1.0f, 1.0f));
+        if (withWall) {
+          auto object = std::make_unique<SceneObject>("coated wall");
+          object->setForm(std::make_unique<Box>());
+          object->scale(Float3(2.0f, 2.0f, 0.001f));
+          object->rotate(Float3(0.0f, tilt, 0.0f));
+          object->translate(Float3(0.0f, 0.0f, -1.0f));
+          const auto none = Zero<Float4>();
+          object->setDiffusionShader(
+              std::make_unique<Resources::ConstMaterialShader>(Float4(0.94f, 0.94f, 0.94f, 0.0f)));
+          object->setReflectanceShader(
+              std::make_unique<Resources::ConstMaterialShader>(Float4(1.0f, 1.0f, 1.0f, 0.0f)));
+          object->setSpecularShader(
+              std::make_unique<Resources::ConstMaterialShader>(Float4(0.04f, 0.04f, 0.04f, 0.0f)));
+          object->setRoughnessShader(
+              std::make_unique<Resources::ConstMaterialShader>(Float4(roughness, roughness, roughness, 0.0f)));
+          object->setEmittanceShader(std::make_unique<Resources::ConstMaterialShader>(none));
+          object->setTransmittanceShader(std::make_unique<Resources::ConstMaterialShader>(none));
+          object->setRefractionEtaShader(std::make_unique<Resources::ConstMaterialShader>(
+              RefractionIndices::refractionEta(RefractionIndices::Vacuum, RefractionIndices::Vacuum)
+          ));
+          scene.getSceneObjects().push_back(std::move(object));
+        } else {
+          scene.getSceneObjects().push_back(panel(Float3(0.1f, 0.1f, 0.1f), Float3(50.0f, 0.0f, 0.0f), Zero<Float4>()));
+        }
+        RaytraceParameters parameters{};
+        parameters.glossySamples = 64;
+        return rgbSum(renderWallCenter(scene, parameters, 3));
+      };
+
+      const auto sky = render(0.0f, 0.0f, false);
+      Assert::IsTrue(sky > 0.5f, L"the sky", LINE_INFO());
+      for (const auto roughness : {0.0f, 0.3f}) {
+        for (const auto tilt : {0.0f, 60.0f, 80.0f}) {
+          const auto albedo = render(tilt, roughness, true) / sky;
+          Assert::IsTrue(albedo < 1.005f, L"at most the sky", LINE_INFO());
+          Assert::IsTrue(albedo > 0.96f, L"about all of it", LINE_INFO());
+        }
+      }
+    }
+
+    TEST_METHOD(transmissionSharesWhatTheLobeLeavesWithTheDiffusion) {
+      // a thin pane of clear glass in front of an emitting wall: the diffusion 0.5 halves what passes each of its
+      // faces (the pane reflects the black sky)
+      const auto render = [](const Float diffusion) {
+        Scene scene{};
+        setUpEmpty(scene);
+        scene.getSceneObjects().push_back(
+            panel(Float3(2.0f, 2.0f, 0.001f), Float3(0.0f, 0.0f, -2.0f), Zero<Float4>(), Float4(1.0f, 1.0f, 1.0f, 0.0f))
+        );
+        auto pane = glossyWall(1.0f, 0.0f, 0.0f);
+        pane->setDiffusionShader(
+            std::make_unique<Resources::ConstMaterialShader>(Float4(diffusion, diffusion, diffusion, 0.0f)));
+        pane->setTransmittanceShader(std::make_unique<Resources::ConstMaterialShader>(Float4(1e6f, 1e6f, 1e6f, 0.0f)));
+        pane->setRefractionEtaShader(std::make_unique<Resources::ConstMaterialShader>(
+            RefractionIndices::refractionEta(RefractionIndices::Vacuum, RefractionIndices::Glass)
+        ));
+        scene.getSceneObjects().push_back(std::move(pane));
+        return rgbSum(renderWallCenter(scene, 0, false, 0));
+      };
+      const auto clear = render(0.0f);
+      Assert::IsTrue(clear > 0.5f, L"the wall through the pane", LINE_INFO());
+      // with the diffusion as upsampled (white is about 1.06 at every wavelength)
+      Scene empty{};
+      const auto context = empty.createSpectralContext(spectral::LAMBDA_MIN + 0.5f * spectral::LAMBDA_RANGE);
+      const auto white = horizontalSum(context.fromRGB(Float4(1.0f, 1.0f, 1.0f, 0.0f)).data) / 8.0f;
+      Assert::AreEqual(sqr(1.0f - 0.5f * white), render(0.5f) / clear, 0.005f, L"half at each face", LINE_INFO());
     }
 
     TEST_METHOD(diffuseRaysSkipTheEmissiveObjectsOfAreaLights) {

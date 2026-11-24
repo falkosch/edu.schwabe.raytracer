@@ -1,5 +1,6 @@
 #include "raytracing/shading/brdf/SpecularFresnel.h"
 
+#include "raytracing/shading/brdf/SpecularAlbedo.h"
 #include "raytracing/shading/brdf/fresnel_reflectance.h"
 #include "raytracing/shading/brdf/ggx.h"
 #include "raytracing/shading/spectral/spectrum.h"
@@ -47,6 +48,33 @@ namespace raytracer::brdf
             return weight * spectral::SpectralVector(fresnelReflectance(clamped, eta));
         }
         return weight * schlickFresnelSpectral(f0, spectral::SpectralVector(clamped));
+    }
+
+    spectral::SpectralVector SpecularFresnel::directionalAlbedo(
+        const Float cosine, const Float roughness
+    ) const noexcept
+    {
+        const auto& tables = SpecularAlbedo::tables();
+        if (dielectric)
+        {
+            return weight * spectral::SpectralVector(xxxx(tables.dielectric(cosine, roughness, eta)));
+        }
+        // F0 E_1 + (1 - F0) E_5
+        const auto schlick = tables.schlick(cosine, roughness);
+        const auto schlickTerm = spectral::SpectralVector(yyyy(schlick));
+        return weight * multiplyAdd(f0, spectral::SpectralVector(xxxx(schlick)) - schlickTerm, schlickTerm);
+    }
+
+    spectral::SpectralVector SpecularFresnel::averageAlbedo(const Float roughness) const noexcept
+    {
+        const auto& tables = SpecularAlbedo::tables();
+        if (dielectric)
+        {
+            return weight * spectral::SpectralVector(xxxx(tables.averageDielectric(roughness, eta)));
+        }
+        const auto schlick = tables.averageSchlick(roughness);
+        const auto schlickTerm = spectral::SpectralVector(yyyy(schlick));
+        return weight * multiplyAdd(f0, spectral::SpectralVector(xxxx(schlick)) - schlickTerm, schlickTerm);
     }
 
     bool SpecularFresnel::reflects() const noexcept
