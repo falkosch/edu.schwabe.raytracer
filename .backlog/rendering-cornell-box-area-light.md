@@ -22,16 +22,8 @@ The open points below came up while doing them.
 
 ## Open points
 
-- Sphere lights close by (the check of section 1 in the done file): lighting from the center (intensity radiance * pi
-  r^2, quadratic falloff) is exact while the sphere lies above the horizon
-  (`SceneShaderTest::sphereLightIrradianceIsExactAboveTheHorizon`) and too dark where the horizon cuts it. Radius 0.5 at
-  a horizontal distance of 1, center height above the horizon: 0.3 gives 0.95 of the exact irradiance, 0.1 gives 0.59, 0
-  gives 0 (exact 0.091), -0.2 gives 0 (exact 0.028); radius 0.5 at (0.6, 0.2) gives 0.79. Sphere lights still use
-  `attenuationFactors`; a horizon-clipped irradiance would let them drop it, as section 1 asked.
-- Light mode (key 3) moves `getLights().back()` only: in the Cornell box that is now the box light, and its emitter
-  box stays behind (the same for the Lighting scene's orange sphere light).
-- The emitter box glows on all six faces in mirrors, also where only its bottom face emits light (the ceiling light's
-  1 cm sides).
+- Sphere lights close by, Light mode leaving the emitter behind and the emitter box glowing on all faces moved to
+  `rendering-physical-material-model.md` (points 6 to 8, with the measurements).
 - Re-measure the Cornell rough mirror's noise (`rendering-distribution-noise.md`, current noise).
 
 ## Key files

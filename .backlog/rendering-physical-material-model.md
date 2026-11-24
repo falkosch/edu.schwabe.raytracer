@@ -6,28 +6,17 @@ The user's standard since 2026-11-24: lighting must be physically based. Approxi
 what is considered near-physical behaviour; invented lighting behaviour isn't. MIS, rough transmission and adaptive
 sampling were built to that standard (`DONE/rendering-distribution-noise.md`, section 6). Reviewing them turned up
 gaps in the older material and light model. They predate that work and change Whitted renders, so they stayed out of
-its scope and are collected here.
+its scope and are collected here. Lambert's 1/pi is done: `DONE/rendering-physical-material-model.md`.
 
 The user agreed on 2026-11-24 that this item's fixes may change Whitted renders
 (`--glossy-samples=0 --sphere-light-samples=0`): where the model is wrong, the Whitted image is wrong too.
 
 ## Scope
 
-Each point: what the code does, what physics says, the fix. The order is the suggested work order: the units and
-the specular lobe first, because the energy points build on them.
+Each point: what the code does, what physics says, the fix. The order is the suggested work order: the specular
+lobe first, because the energy points build on it.
 
-### 1. Lambert's 1/pi
-
-- `brdf::applyBRDF` multiplies the diffuse albedo by the irradiance (`lighting.diffuse`: the light's emittance times
-  the cosine and the falloff, a box light's radiance times `BoxLightFaces::projectedSolidAngle`). The Lambert BRDF
-  is albedo / pi, so diffuse surfaces come out pi times too bright relative to the highlights (`F D G / (4 NoV NoL)`
-  times the irradiance, correct), the reflections and the emitters' own radiance. A white wall facing a box light
-  that fills its hemisphere (projected solid angle pi) shows pi times the light's radiance: more light than arrives.
-- Fix: divide the diffuse term by pi (`applyBRDF`, also the ambient part once it is defined as a radiance), then
-  re-tune the scenes' lights (see Scenes). `rendering-diffuse-interreflection.md` raised the same units question for
-  its diffuse rays.
-
-### 2. One specular BRDF for highlights and reflections
+### 1. One specular BRDF for highlights and reflections
 
 - Highlights (`SceneShader::sampleLighting`'s point light highlight, `sampleSphereLight`, `sampleBoxLight`,
   `weighedEmitterHighlight` in `Raytracer.cpp`) take Schlick's Fresnel of the specular channel (F0) times GGX.
@@ -48,7 +37,7 @@ the specular lobe first, because the energy points build on them.
   whole lobe (at most 1, like OpenPBR's `specular_weight`), so highlights and reflections stay one BRDF. All scenes
   feed it constants (`ConstMaterialShader`).
 
-### 3. Exact dielectric Fresnel
+### 2. Exact dielectric Fresnel
 
 - `brdf::fresnelReflectance` (both overloads), the shadow rays' `fresnelTransmission` (`SceneShader.cpp`) and
   `SceneMaterial::dielectric`'s F0 use Schlick's approximation. Its (1 - cos)^5 term doesn't vanish for R0 = 0: at
@@ -61,7 +50,7 @@ the specular lobe first, because the energy points build on them.
   are also what `illumination-polarized-spectral-enabler.md` (polarized Fresnel) and
   `illumination-dispersion-refraction.md` (per-wavelength indices) build on.
 
-### 4. Energy of the layers
+### 3. Energy of the layers
 
 - `applyBRDF` adds the diffuse term, the highlights and the reflection weighted by Fresnel without the diffuse
   giving way. A plastic (`SceneMaterial::plastic`: a diffuse colour, specular 0.04) reflects nearly all light
@@ -74,7 +63,7 @@ the specular lobe first, because the energy points build on them.
   Imageworks"); for a mirror coating 1 - F at both angles. Transmission and diffusion share what the coating
   transmits.
 
-### 5. Multiple scattering in microfacets
+### 4. Multiple scattering in microfacets
 
 - GGX with Smith masking scatters once: light that a microfacet reflects onto another is lost. The loss grows with
   roughness (white furnace test, Kulla and Conty 2017). Rough metals and the frosted glass of the Dragon scene come
@@ -83,7 +72,7 @@ the specular lobe first, because the energy points build on them.
   E(mu, alpha) (and eta for dielectrics), computed at startup or embedded. Highlights, glossy reflections and rough
   transmission alike.
 
-### 6. Light falloff
+### 5. Light falloff
 
 - Point lights fall off as 1 / (c + l d + q d^2) (`SceneShader::attenuateDiffuseIntensity`,
   `LightInfo::attenuationFactors`, OpenGL's model). The Forms, Materials and Meshes scenes use (1, 0, 0), no falloff;
@@ -93,48 +82,52 @@ the specular lobe first, because the energy points build on them.
 - Fix: inverse square for point and sphere lights; a directional light kind for distant lights. Decide whether
   `attenuationFactors` goes. The scenes' key and fill lights get re-tuned (see Scenes).
 
-### 7. Sphere lights at the horizon
+### 6. Sphere lights at the horizon
 
 - A sphere light's diffuse light is the shadow rays' lit fraction times the Lambert cosine at the sphere's center
   times the falloff (`SceneShader::sampleSphereLight`, `computeLitSphereFraction`). That is exact for a sphere fully
   above the horizon. Where the horizon cuts it, the cosine at the center underestimates, and a center below the
   horizon gives no light at all (`isNegative(dotv(L, surfaceNormal))` returns) although part of the sphere is above.
+  Measured (from `rendering-cornell-box-area-light.md`): radius 0.5 at a horizontal distance of 1, center height
+  above the horizon: 0.3 gives 0.95 of the exact irradiance, 0.1 gives 0.59, 0 gives 0 (exact 0.091), -0.2 gives 0
+  (exact 0.028); radius 0.5 at (0.6, 0.2) gives 0.79. `SceneShaderTest::sphereLightIrradianceIsExactAboveTheHorizon`
+  covers the exact part. A horizon-clipped irradiance would also let sphere lights drop `attenuationFactors` (5).
 - Fix: the form factor of a sphere cut by the horizon (Snyder 1996, "Area light sources for real-time graphics";
   Lagarde and de Rousiers 2014, "Moving Frostbite to PBR"); its cap sampling (`SphereLightCap`) then has to cover
   the part above the horizon. Also consider weighing each shadow ray by its own cosine per density (as the
   highlight does) instead of the lit fraction times the unshadowed irradiance, which treats all visible points of a
   partly shadowed light alike.
 
-### 8. Box light emitters
+### 7. Box light emitters
 
 - `addBoxLight` (`raytracerui`, `SceneObjects.cpp`) gives the emitter box `SceneMaterial::emissive(radiance)` on all
   six faces, while `LightInfo::emittingFaces` lets only some faces emit (the Cornell box's ceiling panel downwards,
   the Showcase's softbox to the front). A direct view or a mirror shows the other faces glowing (the softbox's back
-  in the Showcase's chrome sphere). A glossy ray that hits one of them returns black (`Raytracer::trace`'s emitter
-  branch), not the face's material.
+  in the Showcase's chrome sphere, the ceiling light's 1 cm sides in the Cornell box's mirrors). A glossy ray that
+  hits one of them returns black (`Raytracer::trace`'s emitter branch), not the face's material.
 - Fix: an emitter emits only where its light does: the emittance per face (a shader masking the box's faces, or the
   emitter taking its emittance from its `LightInfo`), the other faces with a plain material.
 
-### 9. Dragging a light
+### 8. Dragging a light
 
-- The Light interaction mode (`WindowsRaytracerUI.cpp`, `DragTypes::Light`) moves the last `LightInfo` only. Its
-  emitter stays and glows where the light was; since the MIS work, `SceneShader::lightPointDensity` ignores an
-  emitter off its light.
+- The Light interaction mode (key 3; `WindowsRaytracerUI.cpp`, `DragTypes::Light`) moves the last `LightInfo` only:
+  the Cornell box's box light, the Lighting scene's orange sphere light. Its emitter stays and glows where the light
+  was; since the MIS work, `SceneShader::lightPointDensity` ignores an emitter off its light.
 - Fix: move the light's emitter with it (the scene object whose `ObjectShader::getEmittedLight()` is the light),
   through `Raytracer::enqueueWork`.
 
-### 10. The firefly clamp
+### 9. The firefly clamp
 
 - `raytracerui` limits each glossy ray's radiance to 4 (`GLOSSY_CLAMP`, `spectral::limitPeak` in
   `traceGlossyReflection`; the library's default 0 is off). That removes energy, a bias that more samples don't
   remove (darker glossy reflections of bright objects); the noise measurements' references use `--glossy-clamp=0`.
   Rough transmission doesn't clamp.
-- Fix: measure the fireflies without the clamp now that MIS covers the area lights (and after 5); default off, or
+- Fix: measure the fireflies without the clamp now that MIS covers the area lights (and after 4); default off, or
   documented as the one biased option.
 
 ### Scenes
 
-- After 1, 2 and 6 the scenes' lights and hand-written materials need re-tuning: the Cornell box (its glass teapot
+- After 1 and 5 the scenes' lights and hand-written materials need re-tuning: the Cornell box (its glass teapot
   as `SceneMaterial::dielectric`, its mirror sphere, the box light's radiance at exposure 0), Test Scenes 1 and 2,
   the Dragon scene, and the test scenes' key and fill lights. Keep each scene's look where it was physical.
 - New Cornell box regression block in the root `CLAUDE.md`.
@@ -156,22 +149,23 @@ Near-physical and documented, not part of this item:
 - One commit per point, each with renders of all test scenes before and after (Whitted and default), and the
   change explained.
 - Tests per point:
-    - a white Lambert surface under an emitter that fills its hemisphere shows the emitter's radiance (1)
-    - a light's highlight equals the glossy reflection of an emitter of the same radiance and shape (2)
+    - a light's highlight equals the glossy reflection of an emitter of the same radiance and shape (1)
     - Fresnel: 0 at all angles for equal indices, ((n1 - n2) / (n1 + n2))^2 at normal incidence, 1 beyond the
-      critical angle (3)
-    - white furnace tests: a surface of albedo 1 reflects at most 1 at every angle (4), and about 1 with the
-      compensation (5)
-    - a point light's irradiance falls as 1 / d^2 (6)
-    - the horizon-cut sphere's form factor against numeric integration, center below the horizon included (7)
-    - a ray to a non-emitting face of a box emitter sees no emittance (8)
+      critical angle (2)
+    - white furnace tests: a surface of albedo 1 reflects at most 1 at every angle (3), and about 1 with the
+      compensation (4)
+    - a point light's irradiance falls as 1 / d^2 (5)
+    - the horizon-cut sphere's form factor against numeric integration, center below the horizon included (6)
+    - a ray to a non-emitting face of a box emitter sees no emittance (7)
 - New code follows `simd-scalar-hot-paths.md`: vector operations, no scalar fallbacks.
 
 ## Related backlog items
 
-- `illumination-metal-ior-data.md`: conductor Fresnel from n and k; builds on 2 (which channel gives metals F0)
-- `rendering-diffuse-interreflection.md`: diffuse rays instead of the ambient light; shares 1's units
-- `illumination-dispersion-refraction.md`, `illumination-polarized-spectral-enabler.md`: build on 3
+- `rendering-cornell-box-area-light.md`: 6 to 8 came from its open points
+- `illumination-metal-ior-data.md`: conductor Fresnel from n and k; builds on 1 (which channel gives metals F0)
+- `rendering-diffuse-interreflection.md`: diffuse rays instead of the ambient light, in the units of
+  `DONE/rendering-physical-material-model.md`
+- `illumination-dispersion-refraction.md`, `illumination-polarized-spectral-enabler.md`: build on 2
 - `DONE/rendering-distribution-noise.md`, section 6: where these gaps were found
 
 ## Key files
