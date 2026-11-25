@@ -92,6 +92,37 @@ namespace vectorization::test {
       Assert::AreEqual(0.0f, z(actual), 0.001f, L"Z should be 0", LINE_INFO());
     }
 
+    TEST_METHOD(rotateByQuarterTurnsIsExact) {
+      // exact zeros and ones at every multiple of 90 degrees, also negative and beyond a full turn: rotated into a
+      // floor, a plane's normal must not tilt (cos 90 degrees in radians rounds to -4.4e-8)
+      const v_f32_4 zAxis{0.0f, 0.0f, 1.0f, 0.0f};
+      const struct {
+        float angle;
+        float y;
+        float z;
+      } quarterTurns[] = {
+          {-90.0f, 1.0f, 0.0f}, {90.0f, -1.0f, 0.0f}, {180.0f, 0.0f, -1.0f}, {270.0f, 1.0f, 0.0f},
+          {-180.0f, 0.0f, -1.0f}, {450.0f, -1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}
+      };
+      for (const auto &turn : quarterTurns) {
+        const auto actual = rotate(Identity<m_f32_4x4>(), turn.angle, v_f32_4{1.0f, 0.0f, 0.0f, 0.0f}) * zAxis;
+        Assert::AreEqual(0.0f, x(actual), L"x", LINE_INFO());
+        Assert::AreEqual(turn.y, y(actual), L"y", LINE_INFO());
+        Assert::AreEqual(turn.z, z(actual), L"z", LINE_INFO());
+      }
+    }
+
+    TEST_METHOD(rotateBetweenQuarterTurnsKeepsTheAngle) {
+      // 30 and 120 degrees around x: the remainder after the quarter turns rotates as before
+      for (const auto angle : {30.0f, 120.0f, -150.0f, 44.0f, 46.0f}) {
+        const auto actual = rotate(Identity<m_f32_4x4>(), angle, v_f32_4{1.0f, 0.0f, 0.0f, 0.0f}) *
+                            v_f32_4{0.0f, 1.0f, 0.0f, 0.0f};
+        const auto radian = angle * 3.14159265358979f / 180.0f;
+        Assert::AreEqual(std::cos(radian), y(actual), 1e-6f, L"y", LINE_INFO());
+        Assert::AreEqual(std::sin(radian), z(actual), 1e-6f, L"z", LINE_INFO());
+      }
+    }
+
     TEST_METHOD(rotateByThreeSixtyDegreesApproximatesIdentity) {
       const auto rotated = rotate(Identity<m_f32_4x4>(), 360.0f, v_f32_4{0.0f, 0.0f, 1.0f, 0.0f});
       const v_f32_4 xAxis{1.0f, 0.0f, 0.0f, 1.0f};

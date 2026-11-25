@@ -5,6 +5,7 @@
 #include <raytracing/Raytracer.h>
 #include <raytracing/common/RefractionIndices.h>
 #include <raytracing/geometry/forms/Box.h>
+#include <raytracing/geometry/forms/Plane.h>
 #include <raytracing/scene/Camera.h>
 #include <raytracing/scene/Resources.h>
 #include <raytracing/scene/Scene.h>
@@ -389,6 +390,31 @@ namespace raytracer::test {
       const auto clear = render(0.0f);
       Assert::IsTrue(clear > 0.5f, L"the wall through the pane", LINE_INFO());
       Assert::AreEqual(sqr(1.0f - 0.5f), render(0.5f) / clear, 0.005f, L"half at each face", LINE_INFO());
+    }
+
+    TEST_METHOD(aFloorDoesNotShadowADirectionalLightAtItsHorizon) {
+      // A directional light along the view (the test scenes' camera light), at the horizon of an infinite floor below
+      // the wall: a plane rotated by -90 degrees, as Test Scene 1's. The wall's shadow ray runs parallel to the floor
+      // and reaches the light; when cos 90 degrees rounded to -4.4e-8, the tilted floor met it 3e7 away.
+      const auto render = [](const bool withFloor) {
+        Scene scene{};
+        setUpEmpty(scene);
+        scene.getSceneObjects().push_back(wall());
+        if (withFloor) {
+          auto floor = panel(Float3(1.0f, 1.0f, 1.0f), Float3(0.0f, -1.5f, 0.0f), Float4(1.0f, 1.0f, 1.0f, 0.0f));
+          floor->setForm(std::make_unique<Plane>());
+          floor->rotate(Float3(-90.0f, 0.0f, 0.0f));
+          scene.getSceneObjects().push_back(std::move(floor));
+        }
+        auto light = std::make_unique<LightInfo>();
+        light->emittance = RGBS(1.0f, 1.0f, 1.0f);
+        light->direction = Float4(0.0f, 0.0f, 1.0f, 0.0f);
+        scene.getLights().push_back(std::move(light));
+        return rgbSum(renderWallCenter(scene, 0, false, 0));
+      };
+      const auto open = render(false);
+      Assert::IsTrue(open > 0.1f, L"the light reaches the wall", LINE_INFO());
+      Assert::AreEqual(open, render(true), 1e-6f, L"also above the floor", LINE_INFO());
     }
 
     TEST_METHOD(glossyRaysSeeTheMaterialOfAnEmittersFacesThatDontEmit) {

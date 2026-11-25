@@ -12,6 +12,7 @@ namespace vectorization {
 
   m_f32_4x4 scale(const m_f32_4x4 &matrix, const m_f32_4x4::RowVectorType &scale) noexcept;
 
+  // The matrix rotated by the angle (in degrees) around the axis; multiples of 90 degrees rotate exactly
   m_f32_4x4 rotate(
       const m_f32_4x4 &matrix, m_f32_4x4::ValueType angleInDegree, const m_f32_4x4::RowVectorType &rotationAxis
   ) noexcept;
