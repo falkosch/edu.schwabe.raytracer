@@ -168,12 +168,13 @@ Traversers (template on intersection type):
       without falloff) into its cone (`angularRadius`, uniform in solid angle), lighting from its direction; its
       highlight is the lobe widened by the cone (Karis 2013), and it has no emitter
 
-  Point and sphere lights fall off as the inverse square of the distance (their emittance is an intensity). The
-  light's emissive object (`setLightEmitter`, which takes the light) shows in mirrors; the glossy rays of rough
-  surfaces see it weighed against the shadow rays (multiple importance sampling), and skip it without shadow rays.
-  Only these `LightInfo`s light the scene by light sampling: the emittance of any other object (meshes, emissive
-  textures, boxes without a box light) makes it glow where it is seen, and it lights other surfaces only through their
-  diffuse rays (`diffuseSamples`) and reflections
+  Point and sphere lights fall off as the inverse square of the distance (their emittance is an intensity). The light's
+  emissive object (`setLightEmitter`, which takes the light; only where it emits, `ObjectShader::emitsAt`: a box light's
+  emitter emits from the light's emitting faces, `BoxFacesShader`) shows in mirrors; the glossy rays of rough surfaces
+  see it weighed against the shadow rays (multiple importance sampling), and skip it without shadow rays. Only these
+  `LightInfo`s light the scene by light sampling: the emittance of any other object (meshes, emissive textures, boxes
+  without a box light) makes it glow where it is seen, and it lights other surfaces only through their diffuse rays
+  (`diffuseSamples`) and reflections
 - `ObjectShader` -- per-object: 7 `MaterialShader` slots (diffusion, reflectance, specular, roughness,
   transmittance, refractionEta, emittance) + texture transform
 - `SpectralContext` -- per hero wavelength: wavelengths, Smits basis, XYZ context, ambient and per-light spectra;
@@ -183,7 +184,8 @@ Traversers (template on intersection type):
 - `beerLambertTransmittance()` (`beer_lambert_transmittance.h`) -- the absorption along a path through a
   transmissive material, for transmitted rays (`traceTransmission`) and shadow rays (`transmitShadowRay`)
 - Concrete shaders: `ConstShader`, `HDRImageShader`, `EnvironmentShader`, `IntersectionNormalShader`,
-  `MultiplyByConstShader`, `ConcatenatingShader`, `NoiseGeneratorMap<Octaves>`
+  `MultiplyByConstShader`, `ConcatenatingShader`, `NoiseGeneratorMap<Octaves>`, `BoxFacesShader` (one value on a
+  box's faces of a mask, another elsewhere)
 - `EnvironmentShader` maps the ray direction into its image by an `EnvironmentProjection`
   (`environment_coordinates.h`; the image center faces the start camera's view direction -z; latitude-longitude maps
   sample with `TextureWrap::ClampV`, the disc projections with `Clamp`). The projections of `data/textures`:

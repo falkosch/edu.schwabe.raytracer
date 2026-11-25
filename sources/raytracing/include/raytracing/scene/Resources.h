@@ -3,6 +3,7 @@
 #include "../common/HDRImage.h"
 #include "../geometry/forms/meshes/Mesh.h"
 #include "../shading/ObjectShader.h"
+#include "../shading/shaders/BoxFacesShader.h"
 #include "../shading/shaders/ConstShader.h"
 #include "../shading/shaders/MultiplyByConstShader.h"
 
@@ -17,6 +18,8 @@ namespace raytracer
     {
     public:
         typedef ConstShader<ObjectShader, FacetIntersection, Float4> ConstMaterialShader;
+
+        typedef BoxFacesShader<ObjectShader, FacetIntersection, Float4> BoxFacesMaterialShader;
 
         typedef MultiplyByConstShader<ObjectShader, FacetIntersection, Float4, ObjectShader::MaterialShader>
         MultiplyByConstMaterialShader;

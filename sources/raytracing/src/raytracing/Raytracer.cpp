@@ -822,8 +822,9 @@ namespace raytracer
         const auto& objectShader = *dynamic_cast<const ObjectShader*const>(brdf.intersection.object);
 
         // a glossy reflection gets an area light by its highlight: the light's emissive object would add it twice,
-        // unless the reflection weighs it against the highlight's shadow rays
-        if (raytrace.glossy && objectShader.isLightEmitter())
+        // unless the reflection weighs it against the highlight's shadow rays. Where the emitter doesn't emit (a box
+        // light's faces that don't), it is a surface like any other.
+        if (raytrace.glossy && objectShader.isLightEmitter() && objectShader.emitsAt(brdf.intersection))
         {
             if (raytrace.weighsEmitters)
             {

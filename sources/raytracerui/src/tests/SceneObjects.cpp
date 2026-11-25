@@ -73,10 +73,17 @@ namespace raytracerui
         );
         light->emittingFaces = emittingFaces;
 
+        // the box emits from the light's emitting faces only; the others are a light grey matte housing
         auto emitter = createSceneObject(
             std::move(id), std::make_unique<Box>(), SceneMaterial::emissive(radiance),
             {halfExtents, rotation, Float3(x(center), y(center), z(center))}
         );
+        emitter->setEmittanceShader(
+            std::make_unique<Resources::BoxFacesMaterialShader>(emittingFaces, zeroW(radiance), Zero<Float4>())
+        );
+        emitter->setDiffusionShader(std::make_unique<Resources::BoxFacesMaterialShader>(
+            emittingFaces, Zero<Float4>(), Float4(0.6f, 0.6f, 0.6f, 0.f)
+        ));
         emitter->setLightEmitter(light.get());
         scene.getSceneObjects().push_back(std::move(emitter));
         scene.getLights().push_back(std::move(light));

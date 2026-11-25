@@ -216,6 +216,7 @@ set(HEADERS
         include/raytracing/shading/spectral/spectrum.h
         include/raytracing/shading/spectral/table_lookup.h
         include/raytracing/shading/spectral/wavelengths.h
+        include/raytracing/shading/shaders/BoxFacesShader.h
         include/raytracing/shading/shaders/ConcatenatingShader.h
         include/raytracing/shading/shaders/ConstShader.h
         include/raytracing/shading/power_heuristic.h

@@ -58,16 +58,16 @@ both use it. Append new scenes there (and keep the order, the dropdown index fol
 - `ShowcaseScene` (`showcase`) -- studio demo: glass dragon, gold bunny, chrome sphere on marble, diamond, lit by a
   round softbox (a sphere light) and a rectangular fill softbox (a box light emitting from its front face)
 
-The new scenes are composed for the start camera (the dropdown doesn't move the camera) and build on
-`SceneMaterial` (the seven material channels as constants, with factories), `createSceneObject`, `addSphereLight`
-(an emissive sphere with its sphere light) and `addBoxLight` (an emissive box with its box light and its emitting
-faces). Their lights' intensities and radiances carry a factor pi: a white surface facing a light reflects its
-irradiance / pi (Lambert), so a light of pi lights it to 1. Point and sphere lights fall off as the inverse square of
-the distance; the Forms and Meshes scenes' key and fill are directional lights (`LightInfo::direction`, no falloff). No
-scene sets an ambient light (all 0 since 2026-11-24, until the object explorer sets it per scene,
-`.backlog/object-explorer.md`): the library's stand-in for the interreflection where no diffuse rays gather it
-(everywhere in Whitted ray tracing, at the hits of diffuse rays the further bounces), so without diffuse rays, what no
-light reaches stays black.
+The new scenes are composed for the start camera (the dropdown doesn't move the camera) and build on `SceneMaterial`
+(the seven material channels as constants, with factories), `createSceneObject`, `addSphereLight` (an emissive sphere
+with its sphere light) and `addBoxLight` (a box emitting from its box light's emitting faces, a grey matte housing
+elsewhere, with its box light). Their lights' intensities and radiances carry a factor pi: a white surface facing a
+light reflects its irradiance / pi (Lambert), so a light of pi lights it to 1. Point and sphere lights fall off as the
+inverse square of the distance; the Forms and Meshes scenes' key and fill are directional lights
+(`LightInfo::direction`, no falloff). No scene sets an ambient light (all 0 since 2026-11-24, until the object explorer
+sets it per scene, `.backlog/object-explorer.md`): the library's stand-in for the interreflection where no diffuse rays
+gather it (everywhere in Whitted ray tracing, at the hits of diffuse rays the further bounces), so without diffuse rays,
+what no light reaches stays black.
 
 ## Command line
 

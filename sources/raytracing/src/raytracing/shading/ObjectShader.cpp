@@ -156,6 +156,11 @@ namespace raytracer
         return reflectanceShader->sample(*this, intersection);
     }
 
+    bool ObjectShader::emitsAt(const FacetIntersection& intersection) const
+    {
+        return anyTrue3(emittanceShader->sample(*this, intersection) > Zero<Float4>());
+    }
+
     Float4 ObjectShader::sampleDiffusion(const FacetIntersection& intersection) const
     {
         return diffusionShader->sample(*this, intersection);

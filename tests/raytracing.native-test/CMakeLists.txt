@@ -36,6 +36,7 @@ set(SOURCES
         src/raytracing/shading/brdf/sample_lambert_test.cpp
         src/raytracing/shading/brdf/SpecularAlbedo_test.cpp
         src/raytracing/shading/brdf/SpecularFresnel_test.cpp
+        src/raytracing/shading/shaders/BoxFacesShader_test.cpp
         src/raytracing/shading/shaders/environment_coordinates_test.cpp
         src/raytracing/shading/shaders/NoiseGeneratorMap_test.cpp
         src/raytracing/shading/color/primaries_test.cpp

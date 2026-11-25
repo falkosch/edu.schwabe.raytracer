@@ -28,10 +28,10 @@ namespace raytracerui {
   // radiance * pi * radius^2 (falling off as the inverse square of the distance)
   void addSphereLight(Scene &scene, std::string id, const Float4 &center, Float radius, const Float4 &radiance);
 
-  // A box light with its emitter: an emissive box of the radiance (what the camera sees, on all its faces) with the
-  // half extents, rotated by the angles in degrees (as Placement::rotation) about its center, marked as the light's
-  // emitter, and a box light of the same placement whose emitting faces (LightInfo::faceBit) light the scene with that
-  // radiance
+  // A box light with its emitter: a box of the half extents, rotated by the angles in degrees (as Placement::rotation)
+  // about its center, marked as the light's emitter, whose emitting faces (LightInfo::faceBit) emit the radiance (what
+  // the camera sees) and whose other faces are a light grey matte housing, and a box light of the same placement whose
+  // emitting faces light the scene with that radiance
   void addBoxLight(
       Scene &scene, std::string id, const Float4 &center, const Float3 &halfExtents, const Float3 &rotation,
       const Float4 &radiance, UInt_32 emittingFaces = LightInfo::AllFaces

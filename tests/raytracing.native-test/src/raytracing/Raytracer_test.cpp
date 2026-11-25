@@ -395,6 +395,37 @@ namespace raytracer::test {
       Assert::AreEqual(sqr(1.0f - 0.5f * white), render(0.5f) / clear, 0.005f, L"half at each face", LINE_INFO());
     }
 
+    TEST_METHOD(glossyRaysSeeTheMaterialOfAnEmittersFacesThatDontEmit) {
+      // the square light emits upwards, away from the wall below it: the wall's glossy reflection of the emitter's
+      // bottom (a grey housing under the ambient light) is that of the same box as a plain object, not black
+      const auto render = [](const bool asLight) {
+        Scene scene{};
+        setUpEmpty(scene, RGBS::black(), RGBS(1.0f, 1.0f, 1.0f));
+        scene.getSceneObjects().push_back(glossyWall(1.0f, 1.0f, 0.3f));
+        auto emitter = squareEmitter();
+        emitter->setEmittanceShader(std::make_unique<Resources::BoxFacesMaterialShader>(
+            LightInfo::faceBit(1, true), Float4(1.0f, 1.0f, 1.0f, 0.0f), Zero<Float4>()
+        ));
+        emitter->setDiffusionShader(std::make_unique<Resources::BoxFacesMaterialShader>(
+            LightInfo::faceBit(1, true), Zero<Float4>(), Float4(0.6f, 0.6f, 0.6f, 0.0f)
+        ));
+        auto light = squareLight();
+        light->emittingFaces = LightInfo::faceBit(1, true);
+        if (asLight) {
+          emitter->setLightEmitter(light.get());
+          scene.getLights().push_back(std::move(light));
+        }
+        scene.getSceneObjects().push_back(std::move(emitter));
+        RaytraceParameters parameters{};
+        parameters.glossySamples = 64;
+        parameters.sphereLightSamples = 16;
+        return rgbSum(renderWallCenter(scene, parameters, 3));
+      };
+      const auto plain = render(false);
+      Assert::IsTrue(plain > 0.01f, L"the housing in the reflection", LINE_INFO());
+      Assert::AreEqual(plain, render(true), 1e-4f * plain, L"the same as a light's emitter", LINE_INFO());
+    }
+
     TEST_METHOD(diffuseRaysSkipTheEmissiveObjectsOfAreaLights) {
       // the shadow rays bring the light's light; a diffuse ray that finds its emitter adds nothing
       Scene scene{};

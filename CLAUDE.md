@@ -102,7 +102,8 @@ spectrum -> XYZ -> sRGB-linear -> AgX (display-encoded, no extra sRGB encoding).
 - **Shading**: SceneShader (per-light Lambert diffuse + GGX specular, inverse-square falloff, shadows with a cache,
   through transmissive objects and soft for sphere, box and directional lights), ObjectShader (7 material channels:
   diffusion, reflectance, specular, roughness, transmittance, refractionEta, emittance), concrete shaders (Const,
-  HDRImage, Environment with five projections, IntersectionNormal, MultiplyByConst, Concatenating, NoiseGeneratorMap)
+  HDRImage, Environment with five projections, IntersectionNormal, MultiplyByConst, Concatenating, NoiseGeneratorMap,
+  BoxFaces)
 - **Color**: sRGB/Rec.2020 primaries, Bradford chromatic adaptation, AgX and ACES filmic view transforms
 - **Utilities**: RGBS color type, Bitmap, HDRImage, Perlin/Simplex noise, StatisticsCookie, RaytracerPackets
 
@@ -172,15 +173,15 @@ Normal logs right after start:
 [0.017] - INFO Scene : done
 [0.023] - INFO UI : Resizing output to 512x512
 [0.025] - INFO Raytracer : Raytrace 1 (512x512):
-[0.352] - INFO Raytracer : Irradiance cache: 9551 records
-[0.769] - INFO Raytracer : Duration: 0.736830s
-[0.769] - INFO UI : primaryRays 262144/0
-[0.769] - INFO UI : secondaryRays 4858432/871188
-[0.769] - INFO UI : shadowRays 5757770/5555708
-[0.769] - INFO UI : objectShadowRays 6523195/5731738
-[0.769] - INFO UI : kdTree nodesVisited=19716721 rootOverlapMisses=9486982
-[0.771] - INFO UI : Saving ray-traced image ...
-[0.791] - INFO UI : ray-traced.png saved: 1
+[0.464] - INFO Raytracer : Irradiance cache: 9577 records
+[0.957] - INFO Raytracer : Duration: 0.933766s
+[0.957] - INFO UI : primaryRays 262144/0
+[0.957] - INFO UI : secondaryRays 4911437/885231
+[0.957] - INFO UI : shadowRays 5808690/5604321
+[0.957] - INFO UI : objectShadowRays 6575845/5782658
+[0.957] - INFO UI : kdTree nodesVisited=19937648 rootOverlapMisses=9572216
+[0.959] - INFO UI : Saving ray-traced image ...
+[0.977] - INFO UI : ray-traced.png saved: 1
 ```
 
 The ray counters and the number of irradiance records are deterministic for a build (glossy reflections, diffuse rays
