@@ -12,7 +12,7 @@ namespace raytracer
 {
     // Photopic Y value matching spectrumToXYZ's convention (Σ(SPD·ȳ)/Σ(ȳ)). Used to
     // normalize SPDs so `brightness=X` lands the spectrum's Y at X — equivalent in
-    // perceived luminance to RGB(X, X, X) under the same Smits-upsampled white.
+    // perceived luminance to RGB(X, X, X), whose spectrum is D65 of luminance X (spectral::rgbToIlluminant).
     static Float photopicLuminance(const Float8& spd) noexcept
     {
         const auto wavelengths = spectral::wavelengthsAt(spectral::LAMBDA_MIN);

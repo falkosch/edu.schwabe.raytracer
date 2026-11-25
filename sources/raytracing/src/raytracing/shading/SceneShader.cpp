@@ -438,7 +438,8 @@ namespace raytracer
                 return Zero<spectral::SpectralVector>();
             }
             const auto eta = shader->sampleRefractionEta(entry);
-            const auto absorptionLengths = spectralContext.fromRGB(shader->sampleTransmittance(entry)).data;
+            const auto absorptionLengths =
+                spectralContext.absorptionLengthsFromRGB(shader->sampleTransmittance(entry)).data;
             fraction *= interfaceTransmission(*shader, entry, eta, spectralContext, x(entry.smoothedNdotI));
 
             // the exit through the same object, seen from inside

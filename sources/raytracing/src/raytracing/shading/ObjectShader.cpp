@@ -175,7 +175,7 @@ namespace raytracer
             spectralContext.reflectanceFromRGB(reflectanceShader->sample(*this, intersection)),
             spectralContext.reflectanceFromRGB(specularShader->sample(*this, intersection)),
             roughnessShader->sample(*this, intersection),
-            spectralContext.fromRGB(transmittanceShader->sample(*this, intersection)),
+            spectralContext.absorptionLengthsFromRGB(transmittanceShader->sample(*this, intersection)),
             refractionEtaShader->sample(*this, intersection),
             spectralContext.fromRGB(emittanceShader->sample(*this, intersection))
         };

@@ -29,6 +29,11 @@ namespace raytracer
 
     spectral::Spectrum SpectralContext::fromRGB(const Float4& rgb) const noexcept
     {
+        return spectral::Spectrum{spectral::rgbToIlluminant(rgb, smitsBasis)};
+    }
+
+    spectral::Spectrum SpectralContext::absorptionLengthsFromRGB(const Float4& rgb) const noexcept
+    {
         return spectral::Spectrum{spectral::rgbToSpectrum(rgb, smitsBasis)};
     }
 

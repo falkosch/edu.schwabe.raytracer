@@ -67,7 +67,7 @@ namespace raytracer
 
         // `brightness` is calibrated against the same Y convention as spectrumToXYZ:
         // brightness=X produces a spectrum whose Y component is X, equivalent in
-        // perceived luminance to an RGB(X, X, X) light under the same upsampling.
+        // perceived luminance to an RGB(X, X, X) light (D65 of luminance X, spectral::rgbToIlluminant).
         // Two lights with the same brightness look equally bright regardless of color.
         static LightInfo blackbody(Float temperatureKelvin, Float brightness) noexcept;
         static LightInfo d65(Float brightness) noexcept;

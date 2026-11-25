@@ -1,6 +1,9 @@
 #include "raytracing/shading/spectral/smits.h"
 
+#include "raytracing/shading/spectral/cmf.h"
+#include "raytracing/shading/spectral/illuminants.h"
 #include "raytracing/shading/spectral/table_lookup.h"
+#include "raytracing/shading/spectral/wavelengths.h"
 
 #include <vectorization.h>
 
@@ -112,12 +115,38 @@ namespace raytracer::spectral
         return 1.0f / peak;
     }
 
-    SmitsBasis smitsBasisAt(const Float8& wavelengths) noexcept
+    static TableCoordinates smitsCoordinates(const Float8& wavelengths) noexcept
     {
-        const auto coordinates = tableCoordinates(
+        return tableCoordinates(
             wavelengths, SMITS_LAMBDA_MIN,
             (SMITS_LAMBDA_MAX - SMITS_LAMBDA_MIN) / static_cast<Float>(SMITS_SAMPLES - 1), SMITS_SAMPLES
         );
+    }
+
+    // The scale of D65 under which the light of white (Smits' white times D65 and reflectanceScale) has luminance 1:
+    // spectrumToXYZ's Y averaged over the hero wavelengths of one wavelength step, 1 nm apart, which together sample
+    // the visible range evenly
+    static Float illuminantScale() noexcept
+    {
+        constexpr auto Steps = 50;
+        auto luminance = Zero<Float8>();
+        auto yBarSum = Zero<Float8>();
+        for (auto step = 0; step < Steps; ++step)
+        {
+            const auto wavelengths =
+                wavelengthsAt(LAMBDA_MIN + DELTA_LAMBDA * static_cast<Float>(step) / static_cast<Float>(Steps));
+            const auto yBar = cmfAt(wavelengths).yBar;
+            const auto white = lookupTable(g_white, smitsCoordinates(wavelengths)) * Float8(reflectanceScale());
+            luminance = multiplyAdd(white * illuminantAt(Illuminant::D65, wavelengths), yBar, luminance);
+            yBarSum += yBar;
+        }
+        return horizontalSum(yBarSum) / horizontalSum(luminance) * reflectanceScale();
+    }
+
+    SmitsBasis smitsBasisAt(const Float8& wavelengths) noexcept
+    {
+        static const auto Scale = illuminantScale();
+        const auto coordinates = smitsCoordinates(wavelengths);
         return SmitsBasis{
             lookupTable(g_white, coordinates),
             lookupTable(g_cyan, coordinates),
@@ -125,7 +154,8 @@ namespace raytracer::spectral
             lookupTable(g_yellow, coordinates),
             lookupTable(g_red, coordinates),
             lookupTable(g_green, coordinates),
-            lookupTable(g_blue, coordinates)
+            lookupTable(g_blue, coordinates),
+            illuminantAt(Illuminant::D65, wavelengths) * Float8(Scale)
         };
     }
 
@@ -211,5 +241,10 @@ namespace raytracer::spectral
     {
         static constexpr Float Scale = reflectanceScale();
         return min(One<Float8>(), rgbToSpectrum(rgb, basis) * Float8(Scale));
+    }
+
+    Float8 rgbToIlluminant(const Float4& rgb, const SmitsBasis& basis) noexcept
+    {
+        return rgbToSpectrum(rgb, basis) * basis.illuminant;
     }
 }

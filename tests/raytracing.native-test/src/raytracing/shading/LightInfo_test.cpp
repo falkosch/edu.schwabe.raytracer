@@ -132,6 +132,22 @@ namespace raytracer::test
             Assert::AreEqual(y1, y2, 0.05f, L"D65 Y stable across hero shifts", LINE_INFO());
         }
 
+        // An RGB light of white is D65 (the white of sRGB), proportional at every wavelength
+        TEST_METHOD(rgbWhiteLightIsD65)
+        {
+            LightInfo white;
+            white.emittance = RGBS{Float4{1.0f, 1.0f, 1.0f, 0.0f}};
+            const auto d65 = LightInfo::d65(1.0f);
+            for (const auto hero : {spectral::LAMBDA_MIN, 403.0f, 427.0f})
+            {
+                const auto wavelengths = spectral::wavelengthsAt(hero);
+                const auto ratio = sampleEmitter(white, wavelengths).data / sampleEmitter(d65, wavelengths).data;
+                const auto first = x1(ratio);
+                Assert::IsTrue(allTrue(abs(ratio - Float8(first)) <= Float8(0.005f * first)), L"D65's shape",
+                               LINE_INFO());
+            }
+        }
+
         // The blackbody chromaticity should shift with temperature: warmer 3000K should
         // produce a redder (higher X/Y, lower Z/Y) chromaticity than cooler 9500K.
         TEST_METHOD(blackbodyTemperatureShiftsChromaticity)

@@ -22,6 +22,7 @@ namespace raytracer::spectral
 
     Spectrum monochromatic(Float heroLambda, Float targetLambda, Float intensity) noexcept;
 
+    // Upsamples an RGB light (rgbToIlluminant: white is D65 of luminance 1)
     Spectrum fromRGB(Float heroLambda, const Float4& rgb) noexcept;
 
     // Variant that takes pre-computed wavelengths (skips wavelengthsAt). Use when sampling

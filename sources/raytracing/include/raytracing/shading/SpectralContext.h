@@ -47,9 +47,13 @@ namespace raytracer
             Float heroLambda, const RGBS& ambientLight, const std::vector<std::unique_ptr<LightInfo>>& lights
         );
 
-        // Upsamples an RGB value to a Spectrum at the context's wavelengths: a light's emittance, a background's
-        // radiance, absorption lengths.
+        // Upsamples an RGB light to a Spectrum at the context's wavelengths: an emittance, a background's radiance, the
+        // ambient light; white is D65 of luminance 1 (spectral::rgbToIlluminant).
         spectral::Spectrum fromRGB(const Float4& rgb) const noexcept;
+
+        // Upsamples RGB absorption lengths (the transmittance channel) to a Spectrum at the context's wavelengths, by
+        // Smits' spectra as they are (spectral::rgbToSpectrum).
+        spectral::Spectrum absorptionLengthsFromRGB(const Float4& rgb) const noexcept;
 
         // Upsamples an RGB reflectance (the diffusion, reflectance and specular channels) to a Spectrum within [0, 1]
         // at the context's wavelengths, white at about 1 (spectral::rgbToReflectance).

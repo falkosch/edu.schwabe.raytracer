@@ -35,7 +35,7 @@ namespace raytracer::spectral
 
     Spectrum fromRGB(const Float8& wavelengths, const Float4& rgb) noexcept
     {
-        return Spectrum{rgbToSpectrum(rgb, wavelengths)};
+        return Spectrum{rgbToIlluminant(rgb, smitsBasisAt(wavelengths))};
     }
 
     Spectrum fromRGBS(const Float heroLambda, const RGBS& rgb) noexcept

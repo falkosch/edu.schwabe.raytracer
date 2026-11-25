@@ -19,8 +19,10 @@ Core rendering engine. Static library depending on `primitives` and `vectorizati
 4. KD-tree traversal finds nearest geometry intersection
 5. `ObjectShader::shade()` evaluates 7 material channels, upsamples RGB to `Spectrum` via the context's Smits basis:
    the reflectances (diffusion, reflectance, specular) within [0, 1] at every wavelength, white at 1
-   (`SpectralContext::reflectanceFromRGB`, `spectral::rgbToReflectance`: Smits' white is 1.06), the emittance and the
-   absorption lengths as they are (`fromRGB`, as the lights and backgrounds)
+   (`SpectralContext::reflectanceFromRGB`, `spectral::rgbToReflectance`: Smits' white is 1.06), the emittance as a
+   light (`fromRGB`, as the RGB lights, backgrounds and the ambient light: `spectral::rgbToIlluminant`, an sRGB colour
+   under D65, so that white is D65 of luminance 1 and displays as sRGB white; Smits' flat white is illuminant E and
+   displays warm), the absorption lengths as Smits' spectra (`absorptionLengthsFromRGB`)
 6. `SceneShader::sampleLighting()` computes per-light contributions in spectral domain (the diffuse irradiance,
    GGX highlights with the specular lobe's Fresnel, inverse-square falloff, shadow rays with caching). At the hits
    of diffuse rays (`Raytrace::diffuseBounce`), `manyLightSamples` (0 in the library) bounds the shadow rays to point

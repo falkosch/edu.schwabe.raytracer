@@ -218,6 +218,42 @@ namespace raytracer::test
             Assert::AreEqual(y(illuminantXYZ), y(xyz), 0.005f * y(illuminantXYZ), L"all of its light", LINE_INFO());
         }
 
+        // The display colour of an RGB light: its spectrum's XYZ over the hero wavelengths of one wavelength step (1 nm
+        // apart, which sample the visible range evenly), in linear sRGB
+        static Float4 displayedLight(const Float4& rgb)
+        {
+            auto xyz = Zero<Float4>();
+            constexpr auto Steps = 50;
+            for (auto step = 0; step < Steps; ++step)
+            {
+                const auto hero = LAMBDA_MIN + DELTA_LAMBDA * static_cast<Float>(step) / static_cast<Float>(Steps);
+                const auto light = rgbToIlluminant(rgb, smitsBasisAt(wavelengthsAt(hero)));
+                xyz += spectrumToXYZ(Spectrum{light}, makeXYZContext(hero));
+            }
+            return color::XYZToSRGBLinear() * (xyz / Float4(static_cast<Float>(Steps)));
+        }
+
+        TEST_METHOD(rgbLightOfWhiteDisplaysAsSRGBWhite)
+        {
+            // D65 of luminance 1, not Smits' flat white (illuminant E: sRGB-linear 1.28, 1.01, 0.97)
+            const auto white = displayedLight(Float4{1.0f, 1.0f, 1.0f, 0.0f});
+            Assert::AreEqual(1.0f, y(white), 0.002f, L"green", LINE_INFO());
+            Assert::AreEqual(1.0f, x(white), 0.01f, L"red", LINE_INFO());
+            Assert::AreEqual(1.0f, z(white), 0.01f, L"blue", LINE_INFO());
+            const auto bright = displayedLight(Float4{4.0f, 4.0f, 4.0f, 0.0f});
+            Assert::AreEqual(4.0f * y(white), y(bright), 1e-3f, L"scales, unclamped", LINE_INFO());
+        }
+
+        TEST_METHOD(rgbLightDisplaysAsItsColour)
+        {
+            // the Cornell box's warm white (about 4000 K in linear sRGB)
+            const auto warmWhite = Float4{1.406f, 0.927f, 0.532f, 0.0f};
+            const auto displayed = displayedLight(warmWhite);
+            Assert::AreEqual(x(warmWhite), x(displayed), 0.03f * x(warmWhite), L"red", LINE_INFO());
+            Assert::AreEqual(y(warmWhite), y(displayed), 0.03f * y(warmWhite), L"green", LINE_INFO());
+            Assert::AreEqual(z(warmWhite), z(displayed), 0.03f * z(warmWhite), L"blue", LINE_INFO());
+        }
+
         TEST_METHOD(wrappedWavelengthsProduceValidOutput)
         {
             const auto w = wavelengthsAt(740.0f);
