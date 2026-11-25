@@ -84,6 +84,28 @@ namespace raytracer
         {
             return One<Float>() / (Pi<Float>() * sqr(light.radius));
         }
+
+        // The largest squared sine of a sphere light's angular radius: from inside the sphere, nearly all directions
+        constexpr Float MaxSphereSinSqr = 0.9999f;
+
+        // The irradiance from a sphere of radiance 1 cut by the horizon, its exact form factor times pi (Snyder 1996,
+        // "Area light sources for real-time graphics"; Lagarde and de Rousiers 2014, "Moving Frostbite to PBR"), from
+        // the cosine between the normal and the direction to its center and the squared sine of its angular radius,
+        // (r / d)^2. Where the horizon doesn't cut it, pi (r / d)^2 cos(theta), or 0 below the horizon.
+        Float sphereIrradiance(const Float cosTheta, const Float sinSigmaSqr)
+        {
+            if (sqr(cosTheta) > sinSigmaSqr)
+            {
+                return Pi<Float>() * sinSigmaSqr * max(cosTheta, Zero<Float>());
+            }
+            const auto sinTheta = vectorization::sqrt(max(Zero<Float>(), One<Float>() - sqr(cosTheta)));
+            const auto x = vectorization::sqrt(One<Float>() / sinSigmaSqr - One<Float>());
+            const auto y = clamp(-x * cosTheta / sinTheta, NegativeOne<Float>(), One<Float>());
+            const auto sinThetaSqrtY = sinTheta * vectorization::sqrt(max(Zero<Float>(), One<Float>() - sqr(y)));
+            const auto irradiance =
+                (cosTheta * std::acos(y) - x * sinThetaSqrtY) * sinSigmaSqr + std::atan(sinThetaSqrtY / x);
+            return max(irradiance, Zero<Float>());
+        }
     }
 
     SceneShader::SceneShader() : SceneGeometry(), backgroundShader(), ambientLight(), lights()
@@ -208,6 +230,23 @@ namespace raytracer
         const auto distance = length3(toCenter);
         shadowRay.ray.setDirection(toCenter / distance);
         shadowRay.maxDistance = distance - light.radius * 1e-3f;
+
+        // where the horizon cuts the sphere, the ray goes to the middle of the part above it: halfway between the
+        // horizon and the sphere's top, in the plane of the normal and the center
+        const auto toCenterDirection = light.position - intersection.vertex;
+        const auto centerDistance = length3(toCenterDirection);
+        const auto direction = toCenterDirection / centerDistance;
+        const auto& normal = intersection.surfaceNormal;
+        const auto sinSigma = min(light.radius / centerDistance, One<Float>());
+        const auto sinElevation = dot3(direction, normal);
+        if (sinElevation < sinSigma)
+        {
+            const auto top = std::asin(clamp(sinElevation, NegativeOne<Float>(), One<Float>())) + std::asin(sinSigma);
+            const auto middle = Half<Float>() * max(top, Zero<Float>());
+            const auto tangent = normalize3(direction - normal * sinElevation);
+            shadowRay.ray.setDirection(tangent * std::cos(middle) + normal * std::sin(middle));
+            shadowRay.maxDistance = centerDistance - light.radius * (One<Float>() + 1e-3f);
+        }
         return computeLitAreaFraction(shadowRay, intersection, lightIndex, spectralContext, shadowCache, statistics);
     }
 
@@ -265,21 +304,9 @@ namespace raytracer
         constexpr UInt_32 SeedOffset = 0x1000u;
 
         const auto& spectralContext = *incidentRay.spectralContext;
-        const Float4 lightDirection = light.position - intersection.vertex;
-        const Float4 lightDistance = lengthv(lightDirection);
-        const Float4 normalizedLightDirection = lightDirection / lightDistance;
-        if (isNegative(dotv(normalizedLightDirection, intersection.surfaceNormal)))
-        {
-            return;
-        }
-        const Float4 diffuseIntensity = lambertDiffuseIntensity(normalizedLightDirection, intersection.smoothedNormal);
-        if (allTrue(diffuseIntensity < adaptedVisibilityCutoff))
-        {
-            return;
-        }
-        const Float4 attenuatedDiffuseIntensity =
-            inverseSquareIntensity(lightDistance, diffuseIntensity);
-        if (allTrue(attenuatedDiffuseIntensity < adaptedVisibilityCutoff))
+        // the unshadowed irradiance, by the exact form factor also where the horizon cuts the sphere
+        const auto incidence = pointLightIncidence(light, intersection, adaptedVisibilityCutoff);
+        if (!incidence.lit)
         {
             return;
         }
@@ -303,15 +330,25 @@ namespace raytracer
         const auto seed = deriveSeed(incidentRay.strataSeed, SeedOffset + static_cast<UInt_32>(lightIndex));
         const auto sequenceOffset = sequenceOffset2D(seed);
 
-        // the lit fraction, and the lit fraction of what the specular lobe leaves for the diffuse base
-        auto fraction = Zero<spectral::SpectralVector>();
-        auto coupledFraction = Zero<spectral::SpectralVector>();
+        // the rays weighed by the irradiance from their points, the cosine per density (ratio estimator, Heitz et al.
+        // 2018): the lit share of the irradiance, and of what the specular lobe leaves for the diffuse base; points
+        // below the horizon don't light
+        auto lit = Zero<spectral::SpectralVector>();
+        auto coupledLit = Zero<spectral::SpectralVector>();
+        auto weights = Zero<Float>();
         auto highlight = Zero<spectral::SpectralVector>();
         for (auto sample = Zero<ASizeT>(); sample < samples; ++sample)
         {
             const auto xi = sequencePoint2D(sequenceOffset, stratifiedIndex(incidentRay.stratum, samples, sample));
             const auto toSample = cap.samplePoint(xi);
             const auto distance = length3(toSample);
+            const auto L = toSample / distance;
+            const auto NoL = dot3(N, L);
+            const auto lightPdf = cap.solidAnglePdf(toSample);
+            if (!(NoL > Zero<Float>()) || !(lightPdf > Zero<Float>()))
+            {
+                continue;
+            }
 #ifdef DISABLE_SHADOWING
             const auto sampleFraction = One<spectral::SpectralVector>();
 #else
@@ -322,18 +359,14 @@ namespace raytracer
                 shadowRay, intersection, lightIndex, spectralContext, shadowCache, statistics
             );
 #endif
-            fraction += sampleFraction;
-            const auto L = toSample / distance;
-            const auto NoL = dot3(N, L);
-            coupledFraction += sampleFraction * diffuseShare(fresnel, roughness, NoL);
+            const auto irradianceWeight = NoL / lightPdf;
+            const auto litWeight = sampleFraction * spectral::SpectralVector(irradianceWeight);
+            lit += litWeight;
+            coupledLit += litWeight * diffuseShare(fresnel, roughness, NoL);
+            weights += irradianceWeight;
 
             // the BRDF towards the point per density of its direction, weighed against the glossy rays
-            if (!glossy || !(NoL > Zero<Float>()) || !(spectral::spectralMax(sampleFraction) > Zero<Float>()))
-            {
-                continue;
-            }
-            const auto lightPdf = cap.solidAnglePdf(toSample);
-            if (!(lightPdf > Zero<Float>()))
+            if (!glossy || !(spectral::spectralMax(sampleFraction) > Zero<Float>()))
             {
                 continue;
             }
@@ -360,14 +393,17 @@ namespace raytracer
                 * spectral::SpectralVector(radianceScale / static_cast<Float>(samples)));
         }
 
-        const auto litAreaFraction = fraction * spectral::SpectralVector(One<Float>() / static_cast<Float>(samples));
+        if (!(weights > Zero<Float>()))
+        {
+            return;
+        }
+        const auto perWeight = spectral::SpectralVector(One<Float>() / weights);
+        const auto litAreaFraction = lit * perWeight;
         if (spectral::spectralMax(litAreaFraction) < x(adaptedVisibilityCutoff))
         {
             return;
         }
-        const auto coupledLitFraction =
-            coupledFraction * spectral::SpectralVector(One<Float>() / static_cast<Float>(samples));
-        const auto intensity = coupledLitFraction * Float8(attenuatedDiffuseIntensity);
+        const auto intensity = coupledLit * perWeight * Float8(incidence.attenuatedDiffuseIntensity);
         lighting.diffuse += emittance * intensity;
     }
 
@@ -571,6 +607,26 @@ namespace raytracer
         incidence.distance = directional ? Float4(std::numeric_limits<Float>::max()) : lengthv(lightDirection);
         incidence.direction = directional ? light.direction : lightDirection / incidence.distance;
         incidence.lit = false;
+
+        // a sphere light lights while a part of it is above the horizon, by its exact form factor where the horizon
+        // cuts it
+        if (!directional && light.radius > Zero<Float>())
+        {
+            const auto sinSigmaSqr = min(sqr(light.radius / x(incidence.distance)), MaxSphereSinSqr);
+            if (dot3(incidence.direction, intersection.surfaceNormal) < -vectorization::sqrt(sinSigmaSqr))
+            {
+                return incidence;
+            }
+            incidence.diffuseIntensity = lambertDiffuseIntensity(incidence.direction, intersection.smoothedNormal);
+            const auto cosTheta = x(incidence.diffuseIntensity);
+            incidence.attenuatedDiffuseIntensity =
+                sqr(cosTheta) > sinSigmaSqr
+                    ? inverseSquareIntensity(incidence.distance, max(incidence.diffuseIntensity, Zero<Float4>()))
+                    : Float4(sphereIrradiance(cosTheta, sinSigmaSqr) * sphereLightRadianceScale(light));
+            incidence.lit = !allTrue(incidence.attenuatedDiffuseIntensity < adaptedVisibilityCutoff);
+            return incidence;
+        }
+
         if (isNegative(dotv(incidence.direction, intersection.surfaceNormal)))
         {
             return incidence;
@@ -865,18 +921,8 @@ namespace raytracer
             }
             const auto radiance = emittance * sphereLightRadianceScale(light);
 
-            // sampleSphereLight's tests whether to sample the light
-            const Float4 lightDirection = light.position - intersection.vertex;
-            const Float4 lightDistance = lengthv(lightDirection);
-            const Float4 normalizedLightDirection = lightDirection / lightDistance;
-            const Float4 diffuseIntensity =
-                lambertDiffuseIntensity(normalizedLightDirection, intersection.smoothedNormal);
-            if (!sampled || isNegative(dotv(normalizedLightDirection, intersection.surfaceNormal))
-                || allTrue(diffuseIntensity < adaptedVisibilityCutoff)
-                || allTrue(
-                    inverseSquareIntensity(lightDistance, diffuseIntensity)
-                    < adaptedVisibilityCutoff
-                ))
+            // sampleSphereLight's test whether to sample the light
+            if (!sampled || !pointLightIncidence(light, intersection, adaptedVisibilityCutoff).lit)
             {
                 return {true, Zero<Float>(), radiance};
             }

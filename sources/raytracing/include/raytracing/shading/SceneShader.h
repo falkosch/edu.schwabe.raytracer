@@ -92,10 +92,11 @@ namespace raytracer
         ) const;
 
     private:
-        // The unshadowed light of a point light (or of a sphere light from its center, or of a directional light) at an
-        // intersection: the direction and distance to the light (infinite for a directional light), Lambert's cosine
-        // and the cosine attenuated over the distance (a directional light's isn't). lit is false where sampleLighting
-        // skips the light: behind the surface, or below the cutoff.
+        // The unshadowed light of a point light (or of a sphere light, or of a directional light) at an intersection:
+        // the direction and distance to the light (a sphere light's center; infinite for a directional light),
+        // Lambert's cosine and the cosine attenuated over the distance (a directional light's isn't; a sphere light's
+        // is its exact form factor where the horizon cuts it, Snyder 1996). lit is false where sampleLighting skips
+        // the light: behind the surface (all of a sphere light), or below the cutoff.
         struct PointLightIncidence
         {
             Float4 direction;
@@ -135,7 +136,8 @@ namespace raytracer
         ) const;
 
         // The lit fraction along one shadow ray to the center of the cap of a sphere light (LightInfo::radius) that is
-        // visible from the intersection: a hard shadow, without samples
+        // visible from the intersection, or where the horizon cuts it to the middle of the part above it: a hard
+        // shadow, without samples
         spectral::SpectralVector computeLitSphereFraction(
             RayCast shadowRay, const SceneIntersection& intersection, ASizeT lightIndex, const LightInfo& light,
             const SpectralContext& spectralContext, PerLightShadowCache::ShadowCacheType& shadowCache,
@@ -152,8 +154,9 @@ namespace raytracer
         ) const;
 
         // Adds the lighting of a sphere light (LightInfo::radius) to lighting, with up to maxSamples shadow rays
-        // (SphereLightCap): the light from its center (an intensity falling off as the inverse square, exact while the
-        // sphere is above the horizon) times the mean lit fraction of the rays. Rough surfaces get its highlight from
+        // (SphereLightCap): its exact irradiance (its form factor, also where the horizon cuts it) times the lit
+        // fraction of the rays, each weighed by the irradiance from its point (its cosine per density, the ratio
+        // estimator of Heitz et al. 2018; points below the horizon don't light). Rough surfaces get its highlight from
         // the same rays, the GGX BRDF towards their points with the sphere's radiance (light sampling, the intensity
         // spread over the sphere's cross section), weighed against the glossyRays by the power heuristic.
         void sampleSphereLight(

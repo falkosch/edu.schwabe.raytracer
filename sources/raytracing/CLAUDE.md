@@ -154,10 +154,11 @@ Traversers (template on intersection type):
   collection, shadow computation. Shadow rays pass transmissive objects (what their specular lobe and diffusion leave,
   and the absorption along the straight chord, no caustics). Area lights get up to `sphereLightSamples` shadow rays:
     - a sphere light (`LightInfo::radius`) to its visible cap (`SphereLightCap`: points of the disk the cap projects
-      to, lifted onto it, and their density per solid angle), lighting as a point light at its center (exact while
-      the sphere is above the horizon, too dark where the horizon cuts it); rough surfaces get its highlight from the
-      same rays with the sphere's radiance (the intensity over its cross section), or without samples from its center
-      with the lobe widened by its size (Karis 2013)
+      to, lifted onto it, and their density per solid angle), lighting by its exact form factor, also where the horizon
+      cuts it (Snyder 1996), times the lit fraction of the rays, each weighed by its cosine per density (ratio
+      estimator); without samples one ray to the cap's center, or to the middle of the part above the horizon; rough
+      surfaces get its highlight from the same rays with the sphere's radiance (the intensity over its cross
+      section), or without samples from its center with the lobe widened by its size (Karis 2013)
     - a box light (`LightInfo::halfExtents`, `orientation`, `emittingFaces`; a zero extent gives a rectangle) to the
       area of its emitting faces that the hit sees, clipped at its horizon (`BoxLightFaces`). Their radiance lights
       by the exact form factor (Lambert's polygon formula) times the lit fraction of the rays, each weighed by its

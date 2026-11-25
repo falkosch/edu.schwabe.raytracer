@@ -699,7 +699,8 @@ namespace raytracer::test {
     }
 
     TEST_METHOD(lightPointDensityOfASphereLightIsItsCapsDensity) {
-      // above the horizon the cap's density; a sphere whose center is below the horizon has no shadow rays
+      // above the horizon the cap's density, also where the horizon cuts the sphere (its center below the horizon);
+      // a sphere entirely below the horizon has no shadow rays
       const auto floor = floorPoint();
       const auto above = sphereLightInReflection(0.5f, 3.0f);
       const auto toPoint = SphereLightCap(*above, floor.vertex).samplePoint(Float4(0.3f, 0.6f, 0.0f, 0.0f));
@@ -709,11 +710,19 @@ namespace raytracer::test {
                        LINE_INFO());
       Assert::AreEqual(1.0f, radiance, 1e-3f, L"the intensity over the cross section", LINE_INFO());
 
+      auto cut = sphereLightInReflection(0.5f, 3.0f);
+      cut->position = Float4(0.0f, -1.2f, 3.0f, 1.0f);
+      const auto onCut = Float4(0.0f, -1.2f, 3.0f, 1.0f) + normalize3(Float4(0.0f, 0.4f, -1.0f, 0.0f)) * 0.5f;
+      const auto cutDensity = densityAt(*cut, floor, onCut - floor.vertex).density;
+      Assert::IsTrue(cutDensity.emits, L"the cut sphere emits", LINE_INFO());
+      Assert::AreEqual(SphereLightCap(*cut, floor.vertex).solidAnglePdf(onCut - floor.vertex), cutDensity.pdf, 1e-6f,
+                       L"and is sampled", LINE_INFO());
+
       auto below = sphereLightInReflection(0.5f, 3.0f);
-      below->position = Float4(0.0f, -1.2f, 3.0f, 1.0f);
-      const auto onBelow = Float4(0.0f, -1.2f, 3.0f, 1.0f) + normalize3(Float4(0.0f, 0.4f, -1.0f, 0.0f)) * 0.5f;
+      below->position = Float4(0.0f, -2.0f, 3.0f, 1.0f);
+      const auto onBelow = Float4(0.0f, -2.0f, 3.0f, 1.0f) + normalize3(Float4(0.0f, 0.4f, -1.0f, 0.0f)) * 0.5f;
       const auto hidden = densityAt(*below, floor, onBelow - floor.vertex).density;
-      Assert::IsTrue(hidden.emits, L"the sphere still emits", LINE_INFO());
+      Assert::IsTrue(hidden.emits, L"the sphere below still emits", LINE_INFO());
       Assert::AreEqual(0.0f, hidden.pdf, L"but isn't sampled", LINE_INFO());
     }
 
@@ -746,6 +755,36 @@ namespace raytracer::test {
       Assert::AreEqual(0.0f, densityAt(*square, inside, onSquare).density.pdf, L"box from inside", LINE_INFO());
     }
 
+    TEST_METHOD(sphereLightIrradianceIsExactWhereTheHorizonCutsIt) {
+      // a sphere light of radiance 1 and radius 0.5 at the horizontal distance 1 from the floor point, its center 0.3,
+      // 0.1, 0 and -0.2 above the horizon, and at the horizontal distance 0.6 and 0.2 above: its exact form factor
+      // (Snyder 1996), with shadow rays and with one
+      const auto radius = 0.5f;
+      for (const auto [horizontal, height] : {std::pair{1.0f, 0.3f}, std::pair{1.0f, 0.1f}, std::pair{1.0f, 0.0f},
+                                              std::pair{1.0f, -0.2f}, std::pair{0.6f, 0.2f}}) {
+        const auto toCenter = Float4(horizontal, height, 0.0f, 0.0f);
+        const auto light = [&] {
+          auto value = std::make_unique<LightInfo>();
+          value->position = Float4(0.0f, -1.0f, 0.0f, 1.0f) + toCenter;
+          value->emittance = RGBS(zeroW(Float4(Pi<Float>() * radius * radius)));
+          value->radius = radius;
+          return value;
+        };
+        const auto reference = sphereIrradianceReference(toCenter, radius);
+        Assert::IsTrue(reference > 0.01, L"part of the sphere above the horizon", LINE_INFO());
+        const auto sampled = static_cast<double>(floorLighting(nothing(), light(), 16).diffuse);
+        const auto single = static_cast<double>(floorLighting(nothing(), light(), 0).diffuse);
+        Assert::AreEqual(reference, sampled, 1e-3 * reference, L"with shadow rays", LINE_INFO());
+        Assert::AreEqual(reference, single, 1e-3 * reference, L"with one", LINE_INFO());
+      }
+      // all of it below the horizon
+      auto below = std::make_unique<LightInfo>();
+      below->position = Float4(1.0f, -1.6f, 0.0f, 1.0f);
+      below->emittance = RGBS(zeroW(Float4(Pi<Float>() * radius * radius)));
+      below->radius = radius;
+      Assert::AreEqual(0.0f, floorLighting(nothing(), std::move(below), 16).diffuse, L"below", LINE_INFO());
+    }
+
     TEST_METHOD(sphereLightIrradianceIsExactAboveTheHorizon) {
       // a sphere light of radiance 1 close by (center 1.41 away, radius 0.9), entirely above the floor point's
       // horizon: the light from its center, of the intensity pi r^2 with quadratic falloff, is its exact irradiance
@@ -773,6 +812,29 @@ namespace raytracer::test {
       }
       irradiance *= maxAngle / Steps * 2.0 * Pi<double>() / Steps;
       Assert::AreEqual(irradiance, static_cast<double>(lit), 1e-3 * irradiance, L"exact irradiance", LINE_INFO());
+    }
+
+    // The irradiance of a sphere of radiance 1 and the radius at toCenter from the floor point (normal y): the integral
+    // of the cosine above the horizon over the sphere's solid angle, in polar coordinates around the direction to its
+    // center
+    static double sphereIrradianceReference(const Float4 &toCenter, const Float radius) {
+      const auto distance = static_cast<double>(length3(toCenter));
+      const auto w = normalize3(toCenter);
+      const auto u = normalize3(cross3(w, Float4(0.0f, 0.0f, 1.0f, 0.0f)));
+      const auto v = cross3(w, u);
+      const auto maxAngle = std::asin(radius / distance);
+      constexpr int Steps = 1000;
+      auto irradiance = 0.0;
+      for (auto i = 0; i < Steps; ++i) {
+        const auto angle = maxAngle * (i + 0.5) / Steps;
+        for (auto j = 0; j < Steps; ++j) {
+          const auto around = 2.0 * Pi<double>() * (j + 0.5) / Steps;
+          const auto cosine = std::cos(angle) * y(w)
+                              + std::sin(angle) * (std::cos(around) * y(u) + std::sin(around) * y(v));
+          irradiance += std::max(cosine, 0.0) * std::sin(angle);
+        }
+      }
+      return irradiance * maxAngle / Steps * 2.0 * Pi<double>() / Steps;
     }
 
     // The lighting of floorPoint under a grid of 5 x 5 point lights of different colours and heights above it, with up
