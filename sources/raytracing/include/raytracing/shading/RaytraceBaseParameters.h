@@ -42,7 +42,9 @@ namespace raytracer {
 
     // The most radiance one glossy reflection ray or diffuse ray adds: a brighter one is scaled down to it, keeping its
     // colour. It keeps single rays that find a small, bright spot (a light through a mirror or glass) from dominating
-    // their pixel ("fireflies"), but biases: very bright glossy reflections and interreflections get darker. 0 is off.
+    // their pixel ("fireflies"), but biases: very bright glossy reflections and interreflections get darker
+    // (raytracerui's 4 darkens caustics and glossy reflections of lights by up to 6 percentage points more than
+    // unclamped). 0 is off.
     Float glossyClamp;
 
     // After a glossy reflection or a diffuse ray, the mirror reflections and refractions further along the path don't

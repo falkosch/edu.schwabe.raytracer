@@ -54,7 +54,11 @@ constexpr ASizeT DIFFUSE_SAMPLES = 16;
 // a scene has more (0 for all)
 constexpr ASizeT MANY_LIGHT_SAMPLES = 16;
 
-// against fireflies: the most radiance of one glossy reflection ray or diffuse ray (0 for no limit)
+// against fireflies: the most radiance of one glossy reflection ray or diffuse ray (0 for no limit). Biased, like the
+// irradiance cache and the denoiser: it drops part of the light of rare bright paths (caustics through mirrors and
+// glass, glossy reflections of lights) for half the noise. Measured 2026-11-25 against unclamped references: full
+// renders up to 1.4 percentage points darker in the Cornell box (rough mirror -2.5 against -1.1 % unclamped) and 6 in
+// the Showcase (glass dragon -7.6 against -1.6 %); .backlog/DONE/rendering-physical-material-model.md, section 11
 constexpr Float GLOSSY_CLAMP = 4.0f;
 
 // adaptive sampling: the most further rounds of sub-samples a pixel takes where its neighbours' sub-samples spread (the

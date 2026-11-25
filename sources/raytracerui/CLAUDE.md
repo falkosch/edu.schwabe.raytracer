@@ -92,7 +92,9 @@ what no light reaches stays black.
   previews and full renders, guided by the normals, depths and albedos of the pixels' surfaces (full renders would
   lose glossy detail; Config checkboxes). Whitted ray tracing isn't denoised
 - `--glossy-clamp=<x>` -- replace `GLOSSY_CLAMP`, the most radiance one glossy reflection ray or diffuse ray adds
-  (against fireflies; 0 for no limit; a Config slider)
+  (against fireflies; 0 for no limit; a Config slider). Biased: 4 halves the noise and darkens caustics and glossy
+  reflections of lights (measured 2026-11-25: up to 6 percentage points more than unclamped, the Showcase's glass
+  dragon; `.backlog/DONE/rendering-physical-material-model.md`, section 11); without it they speckle
 - `--regularize-paths` -- after a glossy reflection or a diffuse ray, mirrors and glass don't show area lights' emissive
   objects either (less glitter and fewer caustic speckles, but that light goes missing; a Config checkbox)
 - `--super-sampling=<n>` -- replace `SUPER_SAMPLING_FACTOR`, (n+1)x(n+1) samples per pixel (a full render takes at
