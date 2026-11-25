@@ -47,9 +47,8 @@ both use it. Append new scenes there (and keep the order, the dropdown index fol
 - `ProceduralScene<L,O>` (`procedural`) -- parametric grid of lights and objects
 - `FormsScene` (`forms`) -- every form type with the checker texture: analytic and mesh sphere, ellipsoid, boxes,
   planes, low-poly mesh
-- `LightingScene` (`lighting`) -- every emitter kind as light pools on a wall, RGB lights with colored shadows,
-  falloff variants, an orange sphere light with soft shadows, a cyan light bar (a box light glowing on
-  all faces)
+- `LightingScene` (`lighting`) -- every emitter kind as light pools on a wall, RGB lights with colored shadows, an
+  orange sphere light with soft shadows, a cyan light bar (a box light glowing on all faces)
 - `ShadingScene` (`shading`) -- the shader classes and texture transforms (ESO's Paranal night sky as all-sky fisheye,
   sRGB vs. linear texture, normals as colors, tinted texture, checker times marble), lit by a point key light (hard
   shadows), a rectangular softbox opposite it (a box light: soft shadows), a sphere light on the floor and a fill light
@@ -63,10 +62,12 @@ The new scenes are composed for the start camera (the dropdown doesn't move the 
 `SceneMaterial` (the seven material channels as constants, with factories), `createSceneObject`, `addSphereLight`
 (an emissive sphere with its sphere light) and `addBoxLight` (an emissive box with its box light and its emitting
 faces). Their lights' intensities and radiances carry a factor pi: a white surface facing a light reflects its
-irradiance / pi (Lambert), so a light of pi lights it to 1. No scene sets an ambient light (all 0 since 2026-11-24,
-until the object explorer sets it per scene, `.backlog/object-explorer.md`): the library's stand-in for the
-interreflection where no diffuse rays gather it (everywhere in Whitted ray tracing, at the hits of diffuse rays the
-further bounces), so without diffuse rays, what no light reaches stays black.
+irradiance / pi (Lambert), so a light of pi lights it to 1. Point and sphere lights fall off as the inverse square of
+the distance; the Forms and Meshes scenes' key and fill are directional lights (`LightInfo::direction`, no falloff). No
+scene sets an ambient light (all 0 since 2026-11-24, until the object explorer sets it per scene,
+`.backlog/object-explorer.md`): the library's stand-in for the interreflection where no diffuse rays gather it
+(everywhere in Whitted ray tracing, at the hits of diffuse rays the further bounces), so without diffuse rays, what no
+light reaches stays black.
 
 ## Command line
 

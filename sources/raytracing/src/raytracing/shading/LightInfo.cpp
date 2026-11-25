@@ -21,16 +21,21 @@ namespace raytracer
     }
 
     LightInfo::LightInfo()
-        : position(OneW<Float4>()), emittance(),
-          attenuationFactors(One<Float>(), Zero<Float>(), Zero<Float>(), One<Float>()), radius(Zero<Float>()),
-          halfExtents(Zero<Float4>()), orientation(Identity<MFloat4x4>()), emittingFaces(AllFaces),
-          kind(EmitterKind::RGB), temperatureKelvin(Zero<Float>()), intensity(One<Float>())
+        : position(OneW<Float4>()), emittance(), radius(Zero<Float>()), halfExtents(Zero<Float4>()),
+          orientation(Identity<MFloat4x4>()), emittingFaces(AllFaces), direction(Zero<Float4>()),
+          angularRadius(Zero<Float>()), kind(EmitterKind::RGB), temperatureKelvin(Zero<Float>()),
+          intensity(One<Float>())
     {
     }
 
     bool LightInfo::isBox() const noexcept
     {
         return anyTrue3(halfExtents > Zero<Float4>());
+    }
+
+    bool LightInfo::isDirectional() const noexcept
+    {
+        return anyTrue3(direction != Zero<Float4>());
     }
 
     LightInfo LightInfo::blackbody(const Float temperatureKelvin, const Float brightness) noexcept

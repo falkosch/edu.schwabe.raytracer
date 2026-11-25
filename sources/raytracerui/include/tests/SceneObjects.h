@@ -25,7 +25,7 @@ namespace raytracerui {
 
   // A spherical area light with its emitter: an emissive sphere of the radiance (what the camera sees), marked as the
   // light's emitter, and a light at its center that lights the scene as the sphere does, with the intensity
-  // radiance * pi * radius^2 and quadratic falloff
+  // radiance * pi * radius^2 (falling off as the inverse square of the distance)
   void addSphereLight(Scene &scene, std::string id, const Float4 &center, Float radius, const Float4 &radiance);
 
   // A box light with its emitter: an emissive box of the radiance (what the camera sees, on all its faces) with the

@@ -46,7 +46,6 @@ namespace raytracerui
         auto light = std::make_unique<LightInfo>();
         light->position = oneW(center);
         light->emittance = RGBS(zeroW(radiance) * Float4(Pi<Float>() * radius * radius));
-        light->attenuationFactors = Float4(0.f, 0.f, 1.f, 0.f);
         light->radius = radius;
 
         auto emitter = createSceneObject(

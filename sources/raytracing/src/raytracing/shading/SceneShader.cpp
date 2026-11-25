@@ -79,13 +79,10 @@ namespace raytracer
             return brdf::pdfGGX(NoV, max(dot3(intersection.smoothedNormal, H), Zero<Float>()), roughness);
         }
 
-        // A sphere light's radiance per its emittance: the intensity (with the attenuation at the center's distance)
-        // spread over the sphere's cross section
-        Float sphereLightRadianceScale(const LightInfo& light, const Float centerDistance)
+        // A sphere light's radiance per its emittance: the intensity spread over the sphere's cross section
+        Float sphereLightRadianceScale(const LightInfo& light)
         {
-            const auto& factors = light.attenuationFactors;
-            const auto attenuation = x(factors) + centerDistance * (y(factors) + centerDistance * z(factors));
-            return sqr(centerDistance) / (attenuation * Pi<Float>() * sqr(light.radius));
+            return One<Float>() / (Pi<Float>() * sqr(light.radius));
         }
     }
 
@@ -214,6 +211,50 @@ namespace raytracer
         return computeLitAreaFraction(shadowRay, intersection, lightIndex, spectralContext, shadowCache, statistics);
     }
 
+    spectral::SpectralVector SceneShader::computeLitConeFraction(
+        RayCast shadowRay, const Raytrace& incidentRay, const SceneIntersection& intersection, const ASizeT lightIndex,
+        const LightInfo& light, const ASizeT maxSamples, PerLightShadowCache::ShadowCacheType& shadowCache,
+        StatisticsCookie& statistics
+    ) const
+    {
+        constexpr UInt_32 SeedOffset = 0x1000u;
+
+        const auto samples = areaLightSamples(maxSamples, incidentRay.visibilityIndex);
+        const auto seed = deriveSeed(incidentRay.strataSeed, SeedOffset + static_cast<UInt_32>(lightIndex));
+        const auto sequenceOffset = sequenceOffset2D(seed);
+
+        // the frame around the direction to the light as the rows of a matrix (local * frame takes a direction out)
+        const auto& w = light.direction;
+        const auto up = select(vectorization::abs(yyyy(w)) < Float4(0.999f), OneY<Float4>(), OneX<Float4>());
+        const auto u = normalize3(cross3(up, w));
+        const auto frame = MFloat4x4(u, cross3(w, u), w, Zero<Float4>());
+        const auto cosMax = Float4(std::cos(light.angularRadius));
+
+        auto fraction = Zero<spectral::SpectralVector>();
+        for (auto sample = Zero<ASizeT>(); sample < samples; ++sample)
+        {
+            // uniform in solid angle: the cosine from 1 to that of the cone's radius
+            const auto xi = sequencePoint2D(sequenceOffset, stratifiedIndex(incidentRay.stratum, samples, sample));
+            const auto cosTheta = mix(One<Float4>(), cosMax, xxxx(xi));
+            const auto sinTheta = sqrt(max(Zero<Float4>(), One<Float4>() - cosTheta * cosTheta));
+            Float4 sinPhi, cosPhi;
+            sincos(yyyy(xi) * (Two<Float4>() * Pi<Float4>()), sinPhi, cosPhi);
+            const auto around = blend<false, true, false, false>(cosPhi, sinPhi) * sinTheta;
+            const auto local = blend<false, false, true, true>(around, zeroW(cosTheta));
+            const auto direction = local * frame;
+            // a direction below the surface is shadowed by it
+            if (!(dot3(direction, intersection.surfaceNormal) > Zero<Float>()))
+            {
+                continue;
+            }
+            shadowRay.ray.setDirection(direction);
+            fraction += computeLitAreaFraction(
+                shadowRay, intersection, lightIndex, *incidentRay.spectralContext, shadowCache, statistics
+            );
+        }
+        return fraction * spectral::SpectralVector(One<Float>() / static_cast<Float>(samples));
+    }
+
     void SceneShader::sampleSphereLight(
         const Raytrace& incidentRay, const Float4& adaptedVisibilityCutoff, const Float roughness,
         const brdf::SpecularFresnel& fresnel, const SceneIntersection& intersection, const ASizeT lightIndex,
@@ -237,7 +278,7 @@ namespace raytracer
             return;
         }
         const Float4 attenuatedDiffuseIntensity =
-            attenuateDiffuseIntensity(light.attenuationFactors, lightDistance, diffuseIntensity);
+            inverseSquareIntensity(lightDistance, diffuseIntensity);
         if (allTrue(attenuatedDiffuseIntensity < adaptedVisibilityCutoff))
         {
             return;
@@ -314,7 +355,7 @@ namespace raytracer
         if (glossy)
         {
             // with the multiple scattering between the microfacets compensated
-            const auto radianceScale = sphereLightRadianceScale(light, cap.centerDistance);
+            const auto radianceScale = sphereLightRadianceScale(light);
             lighting.specular += emittance * (highlight * fresnel.multipleScattering(NoV, roughness)
                 * spectral::SpectralVector(radianceScale / static_cast<Float>(samples)));
         }
@@ -512,7 +553,7 @@ namespace raytracer
             }
             addPointLight(
                 incidentRay, adaptedVisibilityCutoff, roughness, fresnel, intersection, lightIndex, light, incidence,
-                weight, shadowRay, shadowCache, statistics, lighting
+                weight, sphereLightSamples, shadowRay, shadowCache, statistics, lighting
             );
         }
 
@@ -524,9 +565,11 @@ namespace raytracer
     )
     {
         auto incidence = PointLightIncidence();
+        // a directional light comes from the same direction everywhere, from infinitely far
+        const auto directional = light.isDirectional();
         const Float4 lightDirection = light.position - intersection.vertex;
-        incidence.distance = lengthv(lightDirection);
-        incidence.direction = lightDirection / incidence.distance;
+        incidence.distance = directional ? Float4(std::numeric_limits<Float>::max()) : lengthv(lightDirection);
+        incidence.direction = directional ? light.direction : lightDirection / incidence.distance;
         incidence.lit = false;
         if (isNegative(dotv(incidence.direction, intersection.surfaceNormal)))
         {
@@ -537,8 +580,10 @@ namespace raytracer
         {
             return incidence;
         }
+        // a directional light's emittance is an irradiance, a point light's an intensity
         incidence.attenuatedDiffuseIntensity =
-            attenuateDiffuseIntensity(light.attenuationFactors, incidence.distance, incidence.diffuseIntensity);
+            directional ? incidence.diffuseIntensity
+                        : inverseSquareIntensity(incidence.distance, incidence.diffuseIntensity);
         incidence.lit = !allTrue(incidence.attenuatedDiffuseIntensity < adaptedVisibilityCutoff);
         return incidence;
     }
@@ -546,25 +591,37 @@ namespace raytracer
     void SceneShader::addPointLight(
         const Raytrace& incidentRay, const Float4& adaptedVisibilityCutoff, const Float roughness,
         const brdf::SpecularFresnel& fresnel, const SceneIntersection& intersection, const ASizeT lightIndex,
-        const LightInfo& light, const PointLightIncidence& incidence, const Float weight, RayCast& shadowRay,
-        PerLightShadowCache::ShadowCacheType& shadowCache, StatisticsCookie& statistics, LightShading& lighting
+        const LightInfo& light, const PointLightIncidence& incidence, const Float weight, const ASizeT coneSamples,
+        RayCast& shadowRay, PerLightShadowCache::ShadowCacheType& shadowCache, StatisticsCookie& statistics,
+        LightShading& lighting
     ) const
     {
         const auto& spectralContext = *incidentRay.spectralContext;
+        const auto directional = light.isDirectional();
 #ifdef DISABLE_SHADOWING
         const auto litAreaFraction = One<spectral::SpectralVector>();
 #else
         shadowRay.ray.setDirection(incidence.direction);
         shadowRay.maxDistance = x(incidence.distance);
-        const auto litAreaFraction = light.radius > Zero<Float>()
-                                         ? computeLitSphereFraction(
-                                             shadowRay, intersection, lightIndex, light, spectralContext,
-                                             shadowCache, statistics
-                                         )
-                                         : computeLitAreaFraction(
-                                             shadowRay, intersection, lightIndex, spectralContext, shadowCache,
-                                             statistics
-                                         );
+        auto litAreaFraction = Zero<spectral::SpectralVector>();
+        if (directional && light.angularRadius > Zero<Float>() && coneSamples > Zero<ASizeT>())
+        {
+            litAreaFraction = computeLitConeFraction(
+                shadowRay, incidentRay, intersection, lightIndex, light, coneSamples, shadowCache, statistics
+            );
+        }
+        else if (light.radius > Zero<Float>())
+        {
+            litAreaFraction = computeLitSphereFraction(
+                shadowRay, intersection, lightIndex, light, spectralContext, shadowCache, statistics
+            );
+        }
+        else
+        {
+            litAreaFraction = computeLitAreaFraction(
+                shadowRay, intersection, lightIndex, spectralContext, shadowCache, statistics
+            );
+        }
         if (spectral::spectralMax(litAreaFraction) < x(adaptedVisibilityCutoff))
         {
             return;
@@ -585,10 +642,14 @@ namespace raytracer
             const auto H = normalize3(V + incidence.direction);
             const auto NoL = max(x(incidence.diffuseIntensity), Zero<Float>());
             const auto NoH = max(dot3(N, H), Zero<Float>());
-            // a sphere light widens the lobe by its size, the normalization keeps the energy (Karis 2013)
+            // a sphere light widens the lobe by its size, the normalization keeps the energy (Karis 2013); a
+            // directional light by its angular radius, without the normalization: the lobe convolved with its cone
+            // (a mirror shows its disk this way, having no emitter)
             const auto alpha = isSphereLight
                                    ? min(One<Float>(),
                                          roughness + light.radius / (Two<Float>() * x(incidence.distance)))
+                                   : directional
+                                   ? min(One<Float>(), roughness + Half<Float>() * std::sin(light.angularRadius))
                                    : roughness;
             const auto normalization = isSphereLight ? sqr(roughness / alpha) : One<Float>();
             const auto DG = brdf::evaluateGGX_DG(NoV, NoL, NoH, alpha) * normalization;
@@ -802,7 +863,7 @@ namespace raytracer
             {
                 return noLight;
             }
-            const auto radiance = emittance * sphereLightRadianceScale(light, cap.centerDistance);
+            const auto radiance = emittance * sphereLightRadianceScale(light);
 
             // sampleSphereLight's tests whether to sample the light
             const Float4 lightDirection = light.position - intersection.vertex;
@@ -813,7 +874,7 @@ namespace raytracer
             if (!sampled || isNegative(dotv(normalizedLightDirection, intersection.surfaceNormal))
                 || allTrue(diffuseIntensity < adaptedVisibilityCutoff)
                 || allTrue(
-                    attenuateDiffuseIntensity(light.attenuationFactors, lightDistance, diffuseIntensity)
+                    inverseSquareIntensity(lightDistance, diffuseIntensity)
                     < adaptedVisibilityCutoff
                 ))
             {
@@ -857,13 +918,8 @@ namespace raytracer
         return dotv(normal, lightDirection);
     }
 
-    Float4 SceneShader::attenuateDiffuseIntensity(
-        const Float4& attenuationFactors, const Float4& lightDistance, const Float4& diffuseIntensity
-    )
+    Float4 SceneShader::inverseSquareIntensity(const Float4& lightDistance, const Float4& diffuseIntensity)
     {
-        return diffuseIntensity / multiplyAdd(
-            lightDistance,
-            multiplyAdd(lightDistance, zzzz(attenuationFactors), yyyy(attenuationFactors)),
-            xxxx(attenuationFactors));
+        return diffuseIntensity / (lightDistance * lightDistance);
     }
 }

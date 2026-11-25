@@ -12,10 +12,9 @@ namespace raytracerui
         // Scales every light of the scene: the lights and their emitters
         constexpr auto LIGHT_SCALE = 0.85f;
 
-        void addLight(Scene& scene, LightInfo light, const Float4& position, const Float4& attenuationFactors)
+        void addLight(Scene& scene, LightInfo light, const Float4& position)
         {
             light.position = position;
-            light.attenuationFactors = attenuationFactors;
             scene.getLights().push_back(std::make_unique<LightInfo>(light));
         }
     }
@@ -27,8 +26,7 @@ namespace raytracerui
         // The lights times pi: a white surface facing a light reflects its irradiance / pi (Lambert)
         const auto lightScale = LIGHT_SCALE * Pi<Float>();
 
-        // Light pools on the back wall, warm to cold, each close to the wall with quadratic falloff
-        const Float4 poolFalloff{0.f, 0.f, 1.f, 1.f};
+        // Light pools on the back wall, warm to cold, each close to the wall (falling off as the inverse square)
         const auto poolBrightness = 0.012f * lightScale;
         const std::array pools{
             LightInfo::blackbody(1900.f, poolBrightness), LightInfo::illuminantA(poolBrightness),
@@ -38,22 +36,23 @@ namespace raytracerui
         auto x = -1.2f;
         for (const auto& pool : pools)
         {
-            addLight(scene, pool, Float4(x, 0.55f, -1.35f, 1.f), poolFalloff);
+            addLight(scene, pool, Float4(x, 0.55f, -1.35f, 1.f));
             x += 0.6f;
         }
 
-        // Red, green and blue lights low around the sphere: their shadows overlap in colors. Linear plus quadratic
-        // falloff keeps them off the light pools above.
-        const Float4 rgbFalloff{0.f, 0.5f, 1.f, 1.f};
+        // Red, green and blue lights low around the sphere: their shadows overlap in colors. Falling off as the
+        // inverse square, they light the sphere and the floor near them as they did with an added linear falloff (0.6
+        // of the intensity), the light pools above a little more.
+        const auto rgbBrightness = 0.18f * lightScale;
         LightInfo red{};
-        red.emittance = RGBS(0.3f * lightScale, 0.f, 0.f);
-        addLight(scene, red, Float4(-0.8f, -0.45f, 0.2f, 1.f), rgbFalloff);
+        red.emittance = RGBS(rgbBrightness, 0.f, 0.f);
+        addLight(scene, red, Float4(-0.8f, -0.45f, 0.2f, 1.f));
         LightInfo green{};
-        green.emittance = RGBS(0.f, 0.3f * lightScale, 0.f);
-        addLight(scene, green, Float4(0.f, -0.1f, 0.4f, 1.f), rgbFalloff);
+        green.emittance = RGBS(0.f, rgbBrightness, 0.f);
+        addLight(scene, green, Float4(0.f, -0.1f, 0.4f, 1.f));
         LightInfo blue{};
-        blue.emittance = RGBS(0.f, 0.f, 0.3f * lightScale);
-        addLight(scene, blue, Float4(0.8f, -0.45f, 0.2f, 1.f), rgbFalloff);
+        blue.emittance = RGBS(0.f, 0.f, rgbBrightness);
+        addLight(scene, blue, Float4(0.8f, -0.45f, 0.2f, 1.f));
 
         auto& objects = scene.getSceneObjects();
         const auto white = SceneMaterial::matte(Float4(0.8f, 0.8f, 0.8f, 0.f));

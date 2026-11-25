@@ -23,16 +23,14 @@ namespace raytracerui
         scene.setAmbientLight(RGBS::black());
 
         // Light values times pi: a white surface facing a light reflects its irradiance / pi (Lambert)
-        // Neutral key light from the upper left, without falloff
+        // Neutral key light from the upper left, a directional light (without falloff, hard shadows)
         auto key = std::make_unique<LightInfo>(LightInfo::blackbody(5500.f, 0.45f * Pi<Float>()));
-        key->position = Float4(-2.5f, 3.f, 3.f, 1.f);
-        key->attenuationFactors = Float4(1.f, 0.f, 0.f, 1.f);
+        key->direction = normalize3(Float4(-2.5f, 3.f, 3.f, 0.f));
         scene.getLights().push_back(std::move(key));
 
         // Cooler, weaker fill from the right
         auto fill = std::make_unique<LightInfo>(LightInfo::d65(0.12f * Pi<Float>()));
-        fill->position = Float4(3.f, 1.f, 2.5f, 1.f);
-        fill->attenuationFactors = Float4(1.f, 0.f, 0.f, 1.f);
+        fill->direction = normalize3(Float4(3.f, 1.f, 2.5f, 0.f));
         scene.getLights().push_back(std::move(fill));
 
         auto& objects = scene.getSceneObjects();

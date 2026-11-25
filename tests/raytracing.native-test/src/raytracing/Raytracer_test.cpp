@@ -516,7 +516,6 @@ namespace raytracer::test {
         auto light = std::make_unique<LightInfo>();
         light->position = Float4(-0.2f, 0.0f, 0.0f, 1.0f);
         light->emittance = RGBS(1.0f, 1.0f, 1.0f);
-        light->attenuationFactors = Float4(1.0f, 0.0f, 0.0f, 0.0f);
         scene.getLights().push_back(std::move(light));
         return renderWallCenter(scene, diffuseSamples);
       };

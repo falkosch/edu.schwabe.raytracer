@@ -19,7 +19,7 @@ Core rendering engine. Static library depending on `primitives` and `vectorizati
 4. KD-tree traversal finds nearest geometry intersection
 5. `ObjectShader::shade()` evaluates 7 material channels, upsamples RGB to `Spectrum` via the context's Smits basis
 6. `SceneShader::sampleLighting()` computes per-light contributions in spectral domain (the diffuse irradiance,
-   GGX highlights with the specular lobe's Fresnel, distance attenuation, shadow rays with caching). At the hits
+   GGX highlights with the specular lobe's Fresnel, inverse-square falloff, shadow rays with caching). At the hits
    of diffuse rays (`Raytrace::diffuseBounce`), `manyLightSamples` (0 in the library) bounds the shadow rays to point
    lights: with more of them, systematic sampling picks that many by their unshadowed diffuse light, each picked light
    weighed by its picks per their expected number (unbiased; exact for the diffuse light without shadows)
@@ -163,8 +163,12 @@ Traversers (template on intersection type):
       by the exact form factor (Lambert's polygon formula) times the lit fraction of the rays, each weighed by its
       irradiance (ratio estimator, Heitz et al. 2018); rough surfaces get the highlight from the same rays (light
       sampling), or from a representative point per face without samples (Karis 2013)
+    - a directional light (`LightInfo::direction`, a distant light like the sun: its emittance is its irradiance,
+      without falloff) into its cone (`angularRadius`, uniform in solid angle), lighting from its direction; its
+      highlight is the lobe widened by the cone (Karis 2013), and it has no emitter
 
-  The light's emissive object (`setLightEmitter`, which takes the light) shows in mirrors; the glossy rays of rough
+  Point and sphere lights fall off as the inverse square of the distance (their emittance is an intensity). The
+  light's emissive object (`setLightEmitter`, which takes the light) shows in mirrors; the glossy rays of rough
   surfaces see it weighed against the shadow rays (multiple importance sampling), and skip it without shadow rays.
   Only these `LightInfo`s light the scene by light sampling: the emittance of any other object (meshes, emissive
   textures, boxes without a box light) makes it glow where it is seen, and it lights other surfaces only through their

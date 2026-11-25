@@ -17,9 +17,10 @@ namespace raytracerui
             scene.setBackgroundShader(std::make_unique<RGBBackgroundShader>(RGBS::black()));
             scene.setAmbientLight(RGBS::black());
 
-            // times pi: a white surface facing a light reflects its irradiance / pi (Lambert)
-            const auto emittanceScale =
-                reciprocal(Float4(LightsPerAxis * LightsPerAxis * LightsPerAxis + 1.f)) * Float4(Pi<Float>());
+            // times pi: a white surface facing a light reflects its irradiance / pi (Lambert); times 4 for the inverse
+            // square falloff, which lights the objects about as the former linear falloff 1 / (1 + d) did
+            const auto emittanceScale = reciprocal(Float4(LightsPerAxis * LightsPerAxis * LightsPerAxis + 1.f))
+                * Float4(4.f * Pi<Float>());
             for (auto z{-LightsPerAxis}; z <= LightsPerAxis; ++z)
             {
                 for (auto y{-LightsPerAxis}; y <= LightsPerAxis; ++y)
@@ -30,7 +31,6 @@ namespace raytracerui
                         auto position = convert<Float4>(Int4(x, y, z));
                         light->position = oneW(position * Float4(4.f));
                         light->emittance = zeroW(abs(position * emittanceScale) + emittanceScale);
-                        light->attenuationFactors = Float4(1.f, 1.f, 0.f, 1.f);
                         scene.getLights().push_back(std::move(light));
                     }
                 }

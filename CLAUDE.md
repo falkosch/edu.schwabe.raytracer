@@ -99,10 +99,10 @@ spectrum -> XYZ -> sRGB-linear -> AgX (display-encoded, no extra sRGB encoding).
 - **KD-Tree**: Balancers (BruteForceSAH, FixedIterationsSAH, Median, ArithmeticMean, MaxAxis, RotatingAxis) and
   traversers (Naive with an explicit stack, Wide over the tree's eight-wide view for meshes and the scene,
   Voxelization debug view) over a flat-array tree (`KDTreeRoot`)
-- **Shading**: SceneShader (per-light Lambert diffuse + GGX specular + attenuation, shadows with a cache, through
-  transmissive objects and soft for sphere and box lights), ObjectShader (7 material channels: diffusion, reflectance,
-  specular, roughness, transmittance, refractionEta, emittance), concrete shaders (Const, HDRImage, Environment with
-  five projections, IntersectionNormal, MultiplyByConst, Concatenating, NoiseGeneratorMap)
+- **Shading**: SceneShader (per-light Lambert diffuse + GGX specular, inverse-square falloff, shadows with a cache,
+  through transmissive objects and soft for sphere, box and directional lights), ObjectShader (7 material channels:
+  diffusion, reflectance, specular, roughness, transmittance, refractionEta, emittance), concrete shaders (Const,
+  HDRImage, Environment with five projections, IntersectionNormal, MultiplyByConst, Concatenating, NoiseGeneratorMap)
 - **Color**: sRGB/Rec.2020 primaries, Bradford chromatic adaptation, AgX and ACES filmic view transforms
 - **Utilities**: RGBS color type, Bitmap, HDRImage, Perlin/Simplex noise, StatisticsCookie, RaytracerPackets
 

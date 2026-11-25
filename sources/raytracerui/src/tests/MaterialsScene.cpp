@@ -67,14 +67,14 @@ namespace raytracerui
         scene.setBackgroundShader(std::make_unique<RGBBackgroundShader>(RGBS(0.02f, 0.02f, 0.025f)));
         scene.setAmbientLight(RGBS::black());
 
-        // Light values times pi: a white surface facing a light reflects its irradiance / pi (Lambert)
-        auto key = std::make_unique<LightInfo>(LightInfo::blackbody(5500.f, 0.55f * Pi<Float>()));
+        // Light values times pi: a white surface facing a light reflects its irradiance / pi (Lambert). Key and fill
+        // are point lights in front of the wall behind the camera, falling off as the inverse square: their intensities
+        // light the chart's center (0, 0, -0.6) as they did without falloff (the squared distances 23.2 and 16.1).
+        auto key = std::make_unique<LightInfo>(LightInfo::blackbody(5500.f, 0.55f * 23.2f * Pi<Float>()));
         key->position = Float4(-2.f, 2.5f, 3.f, 1.f);
-        key->attenuationFactors = Float4(1.f, 0.f, 0.f, 1.f);
         scene.getLights().push_back(std::move(key));
-        auto fill = std::make_unique<LightInfo>(LightInfo::d65(0.15f * Pi<Float>()));
+        auto fill = std::make_unique<LightInfo>(LightInfo::d65(0.15f * 16.1f * Pi<Float>()));
         fill->position = Float4(2.5f, -0.5f, 2.5f, 1.f);
-        fill->attenuationFactors = Float4(1.f, 0.f, 0.f, 1.f);
         scene.getLights().push_back(std::move(fill));
 
         // Checker backdrop for the reflections and refractions to show

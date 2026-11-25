@@ -60,7 +60,6 @@ namespace raytracer::test {
       auto light = std::make_unique<LightInfo>();
       light->position = Float4(0.0f, 2.0f, 0.0f, 1.0f);
       light->emittance = RGBS(1.0f, 1.0f, 1.0f);
-      light->attenuationFactors = Float4(1.0f, 0.0f, 0.0f, 0.0f);
       light->radius = lightRadius;
       scene.getLights().push_back(std::move(light));
 
@@ -84,7 +83,7 @@ namespace raytracer::test {
       return horizontalSum(lighting.diffuse.data) / 8.0f;
     }
 
-    // A white light 3 above a floor point, dimmed to 1/16 by its attenuation, as SceneShader::sample lights the point
+    // A white light 3 above a floor point, dimmed to 1/16 at the point, as SceneShader::sample lights the point
     // for a ray of the visibility index and the importance, with the cutoff 1/512. Returns the diffuse lighting.
     static Float dimLightFor(const Float visibilityIndex, const Float importance) {
       Scene scene{};
@@ -96,8 +95,8 @@ namespace raytracer::test {
 
       auto light = std::make_unique<LightInfo>();
       light->position = Float4(0.0f, 2.0f, 0.0f, 1.0f);
-      light->emittance = RGBS(1.0f, 1.0f, 1.0f);
-      light->attenuationFactors = Float4(16.0f, 0.0f, 0.0f, 0.0f);
+      // an intensity of 9/16 at the distance 3: the irradiance 1/16
+      light->emittance = RGBS(0.5625f, 0.5625f, 0.5625f);
       scene.getLights().push_back(std::move(light));
 
       const auto context = scene.createSpectralContext(spectral::LAMBDA_MIN + 0.5f * spectral::LAMBDA_RANGE);
@@ -299,7 +298,6 @@ namespace raytracer::test {
       auto light = std::make_unique<LightInfo>();
       light->position = Float4(0.0f, -1.0f, 0.0f, 1.0f) + normalize3(Float4(0.0f, 1.0f, 2.0f, 0.0f)) * distance;
       light->emittance = RGBS(zeroW(Float4(Pi<Float>() * radius * radius)));
-      light->attenuationFactors = Float4(0.0f, 0.0f, 1.0f, 0.0f);
       light->radius = radius;
       return light;
     }
@@ -411,6 +409,65 @@ namespace raytracer::test {
       Assert::AreEqual(share, coated / bare, 1e-3f, L"what it leaves", LINE_INFO());
     }
 
+    TEST_METHOD(pointLightIrradianceFallsAsTheInverseSquareOfTheDistance) {
+      // a white point light straight above the floor point at the heights 1, 2 and 4
+      const auto irradianceAt = [](const Float height) {
+        auto light = std::make_unique<LightInfo>();
+        light->position = Float4(0.0f, -1.0f + height, 0.0f, 1.0f);
+        light->emittance = RGBS(1.0f, 1.0f, 1.0f);
+        return floorLighting(nothing(), std::move(light)).diffuse;
+      };
+      const auto atOne = irradianceAt(1.0f);
+      Assert::IsTrue(atOne > 0.5f, L"lit", LINE_INFO());
+      Assert::AreEqual(atOne / 4.0f, irradianceAt(2.0f), 1e-5f * atOne, L"twice as far", LINE_INFO());
+      Assert::AreEqual(atOne / 16.0f, irradianceAt(4.0f), 1e-5f * atOne, L"four times as far", LINE_INFO());
+    }
+
+    TEST_METHOD(directionalLightIrradianceIsItsEmittanceTimesTheCosine) {
+      // a directional light's emittance is its irradiance on a surface facing it, the same everywhere: from 60 degrees
+      // off the floor's normal it gives half of it
+      const auto irradianceFrom = [](const Float4 &direction) {
+        auto light = std::make_unique<LightInfo>();
+        light->direction = direction;
+        light->emittance = RGBS(1.0f, 1.0f, 1.0f);
+        return floorLighting(nothing(), std::move(light)).diffuse;
+      };
+      const auto overhead = irradianceFrom(Float4(0.0f, 1.0f, 0.0f, 0.0f));
+      const auto pointLight = [] {
+        auto light = std::make_unique<LightInfo>();
+        light->position = Float4(0.0f, 0.0f, 0.0f, 1.0f);
+        light->emittance = RGBS(1.0f, 1.0f, 1.0f);
+        return floorLighting(nothing(), std::move(light)).diffuse;
+      }();
+      Assert::AreEqual(pointLight, overhead, 1e-5f * overhead, L"as a point light of the intensity at 1", LINE_INFO());
+      Assert::AreEqual(0.5f * overhead, irradianceFrom(Float4(0.866025f, 0.5f, 0.0f, 0.0f)), 1e-4f * overhead,
+                       L"half from 60 degrees", LINE_INFO());
+    }
+
+    TEST_METHOD(directionalLightCastsSoftShadowsOfItsAngularSize) {
+      // a sphere of radius 0.5 just beside the vertical over the floor point, a light straight above of the angular
+      // radius 0.1: with samples, the point is in the penumbra; without, its single ray passes (a hard shadow)
+      const auto lit = [](const ASizeT samples) {
+        auto light = std::make_unique<LightInfo>();
+        light->direction = Float4(0.0f, 1.0f, 0.0f, 0.0f);
+        light->angularRadius = 0.1f;
+        light->emittance = RGBS(1.0f, 1.0f, 1.0f);
+        return floorLighting(
+            occluder(std::make_unique<Sphere>(), Float3(0.5f, 0.5f, 0.5f), Float3(0.52f, 0.0f, 0.0f)),
+            std::move(light), samples
+        ).diffuse;
+      };
+      const auto unshadowed = [] {
+        auto light = std::make_unique<LightInfo>();
+        light->direction = Float4(0.0f, 1.0f, 0.0f, 0.0f);
+        light->emittance = RGBS(1.0f, 1.0f, 1.0f);
+        return floorLighting(nothing(), std::move(light)).diffuse;
+      }();
+      const auto penumbra = lit(64) / unshadowed;
+      Assert::IsTrue(penumbra > 0.2f && penumbra < 0.8f, L"a penumbra", LINE_INFO());
+      Assert::AreEqual(1.0f, lit(0) / unshadowed, 1e-5f, L"hard without samples", LINE_INFO());
+    }
+
     TEST_METHOD(sphereLightCastsSoftShadows) {
       // seen from the floor point, the occluder of radius 0.25 covers 14.5 degrees around the light's center, the
       // light of radius 1 reaches out to 19.5 degrees: a penumbra
@@ -461,7 +518,6 @@ namespace raytracer::test {
       auto point = std::make_unique<LightInfo>();
       point->position = Float4(0.0f, 19.0f, 0.0f, 1.0f);
       point->emittance = RGBS(0.01f, 0.01f, 0.01f);
-      point->attenuationFactors = Float4(0.0f, 0.0f, 1.0f, 0.0f);
       const auto pointLit = floorLighting(nothing(), std::move(point));
       Assert::AreEqual(pointLit.diffuse, box.diffuse, 1e-3f * pointLit.diffuse, L"far field", LINE_INFO());
     }
@@ -697,7 +753,6 @@ namespace raytracer::test {
       auto light = std::make_unique<LightInfo>();
       light->position = Float4(1.0f, 0.0f, 0.0f, 1.0f);
       light->emittance = RGBS(zeroW(Float4(Pi<Float>() * radius * radius)));
-      light->attenuationFactors = Float4(0.0f, 0.0f, 1.0f, 0.0f);
       light->radius = radius;
       const auto lit = floorLighting(nothing(), std::move(light)).diffuse;
 
@@ -736,7 +791,6 @@ namespace raytracer::test {
         const auto row = static_cast<Float>(i / 5 - 2);
         light->position = Float4(column, 1.0f + 0.1f * static_cast<Float>(i), row, 1.0f);
         light->emittance = RGBS(0.2f + 0.04f * static_cast<Float>(i), 0.5f, 1.2f - 0.04f * static_cast<Float>(i));
-        light->attenuationFactors = Float4(1.0f, 0.0f, 1.0f, 0.0f);
         scene.getLights().push_back(std::move(light));
       }
 

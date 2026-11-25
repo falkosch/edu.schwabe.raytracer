@@ -47,12 +47,12 @@ namespace raytracerui
         // The lights times pi: a white surface facing a light reflects its irradiance / pi (Lambert)
         const auto lightScale = LIGHT_SCALE * Pi<Float>();
 
-        // Key: a point light from the upper left with quadratic falloff (0.81 at the middle of the scene, 5.7 away):
+        // Key: a point light from the upper left, falling off as the inverse square (0.81 at the middle of the scene,
+        // 5.7 away):
         // hard shadows and a small round highlight. Without falloff it lit the floor up to the horizon like an ambient
         // light.
         auto key = std::make_unique<LightInfo>(LightInfo::blackbody(6000.f, 8.4f * lightScale));
         key->position = Float4(-2.5f, 3.f, 3.f, 1.f);
-        key->attenuationFactors = Float4(0.f, 0.f, 1.f, 1.f);
         scene.getLights().push_back(std::move(key));
         // A softbox of 2.4 x 1.6 from the upper right, about 6000 K, whose front face (its local -y) turns towards the
         // step: soft shadows, and its rectangle in the mirror sphere and the highlights next to the key's
@@ -66,10 +66,9 @@ namespace raytracerui
             scene, "sphere light", Float4(0.62f, -0.88f, 0.3f, 1.f), 0.12f,
             Float4(1.406f, 0.927f, 0.532f, 0.f) * Float4(4.f * lightScale)
         );
-        // Fill from the right with quadratic falloff (0.16 at the middle of the scene, 4.7 away)
+        // Fill from the right, falling off as the inverse square (0.16 at the middle of the scene, 4.7 away)
         auto fill = std::make_unique<LightInfo>(LightInfo::d65(1.1f * lightScale));
         fill->position = Float4(3.f, 1.f, 2.5f, 1.f);
-        fill->attenuationFactors = Float4(0.f, 0.f, 1.f, 1.f);
         scene.getLights().push_back(std::move(fill));
 
         auto& objects = scene.getSceneObjects();

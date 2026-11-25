@@ -92,9 +92,10 @@ namespace raytracer
         ) const;
 
     private:
-        // The unshadowed light of a point light (or of a sphere light from its center) at an intersection: the
-        // direction and distance to the light, Lambert's cosine and the cosine attenuated over the distance. lit is
-        // false where sampleLighting skips the light: behind the surface, or below the cutoff.
+        // The unshadowed light of a point light (or of a sphere light from its center, or of a directional light) at an
+        // intersection: the direction and distance to the light (infinite for a directional light), Lambert's cosine
+        // and the cosine attenuated over the distance (a directional light's isn't). lit is false where sampleLighting
+        // skips the light: behind the surface, or below the cutoff.
         struct PointLightIncidence
         {
             Float4 direction;
@@ -113,14 +114,17 @@ namespace raytracer
             const LightInfo& light, const SceneIntersection& intersection, const Float4& adaptedVisibilityCutoff
         );
 
-        // Adds the light of a point light (or of a sphere light from its center, a hard shadow) to lighting, times the
-        // weight of its pick (1 where every light is taken): its diffuse light and its highlight (a sphere light's
-        // with the lobe widened by its size, Karis 2013; a mirror reflects its emissive sphere instead)
+        // Adds the light of a point light (or of a sphere light from its center, a hard shadow, or of a directional
+        // light) to lighting, times the weight of its pick (1 where every light is taken): its diffuse light and its
+        // highlight (a sphere light's with the lobe widened by its size, Karis 2013, a mirror reflects its emissive
+        // sphere instead; a directional light's widened by its angular radius, whose cone takes up to coneSamples
+        // shadow rays)
         void addPointLight(
             const Raytrace& incidentRay, const Float4& adaptedVisibilityCutoff, Float roughness,
             const brdf::SpecularFresnel& fresnel, const SceneIntersection& intersection, ASizeT lightIndex,
-            const LightInfo& light, const PointLightIncidence& incidence, Float weight, RayCast& shadowRay,
-            PerLightShadowCache::ShadowCacheType& shadowCache, StatisticsCookie& statistics, LightShading& lighting
+            const LightInfo& light, const PointLightIncidence& incidence, Float weight, ASizeT coneSamples,
+            RayCast& shadowRay, PerLightShadowCache::ShadowCacheType& shadowCache, StatisticsCookie& statistics,
+            LightShading& lighting
         ) const;
 
         // The fraction of the light that reaches the intersection along the shadow ray, per wavelength
@@ -138,11 +142,20 @@ namespace raytracer
             StatisticsCookie& statistics
         ) const;
 
+        // The lit fraction of a directional light of an angular radius (LightInfo::angularRadius): the mean of up to
+        // maxSamples shadow rays into its cone (uniform in solid angle, fewer the less the intersection adds to the
+        // pixel), a soft shadow; directions below the surface are shadowed
+        spectral::SpectralVector computeLitConeFraction(
+            RayCast shadowRay, const Raytrace& incidentRay, const SceneIntersection& intersection, ASizeT lightIndex,
+            const LightInfo& light, ASizeT maxSamples, PerLightShadowCache::ShadowCacheType& shadowCache,
+            StatisticsCookie& statistics
+        ) const;
+
         // Adds the lighting of a sphere light (LightInfo::radius) to lighting, with up to maxSamples shadow rays
-        // (SphereLightCap): the light from its center (an intensity with its attenuation, exact while the sphere is
-        // above the horizon) times the mean lit fraction of the rays. Rough surfaces get its highlight from the same
-        // rays, the GGX BRDF towards their points with the sphere's radiance (light sampling, the intensity spread
-        // over the sphere's cross section), weighed against the glossyRays by the power heuristic.
+        // (SphereLightCap): the light from its center (an intensity falling off as the inverse square, exact while the
+        // sphere is above the horizon) times the mean lit fraction of the rays. Rough surfaces get its highlight from
+        // the same rays, the GGX BRDF towards their points with the sphere's radiance (light sampling, the intensity
+        // spread over the sphere's cross section), weighed against the glossyRays by the power heuristic.
         void sampleSphereLight(
             const Raytrace& incidentRay, const Float4& adaptedVisibilityCutoff, Float roughness,
             const brdf::SpecularFresnel& fresnel, const SceneIntersection& intersection, ASizeT lightIndex,
@@ -180,12 +193,8 @@ namespace raytracer
         // at the facet.
         static Float4 lambertDiffuseIntensity(const Float4& lightDirection, const Float4& normal);
 
-        // Calculates the attenuated diffuse intensity. Vector attenuationFactors contain the light attenuation
-        // over distance in empty space-based parameters with z-component as quadratic (Inverse-square-law; generally
-        // for ideal point lights), y-component as linear (for spotlights) and x-component as a constant (planar lights)
-        // falloff factor.
-        static Float4 attenuateDiffuseIntensity(
-            const Float4& attenuationFactors, const Float4& lightDistance, const Float4& diffuseIntensity
-        );
+        // The diffuse intensity (Lambert's cosine) of a point light's intensity at the distance: falling off as the
+        // inverse square of the distance
+        static Float4 inverseSquareIntensity(const Float4& lightDistance, const Float4& diffuseIntensity);
     };
 }
