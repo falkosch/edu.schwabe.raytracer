@@ -57,5 +57,11 @@ namespace raytracerui
             RefractionIndices::refractionEta(RefractionIndices::Vacuum, RefractionIndices::Water)
         ));
         scene.getSceneObjects().push_back(std::move(sceneObject));
+
+        // A directional light from the right at the plane's horizon (perpendicular to its normal, +z): it lights the
+        // sphere from the side and grazes the plane, whose shadow rays run parallel to it
+        auto grazing = std::make_unique<LightInfo>(LightInfo::d65(Pi<Float>()));
+        grazing->direction = Float4(1.f, 0.f, 0.f, 0.f);
+        scene.getLights().push_back(std::move(grazing));
     }
 }
