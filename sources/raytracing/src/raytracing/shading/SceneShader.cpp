@@ -313,9 +313,10 @@ namespace raytracer
         // to it (lightPointDensity)
         if (glossy)
         {
+            // with the multiple scattering between the microfacets compensated
             const auto radianceScale = sphereLightRadianceScale(light, cap.centerDistance);
-            lighting.specular +=
-                emittance * (highlight * spectral::SpectralVector(radianceScale / static_cast<Float>(samples)));
+            lighting.specular += emittance * (highlight * fresnel.multipleScattering(NoV, roughness)
+                * spectral::SpectralVector(radianceScale / static_cast<Float>(samples)));
         }
 
         const auto litAreaFraction = fraction * spectral::SpectralVector(One<Float>() / static_cast<Float>(samples));
@@ -591,7 +592,8 @@ namespace raytracer
                                    : roughness;
             const auto normalization = isSphereLight ? sqr(roughness / alpha) : One<Float>();
             const auto DG = brdf::evaluateGGX_DG(NoV, NoL, NoH, alpha) * normalization;
-            const auto F = fresnel.reflectance(dot3v(V, H));
+            // with the multiple scattering between the microfacets compensated
+            const auto F = fresnel.reflectance(dot3v(V, H)) * fresnel.multipleScattering(NoV, roughness);
             lighting.specular += lightContribution * (F * DG);
         }
     }
@@ -617,17 +619,20 @@ namespace raytracer
             return;
         }
 
-        // the highlight of light from the direction L: the GGX BRDF of the lobe width alpha with its Fresnel; a mirror
-        // reflects the light's emissive box instead
+        // the highlight of light from the direction L: the GGX BRDF of the lobe width alpha with its Fresnel and the
+        // compensation of the multiple scattering between the microfacets; a mirror reflects the light's emissive box
+        // instead
         const auto glossy = fresnel.reflects() && roughness > brdf::MirrorRoughness;
         const auto V = -incidentRay.rayCast.ray.direction;
         const auto NoV = max(dot3(N, V), Zero<Float>());
+        const auto compensation =
+            glossy ? fresnel.multipleScattering(NoV, roughness) : One<spectral::SpectralVector>();
         const auto brdfFrom = [&](const Float4& L, const Float alpha)
         {
             const auto H = normalize3(V + L);
             const auto NoH = max(dot3(N, H), Zero<Float>());
             const auto DG = brdf::evaluateGGX_DG(NoV, max(dot3(N, L), Zero<Float>()), NoH, alpha);
-            return fresnel.reflectance(dot3v(V, H)) * spectral::SpectralVector(DG);
+            return fresnel.reflectance(dot3v(V, H)) * compensation * spectral::SpectralVector(DG);
         };
 
 #ifndef DISABLE_SHADOWING

@@ -57,12 +57,35 @@ namespace raytracer::brdf
         const auto& tables = SpecularAlbedo::tables();
         if (dielectric)
         {
-            return weight * spectral::SpectralVector(xxxx(tables.dielectric(cosine, roughness, eta)));
+            // E_R / (E_R + E_T)
+            const auto lobes = tables.dielectric(cosine, roughness, eta);
+            const auto sum = xxxx(lobes) + yyyy(lobes);
+            return weight * spectral::SpectralVector(select(sum > Zero<Float4>(), xxxx(lobes) / sum, Zero<Float4>()));
         }
-        // F0 E_1 + (1 - F0) E_5
+        // (F0 E_1 + (1 - F0) E_5) (1 + F0 (1 - E_1) / E_1)
         const auto schlick = tables.schlick(cosine, roughness);
         const auto schlickTerm = spectral::SpectralVector(yyyy(schlick));
-        return weight * multiplyAdd(f0, spectral::SpectralVector(xxxx(schlick)) - schlickTerm, schlickTerm);
+        const auto singleScattering =
+            multiplyAdd(f0, spectral::SpectralVector(xxxx(schlick)) - schlickTerm, schlickTerm);
+        return weight * singleScattering * multipleScattering(cosine, roughness);
+    }
+
+    spectral::SpectralVector SpecularFresnel::multipleScattering(
+        const Float cosine, const Float roughness
+    ) const noexcept
+    {
+        const auto& tables = SpecularAlbedo::tables();
+        if (dielectric)
+        {
+            // 1 / (E_R + E_T)
+            const auto lobes = tables.dielectric(cosine, roughness, eta);
+            const auto sum = xxxx(lobes) + yyyy(lobes);
+            return spectral::SpectralVector(select(sum > Zero<Float4>(), One<Float4>() / sum, One<Float4>()));
+        }
+        // 1 + F0 (1 - E_1) / E_1
+        const auto E1 = xxxx(tables.schlick(cosine, roughness));
+        const auto lost = select(E1 > Zero<Float4>(), (One<Float4>() - E1) / E1, Zero<Float4>());
+        return multiplyAdd(f0, spectral::SpectralVector(lost), One<spectral::SpectralVector>());
     }
 
     spectral::SpectralVector SpecularFresnel::averageAlbedo(const Float roughness) const noexcept
@@ -72,9 +95,15 @@ namespace raytracer::brdf
         {
             return weight * spectral::SpectralVector(xxxx(tables.averageDielectric(roughness, eta)));
         }
-        const auto schlick = tables.averageSchlick(roughness);
-        const auto schlickTerm = spectral::SpectralVector(yyyy(schlick));
-        return weight * multiplyAdd(f0, spectral::SpectralVector(xxxx(schlick)) - schlickTerm, schlickTerm);
+        // the means of F0 E_1 + (1 - F0) E_5 + F0^2 (1 - E_1) + F0 (1 - F0) E_5 (1 - E_1) / E_1
+        const auto averages = tables.averageSchlick(roughness);
+        const auto E1 = spectral::SpectralVector(xxxx(averages));
+        const auto E5 = spectral::SpectralVector(yyyy(averages));
+        const auto compensatedTerm = spectral::SpectralVector(zzzz(averages));
+        const auto oneMinusF0 = One<spectral::SpectralVector>() - f0;
+        const auto linear = multiplyAdd(f0, E1, oneMinusF0 * E5);
+        const auto quadratic = f0 * multiplyAdd(f0, One<spectral::SpectralVector>() - E1, oneMinusF0 * compensatedTerm);
+        return weight * (linear + quadratic);
     }
 
     bool SpecularFresnel::reflects() const noexcept

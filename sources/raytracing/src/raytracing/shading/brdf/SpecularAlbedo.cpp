@@ -147,9 +147,12 @@ namespace raytracer::brdf
                 schlickTerm += static_cast<Float_64>(weight * sqr(sqr(oneMinusCos)) * oneMinusCos);
             }
             const auto perSample = One<Float_64>() / static_cast<Float_64>(SchlickSamples);
+            const auto E1 = fresnelOne * perSample;
+            const auto E5 = schlickTerm * perSample;
+            // the part of the compensated albedo that is quadratic in F0 and (1 - F0), for its mean
+            const auto compensatedTerm = E1 > Zero<Float_64>() ? E5 * (One<Float_64>() - E1) / E1 : Zero<Float_64>();
             schlickTable[index] = Float4(
-                static_cast<Float>(fresnelOne * perSample), static_cast<Float>(schlickTerm * perSample),
-                Zero<Float>(), Zero<Float>()
+                static_cast<Float>(E1), static_cast<Float>(E5), static_cast<Float>(compensatedTerm), Zero<Float>()
             );
         }
 
@@ -202,7 +205,14 @@ namespace raytracer::brdf
         }
 
         averageRows(schlickTable, averageSchlickTable);
-        averageRows(dielectricTable, averageDielectricTable);
+        // the dielectric lobes' means with the multiple scattering compensated: each side's lobes over their sum
+        auto compensated = dielectricTable;
+        for (auto& entry : compensated)
+        {
+            const auto sum = entry + swizzle<2, 3, 0, 1>(entry);
+            entry = select(sum > Zero<Float4>(), entry / sum, Zero<Float4>());
+        }
+        averageRows(compensated, averageDielectricTable);
     }
 
     Float4 SpecularAlbedo::schlick(const Float cosine, const Float roughness) const noexcept

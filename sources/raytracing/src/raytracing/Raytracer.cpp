@@ -191,7 +191,8 @@ namespace raytracer
                 static_cast<Float>(glossyRays), glossyPdf, static_cast<Float>(lightSamples), density.pdf
             );
             const auto G2 = brdf::ggxG_smith(NoV, NoL, roughness);
-            const auto F = fresnel.reflectance(dot3v(V, H));
+            // with the multiple scattering between the microfacets compensated
+            const auto F = fresnel.reflectance(dot3v(V, H)) * fresnel.multipleScattering(NoV, roughness);
             return density.radiance.data * F * spectral::SpectralVector(G2 / brdf::smithG1(NoV, roughness) * weight);
         }
     }
@@ -995,8 +996,9 @@ namespace raytracer
     }
 
     // Averages reflection rays in directions of microfacet normals drawn from the GGX distribution of visible normals
-    // (Heitz 2018), each weighted by Smith's masking of its direction and its microfacet's Fresnel reflectance (the
-    // specular lobe's, as the highlights take it). Directions below the surface count as black. With shadow rays to
+    // (Heitz 2018), each weighted by the BRDF times the cosine per its density, G2 / G1(V) (height-correlated, as the
+    // highlights take it), its microfacet's Fresnel reflectance (the specular lobe's) and the compensation of the
+    // multiple scattering between the microfacets. Directions below the surface count as black. With shadow rays to
     // area lights, a ray that finds a light's emitter adds the light to the highlight instead, weighed against the
     // light's shadow rays (multiple importance sampling, SceneShader::sampleLighting). At a dielectric interface, the
     // microfacets' Fresnel reflectance (1 for a microfacet that reflects totally, Walter et al. 2007) holds only where
@@ -1025,6 +1027,11 @@ namespace raytracer
         const auto lightCutoff =
             SceneShader::adaptedVisibilityCutoff(cache.configuration.visibilityCutoff, incidentRaytrace.importance);
         const auto perMicrofacet = !brdf.fresnel.isDielectric() || microfacetEta;
+        // the VNDF samples' weight, the BRDF times the cosine per their density: F G2 / G1(V), with the multiple
+        // scattering between the microfacets compensated
+        const auto NoV = dot3(N, V);
+        const auto viewMasking = NoV > Zero<Float>() ? brdf::smithG1(NoV, roughness) : Zero<Float>();
+        const auto compensation = brdf.fresnel.multipleScattering(max(NoV, Zero<Float>()), roughness);
 
         // the shift of the sample sequence once per hit, and the reflected rays' seeds (reflectionSeed) 8 at a time,
         // all hashed in SIMD lanes
@@ -1084,8 +1091,11 @@ namespace raytracer
             // the clamp against fireflies scales the whole spectrum, so that the colour stays
             const auto fresnel =
                 perMicrofacet ? brdf.fresnel.reflectance(dot3v(V, microfacetNormal)) : brdf.reflectanceCoefficient;
+            const auto masking = viewMasking > Zero<Float>()
+                                     ? brdf::ggxG_smith(NoV, NoL, roughness) / viewMasking
+                                     : brdf::smithG1(NoL, roughness);
             reflected += spectral::limitPeak(reflectedHit.color, cache.configuration.glossyClamp)
-                * (fresnel * spectral::SpectralVector(brdf::smithG1(NoL, roughness)));
+                * (fresnel * compensation * spectral::SpectralVector(masking));
         }
         const auto perSample = One<Float>() / static_cast<Float>(samples);
         brdf.lighting.reflected = reflected * perSample;
@@ -1340,11 +1350,12 @@ namespace raytracer
     }
 
     // Averages refracted rays through microfacet normals drawn from the GGX distribution of visible normals (Walter et
-    // al. 2007, sampled as Heitz 2018), each weighted by Smith's masking of its direction (G2 / G1(V), about G1 of
-    // the refracted direction, as for the glossy reflection), what its microfacet's Fresnel reflectance (the specular
-    // lobe's, its weight included) leaves and its absorption. A microfacet that reflects totally transmits nothing
-    // (its light is in the reflection), and a direction that doesn't cross the surface is masked: both count as black.
-    // The refracted lobe is narrower than the reflected one and takes fewer rays (refractedLobeRoughness).
+    // al. 2007, sampled as Heitz 2018), each weighted by the masking of its direction (G2 / G1(V), as for the glossy
+    // reflection), what its microfacet's Fresnel reflectance (the specular lobe's, its weight included) leaves, the
+    // compensation of the multiple scattering between the microfacets and its absorption. A microfacet that reflects
+    // totally transmits nothing (its light is in the reflection), and a direction that doesn't cross the surface is
+    // masked: both count as black. The refracted lobe is narrower than the reflected one and takes fewer rays
+    // (refractedLobeRoughness).
     void Raytracer::traceRoughTransmission(
         const Raytrace& incidentRaytrace, const Float maxDistance, const bool leavingMaterial,
         const Float4& interfaceEta, const Float transmissionVisibilityIndex, const Float transmissionImportance,
@@ -1362,6 +1373,10 @@ namespace raytracer
         const auto NoV = dot3(N, V);
         const auto roughness = x(brdf.surface.roughness);
         const auto undiffused = undiffusedShare(brdf);
+        // the VNDF samples' weight G2 / G1(V), as for the glossy reflection, with the multiple scattering between the
+        // microfacets compensated
+        const auto viewMasking = NoV > Zero<Float>() ? brdf::smithG1(NoV, roughness) : Zero<Float>();
+        const auto compensation = brdf.fresnel.multipleScattering(max(NoV, Zero<Float>()), roughness);
 
         // the refracted lobe takes as many rays as a reflected lobe of its width
         const auto samples = glossyReflectionSamples(
@@ -1384,7 +1399,10 @@ namespace raytracer
             {
                 continue;
             }
-            const auto weight = spectral::SpectralVector(brdf::smithG1(NoT, roughness)) * undiffused
+            const auto masking = viewMasking > Zero<Float>()
+                                     ? brdf::ggxG_smith(NoV, NoT, roughness) / viewMasking
+                                     : brdf::smithG1(NoT, roughness);
+            const auto weight = spectral::SpectralVector(masking) * undiffused * compensation
                 * (One<spectral::SpectralVector>() - brdf.fresnel.reflectance(dot3v(V, microfacetNormal)));
 
             const auto refractedRayCast = RayCast(

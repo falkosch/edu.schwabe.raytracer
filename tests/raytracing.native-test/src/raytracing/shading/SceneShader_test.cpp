@@ -27,6 +27,11 @@ namespace raytracer::test {
       return brdf::SpecularFresnel::opaque(One<spectral::SpectralVector>(), spectral::SpectralVector(F0));
     }
 
+    // The compensation of the multiple scattering of the lobe of F0 1 seen at the cosine (Turquin 2019)
+    static double multipleScattering(const Float cosine, const Float roughness) {
+      return static_cast<double>(x1(opaqueLobe(1.0f).multipleScattering(cosine, roughness)));
+    }
+
     // A point on the floor (y = -1) lit by a white light above it (y = 2, a point light or a sphere light of the
     // radius), with a sphere in between at the origin. Returns the diffuse lighting of the point, averaged over the
     // wavelengths.
@@ -503,7 +508,8 @@ namespace raytracer::test {
 
     TEST_METHOD(boxLightHighlightIsTheIntegratedBRDF) {
       // the floor point's reflection (0, 1, 2) / sqrt(5) meets the plane y = 2 at z = 6: a light of 2 x 2 there, and
-      // one off to the side of the reflection. The reference integrates the GGX BRDF (F = 1) over the light's area.
+      // one off to the side of the reflection. The reference integrates the GGX BRDF (F = 1) over the light's area,
+      // times the compensation of the multiple scattering between the microfacets.
       const auto direction = normalize3(Float4(0.0f, -1.0f, 2.0f, 0.0f));
       const auto V = -direction;
       for (const auto lightZ : {6.0f, 0.0f}) {
@@ -534,7 +540,7 @@ namespace raytracer::test {
                            / distanceSquared;
             }
           }
-          reference *= 4.0 / (static_cast<double>(Steps) * Steps);
+          reference *= 4.0 / (static_cast<double>(Steps) * Steps) * multipleScattering(y(V), roughness);
           Assert::AreEqual(reference, static_cast<double>(sampled), 0.05 * reference, L"64 rays", LINE_INFO());
           // the representative point (Karis 2013) without samples is a rough approximation for so large a light
           Assert::IsTrue(
@@ -583,9 +589,11 @@ namespace raytracer::test {
                          * NoL / distanceSquared;
           }
         }
-        reference *= 4.0 / (static_cast<double>(Steps) * Steps);
+        // both with the multiple scattering between the microfacets compensated
+        const auto compensation = multipleScattering(y(V), roughness);
+        reference *= 4.0 / (static_cast<double>(Steps) * Steps) * compensation;
         Assert::IsTrue(shadowPart < alone, L"the glossy rays take a part", LINE_INFO());
-        Assert::AreEqual(reference, shadowPart + glossy, 0.03 * reference, L"both parts", LINE_INFO());
+        Assert::AreEqual(reference, shadowPart + glossy * compensation, 0.03 * reference, L"both parts", LINE_INFO());
       }
     }
 
@@ -595,7 +603,10 @@ namespace raytracer::test {
       for (const auto roughness : {0.05f, 0.3f}) {
         constexpr ASizeT GlossyRays = 4;
         constexpr ASizeT ShadowRays = 1024;
-        const auto reference = sphereLightHighlightReference(*sphereLightInReflection(0.5f, 3.0f), roughness);
+        // with the multiple scattering between the microfacets compensated, at the view direction (0, 1, -2) / sqrt(5)
+        const auto compensation = multipleScattering(1.0f / std::sqrt(5.0f), roughness);
+        const auto reference =
+            sphereLightHighlightReference(*sphereLightInReflection(0.5f, 3.0f), roughness) * compensation;
         const auto alone =
             floorLighting(nothing(), sphereLightInReflection(0.5f, 3.0f), ShadowRays, roughness, 1.0f).specular;
         const auto shadowPart =
@@ -606,7 +617,7 @@ namespace raytracer::test {
           return distanceToSphere(*light, L);
         });
         Assert::AreEqual(reference, static_cast<double>(alone), 0.03 * reference, L"shadow rays alone", LINE_INFO());
-        Assert::AreEqual(reference, shadowPart + glossy, 0.03 * reference, L"both parts", LINE_INFO());
+        Assert::AreEqual(reference, shadowPart + glossy * compensation, 0.03 * reference, L"both parts", LINE_INFO());
       }
     }
 

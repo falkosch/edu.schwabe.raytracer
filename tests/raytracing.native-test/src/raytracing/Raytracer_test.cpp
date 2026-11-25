@@ -135,7 +135,7 @@ namespace raytracer::test {
 
       ImageObserver observer{};
       parameters.visibilityCutoff = 1.0f / 512.0f;
-      parameters.maxTraceDepth = 4;
+      parameters.maxTraceDepth = std::max(parameters.maxTraceDepth, ASizeT{4});
       parameters.sceneShader = &scene;
       parameters.cullingOrientation = -1;
       parameters.resolution = Size2(1, 1);
@@ -311,6 +311,60 @@ namespace raytracer::test {
           Assert::IsTrue(albedo > 0.96f, L"about all of it", LINE_INFO());
         }
       }
+    }
+
+    TEST_METHOD(roughWhiteConductorReflectsAllTheLightAroundIt) {
+      // White furnace: a conductor of F0 0.94 (about 1 upsampled) in a uniform white sky reflects about all of it at
+      // every angle and roughness, with the multiple scattering between its microfacets compensated (single
+      // scattering loses up to half at roughness 1 and grazing angles)
+      const auto render = [](const Float tilt, const Float roughness, const bool withWall) {
+        Scene scene{};
+        setUpEmpty(scene, RGBS(1.0f, 1.0f, 1.0f));
+        if (withWall) {
+          auto object = glossyWall(1.0f, 0.94f, roughness);
+          object->rotate(Float3(0.0f, tilt, 0.0f));
+          scene.getSceneObjects().push_back(std::move(object));
+        } else {
+          scene.getSceneObjects().push_back(panel(Float3(0.1f, 0.1f, 0.1f), Float3(50.0f, 0.0f, 0.0f), Zero<Float4>()));
+        }
+        RaytraceParameters parameters{};
+        parameters.glossySamples = 256;
+        return rgbSum(renderWallCenter(scene, parameters, 3));
+      };
+
+      const auto sky = render(0.0f, 0.0f, false);
+      for (const auto roughness : {0.3f, 0.7f, 1.0f}) {
+        for (const auto tilt : {0.0f, 60.0f, 80.0f}) {
+          Assert::AreEqual(1.0f, render(tilt, roughness, true) / sky, 0.02f, L"all of it", LINE_INFO());
+        }
+      }
+    }
+
+    TEST_METHOD(roughGlassPassesAndReflectsAllTheLightAroundIt) {
+      // White furnace: a thin pane of rough clear glass in a uniform white sky shows the sky, what its faces reflect
+      // and transmit (and reflect totally inside) adding up, with the multiple scattering between the microfacets
+      // compensated
+      const auto render = [](const bool withPane) {
+        Scene scene{};
+        setUpEmpty(scene, RGBS(1.0f, 1.0f, 1.0f));
+        if (withPane) {
+          auto pane = glossyWall(1.0f, 0.0f, 0.7f);
+          pane->rotate(Float3(0.0f, 30.0f, 0.0f));
+          pane->setTransmittanceShader(
+              std::make_unique<Resources::ConstMaterialShader>(Float4(1e6f, 1e6f, 1e6f, 0.0f)));
+          pane->setRefractionEtaShader(std::make_unique<Resources::ConstMaterialShader>(
+              RefractionIndices::refractionEta(RefractionIndices::Vacuum, RefractionIndices::Glass)
+          ));
+          scene.getSceneObjects().push_back(std::move(pane));
+        } else {
+          scene.getSceneObjects().push_back(panel(Float3(0.1f, 0.1f, 0.1f), Float3(50.0f, 0.0f, 0.0f), Zero<Float4>()));
+        }
+        RaytraceParameters parameters{};
+        parameters.glossySamples = 64;
+        parameters.maxTraceDepth = 16;
+        return rgbSum(renderWallCenter(scene, parameters, 3));
+      };
+      Assert::AreEqual(1.0f, render(true) / render(false), 0.03f, L"the sky", LINE_INFO());
     }
 
     TEST_METHOD(transmissionSharesWhatTheLobeLeavesWithTheDiffusion) {

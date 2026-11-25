@@ -35,9 +35,16 @@ namespace raytracer::brdf
         // [0, 1]: the weight where a dielectric interface reflects totally
         spectral::SpectralVector reflectance(const Float4& cosine) const noexcept;
 
-        // The lobe's directional albedo per wavelength (SpecularAlbedo): what it reflects of light from the direction
-        // at the cosine to the normal (or towards it, by reciprocity), for the roughness (the GGX alpha)
+        // The lobe's directional albedo per wavelength (SpecularAlbedo), multiple scattering compensated: what it
+        // reflects of light from the direction at the cosine to the normal (or towards it, by reciprocity), for the
+        // roughness (the GGX alpha)
         spectral::SpectralVector directionalAlbedo(Float cosine, Float roughness) const noexcept;
+
+        // The compensation of the multiple scattering between the microfacets that the single-scattering GGX lobe
+        // loses (Turquin 2019), a factor on the lobe for the view direction at the cosine to the normal: 1 + F0 (1 -
+        // E_1) / E_1 on an opaque surface (exact for F = 1, the white furnace), 1 / (E_R + E_T) for both lobes of a
+        // dielectric interface; 1 for a mirror
+        spectral::SpectralVector multipleScattering(Float cosine, Float roughness) const noexcept;
 
         // Its cosine-weighted mean over the hemisphere: what it reflects of light from all directions alike
         spectral::SpectralVector averageAlbedo(Float roughness) const noexcept;

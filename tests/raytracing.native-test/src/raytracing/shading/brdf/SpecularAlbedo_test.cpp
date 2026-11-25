@@ -85,12 +85,37 @@ namespace raytracer::test {
       Assert::AreEqual(1.0f, x(leaving), 1e-3f, L"total reflection", LINE_INFO());
     }
 
+    TEST_METHOD(compensatedWhiteLobesReflectAllTheLight) {
+      // Turquin 2019: a conductor of F = 1 and both lobes of a dielectric interface keep all the light at every angle
+      // and roughness, and on average
+      const auto white = brdf::SpecularFresnel::opaque(spectral::SpectralVector(1.0f), spectral::SpectralVector(1.0f));
+      const auto glass = brdf::SpecularFresnel::dielectricInterface(
+          spectral::SpectralVector(1.0f), RefractionIndices::refractionEta(1.0f, 1.5f)
+      );
+      const auto& tables = brdf::SpecularAlbedo::tables();
+      for (const auto roughness : {0.2f, 0.6f, 1.0f}) {
+        for (const auto cosine : {0.9f, 0.5f, 0.1f}) {
+          Assert::AreEqual(1.0f, x1(white.directionalAlbedo(cosine, roughness)), 1e-5f, L"conductor", LINE_INFO());
+          const auto lobes = tables.dielectric(cosine, roughness, RefractionIndices::refractionEta(1.0f, 1.5f));
+          Assert::AreEqual(1.0f, (x(lobes) + y(lobes)) * x1(glass.multipleScattering(cosine, roughness)), 1e-5f,
+                           L"dielectric", LINE_INFO());
+        }
+        Assert::AreEqual(1.0f, x1(white.averageAlbedo(roughness)), 2e-3f, L"conductor's mean", LINE_INFO());
+        const auto averages = tables.averageDielectric(roughness, RefractionIndices::refractionEta(1.0f, 1.5f));
+        Assert::AreEqual(1.0f, x(averages) + y(averages), 1e-5f, L"dielectric's mean", LINE_INFO());
+      }
+    }
+
     TEST_METHOD(lobeAlbedoIsTheWeightTimesItsFresnelsAlbedo) {
       const auto& tables = brdf::SpecularAlbedo::tables();
       const auto lobe = brdf::SpecularFresnel::opaque(spectral::SpectralVector(0.5f), spectral::SpectralVector(0.04f));
       const auto schlick = tables.schlick(0.4f, 0.3f);
-      Assert::AreEqual(0.5f * (0.04f * x(schlick) + 0.96f * y(schlick)), x1(lobe.directionalAlbedo(0.4f, 0.3f)), 1e-6f,
-                       L"F0 E_1 + (1 - F0) E_5", LINE_INFO());
+      const auto compensation = 1.0f + 0.04f * (1.0f - x(schlick)) / x(schlick);
+      Assert::AreEqual(0.5f * (0.04f * x(schlick) + 0.96f * y(schlick)) * compensation,
+                       x1(lobe.directionalAlbedo(0.4f, 0.3f)), 1e-6f, L"F0 E_1 + (1 - F0) E_5, compensated",
+                       LINE_INFO());
+      Assert::AreEqual(compensation, x1(lobe.multipleScattering(0.4f, 0.3f)), 1e-6f, L"1 + F0 (1 - E_1) / E_1",
+                       LINE_INFO());
       const auto glass = RefractionIndices::refractionEta(1.0f, 1.5f);
       const auto dielectric = brdf::SpecularFresnel::dielectricInterface(spectral::SpectralVector(1.0f), glass);
       Assert::AreEqual(x(tables.averageDielectric(0.3f, glass)), x8(dielectric.averageAlbedo(0.3f)), 1e-6f, L"E_R avg",

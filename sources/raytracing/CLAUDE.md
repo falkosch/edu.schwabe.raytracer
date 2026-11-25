@@ -49,7 +49,10 @@ Core rendering engine. Static library depending on `primitives` and `vectorizati
    highlight on either side. Highlights, mirror and glossy reflections take one Fresnel reflectance
    (`brdf::SpecularFresnel`, built per hit in `Raytracer::trace`): Schlick's of the specular channel on an opaque
    surface, the indices' at a transmissive one, times the reflectance channel as the lobe's weight (at most 1); each
-   glossy ray takes its microfacet's. A rough dielectric whose refracted lobe is wider than a mirror's (|1 - eta| / 2
+   glossy ray takes its microfacet's, and the VNDF samples' exact weight G2 / G1(V) (height-correlated, as the
+   highlights). Highlights, glossy reflections and rough transmission compensate the multiple scattering between the
+   microfacets that the single-scattering lobe loses (`SpecularFresnel::multipleScattering`, Turquin 2019). A rough
+   dielectric whose refracted lobe is wider than a mirror's (|1 - eta| / 2
    times the reflected lobe's width) reflects and refracts through VNDF-sampled microfacet normals, each with its own
    Fresnel reflectance (`traceGlossyReflection`, `traceRoughTransmission`, Walter et al. 2007): a microfacet that
    reflects totally refracts nothing and reflects all, a masked direction counts as black. The refraction takes fewer
@@ -203,11 +206,14 @@ Traversers (template on intersection type):
   reflections and the emitters its glossy rays find: Schlick's of the specular channel (opaque surfaces, conductors; an
   F0 of 0 is no lobe) or the indices' (transmissive surfaces, dielectric interfaces), times the reflectance channel as
   the lobe's weight (clamped to [0, 1], as OpenPBR's `specular_weight`); a dielectric interface transmits what the lobe
-  leaves
+  leaves. `multipleScattering()` compensates what the single-scattering lobe loses between its microfacets (Turquin
+  2019, a factor at the view direction: 1 + F0 (1 - E_1) / E_1, or 1 / (E_R + E_T) for both lobes of a dielectric
+  interface; a white furnace keeps all the light), `directionalAlbedo()` and `averageAlbedo()` include it
 - `SpecularAlbedo` -- tables of the GGX lobe's directional albedo E(mu, alpha) and its cosine-weighted mean (single
-  scattering): for Schlick's Fresnel (E_1 of F = 1 and E_5 of the (1 - cos)^5 term) and for dielectric interfaces
-  from either side (reflected and transmitted), computed once in parallel by VNDF samples (`Raytracer::trace` builds
-  them before its parallel regions), 32 cosines by 32 roughnesses by 16 index ratios
+  scattering; the means of the compensated lobes): for Schlick's Fresnel (E_1 of F = 1 and E_5 of the (1 - cos)^5
+  term) and for dielectric interfaces from either side (reflected and transmitted), computed once in parallel by VNDF
+  samples (`Raytracer::trace` builds them before its parallel regions), 32 cosines by 32 roughnesses by 16 index
+  ratios
 - `applyBRDF()` (`apply_brdf.h`) -- the radiance of a hit from its `BRDFParameters`; the diffuse part is Lambert's
   BRDF, the diffusion / pi times the direct irradiance (a white surface under light from all directions reflects
   that light's radiance); the reflected and transmitted light come weighed by the specular lobe's Fresnel. Under a
