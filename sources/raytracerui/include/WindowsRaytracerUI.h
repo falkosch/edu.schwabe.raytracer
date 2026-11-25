@@ -7,6 +7,8 @@
 #include "MouseButtons.h"
 #include "RaytracerUI.h"
 
+#include <memory>
+
 namespace raytracerui
 {
     using namespace vectorization;
@@ -25,6 +27,13 @@ namespace raytracerui
         Int2 previousMousePosition;
 
         DragTypes activeDrag;
+
+        // The light drags' offset over the UI's lifetime, and the part of it the worker has moved the last light by
+        // (written by the worker only): enqueued work replaces work still pending, so each drag step's work moves
+        // the light by the rest
+        Float3 lightDragOffset{Zero<Float3>()};
+
+        std::shared_ptr<Float3> appliedLightDragOffset{std::make_shared<Float3>(Zero<Float3>())};
 
         bool movementTimerActive{false};
 

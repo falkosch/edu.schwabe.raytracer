@@ -62,7 +62,7 @@ Most parameters are exposed in ImGui panels. Toggle with function keys:
 * **Right-mouse drag** — depends on interaction mode (set in F3 or via `1`/`2`/`3`):
     * `1` Camera — rotate view
     * `2` Object — translate last-added object on Z
-    * `3` Light — translate last-added light on Z
+    * `3` Light — translate last-added light on Z, with its emitter (an area light's glowing sphere or box)
 * **Left-mouse drag** (Object mode only) — scale last-added object
 
 ### Keyboard shortcuts

@@ -36,6 +36,11 @@ namespace raytracer
 
         void setMeshTreeBalancer(const std::function<std::unique_ptr<const KDTreeBalancer>()>& balancerFactory) const;
 
+        // Moves one of the scene's lights by the translation, together with its emitters (the scene objects that
+        // show it, ObjectShader::getEmittedLight), and rebuilds the scene graph around their new place if it moved
+        // one. A directional light doesn't move (it has no position).
+        void translateLight(LightInfo& light, const Float3& translation);
+
     protected:
         SceneList sceneObjects;
 

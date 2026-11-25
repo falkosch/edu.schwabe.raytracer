@@ -4,6 +4,9 @@
 #include "raytracing/geometry/forms/meshes/Mesh.h"
 
 #include <logging.h>
+
+#include <algorithm>
+#include <cassert>
 #include <sstream>
 
 // disables the generation of a BVH for the scene objects (the scene tree)
@@ -51,6 +54,30 @@ namespace raytracer
             {
                 mesh->setTreeBalancer(balancerFactory());
             }
+        }
+    }
+
+    void Scene::translateLight(LightInfo& light, const Float3& translation)
+    {
+        assert(std::ranges::any_of(lights, [&light](const auto& candidate) { return candidate.get() == &light; }));
+        if (light.isDirectional())
+        {
+            return;
+        }
+        light.position += zeroW(translation);
+
+        auto emitterMoved = false;
+        for (const auto& sceneObject : sceneObjects)
+        {
+            if (sceneObject->getEmittedLight() == &light)
+            {
+                sceneObject->translate(translation);
+                emitterMoved = true;
+            }
+        }
+        if (emitterMoved)
+        {
+            buildSceneGraph();
         }
     }
 

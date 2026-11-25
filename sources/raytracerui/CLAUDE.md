@@ -113,7 +113,8 @@ what no light reaches stays black.
 - **WASD/Space/C**: camera movement; **right-drag**: rotation
 - **Q**: cycle culling; **E**: cycle display (image/timing/depth); **R**: reset camera
 - **G/H**: ray packet size; **J/K**: super-sampling; **T**: toggle fast preview
-- **1/2/3**: interaction mode (Camera/Object/Light); **Enter**: full-quality render (at least
+- **1/2/3**: interaction mode (Camera/Object/Light; right-drag in Light mode moves the last light along z with its
+  emitter, `Scene::translateLight`, through `Raytracer::enqueueWork`); **Enter**: full-quality render (at least
   `FULL_RENDER_SUPER_SAMPLING`)
 - **F1-F4**: toggle ImGui panels (Controls, Metrics, Config, Log)
 

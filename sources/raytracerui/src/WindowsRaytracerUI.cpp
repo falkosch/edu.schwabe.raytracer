@@ -274,9 +274,18 @@ namespace raytracerui
 
         case DragTypes::Light:
             {
-                const auto& lights = parameters.sceneShader->getLights();
-                const auto& lastLight = lights.back();
-                lastLight->position += Float4(0.0f, 0.0f, x(delta) - y(delta)) * MOUSE_SENSITIVITY;
+                // the worker moves the last light with its emitter before the next render
+                lightDragOffset += Float3(0.0f, 0.0f, x(delta) - y(delta)) * MOUSE_SENSITIVITY;
+                const auto scene = dynamic_cast<Scene*const>(parameters.sceneShader);
+                raytracer->enqueueWork([scene, offset = lightDragOffset, applied = appliedLightDragOffset]
+                {
+                    auto& lights = scene->getLights();
+                    if (!lights.empty())
+                    {
+                        scene->translateLight(*lights.back(), offset - *applied);
+                    }
+                    *applied = offset;
+                });
                 triggerRaytracing(true);
                 break;
             }
