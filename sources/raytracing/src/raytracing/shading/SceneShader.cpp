@@ -37,10 +37,10 @@ namespace raytracer
         )
         {
             const auto lobe = brdf::SpecularFresnel::dielectricInterface(
-                spectralContext.fromRGB(shader.sampleReflectance(at)).data, eta
+                spectralContext.reflectanceFromRGB(shader.sampleReflectance(at)).data, eta
             );
             const auto undiffused = max(
-                One<spectral::SpectralVector>() - spectralContext.fromRGB(shader.sampleDiffusion(at)).data,
+                One<spectral::SpectralVector>() - spectralContext.reflectanceFromRGB(shader.sampleDiffusion(at)).data,
                 Zero<spectral::SpectralVector>()
             );
             const auto cosTheta = Float4(min(vectorization::abs(cosine), One<Float>()));

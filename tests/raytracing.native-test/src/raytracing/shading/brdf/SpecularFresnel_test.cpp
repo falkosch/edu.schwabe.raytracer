@@ -39,7 +39,7 @@ namespace raytracer::test {
     }
 
     TEST_METHOD(weightIsClampedToOne) {
-      // as an upsampled white reflectance channel gives it (above 1 at some wavelengths)
+      // a weight above 1 (Smits' white before spectral::rgbToReflectance: 1.06) reflects no more than all
       const auto lobe = brdf::SpecularFresnel::opaque(constant(1.06f), constant(1.0f));
       Assert::AreEqual(1.0f, x1(lobe.reflectance(Float4(0.5f))), 1e-6f, L"at most 1", LINE_INFO());
     }

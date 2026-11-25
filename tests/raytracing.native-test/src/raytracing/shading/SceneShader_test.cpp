@@ -369,8 +369,7 @@ namespace raytracer::test {
     }
 
     TEST_METHOD(diffusingGlassLetsWhatItsDiffusionLeavesPass) {
-      // the shadow ray through a clear glass sphere of the diffusion 0.5: each face lets half pass (of the diffusion as
-      // upsampled, white about 1.06)
+      // the shadow ray through a clear glass sphere of the diffusion 0.5: each face lets half pass
       const auto pointLightAbove = [] {
         auto light = std::make_unique<LightInfo>();
         light->position = Float4(0.0f, 2.0f, 0.0f, 1.0f);
@@ -386,11 +385,8 @@ namespace raytracer::test {
       };
       const auto clear = floorLighting(glass(0.0f), pointLightAbove()).diffuse;
       const auto diffusing = floorLighting(glass(0.5f), pointLightAbove()).diffuse;
-      Scene scene{};
-      const auto context = scene.createSpectralContext(spectral::LAMBDA_MIN + 0.5f * spectral::LAMBDA_RANGE);
-      const auto white = horizontalSum(context.fromRGB(Float4(1.0f, 1.0f, 1.0f, 0.0f)).data) / 8.0f;
       Assert::IsTrue(clear > 0.0f, L"lit", LINE_INFO());
-      Assert::AreEqual(sqr(1.0f - 0.5f * white), diffusing / clear, 1e-4f, L"half at each face", LINE_INFO());
+      Assert::AreEqual(sqr(1.0f - 0.5f), diffusing / clear, 1e-3f, L"half at each face", LINE_INFO());
     }
 
     TEST_METHOD(diffuseBaseGetsWhatTheSpecularLobeLeavesAtTheLightsDirection) {

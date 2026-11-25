@@ -31,4 +31,9 @@ namespace raytracer
     {
         return spectral::Spectrum{spectral::rgbToSpectrum(rgb, smitsBasis)};
     }
+
+    spectral::Spectrum SpectralContext::reflectanceFromRGB(const Float4& rgb) const noexcept
+    {
+        return spectral::Spectrum{spectral::rgbToReflectance(rgb, smitsBasis)};
+    }
 }

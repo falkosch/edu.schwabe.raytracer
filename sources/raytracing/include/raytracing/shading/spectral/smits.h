@@ -24,4 +24,10 @@ namespace raytracer::spectral
     Float8 rgbToSpectrum(const Float4& rgb, const SmitsBasis& basis) noexcept;
 
     Float8 rgbToSpectrum(const Float4& rgb, const Float8& wavelengths) noexcept;
+
+    // Upsamples an RGB reflectance (a diffusion, a specular colour, the specular lobe's weight): rgbToSpectrum scaled
+    // so that white (1, 1, 1) is 1 at its brightest wavelength (Smits' white is about 1.06 at every wavelength), and
+    // clamped to [0, 1] at every wavelength: a surface reflects no more than it gets (pbrt-v3 scales its Smits
+    // reflectances by 0.94 and clamps them). Lights and absorption lengths take rgbToSpectrum as they are.
+    Float8 rgbToReflectance(const Float4& rgb, const SmitsBasis& basis) noexcept;
 }

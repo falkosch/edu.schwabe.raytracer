@@ -59,6 +59,14 @@ namespace raytracer::test
                                L"same upsampling as fromRGB");
         }
 
+        TEST_METHOD(reflectanceFromRGBMatchesSpectralRgbToReflectance)
+        {
+            const SpectralContext context{512.0f};
+            const auto rgb = Float4{0.8f, 0.3f, 0.1f, 0.0f};
+            assertSpectraEqual(spectral::rgbToReflectance(rgb, spectral::smitsBasisAt(context.wavelengths)),
+                               context.reflectanceFromRGB(rgb).data, L"same upsampling as rgbToReflectance");
+        }
+
         TEST_METHOD(precomputesAmbientAndLightSpectra)
         {
             const auto ambientLight = RGBS{Float4{0.1f, 0.2f, 0.3f, 0.0f}};

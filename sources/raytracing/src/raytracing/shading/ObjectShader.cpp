@@ -171,9 +171,9 @@ namespace raytracer
     ) const
     {
         return {
-            spectralContext.fromRGB(diffusionShader->sample(*this, intersection)),
-            spectralContext.fromRGB(reflectanceShader->sample(*this, intersection)),
-            spectralContext.fromRGB(specularShader->sample(*this, intersection)),
+            spectralContext.reflectanceFromRGB(diffusionShader->sample(*this, intersection)),
+            spectralContext.reflectanceFromRGB(reflectanceShader->sample(*this, intersection)),
+            spectralContext.reflectanceFromRGB(specularShader->sample(*this, intersection)),
             roughnessShader->sample(*this, intersection),
             spectralContext.fromRGB(transmittanceShader->sample(*this, intersection)),
             refractionEtaShader->sample(*this, intersection),

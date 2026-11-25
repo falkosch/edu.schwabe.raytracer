@@ -1,4 +1,7 @@
 #include "raytracing_tests.h"
+#include "raytracing/shading/color/primaries.h"
+#include "raytracing/shading/spectral/conversion.h"
+#include "raytracing/shading/spectral/illuminants.h"
 #include "raytracing/shading/spectral/smits.h"
 #include "raytracing/shading/spectral/wavelengths.h"
 
@@ -154,6 +157,65 @@ namespace raytracer::test
             const auto s = rgbToSpectrum(Float4{1.0f, 0.0f, 1.0f, 0.0f}, w);
             Assert::IsTrue(x1(s) > 0.5f, L"magenta high at 380nm", LINE_INFO());
             Assert::IsTrue(x7(s) > 0.5f, L"magenta high in red region", LINE_INFO());
+        }
+
+        TEST_METHOD(reflectancesStayWithinZeroAndOne)
+        {
+            // every RGB reflectance of a grid, and one beyond white (an HDR texture's), at hero wavelengths across the
+            // visible range
+            const Float values[] = {0.0f, 0.25f, 0.5f, 0.75f, 1.0f, 1.5f};
+            for (auto hero = 380.0f; hero < 780.0f; hero += 12.5f)
+            {
+                const auto basis = smitsBasisAt(wavelengthsAt(hero));
+                for (const Float r : values)
+                {
+                    for (const Float g : values)
+                    {
+                        for (const Float b : values)
+                        {
+                            const auto s = rgbToReflectance(Float4{r, g, b, 0.0f}, basis);
+                            Assert::IsTrue(allTrue(s >= Zero<Float8>()), L"at least 0", LINE_INFO());
+                            Assert::IsTrue(allTrue(s <= One<Float8>()), L"at most 1", LINE_INFO());
+                        }
+                    }
+                }
+            }
+        }
+
+        TEST_METHOD(whiteReflectanceIsAboutOne)
+        {
+            // Smits' white upsamples to 1.06 at every wavelength; as a reflectance it is 1 at its brightest
+            auto brightest = 0.0f;
+            for (auto hero = 380.0f; hero < 780.0f; hero += 12.5f)
+            {
+                const auto s = rgbToReflectance(Float4{1.0f, 1.0f, 1.0f, 0.0f}, smitsBasisAt(wavelengthsAt(hero)));
+                Assert::IsTrue(allTrue(s >= Float8(0.995f)), L"about 1", LINE_INFO());
+                brightest = max(brightest, spectralMax(s));
+            }
+            Assert::AreEqual(1.0f, brightest, 1e-4f, L"1 at its brightest", LINE_INFO());
+            const auto light = rgbToSpectrum(Float4{1.0f, 1.0f, 1.0f, 0.0f}, wavelengthsAt(500.0f));
+            Assert::AreEqual(1.06f, x1(light), 0.005f, L"a light's white as before", LINE_INFO());
+        }
+
+        TEST_METHOD(whiteReflectanceUnderD65LooksWhite)
+        {
+            // the display white: a white surface under D65 (the white of sRGB) displays as equal RGB channels, at the
+            // illuminant's luminance
+            auto xyz = Zero<Float4>();
+            auto illuminantXYZ = Zero<Float4>();
+            for (auto hero = 380.0f; hero < 430.0f; hero += 1.0f)
+            {
+                const auto wavelengths = wavelengthsAt(hero);
+                const auto context = makeXYZContext(hero);
+                const auto d65 = illuminantAt(Illuminant::D65, wavelengths);
+                const auto white = rgbToReflectance(Float4{1.0f, 1.0f, 1.0f, 0.0f}, smitsBasisAt(wavelengths));
+                xyz += spectrumToXYZ(Spectrum{white * d65}, context);
+                illuminantXYZ += spectrumToXYZ(Spectrum{d65}, context);
+            }
+            const auto rgb = color::XYZToSRGBLinear() * xyz;
+            Assert::AreEqual(x(rgb), y(rgb), 0.01f * y(rgb), L"red as green", LINE_INFO());
+            Assert::AreEqual(z(rgb), y(rgb), 0.01f * y(rgb), L"blue as green", LINE_INFO());
+            Assert::AreEqual(y(illuminantXYZ), y(xyz), 0.005f * y(illuminantXYZ), L"all of its light", LINE_INFO());
         }
 
         TEST_METHOD(wrappedWavelengthsProduceValidOutput)

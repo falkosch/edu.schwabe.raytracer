@@ -267,7 +267,7 @@ namespace raytracer::test {
     }
 
     TEST_METHOD(coatedWhiteSurfaceReflectsAtMostTheLightAroundIt) {
-      // White furnace: a diffuse base (0.94, about 1 upsampled) under a specular lobe of F0 0.04 in a uniform sky of
+      // White furnace: a white diffuse base under a specular lobe of F0 0.04 in a uniform sky of
       // white (the background and the ambient light): it reflects at most the sky's radiance at every angle, also
       // where the lobe reflects most (towards grazing angles), and about all of it; a mirror lobe (Whitted) as well
       const auto render = [](const Float tilt, const Float roughness, const bool withWall) {
@@ -281,7 +281,7 @@ namespace raytracer::test {
           object->translate(Float3(0.0f, 0.0f, -1.0f));
           const auto none = Zero<Float4>();
           object->setDiffusionShader(
-              std::make_unique<Resources::ConstMaterialShader>(Float4(0.94f, 0.94f, 0.94f, 0.0f)));
+              std::make_unique<Resources::ConstMaterialShader>(Float4(1.0f, 1.0f, 1.0f, 0.0f)));
           object->setReflectanceShader(
               std::make_unique<Resources::ConstMaterialShader>(Float4(1.0f, 1.0f, 1.0f, 0.0f)));
           object->setSpecularShader(
@@ -314,14 +314,14 @@ namespace raytracer::test {
     }
 
     TEST_METHOD(roughWhiteConductorReflectsAllTheLightAroundIt) {
-      // White furnace: a conductor of F0 0.94 (about 1 upsampled) in a uniform white sky reflects about all of it at
+      // White furnace: a conductor of F0 1 (white) in a uniform white sky reflects about all of it at
       // every angle and roughness, with the multiple scattering between its microfacets compensated (single
       // scattering loses up to half at roughness 1 and grazing angles)
       const auto render = [](const Float tilt, const Float roughness, const bool withWall) {
         Scene scene{};
         setUpEmpty(scene, RGBS(1.0f, 1.0f, 1.0f));
         if (withWall) {
-          auto object = glossyWall(1.0f, 0.94f, roughness);
+          auto object = glossyWall(1.0f, 1.0f, roughness);
           object->rotate(Float3(0.0f, tilt, 0.0f));
           scene.getSceneObjects().push_back(std::move(object));
         } else {
@@ -388,11 +388,7 @@ namespace raytracer::test {
       };
       const auto clear = render(0.0f);
       Assert::IsTrue(clear > 0.5f, L"the wall through the pane", LINE_INFO());
-      // with the diffusion as upsampled (white is about 1.06 at every wavelength)
-      Scene empty{};
-      const auto context = empty.createSpectralContext(spectral::LAMBDA_MIN + 0.5f * spectral::LAMBDA_RANGE);
-      const auto white = horizontalSum(context.fromRGB(Float4(1.0f, 1.0f, 1.0f, 0.0f)).data) / 8.0f;
-      Assert::AreEqual(sqr(1.0f - 0.5f * white), render(0.5f) / clear, 0.005f, L"half at each face", LINE_INFO());
+      Assert::AreEqual(sqr(1.0f - 0.5f), render(0.5f) / clear, 0.005f, L"half at each face", LINE_INFO());
     }
 
     TEST_METHOD(glossyRaysSeeTheMaterialOfAnEmittersFacesThatDontEmit) {
@@ -458,8 +454,8 @@ namespace raytracer::test {
 
     TEST_METHOD(hitsOfDiffuseRaysKeepTheAmbientLight) {
       // One bounce: the plate's hits trace no diffuse rays and show the ambient light, so the wall's center reflects
-      // the ambient light times the plate's form factor (the projected solid angle of its face over pi). White
-      // upsamples to about 1.06 at every wavelength: the plate's white adds that once more.
+      // the ambient light times the plate's form factor (the projected solid angle of its face over pi): the plate's
+      // white reflects all of it.
       Scene scene{};
       setUpEmpty(scene, RGBS::black(), RGBS(0.2f, 0.2f, 0.2f));
       scene.getSceneObjects().push_back(wall());
@@ -471,13 +467,11 @@ namespace raytracer::test {
       plateFace.emittingFaces = LightInfo::faceBit(0, false);
       const auto formFactor = BoxLightFaces(plateFace, Float4(0.0f, 0.0f, WallZ, 1.0f), Float4(0.0f, 0.0f, 1.0f, 0.0f))
                                   .projectedSolidAngle / Pi<Float>();
-      const auto context = scene.createSpectralContext(spectral::LAMBDA_MIN + 0.5f * spectral::LAMBDA_RANGE);
-      const auto white = horizontalSum(context.fromRGB(Float4(1.0f, 1.0f, 1.0f, 0.0f)).data) / 8.0f;
 
       const auto ambient = renderWallCenter(scene, 0);
       const auto bounced = renderWallCenter(scene, 64);
       Assert::IsTrue(formFactor > 0.1f && formFactor < 0.5f, L"the plate fills part of the hemisphere", LINE_INFO());
-      Assert::AreEqual(formFactor * white, rgbSum(bounced) / rgbSum(ambient), 0.02f * formFactor, L"one bounce",
+      Assert::AreEqual(formFactor, rgbSum(bounced) / rgbSum(ambient), 0.02f * formFactor, L"one bounce",
                        LINE_INFO());
     }
 

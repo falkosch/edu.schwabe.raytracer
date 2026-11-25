@@ -164,24 +164,24 @@ Normal logs right after start:
 [0.000] - INFO Epsilon : Machine epsilon for double is 2.22045e-16
 [0.000] - INFO Main : Working directory: D:\edu.schwabe.raytracer\data
 [0.000] - INFO Main : Scene: Cornell Box
-[0.002] - INFO Mesh : Loaded 36961 bytes from file meshes/teapot.off
-[0.017] - INFO KDTree : Built KD-tree for 1452 nodes in 35635679 cycles
-[0.017] - INFO Mesh : loaded meshes/teapot.off: 726 vertices, 1452 faces
-[0.017] - INFO Scene : Building culling tree for scene with 10 finite scene objects
-[0.017] - INFO KDTree : Built KD-tree for 10 nodes in 1919 cycles
-[0.017] - INFO Scene : Tree depth=1 nodes=1
-[0.017] - INFO Scene : done
-[0.023] - INFO UI : Resizing output to 512x512
-[0.025] - INFO Raytracer : Raytrace 1 (512x512):
-[0.464] - INFO Raytracer : Irradiance cache: 9577 records
-[0.957] - INFO Raytracer : Duration: 0.933766s
-[0.957] - INFO UI : primaryRays 262144/0
-[0.957] - INFO UI : secondaryRays 4911437/885231
-[0.957] - INFO UI : shadowRays 5808690/5604321
-[0.957] - INFO UI : objectShadowRays 6575845/5782658
-[0.957] - INFO UI : kdTree nodesVisited=19937648 rootOverlapMisses=9572216
-[0.959] - INFO UI : Saving ray-traced image ...
-[0.977] - INFO UI : ray-traced.png saved: 1
+[0.003] - INFO Mesh : Loaded 36961 bytes from file meshes/teapot.off
+[0.020] - INFO KDTree : Built KD-tree for 1452 nodes in 33440795 cycles
+[0.020] - INFO Mesh : loaded meshes/teapot.off: 726 vertices, 1452 faces
+[0.020] - INFO Scene : Building culling tree for scene with 10 finite scene objects
+[0.020] - INFO KDTree : Built KD-tree for 10 nodes in 3545 cycles
+[0.020] - INFO Scene : Tree depth=1 nodes=1
+[0.020] - INFO Scene : done
+[0.024] - INFO UI : Resizing output to 512x512
+[0.026] - INFO Raytracer : Raytrace 1 (512x512):
+[0.342] - INFO Raytracer : Irradiance cache: 9577 records
+[0.762] - INFO Raytracer : Duration: 0.736134s
+[0.762] - INFO UI : primaryRays 262144/0
+[0.763] - INFO UI : secondaryRays 4784723/854079
+[0.763] - INFO UI : shadowRays 5359625/5171191
+[0.763] - INFO UI : objectShadowRays 6041076/5333598
+[0.763] - INFO UI : kdTree nodesVisited=18980384 rootOverlapMisses=9053430
+[0.764] - INFO UI : Saving ray-traced image ...
+[0.784] - INFO UI : ray-traced.png saved: 1
 ```
 
 The ray counters and the number of irradiance records are deterministic for a build (glossy reflections, diffuse rays

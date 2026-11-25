@@ -100,6 +100,18 @@ namespace raytracer::spectral
         0.0305010249f, 0.0212430548f, 0.0069596532f, 0.0041733649f
     };
 
+    // The reciprocal of the white basis spectrum's largest sample: rgbToReflectance's scale, under which no basis
+    // spectrum exceeds 1 (the others peak lower than white), so neither does a sum of them for RGB values up to 1
+    static constexpr Float reflectanceScale()
+    {
+        auto peak = g_white[0];
+        for (const auto sample : g_white)
+        {
+            peak = sample > peak ? sample : peak;
+        }
+        return 1.0f / peak;
+    }
+
     SmitsBasis smitsBasisAt(const Float8& wavelengths) noexcept
     {
         const auto coordinates = tableCoordinates(
@@ -193,5 +205,11 @@ namespace raytracer::spectral
     Float8 rgbToSpectrum(const Float4& rgb, const Float8& wavelengths) noexcept
     {
         return rgbToSpectrum(rgb, smitsBasisAt(wavelengths));
+    }
+
+    Float8 rgbToReflectance(const Float4& rgb, const SmitsBasis& basis) noexcept
+    {
+        static constexpr Float Scale = reflectanceScale();
+        return min(One<Float8>(), rgbToSpectrum(rgb, basis) * Float8(Scale));
     }
 }
