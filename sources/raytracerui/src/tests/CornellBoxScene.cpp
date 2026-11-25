@@ -232,30 +232,12 @@ namespace raytracerui
 
     auto glassTeapot(Resources& resources)
     {
-        auto sceneObject = std::make_unique<SceneObject>("glass teapot");
-        sceneObject->setForm(resources.getMesh("teapot"));
-        sceneObject->scale(Float3(0.3f, 0.3f, 0.3f));
-        sceneObject->rotate(Float3(0.0f, 0.0f, 0.0f));
-        sceneObject->translate(Float3(-0.35f, 0.375f, -0.35f));
-        sceneObject->setEmittanceShader(
-            std::make_unique<Resources::ConstMaterialShader>(Float4(0.0f, 0.0f, 0.0f, 0.0f)));
-        sceneObject->setDiffusionShader(
-            std::make_unique<Resources::ConstMaterialShader>(Float4(0.02f, 0.02f, 0.02f, 0.0f)));
-        // glass: the specular lobe's Fresnel reflectance from the indices, of weight 1
-        sceneObject->setReflectanceShader(
-            std::make_unique<Resources::ConstMaterialShader>(Float4(1.0f, 1.0f, 1.0f, 0.0f)));
-        sceneObject->setSpecularShader(
-            std::make_unique<Resources::ConstMaterialShader>(Float4(0.04f, 0.04f, 0.04f, 0.0f)));
-        sceneObject->setRoughnessShader(
-            std::make_unique<Resources::ConstMaterialShader>(Float4(0.05f, 0.05f, 0.05f, 0.0f)));
-        sceneObject->setTransmittanceShader(
-            std::make_unique<Resources::ConstMaterialShader>(Float4(0.95f, 0.95f, 0.95f, 0.0f)));
-        sceneObject->setRefractionEtaShader(
-            std::make_unique<Resources::ConstMaterialShader>(
-                RefractionIndices::refractionEta(RefractionIndices::Vacuum, RefractionIndices::Glass)
-            )
+        // slightly rough glass, absorbing a little (absorption length 0.95)
+        return createSceneObject(
+            "glass teapot", resources.getMesh("teapot"),
+            SceneMaterial::dielectric(RefractionIndices::Glass, Float4(0.95f, 0.95f, 0.95f, 0.0f), 0.05f),
+            {Float3(0.3f, 0.3f, 0.3f), Float3(0.0f, 0.0f, 0.0f), Float3(-0.35f, 0.375f, -0.35f)}
         );
-        return sceneObject;
     }
 
     void CornellBoxScene::setup(Scene& scene, Resources& resources)
