@@ -173,13 +173,13 @@ Normal logs right after start:
 [0.019] - INFO Scene : done
 [0.023] - INFO UI : Resizing output to 512x512
 [0.025] - INFO Raytracer : Raytrace 1 (512x512):
-[0.361] - INFO Raytracer : Irradiance cache: 9246 records
+[0.361] - INFO Raytracer : Irradiance cache: 9229 records
 [0.778] - INFO Raytracer : Duration: 0.753196s
 [0.779] - INFO UI : primaryRays 262144/0
-[0.779] - INFO UI : secondaryRays 4632361/823160
-[0.779] - INFO UI : shadowRays 5276326/5096104
-[0.779] - INFO UI : objectShadowRays 5957171/5250299
-[0.779] - INFO UI : kdTree nodesVisited=17843603 rootOverlapMisses=8959173
+[0.779] - INFO UI : secondaryRays 4628115/823018
+[0.779] - INFO UI : shadowRays 5271098/5091371
+[0.779] - INFO UI : objectShadowRays 5951330/5244898
+[0.779] - INFO UI : kdTree nodesVisited=17865567 rootOverlapMisses=8946509
 [0.780] - INFO UI : Saving ray-traced image ...
 [0.800] - INFO UI : ray-traced.png saved: 1
 ```

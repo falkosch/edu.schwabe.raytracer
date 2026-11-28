@@ -259,6 +259,10 @@ Traversers (template on intersection type):
   `Bitmap(Image)` convert between the channel orders
 - `savePNG()` (`save_png.h`), `loadPNG()` (`load_png.h`) -- PNG file output and input (WIC)
 - `PerlinNoiseGenerator`, `SimplexNoiseGenerator` -- procedural noise (Simplex follows Ken Perlin's reference, but
-  with a seeded hash table; `NoiseGeneratorMap` sums octaves of `noise3`, octave i at frequency 2^i weighing 2^-i)
+  with a seeded hash table; `deviation()` is the measured standard deviation of `noise3`: 0.18 Perlin, 0.11
+  Simplex). `NoiseGeneratorMap` sums octaves of `noise3`, octave i at frequency 2^i weighing `Gain`^i (0.6, so the
+  finer octaves show), and maps the sum per the generator's deviation and the octaves' summed deviation (the root of
+  their squared weights) around the middle grey: two deviations reach 0 and 1 (`Contrast` 0.25), alike for every
+  generator and octave count
 - `RefractionIndices` -- physical IOR constants (Vacuum, Air, Water, Glass, Diamond, etc.)
 - `StatisticsCookie` -- ray counts, KD-tree visits, cycle timings

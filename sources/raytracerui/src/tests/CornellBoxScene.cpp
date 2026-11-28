@@ -206,7 +206,7 @@ namespace raytracerui
         sceneObject->scale(Float3(0.35f, 0.60f, 0.35f));
         sceneObject->rotate(Float3(0.0f, 20.0f, 0.0f));
         sceneObject->translate(Float3(-0.35f, -0.39f, -0.35f));
-        // the noise of the Materials scene's 8-octave Perlin sphere
+        // the Materials scene's 8-octave Perlin noise
         sceneObject->scaleTexture(Float2(4.0f, 4.0f));
         sceneObject->setEmittanceShader(
             std::make_unique<Resources::ConstMaterialShader>(Float4(0.0f, 0.0f, 0.0f, 0.0f)));

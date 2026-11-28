@@ -17,6 +17,7 @@ namespace raytracer {
     Float noise2(const Float4 &v) const override;
     Float noise3(const Float4 &v) const override;
     Float noise4(const Float4 &v) const override;
+    Float deviation() const override;
 
   protected:
     static constexpr ASizeT N = 8, B = 256;

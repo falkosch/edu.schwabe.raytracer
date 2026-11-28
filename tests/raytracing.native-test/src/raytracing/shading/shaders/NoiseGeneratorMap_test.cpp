@@ -4,6 +4,7 @@
 #include <raytracing/scene/SceneObject.h>
 #include <raytracing/shading/shaders/NoiseGeneratorMap.h>
 
+#include <algorithm>
 #include <cmath>
 
 namespace raytracer::test {
@@ -14,10 +15,11 @@ namespace raytracer::test {
       Float low;
       Float high;
       Float value;
+      Float standardDeviation;
 
     public:
-      BandNoiseGenerator(const Float lowIn, const Float highIn, const Float valueIn)
-          : low(lowIn), high(highIn), value(valueIn) {
+      BandNoiseGenerator(const Float lowIn, const Float highIn, const Float valueIn, const Float deviationIn = 1.0f)
+          : low(lowIn), high(highIn), value(valueIn), standardDeviation(deviationIn) {
       }
 
       Float noise(Float) const override {
@@ -39,6 +41,10 @@ namespace raytracer::test {
       Float noise4(const Float4 &) const override {
         return 0.0f;
       }
+
+      Float deviation() const override {
+        return standardDeviation;
+      }
     };
 
     template <ASizeT Octaves>
@@ -50,21 +56,47 @@ namespace raytracer::test {
       return map.sample(object, intersection);
     }
 
-    // The map's output for a sum of weighted octaves
+    // The map's output for a sum of weighted octaves of a generator of deviation 1: around the middle grey by the
+    // contrast per the octaves' summed deviation
+    template <ASizeT Octaves>
     static Float mapped(const Float sum) {
-      return 0.5f * sum + 0.5f;
+      using Map = NoiseGeneratorMap<Octaves>;
+      auto squaredWeights = 0.0f;
+      auto weight = 1.0f;
+      for (ASizeT i = 0; i < Octaves; ++i) {
+        squaredWeights += weight * weight;
+        weight *= Map::Gain;
+      }
+      return std::clamp(0.5f + Map::Contrast * sum / std::sqrt(squaredWeights), 0.0f, 1.0f);
     }
 
   public:
-    TEST_METHOD(oneOctaveMapsTheNoiseToZeroOne) {
+    TEST_METHOD(oneOctaveMapsTheNoiseAroundTheMiddleGrey) {
       const BandNoiseGenerator generator{-1000.0f, 1000.0f, 0.4f};
 
       const auto sample = sampleAt<1>(generator, 0.3f);
 
-      Assert::AreEqual(mapped(std::sin(0.4f)), x(sample), 1e-6f, L"x", LINE_INFO());
-      Assert::AreEqual(mapped(std::sin(0.4f)), y(sample), 1e-6f, L"y", LINE_INFO());
-      Assert::AreEqual(mapped(std::sin(0.4f)), z(sample), 1e-6f, L"z", LINE_INFO());
+      Assert::AreEqual(0.5f + NoiseGeneratorMap<1>::Contrast * 0.4f, x(sample), 1e-5f, L"x", LINE_INFO());
+      Assert::AreEqual(x(sample), y(sample), 1e-6f, L"y", LINE_INFO());
+      Assert::AreEqual(x(sample), z(sample), 1e-6f, L"z", LINE_INFO());
       Assert::AreEqual(1.0f, w(sample), 1e-6f, L"w", LINE_INFO());
+    }
+
+    TEST_METHOD(theGeneratorsDeviationSetsTheContrast) {
+      // half the deviation: the same value reaches twice as far from the middle grey
+      const BandNoiseGenerator generator{-1000.0f, 1000.0f, 0.4f, 0.5f};
+
+      const auto sample = sampleAt<1>(generator, 0.3f);
+
+      Assert::AreEqual(0.5f + NoiseGeneratorMap<1>::Contrast * 0.8f, x(sample), 1e-5f, L"twice as far", LINE_INFO());
+    }
+
+    TEST_METHOD(clampsToZeroOne) {
+      const BandNoiseGenerator bright{-1000.0f, 1000.0f, 10.0f};
+      const BandNoiseGenerator dark{-1000.0f, 1000.0f, -10.0f};
+
+      Assert::AreEqual(1.0f, x(sampleAt<4>(bright, 0.3f)), 1e-6f, L"white", LINE_INFO());
+      Assert::AreEqual(0.0f, x(sampleAt<4>(dark, 0.3f)), 1e-6f, L"black", LINE_INFO());
     }
 
     TEST_METHOD(coarsestOctaveHasTheFullWeight) {
@@ -73,7 +105,7 @@ namespace raytracer::test {
 
       const auto sample = sampleAt<8>(generator, 0.3f);
 
-      Assert::AreEqual(mapped(std::sin(0.2f)), x(sample), 1e-6f, L"weight 1", LINE_INFO());
+      Assert::AreEqual(mapped<8>(0.2f), x(sample), 1e-5f, L"weight 1", LINE_INFO());
     }
 
     TEST_METHOD(finestOctaveHasTheSmallestWeight) {
@@ -82,16 +114,35 @@ namespace raytracer::test {
 
       const auto sample = sampleAt<8>(generator, 0.3f);
 
-      Assert::AreEqual(mapped(std::sin(0.2f) / 128.0f), x(sample), 1e-6f, L"weight 2^-7", LINE_INFO());
+      const auto gain = NoiseGeneratorMap<8>::Gain;
+      Assert::AreEqual(mapped<8>(0.2f * std::pow(gain, 7.0f)), x(sample), 1e-5f, L"weight Gain^7", LINE_INFO());
     }
 
-    TEST_METHOD(octaveWeightsHalveWithEachOctave) {
+    TEST_METHOD(octaveWeightsFallByTheGain) {
       // Octaves 1 and 2 (x = 0.6 and 1.2) lie in the band
       const BandNoiseGenerator generator{0.5f, 1.5f, 0.2f};
 
       const auto sample = sampleAt<8>(generator, 0.3f);
 
-      Assert::AreEqual(mapped(0.75f * std::sin(0.2f)), x(sample), 1e-6f, L"weights 1/2 + 1/4", LINE_INFO());
+      const auto gain = NoiseGeneratorMap<8>::Gain;
+      Assert::AreEqual(mapped<8>(0.2f * (gain + gain * gain)), x(sample), 1e-5f, L"weights Gain + Gain^2", LINE_INFO());
+    }
+
+    TEST_METHOD(theSumDividesByTheOctavesSummedDeviation) {
+      // the same value in every octave, as fully correlated octaves: the octaves' summed deviation keeps a sum of
+      // independent octaves at the contrast of one, so correlated ones reach further, by their weights' sum per root
+      const BandNoiseGenerator generator{-1000.0f, 1000.0f, 0.1f};
+
+      const auto one = x(sampleAt<1>(generator, 0.3f)) - 0.5f;
+      const auto eight = x(sampleAt<8>(generator, 0.3f)) - 0.5f;
+
+      auto sum = 0.0f, squares = 0.0f, weight = 1.0f;
+      for (int i = 0; i < 8; ++i) {
+        sum += weight;
+        squares += weight * weight;
+        weight *= NoiseGeneratorMap<8>::Gain;
+      }
+      Assert::AreEqual(one * sum / std::sqrt(squares), eight, 1e-5f, L"correlated octaves", LINE_INFO());
     }
   };
 }

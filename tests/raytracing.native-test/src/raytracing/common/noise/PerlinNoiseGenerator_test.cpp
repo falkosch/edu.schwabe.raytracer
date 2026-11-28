@@ -68,5 +68,24 @@ namespace raytracer::test {
       Assert::IsTrue(deviation > 0.05f, L"values vary", LINE_INFO());
       Assert::IsTrue(maxMagnitude <= 1.0f, L"values in range", LINE_INFO());
     }
+
+    TEST_METHOD(deviationDescribesTheValues) {
+      // points of Roberts' R3 sequence in [-8, 8)^3
+      const PerlinNoiseGenerator generator{7u};
+      constexpr int count = 65536;
+      auto sum = 0.0, sumOfSquares = 0.0;
+      for (int i = 0; i < count; ++i) {
+        const auto t = static_cast<double>(i);
+        const Float4 point{static_cast<Float>(16.0 * std::fmod(t * 0.8191725134, 1.0) - 8.0),
+                           static_cast<Float>(16.0 * std::fmod(t * 0.6710436067, 1.0) - 8.0),
+                           static_cast<Float>(16.0 * std::fmod(t * 0.5497004779, 1.0) - 8.0), 1.0f};
+        const auto value = static_cast<double>(generator.noise3(point));
+        sum += value;
+        sumOfSquares += value * value;
+      }
+      const auto mean = sum / count;
+      const auto measured = static_cast<Float>(std::sqrt(sumOfSquares / count - mean * mean));
+      Assert::AreEqual(generator.deviation(), measured, 0.1f * generator.deviation(), L"within 10 %", LINE_INFO());
+    }
   };
 }

@@ -15,5 +15,8 @@ namespace raytracer {
     virtual Float noise2(const Float4 &v) const = 0;
     virtual Float noise3(const Float4 &v) const = 0;
     virtual Float noise4(const Float4 &v) const = 0;
+
+    // The standard deviation of noise3 over space (its mean is 0): what one octave's values typically reach
+    virtual Float deviation() const = 0;
   };
 }

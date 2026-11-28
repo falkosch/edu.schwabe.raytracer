@@ -20,6 +20,9 @@ namespace raytracerui
         constexpr auto Z = -0.6f;
         // Long absorption length: clear media
         const Float4 CLEAR{10.f, 10.f, 10.f, 0.f};
+        // The noise's lattice cells per sphere: u runs once around it, v from pole to pole, half as far, so twice the
+        // cells along u keep them as wide as tall (at the equator)
+        const Float2 NOISE_SCALE{8.f, 4.f};
 
         // NoiseGeneratorMap doesn't own its generator, and scene objects are destroyed on every scene switch
         const NoiseGenerator& perlin()
@@ -58,7 +61,7 @@ namespace raytracerui
             addSphere(scene, id, SceneMaterial::plastic(Float4(1.f, 1.f, 1.f, 0.f), 0.04f, 0.4f), column, 3);
             auto& sphere = *scene.getSceneObjects().back();
             sphere.setDiffusionShader(std::move(shader));
-            sphere.scaleTexture(Float2(4.f, 4.f));
+            sphere.scaleTexture(NOISE_SCALE);
         }
     }
 
@@ -141,6 +144,6 @@ namespace raytracerui
         addSphere(scene, "metal, Simplex roughness", SceneMaterial::metal(silver, 0.f), 6, 3);
         auto& roughMetal = *scene.getSceneObjects().back();
         roughMetal.setRoughnessShader(noise<8>(simplex()));
-        roughMetal.scaleTexture(Float2(4.f, 4.f));
+        roughMetal.scaleTexture(NOISE_SCALE);
     }
 }

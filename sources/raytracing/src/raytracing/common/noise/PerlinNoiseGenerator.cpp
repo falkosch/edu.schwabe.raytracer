@@ -69,6 +69,12 @@ namespace raytracer {
     return this->noise4(v);
   }
 
+  Float PerlinNoiseGenerator::deviation() const {
+    // measured over 200000 random points of noise3 (0.17 in a plane z = 0 of the lattice); the extremes reach about
+    // 3.5 times as far
+    return static_cast<Float>(0.18);
+  }
+
   Float PerlinNoiseGenerator::noise(const Float v) const {
     Int4 bx;
     Float4 rx;
