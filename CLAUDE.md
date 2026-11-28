@@ -196,7 +196,10 @@ sweep-based SAH partitioning, RGBS color type, precompiled headers.
 
 ### Rendering a scene
 
-Use this to check any change that affects the image, and look at the result:
+Check each change that affects the image with exactly three renders in the default configuration (release build,
+fast preview at 512x512, no further options): `cornell-box` (the regression baseline), `lighting` and `showcase`
+(meshes, glass, metals, sphere and box lights). Look at each result and compare it with the same render before the
+change. No other scenes, resolutions or options for these checks:
 
 ```bash
 cd data
@@ -206,20 +209,21 @@ cd data
 - The app renders the scene once at the fast-preview size (512x512 in release) without showing its window, saves
   `data/ray-traced.png`, logs the ray counters and exits. Read the PNG to judge it; compare `data/raytracer.log` with
   a baseline.
-- `--full-render` renders that image like Enter does (3x3 samples per pixel in release, up to 3 further rounds where
-  they spread, not denoised; the fast preview is): use it to judge aliasing, glossy reflections and soft shadows.
+- Only when the user asks for it, not for the checks: `--full-render` renders that image like Enter does (3x3
+  samples per pixel in release, up to 3 further rounds where they spread, not denoised; the fast preview is): use it
+  to judge aliasing, glossy reflections and soft shadows.
   `--exposure=<stops>` brightens or darkens the image, `--max-trace-depth=<n>` traces secondary rays also in debug
   builds (`MAX_TRACE_DEPTH` is 0 there).
   `--glossy-samples=0 --sphere-light-samples=0 --diffuse-samples=0` turns the distribution ray tracing off (Whitted:
   mirror reflections, hard shadows, no interreflection: the scenes' ambient light, its stand-in, is 0), which also
   makes renders much faster.
-- Noise: render the same image with `--seed=0` and `--seed=1` (other sample patterns) and compare them, previews with
-  `--denoise=0` to see their noise; a full render with `--super-sampling=7 --glossy-clamp=0 --adaptive-rounds=0
-  --irradiance-caching=0` serves as a reference. `.backlog/DONE/rendering-distribution-noise.md` has the method and
-  the measurements.
+- Noise, also only when asked: render the same image with `--seed=0` and `--seed=1` (other sample patterns) and
+  compare them, previews with `--denoise=0` to see their noise; a full render with `--super-sampling=7
+  --glossy-clamp=0 --adaptive-rounds=0 --irradiance-caching=0` serves as a reference.
+  `.backlog/DONE/rendering-distribution-noise.md` has the method and the measurements.
 - Scene ids are listed in `sources/raytracerui/src/tests/SceneCatalog.cpp` (`cornell-box`, `forms`, `lighting`,
   `shading`, `materials`, `meshes`, `showcase`, ...). The test scenes cover forms, lights, shaders, materials and
-  meshes, so pick the one the change touches; `cornell-box` is the regression baseline.
+  meshes; render the ones beyond the three checks only when asked.
 - The logger writes `raytracer.log` only when the app exits, so wait for the process to end before reading it. Each
   start overwrites both files.
 - To compare against a commit, build that commit's `raytracerui` in a throwaway worktree with a short build directory
