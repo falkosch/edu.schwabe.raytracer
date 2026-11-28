@@ -41,9 +41,6 @@ both use it. Append new scenes there (and keep the order, the dropdown index fol
 - `CornellBoxScene` (`cornell-box`) -- default; Cornell box lit by a warm white box light set into the ceiling (bottom
   face only, luminance 3 pi) and its interreflection (diffuse rays; without them the shadows and the ceiling are
   black), with a mirror and a rough mirror sphere, a noise-textured box and a glass teapot
-- `TestScene1` (`test-scene-1`) -- multi-object with various materials
-- `TestScene2` (`test-scene-2`) -- plane and emissive sphere
-- `DragonScene` (`dragon`) -- dragon mesh with marble texture
 - `ProceduralScene<L,O>` (`procedural`) -- parametric grid of lights and objects
 - `FormsScene` (`forms`) -- every form type with the checker texture: analytic and mesh sphere, ellipsoid, boxes,
   planes, low-poly mesh

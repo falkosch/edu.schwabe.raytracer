@@ -109,8 +109,8 @@ spectrum -> XYZ -> sRGB-linear -> AgX (display-encoded, no extra sRGB encoding).
 
 ### raytracerui (`sources/raytracerui/`)
 
-Win32+OpenGL+ImGui application. Predefined scenes (dropdown, or `--scene=<id>`): CornellBox (default), TestScene1/2,
-Dragon, Procedural, and the test scenes Forms, Lighting, Shading, Materials & Noise, Meshes and the Showcase.
+Win32+OpenGL+ImGui application. Predefined scenes (dropdown, or `--scene=<id>`): CornellBox (default), Procedural, and
+the test scenes Forms, Lighting, Shading, Materials & Noise, Meshes and the Showcase.
 `--exit-after-render` renders without showing a window and exits once the image is saved as `ray-traced.png`;
 `--full-render`, `--exposure=<stops>` and `--max-trace-depth=<n>` are listed in `sources/raytracerui/CLAUDE.md`.
 Runtime-configurable: KD-tree balancer, trace depth, super-sampling, ray packet size, FOV, interaction mode

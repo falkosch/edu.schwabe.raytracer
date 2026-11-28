@@ -393,9 +393,9 @@ namespace raytracer::test {
     }
 
     TEST_METHOD(aFloorDoesNotShadowADirectionalLightAtItsHorizon) {
-      // A directional light along the view (the test scenes' camera light), at the horizon of an infinite floor below
-      // the wall: a plane rotated by -90 degrees, as Test Scene 1's. The wall's shadow ray runs parallel to the floor
-      // and reaches the light; when cos 90 degrees rounded to -4.4e-8, the tilted floor met it 3e7 away.
+      // A directional light along the view, at the horizon of an infinite floor below the wall: a plane rotated by -90
+      // degrees. The wall's shadow ray runs parallel to the floor and reaches the light; when cos 90 degrees rounded
+      // to -4.4e-8, the tilted floor met it 3e7 away.
       const auto render = [](const bool withFloor) {
         Scene scene{};
         setUpEmpty(scene);

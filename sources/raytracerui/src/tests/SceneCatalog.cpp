@@ -2,7 +2,6 @@
 #include "../stdafx.h"
 
 #include "tests/CornellBoxScene.h"
-#include "tests/DragonScene.h"
 #include "tests/FormsScene.h"
 #include "tests/LightingScene.h"
 #include "tests/MaterialsScene.h"
@@ -10,8 +9,6 @@
 #include "tests/ProceduralScene.h"
 #include "tests/ShadingScene.h"
 #include "tests/ShowcaseScene.h"
-#include "tests/TestScene1.h"
-#include "tests/TestScene2.h"
 
 #include <array>
 
@@ -21,9 +18,6 @@ namespace raytracerui
     {
         constexpr std::array scenes{
             SceneEntry{"cornell-box", "Cornell Box", &CornellBoxScene::setup},
-            SceneEntry{"test-scene-1", "Test Scene 1", &TestScene1::setup},
-            SceneEntry{"test-scene-2", "Test Scene 2", &TestScene2::setup},
-            SceneEntry{"dragon", "Dragon", &DragonScene::setup},
             SceneEntry{"procedural", "Procedural", &ProceduralScene<>::setup},
             SceneEntry{"forms", "Forms", &FormsScene::setup},
             SceneEntry{"lighting", "Lighting", &LightingScene::setup},
