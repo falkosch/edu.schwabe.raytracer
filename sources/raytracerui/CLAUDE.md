@@ -43,7 +43,8 @@ both use it. Append new scenes there (and keep the order, the dropdown index fol
   black), with a mirror and a rough mirror sphere, a noise-textured box and a glass teapot
 - `ProceduralScene<L,O>` (`procedural`) -- parametric grid of lights and objects
 - `FormsScene` (`forms`) -- every form type with the checker texture: analytic and mesh sphere, ellipsoid, boxes,
-  planes, low-poly mesh
+  planes, low-poly mesh; each object (but the planes) in a pair with a twin on its right whose diffuse color is its
+  world-space surface normal (`IntersectionNormalShader`)
 - `LightingScene` (`lighting`) -- every emitter kind as light pools on a wall, RGB lights with colored shadows, an
   orange sphere light with soft shadows, a cyan light bar (a box light glowing on all faces)
 - `ShadingScene` (`shading`) -- the shader classes and texture transforms (ESO's Paranal night sky as all-sky fisheye,
